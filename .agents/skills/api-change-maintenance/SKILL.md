@@ -14,13 +14,13 @@ When the **leaflet-tual** library API surface changes — e.g. a prop is added/r
 Before updating any API surface, verify that changes comply with the library's design principles:
 
 1. **Geographic Coordinate Decoupling**: All persistent `CanvasItem` elements (`ArrowItem`, `FreeDrawItem`, `ShapeItem`, `NoteItem`, `TextItem`) store geographic coordinates (`GeoPoint`: `{ lat, lng }`), NOT screen pixels. Projection to screen coordinates (`geoToScreen` / `screenToGeo`) occurs dynamically at render and interaction time using Leaflet map projection APIs.
-2. **Decoupled Controller State**: `useLeafletCanvas` manages drawing mode, selection, item creation/update/deletion, and undo/redo history stacks. It operates in either controlled mode (`items` + `onItemsChange`) or uncontrolled mode (`initialItems`).
+2. **Decoupled Controller State**: `useLeafletTual` manages drawing mode, selection, item creation/update/deletion, and undo/redo history stacks. It operates in either controlled mode (`items` + `onItemsChange`) or uncontrolled mode (`initialItems`).
 3. **Pure Function Decomposition**: Coordinate transformations (`shared/geo.ts`), hit-testing (`hitTestArrow`, `hitTestShape`, `hitTestFreeDraw`), and canvas rendering (`renderArrowOnCanvas`, `renderShapeOnCanvas`, `renderFreeDrawOnCanvas`) are pure, deterministic functions decoupled from React component lifecycles and Leaflet DOM operations.
 4. **FSD Module Layering**: The package source strictly follows Feature-Sliced Design layers:
    - `shared`: Geo math, constants, generic utility helpers.
    - `entities`: Domain models and renderers for items (`arrow`, `shape`, `freedraw`, `note`, `text`).
    - `features`: Interaction hooks (`use-leaflet-tual`, `use-leaflet-sync`).
-   - `widgets`: Composite UI components (`LeafletCanvas`, `CanvasToolbar`).
+   - `widgets`: Composite UI components (`LeafletTual`, `CanvasToolbar`).
    - `types`: Public TypeScript interfaces and type definitions.
 
 ---
@@ -64,7 +64,7 @@ The library is organized into single-responsibility modules:
 | **Text Overlay**       | `packages/leaflet-tual/src/entities/text/TextOverlay.tsx`| `text-overlay.test.tsx`       | Floating canvas text annotations with inline editing and font styling             |
 | **Canvas Controller**  | `packages/leaflet-tual/src/features/use-leaflet-tual.ts`| `readonly.test.tsx`, `lifecycle-callbacks.test.tsx` | Controller state machine, history undo/redo stacks, active tool & selection state |
 | **Leaflet Sync**       | `packages/leaflet-tual/src/features/use-leaflet-sync.ts` | `map-interactions.test.ts`    | Leaflet map event bindings (`move`, `zoom`, `resize`, `viewreset`)                |
-| **LeafletCanvas**      | `packages/leaflet-tual/src/widgets/LeafletCanvas.tsx`    | `lifecycle-callbacks.test.tsx`, `map-interactions.test.ts` | Main canvas overlay component, mouse/touch event router, drag handles & portals |
+| **LeafletTual**      | `packages/leaflet-tual/src/widgets/LeafletTual.tsx`    | `lifecycle-callbacks.test.tsx`, `map-interactions.test.ts` | Main canvas overlay component, mouse/touch event router, drag handles & portals |
 | **CanvasToolbar**      | `packages/leaflet-tual/src/widgets/CanvasToolbar.tsx`    | `toolbar.test.tsx`            | Floating/docked toolbar with tool groups, secondary settings bar, and dropdowns   |
 | **Geo Math**           | `packages/leaflet-tual/src/shared/geo.ts`                | `geo.test.ts`                 | Pure coordinate transformations, aspect-ratio locking, angle snapping, distances |
 
@@ -75,10 +75,10 @@ The library is organized into single-responsibility modules:
 **File:** `packages/leaflet-tual/README.md` and root `README.md`
 
 Update documentation to reflect any changes:
-- Component prop tables (`<LeafletCanvas>`, `<CanvasToolbar>`)
-- Hook options and return interfaces (`useLeafletCanvas`, `useLeafletSync`)
+- Component prop tables (`<LeafletTual>`, `<CanvasToolbar>`)
+- Hook options and return interfaces (`useLeafletTual`, `useLeafletSync`)
 - Data model types (`CanvasItem`, `ArrowItem`, `ShapeItem`, `NoteItem`, `TextItem`, `GeoPoint`)
-- Toolbar customization (`CanvasLabels`, `CanvasIcons`, `LeafletCanvasClassNames`, `LeafletCanvasStyles`)
+- Toolbar customization (`CanvasLabels`, `CanvasIcons`, `LeafletTualClassNames`, `LeafletTualStyles`)
 - Quick Start and code examples
 
 ---

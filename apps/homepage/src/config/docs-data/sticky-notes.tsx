@@ -86,7 +86,7 @@ export interface NoteItem {
 
       <DocCallout variant="tip" title="Automatic Zoom Adaptation">
         When the <DocCode highlight>autoMinimizeNotesZoom</DocCode> prop is set on{' '}
-        <DocCode highlight>&lt;LeafletCanvas&gt;</DocCode>, sticky notes automatically transition to compact
+        <DocCode highlight>&lt;LeafletTual&gt;</DocCode>, sticky notes automatically transition to compact
         pill badges when the user zooms out past that threshold, and restore when zooming back in.
       </DocCallout>
 

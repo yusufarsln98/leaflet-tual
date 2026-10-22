@@ -2,7 +2,9 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   VERSION,
   createLeafletCanvasController,
+  createLeafletTualController,
   createLeafletCanvas,
+  createLeafletTual,
   type ArrowItem,
 } from '../../index.js'
 import pkg from '../../../package.json'
@@ -11,6 +13,8 @@ import { createMockCanvasContext, createMockMap } from './test-utils.js'
 describe('leaflet-tual core controller & vanilla instance', () => {
   it('exports VERSION from root entry', () => {
     expect(VERSION).toBe(pkg.version)
+    expect(createLeafletTual).toBe(createLeafletCanvas)
+    expect(createLeafletTualController).toBe(createLeafletCanvasController)
   })
 
   it('manages state, history, and JSON export/import without React', () => {

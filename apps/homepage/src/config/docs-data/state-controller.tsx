@@ -10,21 +10,21 @@ import { DocSection } from '../docs-data'
 
 export const stateControllerSection: DocSection = {
   id: 'state-controller',
-  title: 'useLeafletCanvas Controller',
+  title: 'useLeafletTual Controller',
   category: 'advanced',
   content: (
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
           State management in <strong className="text-text-primary font-semibold">leaflet-tual</strong>{' '}
-          is handled by the decoupled <DocCode highlight>useLeafletCanvas</DocCode> hook. It supports
+          is handled by the decoupled <DocCode highlight>useLeafletTual</DocCode> hook. It supports
           both uncontrolled operation (with a completion-driven undo/redo history stack) and fully
           controlled operation for enterprise state containers (Redux, Zustand, React Query).
         </DocParagraph>
       </div>
 
       <DocHeading level={3} id="hook-options">
-        1. Hook Initialization Options (UseLeafletCanvasOptions)
+        1. Hook Initialization Options (UseLeafletTualOptions)
       </DocHeading>
 
       <DocTable
@@ -58,7 +58,7 @@ export const stateControllerSection: DocSection = {
       </DocHeading>
 
       <DocParagraph>
-        The controller object returned by <DocCode highlight>useLeafletCanvas()</DocCode> exposes the
+        The controller object returned by <DocCode highlight>useLeafletTual()</DocCode> exposes the
         following reactive state properties:
       </DocParagraph>
 

@@ -43,7 +43,7 @@ export const quickstartSection: DocSection = {
       </DocHeading>
 
       <DocParagraph>
-        Place <DocCode highlight>&lt;LeafletCanvas /&gt;</DocCode> inside any standard{' '}
+        Place <DocCode highlight>&lt;LeafletTual /&gt;</DocCode> inside any standard{' '}
         <DocCode highlight>&lt;MapContainer&gt;</DocCode>. The floating canvas toolbar renders automatically:
       </DocParagraph>
 
@@ -51,7 +51,7 @@ export const quickstartSection: DocSection = {
         language="tsx"
         filename="MapWithCanvas.tsx"
         code={`import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas } from 'leaflet-tual/react'
+import { LeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function MapWithCanvas() {
@@ -62,7 +62,7 @@ export function MapWithCanvas() {
       style={{ height: '100vh', width: '100%' }}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LeafletCanvas toolbarPosition="top-center" />
+      <LeafletTual toolbarPosition="top-center" />
     </MapContainer>
   )
 }`}
@@ -73,7 +73,7 @@ export function MapWithCanvas() {
       </DocHeading>
 
       <DocParagraph>
-        Use the <DocCode highlight>useLeafletCanvas</DocCode> hook to programmatically seed initial
+        Use the <DocCode highlight>useLeafletTual</DocCode> hook to programmatically seed initial
         items, inspect user modifications, and trigger undo/redo actions:
       </DocParagraph>
 
@@ -81,11 +81,11 @@ export function MapWithCanvas() {
         language="tsx"
         filename="FleetCommandMap.tsx"
         code={`import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+import { LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function FleetCommandMap() {
-  const controller = useLeafletCanvas({
+  const controller = useLeafletTual({
     initialItems: [
       {
         id: 'dispatch-arrow-1',
@@ -112,7 +112,7 @@ export function FleetCommandMap() {
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <LeafletCanvas controller={controller} toolbarPosition="top-center" />
+        <LeafletTual controller={controller} toolbarPosition="top-center" />
       </MapContainer>
     </div>
   )
@@ -133,10 +133,10 @@ export function FleetCommandMap() {
         language="tsx"
         filename="ReadOnlyExample.tsx"
         code={`// Read-only canvas overlay inside MapContainer:
-<LeafletCanvas readOnly />
+<LeafletTual readOnly />
 
 // Or toggle dynamically via controller:
-const controller = useLeafletCanvas({ readOnly: true })
+const controller = useLeafletTual({ readOnly: true })
 controller.setReadOnly(false)`}
       />
 

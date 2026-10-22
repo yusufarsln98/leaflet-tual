@@ -205,3 +205,7 @@ export function paintLeafletCanvas({
   ctx.restore()
 }
 
+export const paintLeafletTual = paintLeafletCanvas
+export type PaintLeafletTualOptions = PaintLeafletCanvasOptions
+
+

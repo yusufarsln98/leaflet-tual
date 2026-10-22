@@ -1,7 +1,7 @@
 'use client'
 
 import type { RefObject } from 'react'
-import type { LeafletCanvasController, ToolbarPosition } from 'leaflet-tual/react'
+import type { LeafletTualController, ToolbarPosition } from 'leaflet-tual/react'
 import { PanelLeftClose, SlidersHorizontal } from 'lucide-react'
 import type { ShowcasePreset } from '../../../data/presets'
 import { WorkbenchConfigurationSelects } from './workbench-configuration-selects'
@@ -18,7 +18,7 @@ interface WorkbenchDrawerProps {
   onTileLayerChange: (id: string) => void
   activePreset: ShowcasePreset
   onSelectPreset: (id: string) => void
-  controller: LeafletCanvasController
+  controller: LeafletTualController
   onResetScenario: () => void
   canvasTheme: 'default' | 'homepage'
   onCanvasThemeChange: (theme: 'default' | 'homepage') => void

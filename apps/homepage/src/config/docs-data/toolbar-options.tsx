@@ -17,7 +17,7 @@ export const toolbarOptionsSection: DocSection = {
         <DocParagraph lead>
           The <DocCode highlight>CanvasToolbar</DocCode> widget provides a ready-to-use, floating or docked
           toolbar for drawing tool selection, color pickers, stroke widths, font sizes, history controls,
-          and custom tools. It can be embedded inside <DocCode highlight>&lt;LeafletCanvas&gt;</DocCode>{' '}
+          and custom tools. It can be embedded inside <DocCode highlight>&lt;LeafletTual&gt;</DocCode>{' '}
           or rendered completely decoupled in an external application navigation bar.
         </DocParagraph>
       </div>
@@ -49,7 +49,7 @@ export const toolbarOptionsSection: DocSection = {
         language="tsx"
         filename="ToolbarPositionExample.tsx"
         code={`// Dock toolbar vertically on the left side:
-<LeafletCanvas
+<LeafletTual
   toolbarPosition="left-center"
   toolbarOrientation="vertical"
 />`}
@@ -80,7 +80,7 @@ export const toolbarOptionsSection: DocSection = {
         language="tsx"
         filename="EnabledToolsExample.tsx"
         code={`// Only allow arrows and shapes on the toolbar:
-<LeafletCanvas enabledTools={['select', 'arrow', 'shape']} />`}
+<LeafletTual enabledTools={['select', 'arrow', 'shape']} />`}
       />
 
       <DocHeading level={3} id="custom-tools">
@@ -101,8 +101,8 @@ export const toolbarOptionsSection: DocSection = {
   icon?: React.ReactNode
   isActive?: boolean
   disabled?: boolean
-  onClick?: (controller: LeafletCanvasController) => void
-  render?: (controller: LeafletCanvasController) => React.ReactNode
+  onClick?: (controller: LeafletTualController) => void
+  render?: (controller: LeafletTualController) => React.ReactNode
 }
 
 // Example usage:
@@ -117,7 +117,7 @@ const customExportTool: CustomToolbarItem = {
   },
 }
 
-<LeafletCanvas customTools={[customExportTool]} />`}
+<LeafletTual customTools={[customExportTool]} />`}
       />
 
       <DocHeading level={3} id="collapsible-toolbar">
@@ -150,7 +150,7 @@ const customExportTool: CustomToolbarItem = {
       <DocCodeBlock
         language="tsx"
         filename="ToolbarStylingExample.tsx"
-        code={`<LeafletCanvas
+        code={`<LeafletTual
   classNames={{
     toolbar: 'bg-slate-900/95 border-slate-700/80 shadow-2xl backdrop-blur-md',
     toolButton: 'text-slate-300 hover:text-white hover:bg-slate-800',
@@ -167,7 +167,7 @@ const customExportTool: CustomToolbarItem = {
 
       <DocParagraph>
         To render the toolbar outside the Leaflet map container (for instance, in an application top
-        navigation bar or side inspector dock), disable the embedded toolbar on <DocCode highlight>&lt;LeafletCanvas&gt;</DocCode>{' '}
+        navigation bar or side inspector dock), disable the embedded toolbar on <DocCode highlight>&lt;LeafletTual&gt;</DocCode>{' '}
         using <DocCode highlight>showToolbar={'{false}'}</DocCode> and render <DocCode highlight>&lt;CanvasToolbar&gt;</DocCode>{' '}
         externally:
       </DocParagraph>
@@ -176,10 +176,10 @@ const customExportTool: CustomToolbarItem = {
         language="tsx"
         filename="AppWorkspace.tsx"
         code={`import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, CanvasToolbar, useLeafletCanvas } from 'leaflet-tual/react'
+import { LeafletTual, CanvasToolbar, useLeafletTual } from 'leaflet-tual/react'
 
 export function AppWorkspace() {
-  const controller = useLeafletCanvas()
+  const controller = useLeafletTual()
 
   return (
     <div className="flex flex-col h-screen">
@@ -193,7 +193,7 @@ export function AppWorkspace() {
       <div className="flex-1 relative">
         <MapContainer center={[41.01, 28.97]} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <LeafletCanvas controller={controller} showToolbar={false} />
+          <LeafletTual controller={controller} showToolbar={false} />
         </MapContainer>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import type React from 'react'
-import type { LeafletCanvasClassNames } from '../../core/types/theme.js'
+import type { LeafletTualClassNames } from '../../core/types/theme.js'
 
 export * from '../../core/types/theme.js'
 
@@ -44,6 +44,9 @@ export interface CanvasIcons {
   expandToolbar?: React.ReactNode
 }
 
-export type LeafletCanvasStyles = {
-  [K in keyof LeafletCanvasClassNames]?: React.CSSProperties
+export type LeafletTualStyles = {
+  [K in keyof LeafletTualClassNames]?: React.CSSProperties
 }
+
+export type LeafletCanvasStyles = LeafletTualStyles
+

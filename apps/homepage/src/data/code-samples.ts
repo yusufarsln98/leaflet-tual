@@ -12,13 +12,13 @@ export const CODE_SAMPLES: CodeSample[] = [
     title: 'React Integration',
     filename: 'MapCanvasView.tsx',
     description:
-      'Embed LeafletCanvas directly as a child of MapContainer via leaflet-tual/react with an automatic floating toolbar.',
+      'Embed LeafletTual directly as a child of MapContainer via leaflet-tual/react with an automatic floating toolbar.',
     code: `import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+import { LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function MapCanvasView() {
-  const controller = useLeafletCanvas({
+  const controller = useLeafletTual({
     initialItems: [
       {
         id: 'route-alpha',
@@ -41,7 +41,7 @@ export function MapCanvasView() {
       style={{ height: '600px', width: '100%' }}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LeafletCanvas controller={controller} toolbarPosition="top-center" />
+      <LeafletTual controller={controller} toolbarPosition="top-center" />
     </MapContainer>
   )
 }`,
@@ -53,14 +53,14 @@ export function MapCanvasView() {
     description:
       'Mount an interactive canvas directly onto a standard Leaflet L.Map instance with zero React peer dependencies.',
     code: `import L from 'leaflet'
-import { createLeafletCanvas } from 'leaflet-tual'
+import { createLeafletTual } from 'leaflet-tual'
 import 'leaflet/dist/leaflet.css'
 
 const map = L.map('map-viewport').setView([41.018, 28.988], 13)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
 
 // Mount framework-agnostic canvas overlay
-const canvas = createLeafletCanvas(map, {
+const canvas = createLeafletTual(map, {
   initialItems: [],
   onChange: (items) => {
     console.log('Active annotations:', items.length)
@@ -79,10 +79,10 @@ canvas.controller.setStrokeWidth(3)`,
     description:
       'Place the toolbar in your app header, sidebar, or docked layout while the canvas renders in the map.',
     code: `import { MapContainer, TileLayer } from 'react-leaflet'
-import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+import { CanvasToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 
 export function DecoupledApp() {
-  const controller = useLeafletCanvas()
+  const controller = useLeafletTual()
 
   return (
     <div className="flex flex-col h-screen">
@@ -96,7 +96,7 @@ export function DecoupledApp() {
       <div className="flex-1">
         <MapContainer center={[37.795, -122.395]} zoom={13} style={{ height: '100%' }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <LeafletCanvas controller={controller} showToolbar={false} />
+          <LeafletTual controller={controller} showToolbar={false} />
         </MapContainer>
       </div>
     </div>
@@ -111,7 +111,7 @@ export function DecoupledApp() {
       'Synchronize annotations with a remote database, REST API, or WebSocket feed via controlled props.',
     code: `import { useState, useCallback } from 'react'
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas, type CanvasItem } from 'leaflet-tual/react'
+import { LeafletTual, useLeafletTual, type CanvasItem } from 'leaflet-tual/react'
 
 export function ControlledCanvas() {
   const [annotations, setAnnotations] = useState<CanvasItem[]>([])
@@ -126,7 +126,7 @@ export function ControlledCanvas() {
     })
   }, [])
 
-  const controller = useLeafletCanvas({
+  const controller = useLeafletTual({
     items: annotations,
     onItemsChange: handleItemsChange,
   })
@@ -134,7 +134,7 @@ export function ControlledCanvas() {
   return (
     <MapContainer center={[45.923, 6.869]} zoom={12} style={{ height: '100vh' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LeafletCanvas controller={controller} />
+      <LeafletTual controller={controller} />
     </MapContainer>
   )
 }`,
@@ -146,10 +146,10 @@ export function ControlledCanvas() {
     description:
       'Display interactive annotations without editing handles or toolbars for viewer-only dashboards.',
     code: `import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+import { LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 
 export function DashboardMapView({ initialRoutes }) {
-  const controller = useLeafletCanvas({
+  const controller = useLeafletTual({
     readOnly: true,
     initialItems: initialRoutes,
   })
@@ -159,7 +159,7 @@ export function DashboardMapView({ initialRoutes }) {
       <MapContainer center={[41.018, 28.988]} zoom={13} style={{ height: '480px' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {/* Read-only mode hides edit handles and toolbar automatically */}
-        <LeafletCanvas controller={controller} readOnly={true} />
+        <LeafletTual controller={controller} readOnly={true} />
       </MapContainer>
     </div>
   )

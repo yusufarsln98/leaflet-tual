@@ -68,7 +68,8 @@ export interface RenderTextProps {
   onDelete: () => void
 }
 
-export interface LeafletCanvasProps extends UseLeafletCanvasOptions {
+export interface LeafletTualProps extends UseLeafletCanvasOptions {
+
   map?: L.Map | null
   controller?: LeafletCanvasController
   readOnly?: boolean
@@ -106,3 +107,6 @@ export interface LeafletCanvasProps extends UseLeafletCanvasOptions {
   className?: string
   style?: React.CSSProperties
 }
+
+export type LeafletCanvasProps = LeafletTualProps
+

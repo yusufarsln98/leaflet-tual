@@ -1,7 +1,7 @@
 import type L from 'leaflet'
 import { describe, it, expect, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import { useBlockMapDblClick } from '../widgets/LeafletCanvas/use-block-map-dblclick.js'
+import { useBlockMapDblClick } from '../widgets/LeafletTual/use-block-map-dblclick.js'
 
 describe('double-click map zoom blocking', () => {
   it('blocks double-click zoom and tags target when double clicking inside canvas overlay or inputs', async () => {

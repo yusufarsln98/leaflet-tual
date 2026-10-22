@@ -5,7 +5,7 @@ export interface FaqItem {
 
 export interface ComparisonFeature {
   name: string
-  reactLeafletCanvas: string
+  reactLeafletTual: string
   leafletDraw: string
   leafletGeoman: string
   reactLeafletSvg: string

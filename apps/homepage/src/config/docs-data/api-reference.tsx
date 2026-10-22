@@ -22,7 +22,7 @@ export const apiReferenceSection: DocSection = {
       </div>
 
       <DocHeading level={3} id="leaflet-tual-props">
-        1. &lt;LeafletCanvas&gt; Component Props
+        1. &lt;LeafletTual&gt; Component Props
       </DocHeading>
 
       <DocParagraph>
@@ -34,7 +34,7 @@ export const apiReferenceSection: DocSection = {
         headers={['Prop', 'Type', 'Default', 'Description']}
         rows={[
           ['map', 'L.Map | null', 'undefined', 'Leaflet map instance. Automatically resolved via useMap() when nested inside <MapContainer>.'],
-          ['controller', 'LeafletCanvasController', 'undefined', 'Controller instance from useLeafletCanvas(). If omitted, an internal controller is instantiated.'],
+          ['controller', 'LeafletTualController', 'undefined', 'Controller instance from useLeafletTual(). If omitted, an internal controller is instantiated.'],
           ['readOnly', 'boolean', 'false', 'Enables view-only presentation mode: hides selection handles, disables drawing surfaces, and guards against mutations while keeping map panning & zooming intact.'],
           ['showToolbar', 'boolean', '!readOnly', 'Controls visibility of the floating on-map toolbar. Defaults to false when readOnly is true.'],
           ['toolbarPosition', 'ToolbarPosition', "'top-center'", "Toolbar placement: 'top' | 'bottom' | 'left' | 'right' | 'top-center' | 'bottom-center' | 'left-center' | 'right-center'."],
@@ -54,8 +54,8 @@ export const apiReferenceSection: DocSection = {
           ['icons', 'CanvasIcons', '{}', 'Custom ReactNode icon overrides for tool buttons and actions.'],
           ['zIndex', 'number', '650', 'CSS z-index applied to the canvas overlay container portal.'],
           ['unstyled', 'boolean', 'false', 'When true, removes default inline styling rules for full custom CSS styling.'],
-          ['classNames', 'LeafletCanvasClassNames', '{}', 'CSS class slots for container, canvas, toolbar, notes, and text overlays.'],
-          ['styles', 'LeafletCanvasStyles', '{}', 'Inline style slots mirroring classNames with state-aware slots (toolButtonActive, actionButtonDisabled, etc.).'],
+          ['classNames', 'LeafletTualClassNames', '{}', 'CSS class slots for container, canvas, toolbar, notes, and text overlays.'],
+          ['styles', 'LeafletTualStyles', '{}', 'Inline style slots mirroring classNames with state-aware slots (toolButtonActive, actionButtonDisabled, etc.).'],
           ['annotationTheme', 'CanvasAnnotationTheme', 'DEFAULT_THEME', 'Custom styling for 2D canvas selection glow, handles, and guidelines.'],
           ['arrowTheme', 'ArrowRenderTheme', 'undefined', 'Custom rendering parameters for vector arrowheads and shafts.'],
           ['strokeColors', 'readonly string[]', 'STROKE_COLORS', 'Array of hex color swatches available in the contextual settings bar.'],
@@ -84,7 +84,7 @@ export const apiReferenceSection: DocSection = {
       <DocTable
         headers={['Prop', 'Type', 'Default', 'Description']}
         rows={[
-          ['controller', 'LeafletCanvasController', 'required', 'Active controller instance managing the target canvas overlay.'],
+          ['controller', 'LeafletTualController', 'required', 'Active controller instance managing the target canvas overlay.'],
           ['position', 'ToolbarPosition', "'top-center'", 'Position styling helper if embedded in a custom relative container.'],
           ['orientation', 'ToolbarOrientation', "'horizontal'", "Layout direction: 'horizontal' | 'vertical'."],
           ['collapsible', 'boolean', 'true', 'Whether the toolbar can be collapsed to a compact trigger.'],
@@ -102,8 +102,8 @@ export const apiReferenceSection: DocSection = {
           ['labels', 'CanvasLabels', '{}', 'Localized text labels and tooltip strings.'],
           ['icons', 'CanvasIcons', '{}', 'Custom icon ReactNodes.'],
           ['unstyled', 'boolean', 'false', 'Strips default styling.'],
-          ['classNames', 'LeafletCanvasClassNames', '{}', 'Custom CSS class slots.'],
-          ['styles', 'LeafletCanvasStyles', '{}', 'Custom inline style slots.'],
+          ['classNames', 'LeafletTualClassNames', '{}', 'Custom CSS class slots.'],
+          ['styles', 'LeafletTualStyles', '{}', 'Custom inline style slots.'],
           ['strokeColors', 'readonly string[]', 'STROKE_COLORS', 'Color swatches shown in the settings bar.'],
           ['strokeWidthOptions', 'readonly number[]', 'DEFAULT_OPTIONS', 'Stroke width dropdown options.'],
           ['fontSizeOptions', 'readonly number[]', 'DEFAULT_OPTIONS', 'Font size dropdown options.'],
@@ -113,7 +113,7 @@ export const apiReferenceSection: DocSection = {
       />
 
       <DocHeading level={3} id="use-leaflet-tual-options">
-        3. useLeafletCanvas(options) Options
+        3. useLeafletTual(options) Options
       </DocHeading>
 
       <DocTable
@@ -143,7 +143,7 @@ export const apiReferenceSection: DocSection = {
       />
 
       <DocHeading level={3} id="controller-api">
-        4. LeafletCanvasController API
+        4. LeafletTualController API
       </DocHeading>
 
       <DocTable
@@ -194,9 +194,9 @@ export const apiReferenceSection: DocSection = {
     </div>
   ),
   subsections: [
-    { id: 'leaflet-tual-props', title: '1. <LeafletCanvas> Component Props', content: null },
+    { id: 'leaflet-tual-props', title: '1. <LeafletTual> Component Props', content: null },
     { id: 'canvas-toolbar-props', title: '2. <CanvasToolbar> Component Props', content: null },
-    { id: 'use-leaflet-tual-options', title: '3. useLeafletCanvas Options', content: null },
-    { id: 'controller-api', title: '4. LeafletCanvasController API', content: null },
+    { id: 'use-leaflet-tual-options', title: '3. useLeafletTual Options', content: null },
+    { id: 'controller-api', title: '4. LeafletTualController API', content: null },
   ],
 }

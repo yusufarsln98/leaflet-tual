@@ -3,25 +3,25 @@
 import { createPortal } from 'react-dom'
 import { useMap } from 'react-leaflet'
 import type L from 'leaflet'
-import type { LeafletCanvasProps } from '../../types/index.js'
-import { LeafletCanvasDom } from './LeafletCanvasDom.js'
-import { useLeafletCanvasOverlay } from './use-leaflet-canvas-overlay.js'
+import type { LeafletTualProps } from '../../types/index.js'
+import { LeafletTualDom } from './LeafletTualDom.js'
+import { useLeafletTualOverlay } from './use-leaflet-tual-overlay.js'
 
-function LeafletCanvasWithContext(props: Omit<LeafletCanvasProps, 'map'>) {
+function LeafletTualWithContext(props: Omit<LeafletTualProps, 'map'>) {
   const map = useMap()
-  return <LeafletCanvasOverlay {...props} map={map} />
+  return <LeafletTualOverlay {...props} map={map} />
 }
 
-export function LeafletCanvas(props: LeafletCanvasProps) {
+export function LeafletTual(props: LeafletTualProps) {
   if (props.map !== undefined) {
-    return <LeafletCanvasOverlay {...props} map={props.map} />
+    return <LeafletTualOverlay {...props} map={props.map} />
   }
-  return <LeafletCanvasWithContext {...props} />
+  return <LeafletTualWithContext {...props} />
 }
 
-export const LeafletTual = LeafletCanvas
+export const LeafletCanvas = LeafletTual
 
-function LeafletCanvasOverlay(props: LeafletCanvasProps & { map: L.Map | null }) {
+function LeafletTualOverlay(props: LeafletTualProps & { map: L.Map | null }) {
   const {
     map,
     toolbarPosition = 'top-center',
@@ -57,12 +57,12 @@ function LeafletCanvasOverlay(props: LeafletCanvasProps & { map: L.Map | null })
     style,
   } = props
 
-  const overlayState = useLeafletCanvasOverlay(props)
+  const overlayState = useLeafletTualOverlay(props)
 
   if (!map) return null
 
   return createPortal(
-    <LeafletCanvasDom
+    <LeafletTualDom
       map={map}
       canvasRef={overlayState.canvasRef}
       viewport={overlayState.viewport}

@@ -58,14 +58,16 @@ import {
   type LeafletCanvasStore,
 } from './canvas-controller.js'
 
-export interface CreateLeafletCanvasOptions extends UseLeafletCanvasOptions {
+export interface CreateLeafletTualOptions extends UseLeafletCanvasOptions {
   controller?: LeafletCanvasStore
   annotationTheme?: CanvasAnnotationTheme
   arrowTheme?: ArrowRenderTheme
   labels?: CanvasLabels
 }
 
-export interface LeafletCanvasInstance {
+export type CreateLeafletCanvasOptions = CreateLeafletTualOptions
+
+export interface LeafletTualInstance {
   controller: LeafletCanvasStore
   container: HTMLDivElement
   canvas: HTMLCanvasElement
@@ -73,10 +75,12 @@ export interface LeafletCanvasInstance {
   destroy: () => void
 }
 
-export function createLeafletCanvas(
+export type LeafletCanvasInstance = LeafletTualInstance
+
+export function createLeafletTual(
   map: L.Map,
-  options: CreateLeafletCanvasOptions = {},
-): LeafletCanvasInstance {
+  options: CreateLeafletTualOptions = {},
+): LeafletTualInstance {
   const {
     controller: externalController,
     annotationTheme,
@@ -476,6 +480,6 @@ export function createLeafletCanvas(
   }
 }
 
-export const createLeafletTual = createLeafletCanvas
+export const createLeafletCanvas = createLeafletTual
 
 

@@ -1,6 +1,6 @@
-import type { LeafletCanvasStyles } from 'leaflet-tual/react'
+import type { LeafletTualStyles } from 'leaflet-tual/react'
 
-export function getAnnotationCardStyles(isDark: boolean): Partial<LeafletCanvasStyles> {
+export function getAnnotationCardStyles(isDark: boolean): Partial<LeafletTualStyles> {
   return {
     noteCard: {
       borderRadius: '12px',

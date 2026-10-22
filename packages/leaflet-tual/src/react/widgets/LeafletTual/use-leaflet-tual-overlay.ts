@@ -21,7 +21,7 @@ import {
   useStableItemArray,
 } from './use-outside-canvas-deselect.js'
 
-export function useLeafletCanvasOverlay(
+export function useLeafletTualOverlay(
   props: LeafletCanvasProps & { map: L.Map | null },
 ) {
   const {
@@ -196,4 +196,7 @@ export function useLeafletCanvasOverlay(
     handleInteractionPointerMove,
   }
 }
+
+export const useLeafletCanvasOverlay = useLeafletTualOverlay
+
 

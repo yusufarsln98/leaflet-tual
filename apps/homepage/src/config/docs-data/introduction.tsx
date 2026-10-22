@@ -36,7 +36,7 @@ const KEY_LEAFLET_CANVAS_FEATURES = [
   },
   {
     title: 'Decoupled State Controller & History',
-    desc: 'Manage canvas state with useLeafletCanvas featuring an undo/redo stack, presentation read-only mode, and flexible toolbar placement inside or outside the map container.',
+    desc: 'Manage canvas state with useLeafletTual featuring an undo/redo stack, presentation read-only mode, and flexible toolbar placement inside or outside the map container.',
   },
   {
     title: 'Presentation Read-Only Mode',

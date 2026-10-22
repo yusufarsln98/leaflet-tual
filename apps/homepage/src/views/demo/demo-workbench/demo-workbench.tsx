@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { PanelLeftOpen } from 'lucide-react'
 import {
   type ToolbarPosition,
-  useLeafletCanvas,
+  useLeafletTual,
 } from 'leaflet-tual/react'
 import { SHOWCASE_PRESETS, type ShowcasePreset } from '../../../data/presets'
 import { FREE_TILE_LAYERS, type FreeTileLayer } from '../../../data/tiles'
@@ -54,7 +54,7 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
   const activeTile: FreeTileLayer =
     FREE_TILE_LAYERS.find((t) => t.id === tileLayerId) ?? FREE_TILE_LAYERS[0]
 
-  const controller = useLeafletCanvas({
+  const controller = useLeafletTual({
     initialItems: activePreset.items,
     readOnly,
   })

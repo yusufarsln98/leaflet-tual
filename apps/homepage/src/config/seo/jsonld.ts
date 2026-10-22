@@ -48,7 +48,7 @@ export const homeJsonLd = {
         '5 vector arrow styles including curved Bézier and elbow arrows',
         '8 geometric shapes with Shift-key 1:1 proportion locking',
         'Draggable geographically pinned HTML sticky notes',
-        'Decoupled state management via createLeafletCanvasController & useLeafletCanvas',
+        'Decoupled state management via createLeafletTualController & useLeafletTual',
         'Presentation readOnly mode for dashboards and reports',
         'Framework-agnostic core with optional React subpath (leaflet-tual/react)',
         'Decoupled CanvasToolbar for external header/sidebar placement',

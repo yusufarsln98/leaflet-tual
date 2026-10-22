@@ -43,7 +43,7 @@ export const SEO_KEYWORDS: string[] = [
   'leaflet zero pixel drift',
   'leaflet crs projection canvas',
   'gis annotations react',
-  'useLeafletCanvas hook',
+  'useLeafletTual hook',
   'leaflet canvas presentation mode',
   'leaflet canvas readonly mode',
   'react 18 leaflet canvas',

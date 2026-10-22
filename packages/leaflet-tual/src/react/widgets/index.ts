@@ -1,2 +1,2 @@
 export * from './CanvasToolbar/index.js'
-export * from './LeafletCanvas/index.js'
+export * from './LeafletTual/index.js'

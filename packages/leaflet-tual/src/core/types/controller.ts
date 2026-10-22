@@ -53,9 +53,11 @@ export interface UseLeafletCanvasOptions extends CanvasOverlayOptions {
   onToolChange?: (tool: CanvasTool) => void
 }
 
+export type UseLeafletTualOptions = UseLeafletCanvasOptions
+export type LeafletTualOptions = UseLeafletCanvasOptions
 export type LeafletCanvasOptions = UseLeafletCanvasOptions
 
-export interface LeafletCanvasController {
+export interface LeafletTualController {
   items: CanvasItem[]
   activeTool: CanvasTool
   setActiveTool: (tool: CanvasTool) => void
@@ -101,4 +103,7 @@ export interface LeafletCanvasController {
   exportJSON: () => string
   importJSON: (json: string) => boolean
 }
+
+export type LeafletCanvasController = LeafletTualController
+
 

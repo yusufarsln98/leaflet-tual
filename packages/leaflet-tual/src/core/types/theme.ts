@@ -98,7 +98,7 @@ export interface CanvasAnnotationTheme {
 
 export type ArrowRenderTheme = CanvasAnnotationTheme
 
-export interface LeafletCanvasClassNames {
+export interface LeafletTualClassNames {
   overlay?: string
   canvas?: string
   drawingSurface?: string
@@ -149,4 +149,7 @@ export interface LeafletCanvasClassNames {
   textInput?: string
   textDisplay?: string
 }
+
+export type LeafletCanvasClassNames = LeafletTualClassNames
+
 

@@ -8,7 +8,7 @@ import type {
 import { useCanvasHistory } from './use-canvas-history.js'
 import { useCanvasStyles } from './use-canvas-styles.js'
 
-export function useLeafletCanvas(
+export function useLeafletTual(
   options: UseLeafletCanvasOptions = {},
 ): LeafletCanvasController {
   const {
@@ -191,5 +191,5 @@ export function useLeafletCanvas(
   }
 }
 
-export const useLeafletTual = useLeafletCanvas
+export const useLeafletCanvas = useLeafletTual
 

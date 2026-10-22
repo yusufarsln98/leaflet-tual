@@ -1,6 +1,6 @@
-import type { LeafletCanvasStyles } from 'leaflet-tual/react'
+import type { LeafletTualStyles } from 'leaflet-tual/react'
 
-export function getModalAndControlStyles(isDark: boolean): Partial<LeafletCanvasStyles> {
+export function getModalAndControlStyles(isDark: boolean): Partial<LeafletTualStyles> {
   return {
     arrowDropdownMenu: {
       backgroundColor: isDark ? 'rgba(22, 31, 48, 0.96)' : 'rgba(255, 255, 255, 0.98)',

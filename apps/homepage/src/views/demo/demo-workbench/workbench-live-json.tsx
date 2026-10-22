@@ -1,10 +1,10 @@
 'use client'
 
 import { Check, Code, Copy } from 'lucide-react'
-import type { LeafletCanvasController } from 'leaflet-tual/react'
+import type { LeafletTualController } from 'leaflet-tual/react'
 
 interface WorkbenchLiveJsonProps {
-  controller: LeafletCanvasController
+  controller: LeafletTualController
   copied: boolean
   onCopyJson: () => void
 }

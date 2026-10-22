@@ -28,11 +28,11 @@ export function QuickstartSection() {
         <p className="text-sm text-[var(--oh-ink-2)] max-w-xl leading-relaxed text-pretty -mt-4 mb-10">
           Mount the canvas directly on any Leaflet map via{' '}
           <code className="font-mono text-[13px] px-1.5 py-0.5 border border-[var(--oh-line-2)] bg-[var(--oh-plate)] rounded-sm text-[var(--oh-ink)]">
-            createLeafletCanvas(map)
+            createLeafletTual(map)
           </code>{' '}
           or drop{' '}
           <code className="font-mono text-[13px] px-1.5 py-0.5 border border-[var(--oh-line-2)] bg-[var(--oh-plate)] rounded-sm text-[var(--oh-ink)]">
-            &lt;LeafletCanvas /&gt;
+            &lt;LeafletTual /&gt;
           </code>{' '}
           into React-Leaflet. Works out-of-the-box with Vanilla TypeScript, Vue, Svelte, or React —
           fully typed with zero CSS bundle overhead.

@@ -10,8 +10,8 @@ Draw arrows, place geometric shapes, sketch freehand paths, measure geodesic dis
 
 | Import                                   | Surface                                                                                                                         | React required?     |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `leaflet-tual` / `leaflet-tual/core` | Framework-agnostic core (`createLeafletCanvas`, `createLeafletCanvasController`, `paintLeafletCanvas`, geo math, 2D renderers) | No                  |
-| `leaflet-tual/react`                   | React bindings (`<LeafletCanvas>`, `<CanvasToolbar>`, `useLeafletCanvas`, `useLeafletSync`)                                     | Yes (optional peer) |
+| `leaflet-tual` / `leaflet-tual/core` | Framework-agnostic core (`createLeafletTual`, `createLeafletTualController`, `paintLeafletTual`, geo math, 2D renderers) | No                  |
+| `leaflet-tual/react`                   | React bindings (`<LeafletTual>`, `<CanvasToolbar>`, `useLeafletTual`, `useLeafletSync`)                                     | Yes (optional peer) |
 
 ---
 
@@ -49,13 +49,13 @@ import 'leaflet/dist/leaflet.css'
 
 ```ts
 import L from 'leaflet'
-import { createLeafletCanvas } from 'leaflet-tual'
+import { createLeafletTual } from 'leaflet-tual'
 import 'leaflet/dist/leaflet.css'
 
 const map = L.map('map').setView([41.0082, 28.9784], 13)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
 
-const canvas = createLeafletCanvas(map, {
+const canvas = createLeafletTual(map, {
   initialItems: [],
   onChange: (items) => console.log('Items updated:', items),
 })
@@ -69,14 +69,14 @@ canvas.controller.setActiveColor('#2563eb')
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas } from 'leaflet-tual/react'
+import { LeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function Map() {
   return (
     <MapContainer center={[41.0082, 28.9784]} zoom={13} style={{ height: '100vh', width: '100%' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LeafletCanvas toolbarPosition="top-center" />
+      <LeafletTual toolbarPosition="top-center" />
     </MapContainer>
   )
 }
@@ -86,11 +86,11 @@ export function Map() {
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+import { LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function MapWithController() {
-  const controller = useLeafletCanvas({
+  const controller = useLeafletTual({
     initialItems: [
       {
         id: 'arrow-1',
@@ -109,7 +109,7 @@ export function MapWithController() {
   return (
     <MapContainer center={[41.01, 28.97]} zoom={13} style={{ height: '100vh', width: '100%' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LeafletCanvas controller={controller} toolbarPosition="top-center" />
+      <LeafletTual controller={controller} toolbarPosition="top-center" />
     </MapContainer>
   )
 }
@@ -122,13 +122,13 @@ export function MapWithController() {
 To present annotations in a view-only state without editing capabilities:
 
 ```tsx
-<LeafletCanvas readOnly />
+<LeafletTual readOnly />
 ```
 
 Or toggle it dynamically via the controller:
 
 ```tsx
-const controller = useLeafletCanvas({ readOnly: true })
+const controller = useLeafletTual({ readOnly: true })
 
 // Later toggle programmatically:
 controller.setReadOnly(false)
@@ -160,12 +160,12 @@ Use the header's **Compact** and **Expand/Collapse** buttons to cycle states, or
 
 ## API Reference
 
-### `<LeafletCanvas>` Props
+### `<LeafletTual>` Props
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `readOnly` | `boolean` | `false` | Enables read-only mode (disables drawing, editing, and selection). |
-| `controller` | `LeafletCanvasController` | `undefined` | Optional external controller from `useLeafletCanvas()`. |
+| `controller` | `LeafletTualController` | `undefined` | Optional external controller from `useLeafletTual()`. |
 | `map` | `L.Map` | `undefined` | Leaflet map instance (auto-inferred via `useMap()` when inside `<MapContainer>`). |
 | `initialItems` | `CanvasItem[]` | `[]` | Initial annotations (when not providing an external controller). |
 | `showToolbar` | `boolean` | `!readOnly` | Whether to display the toolbar. Defaults to `false` when `readOnly` is true. |
@@ -178,8 +178,8 @@ Use the header's **Compact** and **Expand/Collapse** buttons to cycle states, or
 | `showCollapseButton` | `boolean` | `true` | Whether to display the collapse toggle button. |
 | `labels` | `CanvasLabels` | `{}` | Custom labels and tooltips (supports `collapseToolbar`, `expandToolbar`, etc.). |
 | `icons` | `CanvasIcons` | `{}` | Custom icons for toolbar buttons (supports `collapseToolbar`, `expandToolbar`, etc.). |
-| `classNames` | `LeafletCanvasClassNames` | `{}` | Custom CSS classes for container, canvas, toolbar, notes, and text. State-aware slots include `toolButtonActive` (active tool), `swatchButtonActive` (selected color), and `actionButtonDisabled` (disabled undo/redo history buttons). |
-| `styles` | `LeafletCanvasStyles` | `{}` | Inline CSS styles for container, canvas, toolbar, notes, and text. State-aware slots mirror `classNames` (e.g. `actionButtonDisabled` overrides only disabled undo/redo buttons). Disabled action buttons are automatically dimmed with `opacity: 0.45` and a `not-allowed` cursor. |
+| `classNames` | `LeafletTualClassNames` | `{}` | Custom CSS classes for container, canvas, toolbar, notes, and text. State-aware slots include `toolButtonActive` (active tool), `swatchButtonActive` (selected color), and `actionButtonDisabled` (disabled undo/redo history buttons). |
+| `styles` | `LeafletTualStyles` | `{}` | Inline CSS styles for container, canvas, toolbar, notes, and text. State-aware slots mirror `classNames` (e.g. `actionButtonDisabled` overrides only disabled undo/redo buttons). Disabled action buttons are automatically dimmed with `opacity: 0.45` and a `not-allowed` cursor. |
 | `arrowTheme` / `annotationTheme` | `CanvasAnnotationTheme` | `{}` | Custom theme for 2D canvas shapes, arrows, and label pills (supports `labelMinShapeSize`, `labelMaxTextWidth`, `fitLabelsToShape`). |
 | `clampOverlaysToViewport` | `boolean` | `true` | Keeps sticky note and text overlays inside map viewport boundaries so they never bleed off container edges on zoom or pan. |
 | `autoMinimizeNotesZoom` | `number` | `undefined` | Optional map zoom level threshold below which sticky notes automatically collapse into compact pill badges at low zoom. |
@@ -196,7 +196,7 @@ Use the header's **Compact** and **Expand/Collapse** buttons to cycle states, or
 | `onItemChangeComplete` | `(item: CanvasItem) => void` | `undefined` | Callback fired when an item completes editing. |
 | `onItemDelete` | `(id: string) => void` | `undefined` | Callback fired when an item is deleted. |
 
-### `useLeafletCanvas(options)` Options
+### `useLeafletTual(options)` Options
 
 | Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -219,7 +219,7 @@ Use the header's **Compact** and **Expand/Collapse** buttons to cycle states, or
 | `defaultFontSize` | `number` | `16` | Default text overlay font size. |
 | `defaultShape` | `ShapeKind` | `'square'` | Default shape type. |
 
-### `LeafletCanvasController` Methods & State
+### `LeafletTualController` Methods & State
 
 | Property / Method | Type | Description |
 | :--- | :--- | :--- |

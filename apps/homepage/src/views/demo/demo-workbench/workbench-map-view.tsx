@@ -3,9 +3,9 @@
 import { MapContainer, TileLayer, ZoomControl } from 'react-leaflet'
 import {
   type ArrowRenderTheme,
-  LeafletCanvas,
-  type LeafletCanvasController,
-  type LeafletCanvasStyles,
+  LeafletTual,
+  type LeafletTualController,
+  type LeafletTualStyles,
   type ToolbarPosition,
 } from 'leaflet-tual/react'
 import type { FreeTileLayer } from '../../../data/tiles'
@@ -15,10 +15,10 @@ import { MapViewSynchronizer } from './map-view-synchronizer'
 interface WorkbenchMapViewProps {
   activePreset: ShowcasePreset
   activeTile: FreeTileLayer
-  controller: LeafletCanvasController
+  controller: LeafletTualController
   canvasTheme: 'default' | 'homepage'
   arrowTheme: ArrowRenderTheme
-  canvasStyles: LeafletCanvasStyles
+  canvasStyles: LeafletTualStyles
   strokeColors: string[]
   readOnly: boolean
   collapsible: boolean
@@ -57,7 +57,7 @@ export function WorkbenchMapView({
           attribution={activeTile.attribution}
           maxZoom={activeTile.maxZoom}
         />
-        <LeafletCanvas
+        <LeafletTual
           controller={controller}
           annotationTheme={canvasTheme === 'default' ? undefined : arrowTheme}
           styles={canvasTheme === 'default' ? undefined : canvasStyles}

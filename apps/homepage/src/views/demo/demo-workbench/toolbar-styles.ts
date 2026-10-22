@@ -1,6 +1,6 @@
-import type { LeafletCanvasStyles } from 'leaflet-tual/react'
+import type { LeafletTualStyles } from 'leaflet-tual/react'
 
-export function getToolbarStyles(isDark: boolean): Partial<LeafletCanvasStyles> {
+export function getToolbarStyles(isDark: boolean): Partial<LeafletTualStyles> {
   return {
     toolbarPrimary: {
       backgroundColor: isDark ? 'rgba(22, 31, 48, 0.94)' : 'rgba(255, 255, 255, 0.96)',

@@ -21,7 +21,7 @@ import { geoToScreen } from '../../shared/index.js'
 import { InlineShapeLabelEditor, NoteOverlay, TextOverlay } from '../../entities/index.js'
 import { CanvasToolbar } from '../CanvasToolbar/index.js'
 
-export interface LeafletCanvasDomProps {
+export interface LeafletTualDomProps {
   map: L.Map
   canvasRef: React.RefObject<HTMLCanvasElement | null>
   viewport: { width: number; height: number; tick: number }
@@ -72,7 +72,9 @@ export interface LeafletCanvasDomProps {
   fontSizeOptions?: readonly number[]
 }
 
-export function LeafletCanvasDom(props: LeafletCanvasDomProps) {
+export type LeafletCanvasDomProps = LeafletTualDomProps
+
+export function LeafletTualDom(props: LeafletTualDomProps) {
   const {
     map,
     canvasRef,
@@ -212,4 +214,6 @@ export function LeafletCanvasDom(props: LeafletCanvasDomProps) {
     </div>
   )
 }
+
+export const LeafletCanvasDom = LeafletTualDom
 

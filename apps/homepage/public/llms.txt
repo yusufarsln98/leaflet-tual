@@ -15,19 +15,19 @@ leaflet-tual combines the mapping capabilities of Leaflet and react-leaflet with
 - [Introduction & Architecture](https://leaflet-tual.vercel.app/docs#introduction): Geographic coordinate binding, 2D canvas rendering, and DOM overlays.
 - [Quick Start](https://leaflet-tual.vercel.app/docs#quickstart): Installation (pnpm/npm/yarn/bun), MapContainer integration, and initial setup.
 - [Data Models](https://leaflet-tual.vercel.app/docs#data-models): Complete discriminated union CanvasItem (5 arrow styles, 8 shape kinds, freedraw, notes, text).
-- [State & Controller](https://leaflet-tual.vercel.app/docs#state-controller): useLeafletCanvas hook, controlled vs uncontrolled mode, undo/redo history, serialization.
+- [State & Controller](https://leaflet-tual.vercel.app/docs#state-controller): useLeafletTual hook, controlled vs uncontrolled mode, undo/redo history, serialization.
 - [Toolbar & Customization](https://leaflet-tual.vercel.app/docs#toolbar-customization): Floating toolbar positions, collapsible states, custom tools, and decoupled external toolbars.
 - [Theming & Styling](https://leaflet-tual.vercel.app/docs#theming): Custom classNames, inline styles, annotation theme overrides, and unstyled mode.
-- [API Reference](https://leaflet-tual.vercel.app/docs#api-reference): Prop tables for LeafletCanvas and CanvasToolbar, controller methods, and geometry utilities.
+- [API Reference](https://leaflet-tual.vercel.app/docs#api-reference): Prop tables for LeafletTual and CanvasToolbar, controller methods, and geometry utilities.
 - [AI Integration](https://leaflet-tual.vercel.app/docs#skill-md): Pre-configured AI coding assistant skill specification.
 
 ## Core Architectural Invariants & AI Constraints
 1. **GeoPoint Storage Rule**: All persistent item coordinates MUST be stored as geographic latitude/longitude pairs (`GeoPoint`: `{ lat: number, lng: number }`). NEVER store screen `{ x, y }` coordinates in item objects. Screen projections (`geoToScreen` / `screenToGeo`) occur dynamically during render passes and drag interactions using Leaflet's coordinate projection engine.
-2. **Map Context Rule**: `<LeafletCanvas>` automatically acquires the Leaflet map instance via `useMap()` when rendered as a child of `<MapContainer>`. If rendered outside `<MapContainer>`, you MUST supply the Leaflet map instance explicitly via the `map` prop (`<LeafletCanvas map={mapInstance} />`).
-3. **Controller Decoupling**: State should be managed through the `useLeafletCanvas` hook.
+2. **Map Context Rule**: `<LeafletTual>` automatically acquires the Leaflet map instance via `useMap()` when rendered as a child of `<MapContainer>`. If rendered outside `<MapContainer>`, you MUST supply the Leaflet map instance explicitly via the `map` prop (`<LeafletTual map={mapInstance} />`).
+3. **Controller Decoupling**: State should be managed through the `useLeafletTual` hook.
    - **Uncontrolled mode**: Omit `items`; the controller manages internal state and provides 50-step undo/redo history (`canUndo`, `canRedo`, `undo()`, `redo()`).
    - **Controlled mode**: Supply `items` and listen to `onItemsChange` (or `onChange`).
-4. **Toolbar Placement & Decoupling**: By default, `<LeafletCanvas>` displays a floating toolbar positioned via `toolbarPosition` (`'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`, `'top'`, `'bottom'`, `'left'`, `'right'`). To render a decoupled external toolbar outside the map, set `showToolbar={false}` on `<LeafletCanvas>` and render `<CanvasToolbar controller={controller} />` in your external UI.
+4. **Toolbar Placement & Decoupling**: By default, `<LeafletTual>` displays a floating toolbar positioned via `toolbarPosition` (`'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`, `'top'`, `'bottom'`, `'left'`, `'right'`). To render a decoupled external toolbar outside the map, set `showToolbar={false}` on `<LeafletTual>` and render `<CanvasToolbar controller={controller} />` in your external UI.
 5. **Shift-Key Snapping**: Holding `Shift` during vector creation or manipulation automatically snaps arrow directions to 45° angle increments and constrains shape bounding boxes to a 1:1 aspect ratio (e.g. perfect squares, circles, symmetric stars).
 6. **Dual Rendering Architecture**:
    - Vector arrows, geometric shapes, and freehand strokes render onto an interactive HTML5 2D `<canvas>` surface for optimal 60fps rendering during pan and zoom.
@@ -165,11 +165,11 @@ bun add leaflet-tual leaflet react-leaflet
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+import { LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function MapAnnotationsView() {
-  const controller = useLeafletCanvas({
+  const controller = useLeafletTual({
     initialItems: [
       {
         id: 'start-point',
@@ -190,7 +190,7 @@ export function MapAnnotationsView() {
   return (
     <MapContainer center={[40.7128, -74.006]} zoom={13} style={{ height: '100vh', width: '100%' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LeafletCanvas controller={controller} toolbarPosition="top-center" />
+      <LeafletTual controller={controller} toolbarPosition="top-center" />
     </MapContainer>
   )
 }
@@ -200,11 +200,11 @@ export function MapAnnotationsView() {
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+import { CanvasToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function DecoupledView() {
-  const controller = useLeafletCanvas()
+  const controller = useLeafletTual()
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -214,7 +214,7 @@ export function DecoupledView() {
       <div style={{ flex: 1, position: 'relative' }}>
         <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <LeafletCanvas controller={controller} showToolbar={false} />
+          <LeafletTual controller={controller} showToolbar={false} />
         </MapContainer>
       </div>
     </div>
@@ -224,8 +224,8 @@ export function DecoupledView() {
 
 ## Component API Reference
 
-### `<LeafletCanvas>` Props
-- `controller?: LeafletCanvasController`: External canvas controller instance from `useLeafletCanvas()`. If omitted, creates an internal controller.
+### `<LeafletTual>` Props
+- `controller?: LeafletTualController`: External canvas controller instance from `useLeafletTual()`. If omitted, creates an internal controller.
 - `map?: L.Map | null`: Explicit Leaflet map instance (required when rendered outside `<MapContainer>`).
 - `readOnly?: boolean`: Read-only view mode; disables drawing, editing, and selection. Floating toolbar is hidden by default.
 - `showToolbar?: boolean`: Explicit toggle for floating toolbar visibility (defaults to `!readOnly`).
@@ -245,14 +245,14 @@ export function DecoupledView() {
 - `labels?: CanvasLabels`: Localization strings and aria-label overrides for all buttons and modals.
 - `icons?: CanvasIcons`: ReactNode icon overrides for all toolbar items.
 - `unstyled?: boolean`: Strip default CSS styling for zero-specificity custom themes.
-- `classNames?: LeafletCanvasClassNames`: Fine-grained CSS class overrides for canvas, overlay containers, toolbar, notes, and text.
-- `styles?: LeafletCanvasStyles`: Fine-grained inline style overrides.
+- `classNames?: LeafletTualClassNames`: Fine-grained CSS class overrides for canvas, overlay containers, toolbar, notes, and text.
+- `styles?: LeafletTualStyles`: Fine-grained inline style overrides.
 - `annotationTheme?: CanvasAnnotationTheme`: 2D canvas styling theme (handles, control lines, selection halos, labels).
 - `arrowTheme?: ArrowRenderTheme`: Alias for `annotationTheme`.
 - `strokeColors?: readonly string[]`: Color palette swatches for stroke color picker.
 - `strokeWidthOptions?: readonly number[]`: Preset stroke width options (default: `[1, 2, 3, 4, 5, 6, 8, 10, 12]`).
 - `fontSizeOptions?: readonly number[]`: Preset font size options for text overlays.
-- `renderToolbar?: (controller: LeafletCanvasController) => React.ReactNode`: Custom toolbar render function.
+- `renderToolbar?: (controller: LeafletTualController) => React.ReactNode`: Custom toolbar render function.
 - `renderNote?: (props: RenderNoteProps) => React.ReactNode`: Custom sticky note component renderer.
 - `renderText?: (props: RenderTextProps) => React.ReactNode`: Custom text overlay component renderer.
 - `clampOverlaysToViewport?: boolean`: Keep sticky notes and text overlays within map viewport boundaries (default: `true`).
@@ -270,7 +270,7 @@ export function DecoupledView() {
 - `onItemDelete?: (id: string) => void`: Fired when an item is removed.
 
 ### `<CanvasToolbar>` Props
-- `controller: LeafletCanvasController`: Target canvas controller instance.
+- `controller: LeafletTualController`: Target canvas controller instance.
 - `position?: ToolbarPosition`: Preset positioning styling.
 - `orientation?: ToolbarOrientation`: Layout orientation (`'horizontal' | 'vertical'`).
 - `collapsible?: boolean`: Allow collapsing the toolbar.
@@ -288,8 +288,8 @@ export function DecoupledView() {
 - `labels?: CanvasLabels`: Label and placeholder overrides.
 - `icons?: CanvasIcons`: Icon overrides.
 - `unstyled?: boolean`: Strip default styles.
-- `classNames?: LeafletCanvasClassNames`: CSS class overrides.
-- `styles?: LeafletCanvasStyles`: Inline style overrides.
+- `classNames?: LeafletTualClassNames`: CSS class overrides.
+- `styles?: LeafletTualStyles`: Inline style overrides.
 - `strokeColors?: readonly string[]`: Color palette options.
 - `strokeWidthOptions?: readonly number[]`: Stroke width options.
 - `fontSizeOptions?: readonly number[]`: Font size options.
@@ -298,7 +298,7 @@ export function DecoupledView() {
 
 ## Controller Hook API Reference
 
-### `useLeafletCanvas(options)` Options
+### `useLeafletTual(options)` Options
 - `initialItems?: CanvasItem[]`: Uncontrolled initial annotations.
 - `items?: CanvasItem[]`: Controlled annotations array.
 - `maxHistory?: number`: Undo/redo history size (default: `50`).
@@ -318,7 +318,7 @@ export function DecoupledView() {
 - `onItemDelete?: (id: string) => void`: Item deletion callback.
 - `onToolChange?: (tool: CanvasTool) => void`: Active tool change callback.
 
-### `LeafletCanvasController` Properties & Methods
+### `LeafletTualController` Properties & Methods
 - **Items State**:
   - `items: CanvasItem[]`: Array of all active annotations.
   - `selectedId: string | null`: Currently selected item ID.
