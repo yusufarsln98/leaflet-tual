@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronDown } from 'lucide-react'
-import type { ToolbarPosition } from 'leaflet-canvas/react'
+import type { ToolbarPosition } from 'leaflet-tual/react'
 import { FREE_TILE_LAYERS } from '../../../data/tiles'
 import { SHOWCASE_PRESETS, type ShowcasePreset } from '../../../data/presets'
 

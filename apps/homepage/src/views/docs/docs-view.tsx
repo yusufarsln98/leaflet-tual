@@ -1,6 +1,6 @@
 'use client'
 
-import { VERSION } from 'leaflet-canvas'
+import { VERSION } from 'leaflet-tual'
 import { useDocs } from './use-docs'
 import { DocsSidebar } from './sidebar'
 import { DocsContent } from './content'

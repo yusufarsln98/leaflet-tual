@@ -1,4 +1,4 @@
-import type { CanvasItem } from 'leaflet-canvas/react'
+import type { CanvasItem } from 'leaflet-tual/react'
 
 export interface ShowcasePreset {
   id: string

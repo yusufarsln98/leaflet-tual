@@ -9,7 +9,7 @@ export function BrandLogo({ size = 28, ...props }: IconProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label="leaflet-canvas folded map logo"
+      aria-label="leaflet-tual folded map logo"
       {...props}
     >
       <rect width="128" height="128" rx="30" fill="#111827" />

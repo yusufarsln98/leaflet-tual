@@ -373,3 +373,6 @@ export function createLeafletCanvasController(
   return store
 }
 
+export const createLeafletTualController = createLeafletCanvasController
+
+

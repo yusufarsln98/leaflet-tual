@@ -10,7 +10,7 @@ export interface PackageManagerTabsProps {
 }
 
 export function PackageManagerTabs({
-  packageNames = 'leaflet-canvas',
+  packageNames = 'leaflet-tual',
   dev = false,
   className = '',
 }: PackageManagerTabsProps) {

@@ -13,9 +13,9 @@
     "incremental": true,
     "paths": {
       "@/*": ["./src/*"],
-      "leaflet-canvas": ["../../packages/leaflet-canvas/src/index.ts"],
-      "leaflet-canvas/core": ["../../packages/leaflet-canvas/src/index.ts"],
-      "leaflet-canvas/react": ["../../packages/leaflet-canvas/src/react.ts"]
+      "leaflet-tual": ["../../packages/leaflet-tual/src/index.ts"],
+      "leaflet-tual/core": ["../../packages/leaflet-tual/src/index.ts"],
+      "leaflet-tual/react": ["../../packages/leaflet-tual/src/react.ts"]
     },
     "strict": true,
     "noUnusedLocals": false,

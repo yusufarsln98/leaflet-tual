@@ -3,10 +3,10 @@ import path from 'node:path'
 import { readFileSync, existsSync } from 'node:fs'
 
 let appVersion = ''
-const leafletCanvasPkgPath = path.resolve(__dirname, '../../packages/leaflet-canvas/package.json')
-if (existsSync(leafletCanvasPkgPath)) {
+const leafletTualPkgPath = path.resolve(__dirname, '../../packages/leaflet-tual/package.json')
+if (existsSync(leafletTualPkgPath)) {
   try {
-    const pkg = JSON.parse(readFileSync(leafletCanvasPkgPath, 'utf-8'))
+    const pkg = JSON.parse(readFileSync(leafletTualPkgPath, 'utf-8'))
     appVersion = pkg.version
   } catch {
     // ignore
@@ -56,7 +56,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  transpilePackages: ['leaflet-canvas'],
+  transpilePackages: ['leaflet-tual'],
   turbopack: {
     root: path.resolve(__dirname, '../../'),
   },
@@ -67,9 +67,9 @@ const nextConfig: NextConfig = {
     config.resolve = config.resolve || {}
     config.resolve.alias = {
       ...config.resolve.alias,
-      'leaflet-canvas$': path.resolve(__dirname, '../../packages/leaflet-canvas/src/index.ts'),
-      'leaflet-canvas/core': path.resolve(__dirname, '../../packages/leaflet-canvas/src/index.ts'),
-      'leaflet-canvas/react': path.resolve(__dirname, '../../packages/leaflet-canvas/src/react.ts'),
+      'leaflet-tual$': path.resolve(__dirname, '../../packages/leaflet-tual/src/index.ts'),
+      'leaflet-tual/core': path.resolve(__dirname, '../../packages/leaflet-tual/src/index.ts'),
+      'leaflet-tual/react': path.resolve(__dirname, '../../packages/leaflet-tual/src/react.ts'),
     }
     config.resolve.extensionAlias = {
       '.js': ['.ts', '.tsx', '.js'],

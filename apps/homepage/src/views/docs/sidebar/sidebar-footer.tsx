@@ -2,7 +2,7 @@
 
 import { ExternalLink, Play, FileText } from 'lucide-react'
 import Link from 'next/link'
-import { VERSION } from 'leaflet-canvas'
+import { VERSION } from 'leaflet-tual'
 import { BrandIcon } from '../../../components/brand-icon'
 
 export function SidebarFooter() {
@@ -38,7 +38,7 @@ export function SidebarFooter() {
         </a>
 
         <a
-          href="https://github.com/yusufarsln98/leaflet-canvas"
+          href="https://github.com/yusufarsln98/leaflet-tual"
           target="_blank"
           rel="noreferrer"
           className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-sidebar transition-colors"
@@ -51,7 +51,7 @@ export function SidebarFooter() {
         </a>
 
         <a
-          href="https://www.npmjs.com/package/leaflet-canvas"
+          href="https://www.npmjs.com/package/leaflet-tual"
           target="_blank"
           rel="noreferrer"
           className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-sidebar transition-colors"

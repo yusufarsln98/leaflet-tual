@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, Code, Copy } from 'lucide-react'
-import type { LeafletCanvasController } from 'leaflet-canvas/react'
+import type { LeafletCanvasController } from 'leaflet-tual/react'
 
 interface WorkbenchLiveJsonProps {
   controller: LeafletCanvasController

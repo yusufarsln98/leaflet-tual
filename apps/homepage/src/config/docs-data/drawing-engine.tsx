@@ -16,7 +16,7 @@ export const drawingEngineSection: DocSection = {
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
-          <strong className="text-text-primary font-semibold">leaflet-canvas</strong> features
+          <strong className="text-text-primary font-semibold">leaflet-tual</strong> features
           a dedicated hardware-accelerated 2D canvas drawing engine with{' '}
           <strong className="text-accent font-semibold">5 specialized vector arrow styles</strong>,{' '}
           <strong className="text-accent font-semibold">8 geometric shape primitives</strong>, and{' '}

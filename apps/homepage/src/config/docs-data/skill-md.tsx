@@ -8,13 +8,13 @@ import {
 import { DocSection } from '../docs-data'
 
 export const SKILL_MD_CONTENT = `---
-name: leaflet-canvas
-description: Rules, data models, component composition, controller hooks, and coordinate synchronization guidelines for integrating and using the leaflet-canvas toolkit.
+name: leaflet-tual
+description: Rules, data models, component composition, controller hooks, and coordinate synchronization guidelines for integrating and using the leaflet-tual toolkit.
 ---
 
-# Skill: Using leaflet-canvas
+# Skill: Using leaflet-tual
 
-\`leaflet-canvas\` is an interactive canvas and annotation toolkit for Leaflet maps in React. It renders vector arrows (linear, curved, bi-directional, elbow, s-curve), geometric shapes (square, circle, star, actor, triangle, diamond, hexagon, marker), freehand sketches, interactive draggable sticky notes, and text overlays that stay geographically synchronized with Leaflet maps across panning and zooming.
+\`leaflet-tual\` is an interactive canvas and annotation toolkit for Leaflet maps in React. It renders vector arrows (linear, curved, bi-directional, elbow, s-curve), geometric shapes (square, circle, star, actor, triangle, diamond, hexagon, marker), freehand sketches, interactive draggable sticky notes, and text overlays that stay geographically synchronized with Leaflet maps across panning and zooming.
 
 ---
 
@@ -152,7 +152,7 @@ export type CanvasItem = ArrowItem | FreeDrawItem | ShapeItem | NoteItem | TextI
 
 \`\`\`tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 function MapView() {
@@ -185,7 +185,7 @@ function MapView() {
 
 \`\`\`tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 
 function CustomApp() {
   const controller = useLeafletCanvas()
@@ -345,7 +345,7 @@ Return Object (\`LeafletCanvasController\`):
 
 ---
 
-## 5. Pure Geometry Utilities (\`leaflet-canvas\`)
+## 5. Pure Geometry Utilities (\`leaflet-tual\`)
 
 Exported pure functions for coordinate math, hit-testing, and constraints:
 
@@ -372,7 +372,7 @@ export const skillMdSection: DocSection = {
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
-          <strong className="text-text-primary font-semibold">leaflet-canvas</strong> comes
+          <strong className="text-text-primary font-semibold">leaflet-tual</strong> comes
           bundled with a specialized AI agent skill definition (<DocCode highlight>SKILL.md</DocCode>)
           optimized for autonomous coding assistants, Claude Code, Cursor, and DeepMind Antigravity.
         </DocParagraph>
@@ -380,7 +380,7 @@ export const skillMdSection: DocSection = {
 
       <DocCallout variant="tip" title="Copyable Skill Document">
         Equip your local AI coding agent by copying the skill definition below into your repository’s{' '}
-        <DocCode highlight>.agents/skills/leaflet-canvas/SKILL.md</DocCode> file.
+        <DocCode highlight>.agents/skills/leaflet-tual/SKILL.md</DocCode> file.
       </DocCallout>
 
       <DocHeading level={3} id="skill-manifest">

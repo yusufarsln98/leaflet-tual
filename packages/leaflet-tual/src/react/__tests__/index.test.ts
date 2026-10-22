@@ -29,7 +29,7 @@ import {
 
 import pkg from '../../../package.json'
 
-describe('leaflet-canvas package exports', () => {
+describe('leaflet-tual package exports', () => {
   it('exports VERSION constant', () => {
     expect(VERSION).toBe(pkg.version)
   })
@@ -41,7 +41,7 @@ describe('leaflet-canvas package exports', () => {
     expect(id1).not.toBe(id2)
   })
 
-  it('exports all core public components and hooks from leaflet-canvas/react', () => {
+  it('exports all core public components and hooks from leaflet-tual/react', () => {
     expect(LeafletCanvas).toBeDefined()
     expect(CanvasToolbar).toBeDefined()
     expect(InlineShapeLabelEditor).toBeDefined()

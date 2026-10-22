@@ -1,4 +1,4 @@
-# leaflet-canvas
+# leaflet-tual
 
 > Framework-agnostic interactive canvas and annotation toolkit for Leaflet maps, with optional React bindings.
 
@@ -10,8 +10,8 @@ Draw arrows, place geometric shapes, sketch freehand paths, measure geodesic dis
 
 | Import                                   | Surface                                                                                                                         | React required?     |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `leaflet-canvas` / `leaflet-canvas/core` | Framework-agnostic core (`createLeafletCanvas`, `createLeafletCanvasController`, `paintLeafletCanvas`, geo math, 2D renderers) | No                  |
-| `leaflet-canvas/react`                   | React bindings (`<LeafletCanvas>`, `<CanvasToolbar>`, `useLeafletCanvas`, `useLeafletSync`)                                     | Yes (optional peer) |
+| `leaflet-tual` / `leaflet-tual/core` | Framework-agnostic core (`createLeafletCanvas`, `createLeafletCanvasController`, `paintLeafletCanvas`, geo math, 2D renderers) | No                  |
+| `leaflet-tual/react`                   | React bindings (`<LeafletCanvas>`, `<CanvasToolbar>`, `useLeafletCanvas`, `useLeafletSync`)                                     | Yes (optional peer) |
 
 ---
 
@@ -32,7 +32,7 @@ Draw arrows, place geometric shapes, sketch freehand paths, measure geodesic dis
 ## Installation
 
 ```bash
-npm install leaflet-canvas leaflet react-leaflet
+npm install leaflet-tual leaflet react-leaflet
 ```
 
 Ensure Leaflet CSS is imported in your application:
@@ -45,11 +45,11 @@ import 'leaflet/dist/leaflet.css'
 
 ## Quick Start
 
-### Vanilla JS / Framework-Agnostic (`leaflet-canvas`)
+### Vanilla JS / Framework-Agnostic (`leaflet-tual`)
 
 ```ts
 import L from 'leaflet'
-import { createLeafletCanvas } from 'leaflet-canvas'
+import { createLeafletCanvas } from 'leaflet-tual'
 import 'leaflet/dist/leaflet.css'
 
 const map = L.map('map').setView([41.0082, 28.9784], 13)
@@ -65,11 +65,11 @@ canvas.controller.setTool('arrow-curved')
 canvas.controller.setActiveColor('#2563eb')
 ```
 
-### React Basic Usage (`leaflet-canvas/react`)
+### React Basic Usage (`leaflet-tual/react`)
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function Map() {
@@ -86,7 +86,7 @@ export function Map() {
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function MapWithController() {

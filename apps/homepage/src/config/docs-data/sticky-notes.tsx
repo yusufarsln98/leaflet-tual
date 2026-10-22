@@ -18,7 +18,7 @@ export const stickyNotesSection: DocSection = {
       <div>
         <DocParagraph lead>
           In addition to hardware-accelerated canvas vector rendering,{' '}
-          <strong className="text-text-primary font-semibold">leaflet-canvas</strong> provides
+          <strong className="text-text-primary font-semibold">leaflet-tual</strong> provides
           rich, draggable HTML sticky note overlays and floating text annotations pinned directly to
           geographic coordinates.
         </DocParagraph>

@@ -10,7 +10,7 @@ export default async function Page() {
   const markdown = await fetchChangelog()
   const ast = parseMarkdown(markdown)
 
-  // Skip the top H1 (# leaflet-canvas) if it exists, since we have our own page header
+  // Skip the top H1 (# leaflet-tual) if it exists, since we have our own page header
   const contentNodes =
     ast.children[0]?.type === 'heading' && (ast.children[0] as any).depth === 1
       ? ast.children.slice(1)

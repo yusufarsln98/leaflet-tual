@@ -17,7 +17,7 @@ export const quickstartSection: DocSection = {
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
-          Getting started with <strong className="text-text-primary font-semibold">leaflet-canvas</strong>{' '}
+          Getting started with <strong className="text-text-primary font-semibold">leaflet-tual</strong>{' '}
           takes less than two minutes. The library integrates directly into standard{' '}
           <DocCode highlight>react-leaflet</DocCode> applications.
         </DocParagraph>
@@ -31,7 +31,7 @@ export const quickstartSection: DocSection = {
         Install the core package along with its peer dependencies (React, Leaflet, and React-Leaflet):
       </DocParagraph>
 
-      <PackageManagerTabs packageNames="leaflet-canvas leaflet react-leaflet" />
+      <PackageManagerTabs packageNames="leaflet-tual leaflet react-leaflet" />
 
       <DocCallout variant="warning" title="Import Leaflet CSS">
         Make sure to import Leaflet’s stylesheet (<DocCode highlight>import 'leaflet/dist/leaflet.css'</DocCode>)
@@ -51,7 +51,7 @@ export const quickstartSection: DocSection = {
         language="tsx"
         filename="MapWithCanvas.tsx"
         code={`import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function MapWithCanvas() {
@@ -81,7 +81,7 @@ export function MapWithCanvas() {
         language="tsx"
         filename="FleetCommandMap.tsx"
         code={`import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function FleetCommandMap() {

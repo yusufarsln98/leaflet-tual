@@ -16,7 +16,7 @@ export const stateControllerSection: DocSection = {
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
-          State management in <strong className="text-text-primary font-semibold">leaflet-canvas</strong>{' '}
+          State management in <strong className="text-text-primary font-semibold">leaflet-tual</strong>{' '}
           is handled by the decoupled <DocCode highlight>useLeafletCanvas</DocCode> hook. It supports
           both uncontrolled operation (with a completion-driven undo/redo history stack) and fully
           controlled operation for enterprise state containers (Redux, Zustand, React Query).
@@ -119,7 +119,7 @@ export const stateControllerSection: DocSection = {
       </DocHeading>
 
       <DocParagraph>
-        Unlike naive implementations that record a history snapshot on every mouse move tick, leaflet-canvas
+        Unlike naive implementations that record a history snapshot on every mouse move tick, leaflet-tual
         uses a <strong>completion-driven</strong> undo/redo architecture:
       </DocParagraph>
 

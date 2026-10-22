@@ -1,6 +1,6 @@
 import { HelpCircle, FileText, Heart, Terminal, BookOpen, Layers } from 'lucide-react'
 import Link from 'next/link'
-import { VERSION } from 'leaflet-canvas'
+import { VERSION } from 'leaflet-tual'
 import { BrandIcon } from './brand-icon'
 
 const PRODUCT_LINKS = [
@@ -24,7 +24,7 @@ export function Footer() {
           <div className="space-y-3">
             <Link href="/" className="inline-flex items-center gap-2.5">
               <BrandIcon name="map" size={24} />
-              <span className="font-display text-xl text-text-primary">leaflet-canvas</span>
+              <span className="font-display text-xl text-text-primary">leaflet-tual</span>
             </Link>
             <p className="text-text-secondary text-xs leading-relaxed max-w-md text-pretty">
               Framework-agnostic interactive canvas overlay for Leaflet with optional React
@@ -69,7 +69,7 @@ export function Footer() {
             <ul className="space-y-2.5 text-xs font-medium">
               <li>
                 <a
-                  href="https://github.com/yusufarsln98/leaflet-canvas"
+                  href="https://github.com/yusufarsln98/leaflet-tual"
                   target="_blank"
                   rel="noreferrer"
                   className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2 group"
@@ -84,7 +84,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://www.npmjs.com/package/leaflet-canvas"
+                  href="https://www.npmjs.com/package/leaflet-tual"
                   target="_blank"
                   rel="noreferrer"
                   className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2 group"
@@ -99,7 +99,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/yusufarsln98/leaflet-canvas/blob/main/LICENSE"
+                  href="https://github.com/yusufarsln98/leaflet-tual/blob/main/LICENSE"
                   target="_blank"
                   rel="noreferrer"
                   className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2"
@@ -115,7 +115,7 @@ export function Footer() {
             <ul className="space-y-2.5 text-xs font-medium">
               <li>
                 <a
-                  href="https://github.com/yusufarsln98/leaflet-canvas/blob/main/CONTRIBUTING.md"
+                  href="https://github.com/yusufarsln98/leaflet-tual/blob/main/CONTRIBUTING.md"
                   target="_blank"
                   rel="noreferrer"
                   className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2"
@@ -125,7 +125,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/yusufarsln98/leaflet-canvas/issues"
+                  href="https://github.com/yusufarsln98/leaflet-tual/issues"
                   target="_blank"
                   rel="noreferrer"
                   className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2"
@@ -141,7 +141,7 @@ export function Footer() {
       {/* Colophon bar */}
       <div className="max-w-6xl mx-auto border-t border-border-primary mt-10 pt-5 flex flex-col sm:flex-row items-center justify-between text-[11px] text-text-muted gap-3">
         <div>
-          &copy; {new Date().getFullYear()} leaflet-canvas · Open source software under MIT.
+          &copy; {new Date().getFullYear()} leaflet-tual · Open source software under MIT.
         </div>
         <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-wider">
           Open-source interactive canvas for Leaflet

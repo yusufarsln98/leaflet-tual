@@ -1,23 +1,23 @@
 {
-  "name": "leaflet-canvas-monorepo",
+  "name": "leaflet-tual-monorepo",
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/leaflet-canvas",
+    "packages/leaflet-tual",
     "apps/homepage"
   ],
   "scripts": {
     "build": "npm run build:lib && npm run build:homepage",
-    "dev:lib": "npm run dev --workspace=leaflet-canvas",
+    "dev:lib": "npm run dev --workspace=leaflet-tual",
     "dev:homepage": "npm run dev --workspace=homepage",
     "preview:homepage": "npm run preview --workspace=homepage",
-    "build:lib": "npm run build --workspace=leaflet-canvas",
+    "build:lib": "npm run build --workspace=leaflet-tual",
     "build:homepage": "npm run build --workspace=homepage",
-    "lint:lib": "npm run lint --workspace=leaflet-canvas",
-    "test": "npm run test --workspace=leaflet-canvas",
-    "test:lib": "npm run test --workspace=leaflet-canvas",
+    "lint:lib": "npm run lint --workspace=leaflet-tual",
+    "test": "npm run test --workspace=leaflet-tual",
+    "test:lib": "npm run test --workspace=leaflet-tual",
     "changeset": "changeset",
-    "typecheck:lib": "npm run typecheck --workspace=leaflet-canvas",
+    "typecheck:lib": "npm run typecheck --workspace=leaflet-tual",
     "typecheck": "npm run typecheck:lib"
   },
   "devDependencies": {

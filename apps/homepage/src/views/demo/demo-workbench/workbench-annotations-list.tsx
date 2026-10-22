@@ -1,7 +1,7 @@
 'use client'
 
 import { Trash2 } from 'lucide-react'
-import type { LeafletCanvasController } from 'leaflet-canvas/react'
+import type { LeafletCanvasController } from 'leaflet-tual/react'
 
 interface WorkbenchAnnotationsListProps {
   controller: LeafletCanvasController

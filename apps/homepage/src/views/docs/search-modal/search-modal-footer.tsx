@@ -12,7 +12,7 @@ export function SearchModalFooter() {
           <span>Open</span>
         </span>
       </div>
-      <span className="eyebrow lowercase">leaflet-canvas docs search</span>
+      <span className="eyebrow lowercase">leaflet-tual docs search</span>
     </div>
   )
 }

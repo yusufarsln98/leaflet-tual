@@ -1,4 +1,4 @@
-import type { LeafletCanvasStyles } from 'leaflet-canvas/react'
+import type { LeafletCanvasStyles } from 'leaflet-tual/react'
 import { getToolbarStyles } from './toolbar-styles'
 import { getModalAndControlStyles } from './modal-styles'
 import { getAnnotationCardStyles } from './annotation-styles'

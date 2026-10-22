@@ -50,7 +50,7 @@ export const homeJsonLd = {
         'Draggable geographically pinned HTML sticky notes',
         'Decoupled state management via createLeafletCanvasController & useLeafletCanvas',
         'Presentation readOnly mode for dashboards and reports',
-        'Framework-agnostic core with optional React subpath (leaflet-canvas/react)',
+        'Framework-agnostic core with optional React subpath (leaflet-tual/react)',
         'Decoupled CanvasToolbar for external header/sidebar placement',
       ],
       sameAs: [SEO_CONSTANTS.githubRepoUrl, SEO_CONSTANTS.npmPkgUrl],
@@ -61,7 +61,7 @@ export const homeJsonLd = {
       name: SEO_CONSTANTS.siteName,
       url: SEO_CONSTANTS.siteUrl,
       description:
-        'Official website and documentation for leaflet-canvas, the precision vector canvas for Leaflet.',
+        'Official website and documentation for leaflet-tual, the precision vector canvas for Leaflet.',
       inLanguage: 'en-US',
       publisher: {
         '@type': 'Person',
@@ -99,9 +99,9 @@ export const homeJsonLd = {
 export const docsJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'TechArticle',
-  headline: 'leaflet-canvas Documentation',
+  headline: 'leaflet-tual Documentation',
   description:
-    'Complete guide to installing, configuring, and using leaflet-canvas for geo-synchronized map annotations in React.',
+    'Complete guide to installing, configuring, and using leaflet-tual for geo-synchronized map annotations in React.',
   url: `${SEO_CONSTANTS.siteUrl}/docs`,
   author: {
     '@type': 'Person',
@@ -116,8 +116,8 @@ export const docsJsonLd = {
 export const changelogJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: 'leaflet-canvas Changelog & Release Notes',
+  name: 'leaflet-tual Changelog & Release Notes',
   description:
-    'Historical semver changelog and releases timeline for leaflet-canvas.',
+    'Historical semver changelog and releases timeline for leaflet-tual.',
   url: `${SEO_CONSTANTS.siteUrl}/releases`,
 }

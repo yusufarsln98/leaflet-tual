@@ -95,7 +95,7 @@ export function TableOfContents({
       {/* GitHub & Community Links */}
       <div className="pt-4 border-t border-border-primary/60 space-y-2 text-[11px] text-text-muted">
         <a
-          href="https://github.com/leaflet-canvas/leaflet-canvas"
+          href="https://github.com/leaflet-tual/leaflet-tual"
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-2 hover:text-accent transition-colors"
@@ -106,7 +106,7 @@ export function TableOfContents({
         </a>
 
         <a
-          href="https://github.com/leaflet-canvas/leaflet-canvas/issues/new"
+          href="https://github.com/leaflet-tual/leaflet-tual/issues/new"
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-2 hover:text-accent transition-colors"

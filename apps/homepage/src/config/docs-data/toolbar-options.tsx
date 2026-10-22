@@ -176,7 +176,7 @@ const customExportTool: CustomToolbarItem = {
         language="tsx"
         filename="AppWorkspace.tsx"
         code={`import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, CanvasToolbar, useLeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas, CanvasToolbar, useLeafletCanvas } from 'leaflet-tual/react'
 
 export function AppWorkspace() {
   const controller = useLeafletCanvas()

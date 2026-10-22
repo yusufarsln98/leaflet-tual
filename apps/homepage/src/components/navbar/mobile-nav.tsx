@@ -48,7 +48,7 @@ export function MobileNav({ pathname }: MobileNavProps) {
 
       <div className="pt-3 pb-4 px-4 grid grid-cols-2 gap-2 text-xs font-semibold">
         <a
-          href="https://www.npmjs.com/package/leaflet-canvas"
+          href="https://www.npmjs.com/package/leaflet-tual"
           target="_blank"
           rel="noreferrer"
           className="flex items-center justify-center gap-2 py-2 px-3 border border-border-secondary bg-bg-pane-inner text-text-primary hover:border-text-muted transition-colors rounded-[2px]"
@@ -56,7 +56,7 @@ export function MobileNav({ pathname }: MobileNavProps) {
           <BrandIcon name="npm" size={18} /> NPM
         </a>
         <a
-          href="https://github.com/yusufarsln98/leaflet-canvas"
+          href="https://github.com/yusufarsln98/leaflet-tual"
           target="_blank"
           rel="noreferrer"
           className="flex items-center justify-center gap-2 py-2 px-3 border border-border-secondary bg-bg-pane-inner text-text-primary hover:border-text-muted transition-colors rounded-[2px]"

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowUp, FileText, Heart, HelpCircle, Play, Bot } from 'lucide-react'
-import { VERSION } from 'leaflet-canvas'
+import { VERSION } from 'leaflet-tual'
 import { BrandIcon } from '../../../components/brand-icon'
 
 export function DocsFooter() {
@@ -15,7 +15,7 @@ export function DocsFooter() {
       {/* Top action row */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-text-secondary">
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-text-primary">leaflet-canvas docs</span>
+          <span className="font-semibold text-text-primary">leaflet-tual docs</span>
           <span>•</span>
           <span className="font-mono text-text-muted">v{VERSION}</span>
           <span>•</span>
@@ -74,7 +74,7 @@ export function DocsFooter() {
             </li>
             <li>
               <a
-                href="https://github.com/yusufarsln98/leaflet-canvas/blob/main/.agents/skills/leaflet-canvas/SKILL.md"
+                href="https://github.com/yusufarsln98/leaflet-tual/blob/main/.agents/skills/leaflet-tual/SKILL.md"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-text-primary transition-colors flex items-center gap-1.5"
@@ -91,7 +91,7 @@ export function DocsFooter() {
           <ul className="space-y-2 text-text-muted">
             <li>
               <a
-                href="https://www.npmjs.com/package/leaflet-canvas"
+                href="https://www.npmjs.com/package/leaflet-tual"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-text-primary transition-colors flex items-center gap-1.5"
@@ -102,7 +102,7 @@ export function DocsFooter() {
             </li>
             <li>
               <a
-                href="https://github.com/yusufarsln98/leaflet-canvas/blob/main/LICENSE"
+                href="https://github.com/yusufarsln98/leaflet-tual/blob/main/LICENSE"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-text-primary transition-colors"
@@ -118,7 +118,7 @@ export function DocsFooter() {
           <ul className="space-y-2 text-text-muted">
             <li>
               <a
-                href="https://github.com/yusufarsln98/leaflet-canvas"
+                href="https://github.com/yusufarsln98/leaflet-tual"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-text-primary transition-colors flex items-center gap-1.5"
@@ -129,7 +129,7 @@ export function DocsFooter() {
             </li>
             <li>
               <a
-                href="https://github.com/yusufarsln98/leaflet-canvas/issues"
+                href="https://github.com/yusufarsln98/leaflet-tual/issues"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-text-primary transition-colors flex items-center gap-1.5"
@@ -140,7 +140,7 @@ export function DocsFooter() {
             </li>
             <li>
               <a
-                href="https://github.com/yusufarsln98/leaflet-canvas/blob/main/CONTRIBUTING.md"
+                href="https://github.com/yusufarsln98/leaflet-tual/blob/main/CONTRIBUTING.md"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-text-primary transition-colors flex items-center gap-1.5"
@@ -156,7 +156,7 @@ export function DocsFooter() {
       {/* Bottom copyright attribution */}
       <div className="pt-6 border-t border-border-primary/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] text-text-muted font-mono">
         <div>
-          &copy; {new Date().getFullYear()} leaflet-canvas • Open source software under MIT.
+          &copy; {new Date().getFullYear()} leaflet-tual • Open source software under MIT.
         </div>
         <div className="flex items-center gap-1">
           <span>Continuous Geographic Projection Architecture</span>

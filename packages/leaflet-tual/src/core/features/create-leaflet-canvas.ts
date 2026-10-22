@@ -476,3 +476,6 @@ export function createLeafletCanvas(
   }
 }
 
+export const createLeafletTual = createLeafletCanvas
+
+

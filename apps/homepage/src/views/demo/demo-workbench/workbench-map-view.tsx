@@ -7,7 +7,7 @@ import {
   type LeafletCanvasController,
   type LeafletCanvasStyles,
   type ToolbarPosition,
-} from 'leaflet-canvas/react'
+} from 'leaflet-tual/react'
 import type { FreeTileLayer } from '../../../data/tiles'
 import type { ShowcasePreset } from '../../../data/presets'
 import { MapViewSynchronizer } from './map-view-synchronizer'

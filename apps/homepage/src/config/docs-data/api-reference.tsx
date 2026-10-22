@@ -17,11 +17,11 @@ export const apiReferenceSection: DocSection = {
         <DocParagraph lead>
           Complete, verified reference for all exported components, props, hooks, controller methods,
           and TypeScript interfaces in{' '}
-          <strong className="text-text-primary font-semibold">leaflet-canvas</strong>.
+          <strong className="text-text-primary font-semibold">leaflet-tual</strong>.
         </DocParagraph>
       </div>
 
-      <DocHeading level={3} id="leaflet-canvas-props">
+      <DocHeading level={3} id="leaflet-tual-props">
         1. &lt;LeafletCanvas&gt; Component Props
       </DocHeading>
 
@@ -112,7 +112,7 @@ export const apiReferenceSection: DocSection = {
         ]}
       />
 
-      <DocHeading level={3} id="use-leaflet-canvas-options">
+      <DocHeading level={3} id="use-leaflet-tual-options">
         3. useLeafletCanvas(options) Options
       </DocHeading>
 
@@ -188,15 +188,15 @@ export const apiReferenceSection: DocSection = {
       />
 
       <DocCallout variant="tip" title="TypeScript Strict Mode">
-        leaflet-canvas is written in strict TypeScript. All union types, component props, and
+        leaflet-tual is written in strict TypeScript. All union types, component props, and
         controller return interfaces are fully typed with exported definitions.
       </DocCallout>
     </div>
   ),
   subsections: [
-    { id: 'leaflet-canvas-props', title: '1. <LeafletCanvas> Component Props', content: null },
+    { id: 'leaflet-tual-props', title: '1. <LeafletCanvas> Component Props', content: null },
     { id: 'canvas-toolbar-props', title: '2. <CanvasToolbar> Component Props', content: null },
-    { id: 'use-leaflet-canvas-options', title: '3. useLeafletCanvas Options', content: null },
+    { id: 'use-leaflet-tual-options', title: '3. useLeafletCanvas Options', content: null },
     { id: 'controller-api', title: '4. LeafletCanvasController API', content: null },
   ],
 }

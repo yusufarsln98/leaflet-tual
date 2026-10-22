@@ -1,15 +1,15 @@
-# leaflet-canvas
+# leaflet-tual
 
 ## 0.1.0
 
 ### Minor Changes
 
-- **Initial Public Release of `leaflet-canvas`**: A high-performance, framework-agnostic, geographically synchronized annotation and tactical canvas toolkit for Leaflet maps with optional React bindings.
+- **Initial Public Release of `leaflet-tual`**: A high-performance, framework-agnostic, geographically synchronized annotation and tactical canvas toolkit for Leaflet maps with optional React bindings.
 
   #### Framework-Agnostic Core & Optional React Bindings
 
-  - **`leaflet-canvas` / `leaflet-canvas/core`**: Zero-React framework-agnostic core (`createLeafletCanvas`, `createLeafletCanvasController`, `paintLeafletCanvas`, `bindLeafletSync`) usable in Vanilla JS, TypeScript, Vue, Svelte, or Angular.
-  - **`leaflet-canvas/react`**: First-class React components (`<LeafletCanvas>`, `<CanvasToolbar>`) and hooks (`useLeafletCanvas`, `useLeafletSync`) shipped on a dedicated subpath so non-React consumers never resolve React peer dependencies.
+  - **`leaflet-tual` / `leaflet-tual/core`**: Zero-React framework-agnostic core (`createLeafletCanvas`, `createLeafletCanvasController`, `paintLeafletCanvas`, `bindLeafletSync`) usable in Vanilla JS, TypeScript, Vue, Svelte, or Angular.
+  - **`leaflet-tual/react`**: First-class React components (`<LeafletCanvas>`, `<CanvasToolbar>`) and hooks (`useLeafletCanvas`, `useLeafletSync`) shipped on a dedicated subpath so non-React consumers never resolve React peer dependencies.
 
   #### Geographic Lat/Lng Synchronization
 

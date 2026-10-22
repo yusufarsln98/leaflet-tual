@@ -17,7 +17,7 @@ export const geoProjectionSection: DocSection = {
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
-          The core innovation of <strong className="text-text-primary font-semibold">leaflet-canvas</strong>{' '}
+          The core innovation of <strong className="text-text-primary font-semibold">leaflet-tual</strong>{' '}
           is its continuous geographic projection synchronization engine, guaranteeing{' '}
           <strong className="text-accent font-semibold">zero pixel-drift</strong> across fractional
           zoom levels, rapid pointer dragging, and viewport resizing.
@@ -29,7 +29,7 @@ export const geoProjectionSection: DocSection = {
       </DocHeading>
 
       <DocParagraph>
-        All persistent items in leaflet-canvas are stored strictly using geographic coordinates
+        All persistent items in leaflet-tual are stored strictly using geographic coordinates
         (<DocCode highlight>GeoPoint</DocCode>). Screen coordinates (<DocCode highlight>ScreenPoint</DocCode>)
         are transient, computed on-the-fly during rendering and pointer interaction cycles.
       </DocParagraph>
@@ -52,7 +52,7 @@ export type ScreenPoint = {
 
       <DocCallout variant="tip" title="Why Screen Coordinates Are Never Persisted">
         If you store <DocCode highlight>{'{ x: 340, y: 180 }'}</DocCode>, the annotation immediately
-        detaches from the earth when the user pans or zooms. leaflet-canvas enforces that all item
+        detaches from the earth when the user pans or zooms. leaflet-tual enforces that all item
         schemas exclusively persist <DocCode highlight>GeoPoint</DocCode> objects. During pointer interactions,
         transient screen positions are projected back into geographic coordinates in real time.
       </DocCallout>

@@ -52,7 +52,7 @@ export const introductionSection: DocSection = {
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
-          <strong className="text-text-primary font-semibold">leaflet-canvas</strong> is a
+          <strong className="text-text-primary font-semibold">leaflet-tual</strong> is a
           framework-agnostic interactive vector canvas toolkit designed for Leaflet with optional
           React bindings. It solves the classic challenge in web mapping: drawing interactive
           arrows, shapes, freehand sketches, and notes directly on top of maps without annotations
@@ -62,7 +62,7 @@ export const introductionSection: DocSection = {
 
       <DocCallout variant="tip" title="Built for Modern Geospatial Applications">
         Whether you are building maritime navigation displays, fleet logistics dashboards, field
-        operations maps, or environmental monitoring consoles, leaflet-canvas provides the
+        operations maps, or environmental monitoring consoles, leaflet-tual provides the
         coordinate synchronization and vector rendering engine out of the box.
       </DocCallout>
 
@@ -73,7 +73,7 @@ export const introductionSection: DocSection = {
       <DocParagraph>
         Traditional canvas overlay implementations often paint directly to pixel coordinates and
         fail during continuous map panning, causing annotations to visually lag behind tile layers.
-        leaflet-canvas solves this by hooking into Leaflet’s internal Coordinate Reference
+        leaflet-tual solves this by hooking into Leaflet’s internal Coordinate Reference
         System (CRS) projection cycle:
       </DocParagraph>
 
@@ -130,7 +130,7 @@ export const introductionSection: DocSection = {
       </DocHeading>
 
       <DocParagraph>
-        leaflet-canvas is built with clean declarative JSON schemas. Automated coding agents,
+        leaflet-tual is built with clean declarative JSON schemas. Automated coding agents,
         LLM workflows, and developer tools can programmatically inspect, modify, and generate map
         annotation layers using the built-in <DocCode highlight>SKILL.md</DocCode> contract specification.
       </DocParagraph>
@@ -143,7 +143,7 @@ export const introductionSection: DocSection = {
           },
           {
             title: 'Zero External Bloat',
-            desc: 'Framework-agnostic core with zero React dependencies; optional React bindings via leaflet-canvas/react.',
+            desc: 'Framework-agnostic core with zero React dependencies; optional React bindings via leaflet-tual/react.',
           },
           {
             title: 'Universal Compatibility',

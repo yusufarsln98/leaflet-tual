@@ -49,7 +49,7 @@ export function NavbarActions({
       {/* External Links */}
       <div className="hidden sm:flex items-center gap-2 border-l border-border-primary pl-2.5">
         <a
-          href="https://www.npmjs.com/package/leaflet-canvas"
+          href="https://www.npmjs.com/package/leaflet-tual"
           target="_blank"
           rel="noreferrer"
           className="p-1.5 rounded-[2px] border border-border-secondary bg-bg-pane text-text-secondary hover:text-[#cb3837] hover:border-text-muted transition-colors"
@@ -58,7 +58,7 @@ export function NavbarActions({
           <BrandIcon name="npm" size={18} />
         </a>
         <a
-          href="https://github.com/yusufarsln98/leaflet-canvas"
+          href="https://github.com/yusufarsln98/leaflet-tual"
           target="_blank"
           rel="noreferrer"
           className="p-1.5 rounded-[2px] border border-border-secondary bg-bg-pane text-text-secondary hover:text-text-primary hover:border-text-muted transition-colors"

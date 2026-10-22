@@ -13,7 +13,7 @@ export function isSafeUrl(url: string): boolean {
     return true
   }
   try {
-    const parsed = new URL(trimmed, 'https://leaflet-canvas.com')
+    const parsed = new URL(trimmed, 'https://leaflet-tual.com')
     return (
       parsed.protocol === 'https:' || parsed.protocol === 'http:' || parsed.protocol === 'mailto:'
     )

@@ -190,3 +190,6 @@ export function useLeafletCanvas(
     importJSON,
   }
 }
+
+export const useLeafletTual = useLeafletCanvas
+

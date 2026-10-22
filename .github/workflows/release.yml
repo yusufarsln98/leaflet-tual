@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'packages/leaflet-canvas/package.json'
+      - 'packages/leaflet-tual/package.json'
       - '.changeset/**'
   workflow_dispatch:
 
@@ -38,7 +38,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: npm run release --workspace=leaflet-canvas
+          publish: npm run release --workspace=leaflet-tual
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

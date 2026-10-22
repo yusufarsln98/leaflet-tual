@@ -8,7 +8,7 @@ import {
 import pkg from '../../../package.json'
 import { createMockCanvasContext, createMockMap } from './test-utils.js'
 
-describe('leaflet-canvas core controller & vanilla instance', () => {
+describe('leaflet-tual core controller & vanilla instance', () => {
   it('exports VERSION from root entry', () => {
     expect(VERSION).toBe(pkg.version)
   })

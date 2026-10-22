@@ -12,9 +12,9 @@ export const CODE_SAMPLES: CodeSample[] = [
     title: 'React Integration',
     filename: 'MapCanvasView.tsx',
     description:
-      'Embed LeafletCanvas directly as a child of MapContainer via leaflet-canvas/react with an automatic floating toolbar.',
+      'Embed LeafletCanvas directly as a child of MapContainer via leaflet-tual/react with an automatic floating toolbar.',
     code: `import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function MapCanvasView() {
@@ -53,7 +53,7 @@ export function MapCanvasView() {
     description:
       'Mount an interactive canvas directly onto a standard Leaflet L.Map instance with zero React peer dependencies.',
     code: `import L from 'leaflet'
-import { createLeafletCanvas } from 'leaflet-canvas'
+import { createLeafletCanvas } from 'leaflet-tual'
 import 'leaflet/dist/leaflet.css'
 
 const map = L.map('map-viewport').setView([41.018, 28.988], 13)
@@ -79,7 +79,7 @@ canvas.controller.setStrokeWidth(3)`,
     description:
       'Place the toolbar in your app header, sidebar, or docked layout while the canvas renders in the map.',
     code: `import { MapContainer, TileLayer } from 'react-leaflet'
-import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 
 export function DecoupledApp() {
   const controller = useLeafletCanvas()
@@ -111,7 +111,7 @@ export function DecoupledApp() {
       'Synchronize annotations with a remote database, REST API, or WebSocket feed via controlled props.',
     code: `import { useState, useCallback } from 'react'
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas, type CanvasItem } from 'leaflet-canvas/react'
+import { LeafletCanvas, useLeafletCanvas, type CanvasItem } from 'leaflet-tual/react'
 
 export function ControlledCanvas() {
   const [annotations, setAnnotations] = useState<CanvasItem[]>([])
@@ -146,7 +146,7 @@ export function ControlledCanvas() {
     description:
       'Display interactive annotations without editing handles or toolbars for viewer-only dashboards.',
     code: `import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 
 export function DashboardMapView({ initialRoutes }) {
   const controller = useLeafletCanvas({

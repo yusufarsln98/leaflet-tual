@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Check, Link2, Clock, Package } from 'lucide-react'
-import { VERSION } from 'leaflet-canvas'
+import { VERSION } from 'leaflet-tual'
 import type { DocSection } from '../../../config/docs-data'
 
 export interface PageHeaderProps {
@@ -100,7 +100,7 @@ export function PageHeader({ section, onCopyPermalink, copiedId }: PageHeaderPro
         <span>•</span>
         <div className="flex items-center gap-1.5 font-mono">
           <Package className="w-3.5 h-3.5 text-accent" />
-          <span>leaflet-canvas v{VERSION}</span>
+          <span>leaflet-tual v{VERSION}</span>
         </div>
         <span>•</span>
         <span className="font-mono text-[11px] px-2 py-0.5 rounded-full bg-bg-pane-inner border border-border-primary text-text-muted">

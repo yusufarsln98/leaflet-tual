@@ -35,7 +35,7 @@ function slugify(text: string): string {
 
 /** Map certain heading texts to the IDs used on the current docs page */
 const SLUG_OVERRIDES: Record<string, string> = {
-  'leaflet-canvas': 'introduction',
+  'leaflet-tual': 'introduction',
   'types reference': 'typescript-types',
   'skill.md': 'skill-md',
 }
@@ -87,7 +87,7 @@ export function parseDocs(markdown: string): ParsedDocs {
     if (
       node.type === 'code' &&
       node.lang === 'markdown' &&
-      (node.value.includes('name: leaflet-canvas') || node.value.includes('name: leaflet-canvas'))
+      (node.value.includes('name: leaflet-tual') || node.value.includes('name: leaflet-tual'))
     ) {
       skillMdContent = node.value
     }

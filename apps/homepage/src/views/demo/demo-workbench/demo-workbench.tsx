@@ -5,7 +5,7 @@ import { PanelLeftOpen } from 'lucide-react'
 import {
   type ToolbarPosition,
   useLeafletCanvas,
-} from 'leaflet-canvas/react'
+} from 'leaflet-tual/react'
 import { SHOWCASE_PRESETS, type ShowcasePreset } from '../../../data/presets'
 import { FREE_TILE_LAYERS, type FreeTileLayer } from '../../../data/tiles'
 import { useTheme } from '../../../components/theme-provider'

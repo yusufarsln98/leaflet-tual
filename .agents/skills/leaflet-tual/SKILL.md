@@ -1,11 +1,11 @@
 ---
-name: leaflet-canvas
-description: Rules, data models, component composition, controller hooks, and coordinate synchronization guidelines for integrating and using the leaflet-canvas toolkit.
+name: leaflet-tual
+description: Rules, data models, component composition, controller hooks, and coordinate synchronization guidelines for integrating and using the leaflet-tual toolkit.
 ---
 
-# Skill: Using leaflet-canvas
+# Skill: Using leaflet-tual
 
-`leaflet-canvas` is an interactive canvas and annotation toolkit for Leaflet maps. The **core is fully framework-agnostic** — usable from vanilla JS, Vue, Svelte, or anything else — while the React bindings (`<LeafletCanvas>`, `<CanvasToolbar>`, `useLeafletCanvas`) are a separate, opt-in subpath. It renders vector arrows (linear, curved, bi-directional, elbow, s-curve), geometric shapes (square, circle, star, actor, triangle, diamond, hexagon, marker), freehand sketches, distance rulers, interactive draggable sticky notes, and text overlays that stay geographically synchronized with Leaflet maps across panning and zooming.
+`leaflet-tual` is an interactive canvas and annotation toolkit for Leaflet maps. The **core is fully framework-agnostic** — usable from vanilla JS, Vue, Svelte, or anything else — while the React bindings (`<LeafletCanvas>`, `<CanvasToolbar>`, `useLeafletCanvas`) are a separate, opt-in subpath. It renders vector arrows (linear, curved, bi-directional, elbow, s-curve), geometric shapes (square, circle, star, actor, triangle, diamond, hexagon, marker), freehand sketches, distance rulers, interactive draggable sticky notes, and text overlays that stay geographically synchronized with Leaflet maps across panning and zooming.
 
 ---
 
@@ -15,10 +15,10 @@ One package, two import surfaces (Node `exports` map):
 
 | Import                                     | Surface                                                                                                                                                                                  | React required?     |
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| `leaflet-canvas` / `leaflet-canvas/core`   | Framework-agnostic core: `createLeafletCanvas`, `createLeafletCanvasController`, `paintLeafletCanvas`, pure geometry math (`geoToScreen`, `screenToGeo`, etc.), 2D renderers, `VERSION`  | No                  |
-| `leaflet-canvas/react`                     | `<LeafletCanvas>`, `<CanvasToolbar>`, `useLeafletCanvas`, `useLeafletSync`, overlay components, and all core types/utilities                                                             | Yes (optional peer) |
+| `leaflet-tual` / `leaflet-tual/core`   | Framework-agnostic core: `createLeafletCanvas`, `createLeafletCanvasController`, `paintLeafletCanvas`, pure geometry math (`geoToScreen`, `screenToGeo`, etc.), 2D renderers, `VERSION`  | No                  |
+| `leaflet-tual/react`                     | `<LeafletCanvas>`, `<CanvasToolbar>`, `useLeafletCanvas`, `useLeafletSync`, overlay components, and all core types/utilities                                                             | Yes (optional peer) |
 
-The core never imports React; React peer dependencies are only resolved by consumers importing `leaflet-canvas/react`.
+The core never imports React; React peer dependencies are only resolved by consumers importing `leaflet-tual/react`.
 
 ---
 
@@ -174,7 +174,7 @@ export type CanvasItem = ArrowItem | FreeDrawItem | ShapeItem | NoteItem | TextI
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 function MapView() {
@@ -207,7 +207,7 @@ function MapView() {
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
 
 function CustomApp() {
   const controller = useLeafletCanvas()
@@ -369,7 +369,7 @@ Return Object (`LeafletCanvasController`):
 
 ---
 
-## 5. Pure Geometry Utilities (`leaflet-canvas`)
+## 5. Pure Geometry Utilities (`leaflet-tual`)
 
 Exported pure functions for coordinate math, hit-testing, and constraints:
 

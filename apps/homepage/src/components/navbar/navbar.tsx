@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useRef, useState, useEffect } from 'react'
-import { VERSION } from 'leaflet-canvas'
+import { VERSION } from 'leaflet-tual'
 import { BrandIcon } from '../brand-icon'
 import { SearchModal } from '../../views/docs/search-modal'
 import { docsData } from '../../config/docs-data'
@@ -94,7 +94,7 @@ export function Navbar() {
           <Link href="/" className="flex items-center gap-2.5 group">
             <BrandIcon name="map" size={22} className="transition-transform group-hover:scale-105" />
             <span className="font-display text-lg tracking-tight text-text-primary leading-none">
-              leaflet-canvas
+              leaflet-tual
             </span>
             <span className="hidden sm:inline-flex items-center px-1.5 text-[10px] font-mono text-text-muted border border-border-primary bg-bg-pane rounded-[2px] leading-4">
               v{appVersion}

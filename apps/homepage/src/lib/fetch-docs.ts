@@ -2,15 +2,15 @@ import path from 'node:path'
 import { readFileSync, existsSync } from 'node:fs'
 
 /**
- * Fetch the README.md content from the local leaflet-canvas package.
+ * Fetch the README.md content from the local leaflet-tual package.
  * Called at build time (or SSR/ISR) from a server component.
  */
 export async function fetchDocs(): Promise<string> {
   try {
     const candidatePaths = [
-      path.resolve(process.cwd(), 'packages/leaflet-canvas/README.md'),
-      path.resolve(process.cwd(), '../packages/leaflet-canvas/README.md'),
-      path.resolve(process.cwd(), '../../packages/leaflet-canvas/README.md'),
+      path.resolve(process.cwd(), 'packages/leaflet-tual/README.md'),
+      path.resolve(process.cwd(), '../packages/leaflet-tual/README.md'),
+      path.resolve(process.cwd(), '../../packages/leaflet-tual/README.md'),
     ]
     for (const localPath of candidatePaths) {
       if (existsSync(localPath)) {
@@ -25,15 +25,15 @@ export async function fetchDocs(): Promise<string> {
 }
 
 /**
- * Fetch the CHANGELOG.md content from the local leaflet-canvas package.
+ * Fetch the CHANGELOG.md content from the local leaflet-tual package.
  * Called at build time (or SSR/ISR) from a server component.
  */
 export async function fetchChangelog(): Promise<string> {
   try {
     const candidatePaths = [
-      path.resolve(process.cwd(), 'packages/leaflet-canvas/CHANGELOG.md'),
-      path.resolve(process.cwd(), '../packages/leaflet-canvas/CHANGELOG.md'),
-      path.resolve(process.cwd(), '../../packages/leaflet-canvas/CHANGELOG.md'),
+      path.resolve(process.cwd(), 'packages/leaflet-tual/CHANGELOG.md'),
+      path.resolve(process.cwd(), '../packages/leaflet-tual/CHANGELOG.md'),
+      path.resolve(process.cwd(), '../../packages/leaflet-tual/CHANGELOG.md'),
     ]
     for (const localPath of candidatePaths) {
       if (existsSync(localPath)) {

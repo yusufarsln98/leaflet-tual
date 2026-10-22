@@ -58,7 +58,7 @@ export function PageFeedback({ pageTitle }: PageFeedbackProps) {
             </div>
 
             <a
-              href="https://github.com/leaflet-canvas/leaflet-canvas/issues/new"
+              href="https://github.com/leaflet-tual/leaflet-tual/issues/new"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-1.5 text-xs text-accent hover:underline font-semibold"

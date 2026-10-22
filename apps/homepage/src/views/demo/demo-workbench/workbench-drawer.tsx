@@ -1,7 +1,7 @@
 'use client'
 
 import type { RefObject } from 'react'
-import type { LeafletCanvasController, ToolbarPosition } from 'leaflet-canvas/react'
+import type { LeafletCanvasController, ToolbarPosition } from 'leaflet-tual/react'
 import { PanelLeftClose, SlidersHorizontal } from 'lucide-react'
 import type { ShowcasePreset } from '../../../data/presets'
 import { WorkbenchConfigurationSelects } from './workbench-configuration-selects'

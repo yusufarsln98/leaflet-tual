@@ -50,7 +50,7 @@ export function ChangelogHero({
               Changelog <span className="italic text-accent">&amp; Releases</span>
             </h1>
             <p className="text-text-secondary text-sm sm:text-base max-w-2xl leading-relaxed text-pretty">
-              Release notes, version updates, and changelog for leaflet-canvas.
+              Release notes, version updates, and changelog for leaflet-tual.
             </p>
           </div>
 
@@ -69,7 +69,7 @@ export function ChangelogHero({
               </button>
             )}
             <a
-              href="https://github.com/yusufarsln98/leaflet-canvas/releases"
+              href="https://github.com/yusufarsln98/leaflet-tual/releases"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border-secondary bg-bg-pane hover:bg-bg-pane-inner hover:text-text-primary text-xs text-text-secondary rounded-[2px] transition-colors"
@@ -78,7 +78,7 @@ export function ChangelogHero({
               <ArrowUpRight className="w-3 h-3 text-text-muted" />
             </a>
             <a
-              href="https://www.npmjs.com/package/leaflet-canvas"
+              href="https://www.npmjs.com/package/leaflet-tual"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border-secondary bg-bg-pane hover:bg-bg-pane-inner hover:text-text-primary text-xs text-text-secondary rounded-[2px] transition-colors"

@@ -23,7 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Read saved theme from localStorage or fallback to system preference (default dark for leaflet canvas)
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('leaflet-canvas-theme')
+      const saved = localStorage.getItem('leaflet-tual-theme')
       if (saved === 'dark' || saved === 'light') {
         setTheme(saved)
       } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
@@ -46,7 +46,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
     const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]')
     if (meta) meta.content = theme
-    localStorage.setItem('leaflet-canvas-theme', theme)
+    localStorage.setItem('leaflet-tual-theme', theme)
   }, [theme, mounted])
 
   const toggleTheme = useCallback(() => {

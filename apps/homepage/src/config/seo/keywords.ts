@@ -1,6 +1,6 @@
 export const SEO_KEYWORDS: string[] = [
   // Primary identity keywords
-  'leaflet-canvas',
+  'leaflet-tual',
   'react leaflet canvas',
   'leaflet canvas react',
   'react leaflet annotations',

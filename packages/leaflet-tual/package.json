@@ -1,5 +1,5 @@
 {
-  "name": "leaflet-canvas",
+  "name": "leaflet-tual",
   "version": "0.1.0",
   "description": "Framework-agnostic interactive canvas and annotation toolkit for Leaflet maps — draw arrows, shapes, freehand sketches, rulers, notes, and text pinned to geo-coordinates. Optional React bindings.",
   "type": "module",
@@ -54,11 +54,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yusufarsln98/leaflet-canvas.git",
-    "directory": "packages/leaflet-canvas"
+    "url": "git+https://github.com/yusufarsln98/leaflet-tual.git",
+    "directory": "packages/leaflet-tual"
   },
   "bugs": {
-    "url": "https://github.com/yusufarsln98/leaflet-canvas/issues"
+    "url": "https://github.com/yusufarsln98/leaflet-tual/issues"
   },
   "publishConfig": {
     "access": "public",
@@ -66,7 +66,9 @@
   },
   "keywords": [
     "leaflet",
-    "leaflet-canvas",
+    "leaflet-tual",
+    "tual",
+    "tuval",
     "canvas",
     "annotation",
     "map-tools",

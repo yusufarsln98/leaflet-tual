@@ -1,7 +1,7 @@
 'use client'
 
 import './home.css'
-import { VERSION } from 'leaflet-canvas'
+import { VERSION } from 'leaflet-tual'
 import {
   HeroSection,
   PillarsSection,

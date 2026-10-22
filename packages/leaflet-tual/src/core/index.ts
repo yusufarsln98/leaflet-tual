@@ -1,5 +1,5 @@
 /**
- * leaflet-canvas — core (framework-agnostic)
+ * leaflet-tual — core (framework-agnostic)
  *
  * Interactive canvas and annotation toolkit for Leaflet maps — draw vector
  * arrows, geometric shapes, freehand sketches, rulers, sticky notes, and text
@@ -10,7 +10,7 @@
  * dependency on React or any UI framework, so it can be used directly from
  * vanilla JavaScript, TypeScript, Vue, Svelte, Angular, or a plain `<script>` tag.
  *
- * React users: see `leaflet-canvas/react` for `<LeafletCanvas>`, `<CanvasToolbar>`,
+ * React users: see `leaflet-tual/react` for `<LeafletCanvas>`, `<CanvasToolbar>`,
  * `useLeafletCanvas`, and `useLeafletSync`.
  */
 

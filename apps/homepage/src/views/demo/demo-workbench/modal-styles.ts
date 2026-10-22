@@ -1,4 +1,4 @@
-import type { LeafletCanvasStyles } from 'leaflet-canvas/react'
+import type { LeafletCanvasStyles } from 'leaflet-tual/react'
 
 export function getModalAndControlStyles(isDark: boolean): Partial<LeafletCanvasStyles> {
   return {

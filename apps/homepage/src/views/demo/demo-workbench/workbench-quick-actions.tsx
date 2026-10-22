@@ -1,7 +1,7 @@
 'use client'
 
 import { Redo2, RefreshCw, Undo2 } from 'lucide-react'
-import type { LeafletCanvasController } from 'leaflet-canvas/react'
+import type { LeafletCanvasController } from 'leaflet-tual/react'
 
 interface WorkbenchQuickActionsProps {
   controller: LeafletCanvasController

@@ -1,4 +1,4 @@
-import type { ArrowRenderTheme } from 'leaflet-canvas/react'
+import type { ArrowRenderTheme } from 'leaflet-tual/react'
 
 export const DEFAULT_ARROW_THEME: ArrowRenderTheme = {
   labelBackgroundColor: 'rgba(255, 255, 255, 0.95)',

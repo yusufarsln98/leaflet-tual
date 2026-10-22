@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `(function(){
   try {
-    var saved = localStorage.getItem('leaflet-canvas-theme');
+    var saved = localStorage.getItem('leaflet-tual-theme');
     var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     var isDark = saved === 'dark' || (!saved && prefersDark) || !saved;
     if (isDark) {
