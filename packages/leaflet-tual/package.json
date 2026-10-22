@@ -1,6 +1,6 @@
 {
   "name": "leaflet-tual",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Framework-agnostic interactive canvas and annotation toolkit for Leaflet maps — draw arrows, shapes, freehand sketches, rulers, notes, and text pinned to geo-coordinates. Optional React bindings.",
   "type": "module",
   "sideEffects": false,

@@ -2,18 +2,14 @@ import { describe, it, expect } from 'vitest'
 import {
   VERSION,
   createId,
-  LeafletCanvas,
   LeafletTual,
-  CanvasToolbar,
+  TualToolbar,
   InlineShapeLabelEditor,
   NoteOverlay,
   TextOverlay,
-  useLeafletCanvas,
   useLeafletTual,
   useLeafletSync,
-  createLeafletCanvas,
   createLeafletTual,
-  createLeafletCanvasController,
   createLeafletTualController,
   computeDefaultControlGeoPoint,
   constrainToAspectRatio,
@@ -47,18 +43,14 @@ describe('leaflet-tual package exports', () => {
 
   it('exports all core public components and hooks from leaflet-tual/react', () => {
     expect(LeafletTual).toBeDefined()
-    expect(LeafletCanvas).toBeDefined()
-    expect(CanvasToolbar).toBeDefined()
+    expect(TualToolbar).toBeDefined()
     expect(InlineShapeLabelEditor).toBeDefined()
     expect(NoteOverlay).toBeDefined()
     expect(TextOverlay).toBeDefined()
     expect(useLeafletTual).toBeDefined()
-    expect(useLeafletCanvas).toBeDefined()
     expect(useLeafletSync).toBeDefined()
     expect(createLeafletTual).toBeDefined()
-    expect(createLeafletCanvas).toBeDefined()
     expect(createLeafletTualController).toBeDefined()
-    expect(createLeafletCanvasController).toBeDefined()
   })
 
   it('exports all core geometry and rendering utilities', () => {

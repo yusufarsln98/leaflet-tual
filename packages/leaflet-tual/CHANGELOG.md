@@ -1,15 +1,15 @@
 # leaflet-tual
 
-## 0.1.0
+## 1.0.0
 
-### Minor Changes
+### Major Changes
 
-- **Initial Public Release of `leaflet-tual`**: A high-performance, framework-agnostic, geographically synchronized annotation and tactical canvas toolkit for Leaflet maps with optional React bindings.
+- **Initial Stable Release of `leaflet-tual`**: A high-performance, framework-agnostic, geographically synchronized annotation and tactical canvas toolkit for Leaflet maps with optional React bindings.
 
   #### Framework-Agnostic Core & Optional React Bindings
 
-  - **`leaflet-tual` / `leaflet-tual/core`**: Zero-React framework-agnostic core (`createLeafletCanvas`, `createLeafletCanvasController`, `paintLeafletCanvas`, `bindLeafletSync`) usable in Vanilla JS, TypeScript, Vue, Svelte, or Angular.
-  - **`leaflet-tual/react`**: First-class React components (`<LeafletCanvas>`, `<CanvasToolbar>`) and hooks (`useLeafletCanvas`, `useLeafletSync`) shipped on a dedicated subpath so non-React consumers never resolve React peer dependencies.
+  - **`leaflet-tual` / `leaflet-tual/core`**: Zero-React framework-agnostic core (`createLeafletTual`, `createLeafletTualController`, `paintLeafletTual`, `bindLeafletSync`) usable in Vanilla JS, TypeScript, Vue, Svelte, or Angular.
+  - **`leaflet-tual/react`**: First-class React components (`<LeafletTual>`, `<TualToolbar>`) and hooks (`useLeafletTual`, `useLeafletSync`) shipped on a dedicated subpath so non-React consumers never resolve React peer dependencies.
 
   #### Geographic Lat/Lng Synchronization
 
@@ -47,7 +47,7 @@
 
   #### Architecture & State Management
 
-  - **Decoupled Controller (`createLeafletCanvasController` & `useLeafletCanvas`)**: Manage state in either uncontrolled mode (with built-in 50-step undo/redo history) or controlled mode (`items` + `onItemsChange`).
+  - **Decoupled Controller (`createLeafletTualController` & `useLeafletTual`)**: Manage state in either uncontrolled mode (with built-in 50-step undo/redo history) or controlled mode (`items` + `onItemsChange`).
   - **Flexible Floating Toolbar (`<CanvasToolbar>`)**: Built-in floating toolbar with 8 positioning presets, geometric 16px SVG icons, collapsible trigger, or completely decoupled outside the map container.
   - **Read-Only Mode (`readOnly`)**: Strip edit handles and toolbars for presentation or dashboard embedding while keeping Leaflet map pan, zoom, and click interactions completely unobstructed.
   - **Keyboard Shortcuts**: Built-in hotkeys for tools (`V` Select, `P` Free Draw, `A` Linear Arrow, `C` Curved Arrow, `B` Bi-directional, `E` Elbow, `S` S-Curve, `R` Ruler, `N` Note, `T` Text), `Enter` (edit label), `Escape` (cancel/deselect), and `Delete` / `Backspace` (remove item).

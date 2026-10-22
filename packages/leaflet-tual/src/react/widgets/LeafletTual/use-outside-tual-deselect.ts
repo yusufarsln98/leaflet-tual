@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react'
 import type L from 'leaflet'
-import type { CanvasItem, CanvasTool } from '../../types/index.js'
+import type { TualItem, TualTool } from '../../types/index.js'
 
-export function useStableItemArray<T extends CanvasItem>(
-  items: CanvasItem[],
+export function useStableItemArray<T extends TualItem>(
+  items: TualItem[],
   type: T['type'],
 ): T[] {
   const prevRef = useRef<T[]>([])
@@ -20,11 +20,11 @@ export function useStableItemArray<T extends CanvasItem>(
   }, [items, type])
 }
 
-export function useOutsideCanvasPointerDown(
+export function useOutsideTualPointerDown(
   map: L.Map | null,
   isReadOnly: boolean,
-  activeTool: CanvasTool,
-  setActiveTool: (tool: CanvasTool) => void,
+  activeTool: TualTool,
+  setActiveTool: (tool: TualTool) => void,
   selectedId: string | null,
   setSelectedId: (id: string | null) => void,
   notifyChangeComplete: () => void,
@@ -39,7 +39,7 @@ export function useOutsideCanvasPointerDown(
       if (
         mapEl.contains(target) ||
         target?.closest?.(
-          '[data-rlc-overlay], [data-rlc-toolbar], [data-rlc-note], [data-rlc-text], .leaflet-control',
+          '[data-tual-overlay], [data-tual-toolbar], [data-tual-note], [data-tual-text], .leaflet-control',
         )
       ) {
         return

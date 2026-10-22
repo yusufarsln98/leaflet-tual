@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import type { CanvasItem, ShapeKind } from '../types/index.js'
+import type { TualItem, ShapeKind } from '../types/index.js'
 import {
   DEFAULT_FONT_SIZE,
   DEFAULT_NOTE_BG,
@@ -16,10 +16,10 @@ export interface UseCanvasStylesOptions {
   defaultShape?: ShapeKind
   readOnly: boolean
   selectedId: string | null
-  commitItems: (updater: (prev: CanvasItem[]) => CanvasItem[]) => CanvasItem[]
+  commitItems: (updater: (prev: TualItem[]) => TualItem[]) => TualItem[]
 }
 
-export function useCanvasStyles(options: UseCanvasStylesOptions) {
+export function useTualStyles(options: UseCanvasStylesOptions) {
   const {
     defaultColor = DEFAULT_STROKE_COLOR,
     defaultStrokeWidth = DEFAULT_STROKE_WIDTH,
@@ -41,7 +41,7 @@ export function useCanvasStyles(options: UseCanvasStylesOptions) {
   const [fontWeight, setFontWeightState] = useState<'normal' | 'bold'>('bold')
 
   const patchSelected = useCallback(
-    (predicate: (it: CanvasItem) => boolean, patcher: (it: any) => any) => {
+    (predicate: (it: TualItem) => boolean, patcher: (it: any) => any) => {
       if (!selectedId) return
       commitItems((prev) =>
         prev.map((it) => (it.id === selectedId && predicate(it) ? patcher(it) : it)),

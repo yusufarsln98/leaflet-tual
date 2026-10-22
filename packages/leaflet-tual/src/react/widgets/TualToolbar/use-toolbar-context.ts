@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import type { LeafletCanvasController } from '../../types/index.js'
+import type { LeafletTualController } from '../../types/index.js'
 import { isArrowTool } from './utils.js'
 
-export function useToolbarContext(controller: LeafletCanvasController, readOnly: boolean) {
+export function useToolbarContext(controller: LeafletTualController, readOnly: boolean) {
   const { activeTool, selectedItem } = controller
   const [arrowDropdownOpen, setArrowDropdownOpen] = useState(false)
   const [shapesModalOpen, setShapesModalOpen] = useState(false)

@@ -23,14 +23,14 @@ description: Rules, data models, component composition, controller hooks, and co
 - **GeoPoint Storage Rule**: All persistent item coordinates MUST be stored as geographic latitude/longitude pairs (\`GeoPoint\`: \`{ lat: number, lng: number }\`). NEVER store screen \`{ x, y }\` coordinates directly in item objects. Screen projections (\`geoToScreen\` / \`screenToGeo\`) occur dynamically during render passes and drag interactions.
 - **Map Context Rule**: \`<LeafletTual>\` automatically accesses the Leaflet map instance via \`useMap()\` when placed as a child of \`<MapContainer>\`. If rendered outside \`<MapContainer>\`, you MUST provide the Leaflet map instance explicitly via the \`map\` prop (\`<LeafletTual map={mapInstance} />\`).
 - **Controller Decoupling**: Always manage state through \`useLeafletTual\`. You can run it in **uncontrolled mode** (with built-in undo/redo history) or **controlled mode** by providing \`items\` and \`onItemsChange\` (or \`onChange\`).
-- **Toolbar Placement & Decoupling**: By default, \`<LeafletTual>\` embeds a floating toolbar configured by \`toolbarPosition\` (\`'top-center'\`, \`'bottom-center'\`, \`'left-center'\`, \`'right-center'\`, \`'top'\`, \`'bottom'\`, \`'left'\`, \`'right'\`). To render a decoupled external toolbar outside the map, set \`showToolbar={false}\` on \`<LeafletTual>\` and render \`<CanvasToolbar controller={controller} />\` separately.
+- **Toolbar Placement & Decoupling**: By default, \`<LeafletTual>\` embeds a floating toolbar configured by \`toolbarPosition\` (\`'top-center'\`, \`'bottom-center'\`, \`'left-center'\`, \`'right-center'\`, \`'top'\`, \`'bottom'\`, \`'left'\`, \`'right'\`). To render a decoupled external toolbar outside the map, set \`showToolbar={false}\` on \`<LeafletTual>\` and render \`<TualToolbar controller={controller} />\` separately.
 - **Proportion Locking & Angle Snapping**: Holding \`Shift\` during drawing automatically snaps arrow angles to 45° increments and shape bounding boxes to a 1:1 aspect ratio.
 
 ---
 
 ## 2. Layout Data Model (JSON Schemas)
 
-All annotations on the canvas conform to the discriminated union \`CanvasItem\`:
+All annotations on the canvas conform to the discriminated union \`TualItem\`:
 
 \`\`\`ts
 export type GeoPoint = {
@@ -55,7 +55,7 @@ export type ShapeKind =
   | 'hexagon'
   | 'marker'
 
-export type CanvasTool =
+export type TualTool =
   | 'select'
   | 'freedraw'
   | 'arrow-linear'
@@ -141,7 +141,7 @@ export interface TextItem {
   createdAt: number
 }
 
-export type CanvasItem = ArrowItem | FreeDrawItem | ShapeItem | NoteItem | TextItem
+export type TualItem = ArrowItem | FreeDrawItem | ShapeItem | NoteItem | TextItem
 \`\`\`
 
 ---
@@ -185,7 +185,7 @@ function MapView() {
 
 \`\`\`tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { CanvasToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
+import { TualToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 
 function CustomApp() {
   const controller = useLeafletTual()
@@ -193,7 +193,7 @@ function CustomApp() {
   return (
     <div className="app-container">
       <header className="custom-header">
-        <CanvasToolbar controller={controller} orientation="horizontal" />
+        <TualToolbar controller={controller} orientation="horizontal" />
       </header>
 
       <MapContainer center={[41.01, 28.97]} zoom={13} style={{ height: '600px' }}>
@@ -228,12 +228,12 @@ function CustomApp() {
 - \`showDeleteButton?: boolean\`: Whether to show the Delete button in the toolbar.
 - \`showClearButton?: boolean\`: Whether to show the Clear All button in the toolbar.
 - \`showToolLabels?: boolean\`: Whether to show text labels below/next to toolbar icons.
-- \`labels?: CanvasLabels\`: Deeply customizable string labels, tooltips, and placeholders for all buttons and modals.
-- \`icons?: CanvasIcons\`: Customizable React nodes/icons for toolbar tools and action buttons.
+- \`labels?: TualLabels\`: Deeply customizable string labels, tooltips, and placeholders for all buttons and modals.
+- \`icons?: TualIcons\`: Customizable React nodes/icons for toolbar tools and action buttons.
 - \`unstyled?: boolean\`: Disables default styling for full custom CSS integration.
 - \`classNames?: LeafletTualClassNames\`: Custom class names for root container, canvas element, toolbar, notes, and text overlays.
 - \`styles?: LeafletTualStyles\`: Inline style overrides for canvas elements and overlays.
-- \`annotationTheme?: CanvasAnnotationTheme\`: Custom rendering theme for 2D canvas handles, halos, and selection glows.
+- \`annotationTheme?: TualAnnotationTheme\`: Custom rendering theme for 2D canvas handles, halos, and selection glows.
 - \`arrowTheme?: ArrowRenderTheme\`: Alias for \`annotationTheme\`.
 - \`strokeColors?: readonly string[]\`: Custom color swatches in the toolbar palette.
 - \`strokeWidthOptions?: readonly number[]\`: Stroke width preset options.
@@ -247,15 +247,15 @@ function CustomApp() {
 - \`zIndex?: number\`: Z-index for overlay elements (default: \`650\`).
 - \`className?: string\`: Class name for the container element.
 - \`style?: React.CSSProperties\`: CSS styles for the container element.
-- \`onChange?: (items: CanvasItem[]) => void\` / \`onItemsChange?: (items: CanvasItem[]) => void\`: Immediate change callback fired on every mutation.
-- \`onChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void\` / \`onItemsChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void\`: Completion callback fired when editing finishes (click outside activating Select mode, deselect, blur, Escape). Aliased by \`onEditEnd\` and \`onEditComplete\`.
-- \`onItemSelect?: (item: CanvasItem | null) => void\`: Callback when item is selected/deselected.
-- \`onItemCreate?: (item: CanvasItem) => void\`: Callback when item is created.
-- \`onItemChange?: (item: CanvasItem) => void\`: Callback when item is modified.
-- \`onItemChangeComplete?: (item: CanvasItem) => void\`: Callback when item finishes editing.
+- \`onChange?: (items: TualItem[]) => void\` / \`onItemsChange?: (items: TualItem[]) => void\`: Immediate change callback fired on every mutation.
+- \`onChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void\` / \`onItemsChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void\`: Completion callback fired when editing finishes (click outside activating Select mode, deselect, blur, Escape). Aliased by \`onEditEnd\` and \`onEditComplete\`.
+- \`onItemSelect?: (item: TualItem | null) => void\`: Callback when item is selected/deselected.
+- \`onItemCreate?: (item: TualItem) => void\`: Callback when item is created.
+- \`onItemChange?: (item: TualItem) => void\`: Callback when item is modified.
+- \`onItemChangeComplete?: (item: TualItem) => void\`: Callback when item finishes editing.
 - \`onItemDelete?: (id: string) => void\`: Callback when item is deleted.
 
-### \`<CanvasToolbar>\` Component Props
+### \`<TualToolbar>\` Component Props
 
 - \`controller: LeafletTualController\`: Canvas controller instance.
 - \`position?: ToolbarPosition\`: Position preset styling.
@@ -272,8 +272,8 @@ function CustomApp() {
 - \`showDeleteButton?: boolean\`: Show delete selected item button.
 - \`showClearButton?: boolean\`: Show clear all annotations button.
 - \`showToolLabels?: boolean\`: Display text labels for tools.
-- \`labels?: CanvasLabels\`: Label localization overrides.
-- \`icons?: CanvasIcons\`: Icon overrides.
+- \`labels?: TualLabels\`: Label localization overrides.
+- \`icons?: TualIcons\`: Icon overrides.
 - \`unstyled?: boolean\`: Strip default styles.
 - \`classNames?: LeafletTualClassNames\`: CSS class name overrides.
 - \`styles?: LeafletTualStyles\`: Inline style overrides.
@@ -286,8 +286,8 @@ function CustomApp() {
 ### \`useLeafletTual(options)\` Hook
 
 Options (\`UseLeafletTualOptions\`):
-- \`initialItems?: CanvasItem[]\`: Uncontrolled initial annotations.
-- \`items?: CanvasItem[]\`: Controlled annotations array.
+- \`initialItems?: TualItem[]\`: Uncontrolled initial annotations.
+- \`items?: TualItem[]\`: Controlled annotations array.
 - \`maxHistory?: number\`: Undo/redo history capacity (default: 50).
 - \`readOnly?: boolean\`: Initial read-only mode state.
 - \`defaultColor?: string\`: Default stroke color (hex).
@@ -295,18 +295,18 @@ Options (\`UseLeafletTualOptions\`):
 - \`defaultNoteColor?: string\`: Default sticky note background color.
 - \`defaultFontSize?: number\`: Default text overlay font size.
 - \`defaultShape?: ShapeKind\`: Default shape type (default: \`'square'\`).
-- \`initialTool?: CanvasTool\`: Initial active tool (default: \`'select'\`).
-- \`onChange?: (items: CanvasItem[]) => void\` / \`onItemsChange?: (items: CanvasItem[]) => void\`: Immediate mutation callback.
-- \`onChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void\` / \`onItemsChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void\`: Edit completion callback. Aliased by \`onEditEnd\` and \`onEditComplete\`.
-- \`onItemSelect?: (item: CanvasItem | null) => void\`: Selection change callback.
-- \`onItemCreate?: (item: CanvasItem) => void\`: Item creation callback.
-- \`onItemChange?: (item: CanvasItem) => void\`: Item mutation callback.
-- \`onItemChangeComplete?: (item: CanvasItem) => void\`: Item edit complete callback.
+- \`initialTool?: TualTool\`: Initial active tool (default: \`'select'\`).
+- \`onChange?: (items: TualItem[]) => void\` / \`onItemsChange?: (items: TualItem[]) => void\`: Immediate mutation callback.
+- \`onChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void\` / \`onItemsChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void\`: Edit completion callback. Aliased by \`onEditEnd\` and \`onEditComplete\`.
+- \`onItemSelect?: (item: TualItem | null) => void\`: Selection change callback.
+- \`onItemCreate?: (item: TualItem) => void\`: Item creation callback.
+- \`onItemChange?: (item: TualItem) => void\`: Item mutation callback.
+- \`onItemChangeComplete?: (item: TualItem) => void\`: Item edit complete callback.
 - \`onItemDelete?: (id: string) => void\`: Item removal callback.
-- \`onToolChange?: (tool: CanvasTool) => void\`: Tool mode change callback.
+- \`onToolChange?: (tool: TualTool) => void\`: Tool mode change callback.
 
 Return Object (\`LeafletTualController\`):
-- \`items\`: Active list of \`CanvasItem\` elements.
+- \`items\`: Active list of \`TualItem\` elements.
 - \`activeTool\`: Current active canvas tool (\`'select'\`, \`'freedraw'\`, \`'arrow-linear'\`, \`'arrow-curved'\`, \`'arrow-bi'\`, \`'arrow-elbow'\`, \`'arrow-s-curve'\`, \`'shape'\`, \`'note'\`, \`'text'\`).
 - \`setActiveTool(tool)\` / \`setTool(tool)\`: Switch active tool.
 - \`readOnly\`: Boolean indicating whether read-only mode is active.
@@ -317,7 +317,7 @@ Return Object (\`LeafletTualController\`):
 - \`setShapeFilled(filled)\`: Toggles shape fill.
 - \`selectedId\`: Currently selected item ID (or \`null\`).
 - \`setSelectedId(id)\` / \`selectItem(id)\`: Select an item or clear selection (\`null\`).
-- \`selectedItem\`: Currently selected \`CanvasItem\` (or \`null\`).
+- \`selectedItem\`: Currently selected \`TualItem\` (or \`null\`).
 - \`activeColor\`: Active stroke color.
 - \`setActiveColor(color)\`: Sets active stroke color.
 - \`strokeWidth\`: Active stroke thickness.
@@ -359,7 +359,7 @@ Exported pure functions for coordinate math, hit-testing, and constraints:
 - \`distanceToSegment(p, v, w)\`: Calculates shortest perpendicular distance from point \`p\` to line segment \`vw\`.
 - \`distanceToQuadraticBezier(p, p0, p1, p2, steps = 24)\`: Calculates approximate distance from point \`p\` to quadratic Bezier curve.
 - \`getMapDimensions(map)\`: Safely retrieves \`{ width, height }\` dimensions of Leaflet map container.
-- \`truncateCanvasText(ctx, text, maxWidth)\`: Truncates canvas string with ellipsis (\`…\`) if it exceeds maximum pixel width.
+- \`truncateTualText(ctx, text, maxWidth)\`: Truncates canvas string with ellipsis (\`…\`) if it exceeds maximum pixel width.
 - \`calculateZoomFontSize(initialFontSize, currentZoom, baseZoom = 14, options?)\`: Dynamically scales font size based on Leaflet map zoom level.
 - \`createId(prefix = 'rlc')\`: Generates collision-free element IDs.
 `

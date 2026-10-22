@@ -3,14 +3,14 @@ import type L from 'leaflet'
 import type {
   ArrowItem,
   ArrowRenderTheme,
-  CanvasAnnotationTheme,
+  TualAnnotationTheme,
   FreeDrawItem,
   GeoPoint,
   RulerItem,
   ScreenPoint,
   ShapeItem,
 } from '../../types/index.js'
-import { paintLeafletCanvas } from '../../../core/features/canvas-painter.js'
+import { paintLeafletTual } from '../../../core/features/tual-painter.js'
 import type { DraftArrowState, DraftRulerState, DraftShapeState } from './types.js'
 
 export interface UseCanvasPainterOptions {
@@ -33,12 +33,12 @@ export interface UseCanvasPainterOptions {
   strokeWidth: number
   dashed: boolean
   shapeFilled: boolean
-  annotationTheme?: CanvasAnnotationTheme
+  annotationTheme?: TualAnnotationTheme
   arrowTheme?: ArrowRenderTheme
   isReadOnly: boolean
 }
 
-export function useCanvasPainter({
+export function useTualPainter({
   map,
   viewport,
   canvasRef,
@@ -60,7 +60,7 @@ export function useCanvasPainter({
   isReadOnly,
 }: UseCanvasPainterOptions) {
   const paintCanvas = useCallback(() => {
-    paintLeafletCanvas({
+    paintLeafletTual({
       map,
       canvas: canvasRef.current,
       width: viewport.width,

@@ -2,18 +2,18 @@ import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, fireEvent, act } from '@testing-library/react'
 import {
-  useLeafletCanvas,
-  CanvasToolbar,
+  useLeafletTual,
+  TualToolbar,
   getDropdownChevronRotation,
   getCollapseChevronRotation,
   getExpandChevronRotation,
   type ArrowItem,
   type TextItem,
 } from '../index.js'
-import { getHistoryBtnStyle } from '../widgets/CanvasToolbar/action-buttons-styles.js'
+import { getHistoryBtnStyle } from '../widgets/TualToolbar/action-buttons-styles.js'
 import { TestToolbarHarness } from './test-utils.js'
 
-describe('CanvasToolbar', () => {
+describe('TualToolbar', () => {
   it('opens Arrows dropdown without overlapping settings bar until an arrow is selected', () => {
     const { getByText, queryByText, queryByRole, getByRole, container } = render(
       React.createElement(TestToolbarHarness),
@@ -104,9 +104,9 @@ describe('CanvasToolbar', () => {
   })
 
   it('renders width option as a selectbox for arrows, shapes, and freedraw and updates stroke width', () => {
-    let currentController!: ReturnType<typeof useLeafletCanvas>
+    let currentController!: ReturnType<typeof useLeafletTual>
     const Harness: React.FC = () => {
-      const controller = useLeafletCanvas({
+      const controller = useLeafletTual({
         initialItems: [
           {
             id: 'arrow-1',
@@ -125,7 +125,7 @@ describe('CanvasToolbar', () => {
         controller.setSelectedId('arrow-1')
       }, [controller])
 
-      return React.createElement(CanvasToolbar, {
+      return React.createElement(TualToolbar, {
         controller,
         classNames: { toolbarSelect: 'custom-select-class' },
         styles: { toolbarSelect: { color: 'rgb(255, 255, 255)' } },
@@ -154,14 +154,14 @@ describe('CanvasToolbar', () => {
     expect((currentController.items[0] as ArrowItem).strokeWidth).toBe(5)
   })
 
-  it('supports custom strokeWidthOptions in CanvasToolbar', () => {
+  it('supports custom strokeWidthOptions in TualToolbar', () => {
     const Harness: React.FC = () => {
-      const controller = useLeafletCanvas()
+      const controller = useLeafletTual()
       React.useEffect(() => {
         controller.setActiveTool('freedraw')
       }, [controller])
 
-      return React.createElement(CanvasToolbar, {
+      return React.createElement(TualToolbar, {
         controller,
         strokeWidthOptions: [2, 4, 8, 16],
       })
@@ -174,7 +174,7 @@ describe('CanvasToolbar', () => {
     expect(optionValues).toEqual(['2', '4', '8', '16'])
   })
 
-  it('supports custom labels on CanvasToolbar', () => {
+  it('supports custom labels on TualToolbar', () => {
     const { getByText } = render(
       React.createElement(TestToolbarHarness, {
         labels: {
@@ -197,7 +197,7 @@ describe('CanvasToolbar', () => {
 
   it('hides all button labels including delete and clear when showToolLabels is false', () => {
     const Harness: React.FC = () => {
-      const controller = useLeafletCanvas({
+      const controller = useLeafletTual({
         initialItems: [
           {
             id: 'arrow-1',
@@ -216,7 +216,7 @@ describe('CanvasToolbar', () => {
         controller.setSelectedId('arrow-1')
       }, [controller])
 
-      return React.createElement(CanvasToolbar, {
+      return React.createElement(TualToolbar, {
         controller,
         showToolLabels: false,
       })
@@ -246,8 +246,8 @@ describe('CanvasToolbar', () => {
 
   it('renders dropdown chevrons as clean corner indicators pointing down without overlapping icons in vertical orientation without labels', () => {
     const Harness: React.FC = () => {
-      const controller = useLeafletCanvas()
-      return React.createElement(CanvasToolbar, {
+      const controller = useLeafletTual()
+      return React.createElement(TualToolbar, {
         controller,
         position: 'left-center',
         showToolLabels: false,
@@ -282,7 +282,7 @@ describe('CanvasToolbar', () => {
 
   it('renders delete and clear button labels and menu-item grid layout in vertical orientation when showToolLabels is true', () => {
     const Harness: React.FC = () => {
-      const controller = useLeafletCanvas({
+      const controller = useLeafletTual({
         initialItems: [
           {
             id: 'arrow-1',
@@ -301,7 +301,7 @@ describe('CanvasToolbar', () => {
         controller.setSelectedId('arrow-1')
       }, [controller])
 
-      return React.createElement(CanvasToolbar, {
+      return React.createElement(TualToolbar, {
         controller,
         orientation: 'vertical',
         showToolLabels: true,
@@ -348,7 +348,7 @@ describe('CanvasToolbar', () => {
 
   it('renders contextual settings bar for Normal Text tool and updates text styling and content', () => {
     function TextToolbarHarness() {
-      const controller = useLeafletCanvas({
+      const controller = useLeafletTual({
         initialItems: [
           {
             id: 'text-1',
@@ -362,7 +362,7 @@ describe('CanvasToolbar', () => {
           },
         ],
       })
-      return React.createElement(CanvasToolbar, { controller })
+      return React.createElement(TualToolbar, { controller })
     }
 
     const { getByText, getByTitle, container } = render(
@@ -399,14 +399,14 @@ describe('CanvasToolbar', () => {
     expect(boldBtn.getAttribute('data-active')).toBe('true')
   })
 
-  it('supports custom fontSizeOptions in CanvasToolbar', () => {
+  it('supports custom fontSizeOptions in TualToolbar', () => {
     const Harness: React.FC = () => {
-      const controller = useLeafletCanvas()
+      const controller = useLeafletTual()
       React.useEffect(() => {
         controller.setActiveTool('text')
       }, [controller])
 
-      return React.createElement(CanvasToolbar, {
+      return React.createElement(TualToolbar, {
         controller,
         fontSizeOptions: [12, 18, 24, 36],
       })
@@ -420,9 +420,9 @@ describe('CanvasToolbar', () => {
   })
 
   it('allows editing selected text item via input in contextual settings bar', () => {
-    let testController: ReturnType<typeof useLeafletCanvas> | null = null
+    let testController: ReturnType<typeof useLeafletTual> | null = null
     function SelectedTextHarness() {
-      const controller = useLeafletCanvas({
+      const controller = useLeafletTual({
         initialItems: [
           {
             id: 'text-1',
@@ -437,7 +437,7 @@ describe('CanvasToolbar', () => {
         ],
       })
       testController = controller
-      return React.createElement(CanvasToolbar, { controller })
+      return React.createElement(TualToolbar, { controller })
     }
 
     const { getByPlaceholderText, container } = render(
@@ -464,7 +464,7 @@ describe('CanvasToolbar', () => {
 
   it('stacks settings controls horizontally first with wrap and min-width for inputs in vertical orientation', () => {
     function VerticalTextToolbarHarness() {
-      const controller = useLeafletCanvas({
+      const controller = useLeafletTual({
         initialItems: [
           {
             id: 'text-1',
@@ -481,7 +481,7 @@ describe('CanvasToolbar', () => {
       React.useEffect(() => {
         controller.selectItem('text-1')
       }, [controller])
-      return React.createElement(CanvasToolbar, {
+      return React.createElement(TualToolbar, {
         controller,
         orientation: 'vertical',
       })
@@ -508,12 +508,12 @@ describe('CanvasToolbar', () => {
       const { container, rerender } = render(
         React.createElement(TestToolbarHarness, { position: 'top' }),
       )
-      let toolbar = container.querySelector('[data-rlc-toolbar]')
+      let toolbar = container.querySelector('[data-tual-toolbar]')
       expect(toolbar?.getAttribute('data-position')).toBe('top')
       expect(toolbar?.getAttribute('data-orientation')).toBe('horizontal')
 
       rerender(React.createElement(TestToolbarHarness, { position: 'bottom' }))
-      toolbar = container.querySelector('[data-rlc-toolbar]')
+      toolbar = container.querySelector('[data-tual-toolbar]')
       expect(toolbar?.getAttribute('data-position')).toBe('bottom')
       expect(toolbar?.getAttribute('data-orientation')).toBe('horizontal')
     })
@@ -522,12 +522,12 @@ describe('CanvasToolbar', () => {
       const { container, rerender } = render(
         React.createElement(TestToolbarHarness, { position: 'left' }),
       )
-      let toolbar = container.querySelector('[data-rlc-toolbar]')
+      let toolbar = container.querySelector('[data-tual-toolbar]')
       expect(toolbar?.getAttribute('data-position')).toBe('left')
       expect(toolbar?.getAttribute('data-orientation')).toBe('vertical')
 
       rerender(React.createElement(TestToolbarHarness, { position: 'right' }))
-      toolbar = container.querySelector('[data-rlc-toolbar]')
+      toolbar = container.querySelector('[data-tual-toolbar]')
       expect(toolbar?.getAttribute('data-position')).toBe('right')
       expect(toolbar?.getAttribute('data-orientation')).toBe('vertical')
     })
@@ -539,7 +539,7 @@ describe('CanvasToolbar', () => {
           orientation: 'vertical',
         }),
       )
-      const toolbar = container.querySelector('[data-rlc-toolbar]')
+      const toolbar = container.querySelector('[data-tual-toolbar]')
       expect(toolbar?.getAttribute('data-position')).toBe('top')
       expect(toolbar?.getAttribute('data-orientation')).toBe('vertical')
     })
@@ -697,11 +697,11 @@ describe('CanvasToolbar', () => {
 
   describe('undo/redo disabled state styling', () => {
     it('marks undo/redo buttons with disabled classes, styles, and opacity when no history action is available', () => {
-      let currentController!: ReturnType<typeof useLeafletCanvas>
+      let currentController!: ReturnType<typeof useLeafletTual>
       const Harness: React.FC = () => {
-        const controller = useLeafletCanvas()
+        const controller = useLeafletTual()
         currentController = controller
-        return React.createElement(CanvasToolbar, {
+        return React.createElement(TualToolbar, {
           controller,
           classNames: {
             actionButton: 'custom-action',

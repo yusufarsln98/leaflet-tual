@@ -25,7 +25,7 @@ describe('double-click map zoom blocking', () => {
     const { unmount } = renderHook(() => useBlockMapDblClick(mockMap))
 
     const overlay = document.createElement('div')
-    overlay.setAttribute('data-rlc-overlay', '')
+    overlay.setAttribute('data-tual-overlay', '')
     const textWrapper = document.createElement('div')
     textWrapper.className = 'rlc-text-wrapper'
     const input = document.createElement('input')

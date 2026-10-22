@@ -1,9 +1,9 @@
 import type React from 'react'
 import type L from 'leaflet'
 import type {
-  CanvasLabels,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualLabels,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   TextItem,
 } from '../../types/index.js'
 
@@ -16,9 +16,9 @@ export interface TextOverlayViewProps {
   readOnly: boolean
   unstyled: boolean
   dynamicFontSize: number
-  labels?: CanvasLabels
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  labels?: TualLabels
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   inputRef: React.RefObject<HTMLTextAreaElement | null>
   setIsEditing: (editing: boolean) => void
   onUpdate: (id: string, patch: Partial<TextItem>) => void

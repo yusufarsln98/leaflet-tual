@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
-import type { CanvasLabels, ShapeItem } from '../../types/index.js'
+import type { TualLabels, ShapeItem } from '../../types/index.js'
 import { projectShape } from '../../../core/entities/shape/render-shape.js'
 
 export interface InlineShapeLabelEditorProps {
   shape: ShapeItem
   map: L.Map
-  labels?: CanvasLabels
+  labels?: TualLabels
   onUpdate: (id: string, patch: Partial<ShapeItem>) => void
   onClose: () => void
 }
@@ -36,7 +36,7 @@ export function InlineShapeLabelEditor({
 
   return (
     <div
-      data-rlc-inline-shape-label
+      data-tual-inline-shape-label
       style={{
         position: 'absolute',
         left: `${midX}px`,
@@ -51,7 +51,7 @@ export function InlineShapeLabelEditor({
       <input
         ref={inputRef}
         type="text"
-        data-rlc-shape-label-input={shape.id}
+        data-tual-shape-label-input={shape.id}
         data-testid="inline-shape-label-input"
         data-label-mode="true"
         placeholder={labels?.shapeLabelPlaceholder ?? 'Shape label...'}

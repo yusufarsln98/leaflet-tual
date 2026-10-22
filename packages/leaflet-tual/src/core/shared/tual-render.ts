@@ -1,7 +1,7 @@
-import type { CanvasAnnotationTheme, ScreenPoint } from '../types/index.js'
-import { truncateCanvasText } from './geo.js'
+import type { TualAnnotationTheme, ScreenPoint } from '../types/index.js'
+import { truncateTualText } from './geo.js'
 
-export function drawCanvasHandle(
+export function drawTualHandle(
   ctx: CanvasRenderingContext2D,
   pt: ScreenPoint,
   strokeColor: string,
@@ -20,20 +20,20 @@ export function drawCanvasHandle(
   ctx.restore()
 }
 
-export function drawCanvasLabelPill(
+export function drawTualLabelPill(
   ctx: CanvasRenderingContext2D,
   label: string,
   midX: number,
   midY: number,
   strokeColor: string,
   maxAllowedBoxWidth: number,
-  theme?: CanvasAnnotationTheme,
+  theme?: TualAnnotationTheme,
 ) {
   ctx.save()
   ctx.font = theme?.labelFont ?? '12px system-ui, -apple-system, sans-serif'
   const padX = theme?.labelPaddingX ?? 6
   const maxTextWidth = Math.max(10, maxAllowedBoxWidth - padX * 2)
-  const displayText = truncateCanvasText(ctx, label, maxTextWidth)
+  const displayText = truncateTualText(ctx, label, maxTextWidth)
 
   if (displayText) {
     const metrics = ctx.measureText(displayText)

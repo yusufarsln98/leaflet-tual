@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react'
 import type {
   ArrowItem,
-  CanvasIcons,
-  CanvasItem,
-  CanvasLabels,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualIcons,
+  TualItem,
+  TualLabels,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   ShapeItem,
   TextItem,
   ToolbarOrientation,
@@ -25,7 +25,7 @@ export interface ContextualSettingsBarProps {
   isRulerContext?: boolean
   isTextContext: boolean
   isNoteContext: boolean
-  selectedItem: CanvasItem | null | undefined
+  selectedItem: TualItem | null | undefined
   selectedShape: ShapeItem | null
   selectedArrow: ArrowItem | null
   selectedText?: TextItem | null
@@ -46,16 +46,16 @@ export interface ContextualSettingsBarProps {
   fontWeight?: 'normal' | 'bold'
   setFontWeight?: (weight: 'normal' | 'bold') => void
   updateItem: (id: string, patch: any) => void
-  notifyChangeComplete?: (targetItem?: CanvasItem | null) => void
+  notifyChangeComplete?: (targetItem?: TualItem | null) => void
   isEditingLabel?: boolean
   setEditingLabel?: (editing: boolean) => void
   strokeColors: readonly string[]
   orientation?: ToolbarOrientation
-  labels?: CanvasLabels
-  icons?: CanvasIcons
+  labels?: TualLabels
+  icons?: TualIcons
   unstyled?: boolean
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
 }
 
 export function ContextualSettingsBar(props: ContextualSettingsBarProps) {
@@ -205,7 +205,7 @@ export function ContextualSettingsBar(props: ContextualSettingsBarProps) {
             <input
               ref={shapeInputRef}
               type="text"
-              data-rlc-shape-label-input={selectedShape.id}
+              data-tual-shape-label-input={selectedShape.id}
               data-testid="shape-label-input"
               data-label-mode="true"
               data-editing-label={isEditingLabel ? 'true' : undefined}
@@ -219,7 +219,7 @@ export function ContextualSettingsBar(props: ContextualSettingsBarProps) {
                 if (
                   next?.tagName === 'INPUT' ||
                   next?.tagName === 'TEXTAREA' ||
-                  next?.closest('[data-rlc-toolbar], [data-rlc-inline-shape-label]')
+                  next?.closest('[data-tual-toolbar], [data-tual-inline-shape-label]')
                 ) {
                   return
                 }
@@ -244,7 +244,7 @@ export function ContextualSettingsBar(props: ContextualSettingsBarProps) {
         <input
           ref={arrowInputRef}
           type="text"
-          data-rlc-arrow-label-input={selectedArrow.id}
+          data-tual-arrow-label-input={selectedArrow.id}
           data-testid="arrow-label-input"
           data-label-mode="true"
           data-editing-label={isEditingLabel ? 'true' : undefined}
@@ -280,7 +280,7 @@ export function ContextualSettingsBar(props: ContextualSettingsBarProps) {
             <input
               ref={textInputRef}
               type="text"
-              data-rlc-text-input={selectedText.id}
+              data-tual-text-input={selectedText.id}
               data-testid="text-input"
               data-editing-label={isEditingLabel ? 'true' : undefined}
               placeholder={labels?.textPlaceholder ?? 'Text...'}
@@ -293,7 +293,7 @@ export function ContextualSettingsBar(props: ContextualSettingsBarProps) {
                 if (
                   next?.tagName === 'INPUT' ||
                   next?.tagName === 'TEXTAREA' ||
-                  next?.closest('[data-rlc-text], [data-rlc-toolbar]')
+                  next?.closest('[data-tual-text], [data-tual-toolbar]')
                 ) {
                   return
                 }

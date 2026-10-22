@@ -1,4 +1,4 @@
-import type { ArrowStyle, CanvasAnnotationTheme } from '../types/index.js'
+import type { ArrowStyle, TualAnnotationTheme } from '../types/index.js'
 
 export const TOOL_TO_ARROW_STYLE: Record<string, ArrowStyle | undefined> = {
   'arrow-linear': 'linear',
@@ -96,7 +96,7 @@ export const FONT_SIZE_OPTIONS = DEFAULT_FONT_SIZE_OPTIONS
 /**
  * Super simple unified annotation default theme matching basic HTML element appearance.
  */
-export const DEFAULT_ANNOTATION_THEME: Readonly<CanvasAnnotationTheme> = {
+export const DEFAULT_ANNOTATION_THEME: Readonly<TualAnnotationTheme> = {
   selectionGlowColor: 'rgba(0, 0, 0, 0.2)',
   selectionGlowWidth: 6,
   guideLineDash: [4, 4],

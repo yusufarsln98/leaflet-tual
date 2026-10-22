@@ -3,15 +3,15 @@ import type L from 'leaflet'
 import { describe, it, expect, vi } from 'vitest'
 import { render, fireEvent, renderHook, act } from '@testing-library/react'
 import {
-  useLeafletCanvas,
-  CanvasToolbar,
+  useLeafletTual,
+  TualToolbar,
   NoteOverlay,
   TextOverlay,
 } from '../index.js'
 import './test-utils.js'
 
 describe('readOnly mode', () => {
-  it('prevents item mutations, history changes, and tool switching in useLeafletCanvas', () => {
+  it('prevents item mutations, history changes, and tool switching in useLeafletTual', () => {
     const initialItem = {
       id: 'arrow-1',
       type: 'arrow' as const,
@@ -24,7 +24,7 @@ describe('readOnly mode', () => {
     }
 
     const { result } = renderHook(() =>
-      useLeafletCanvas({
+      useLeafletTual({
         readOnly: true,
         initialItems: [initialItem],
       }),
@@ -81,9 +81,9 @@ describe('readOnly mode', () => {
     expect(result.current.activeTool).toBe('freedraw')
   })
 
-  it('renders CanvasToolbar with disabled tool buttons and hides delete/clear/settings in readOnly mode', () => {
+  it('renders TualToolbar with disabled tool buttons and hides delete/clear/settings in readOnly mode', () => {
     function ReadOnlyToolbar() {
-      const controller = useLeafletCanvas({
+      const controller = useLeafletTual({
         readOnly: true,
         initialItems: [
           {
@@ -98,12 +98,12 @@ describe('readOnly mode', () => {
           },
         ],
       })
-      return React.createElement(CanvasToolbar, { controller })
+      return React.createElement(TualToolbar, { controller })
     }
 
     const { container, getByTitle } = render(React.createElement(ReadOnlyToolbar))
 
-    const toolbar = container.querySelector('[data-rlc-toolbar]')
+    const toolbar = container.querySelector('[data-tual-toolbar]')
     expect(toolbar).toBeTruthy()
     expect(toolbar?.getAttribute('data-readonly')).toBe('true')
     expect(toolbar?.classList.contains('rlc-toolbar-readonly')).toBe(true)

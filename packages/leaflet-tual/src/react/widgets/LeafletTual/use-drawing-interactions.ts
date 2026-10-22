@@ -2,8 +2,8 @@ import { useRef, useState } from 'react'
 import type React from 'react'
 import type L from 'leaflet'
 import type {
-  CanvasLabels,
-  CanvasTool,
+  TualLabels,
+  TualTool,
   GeoPoint,
   ScreenPoint,
   ShapeKind,
@@ -27,8 +27,8 @@ import {
 
 export interface UseDrawingInteractionsOptions {
   map: L.Map | null
-  activeTool: CanvasTool
-  setActiveTool: (tool: CanvasTool) => void
+  activeTool: TualTool
+  setActiveTool: (tool: TualTool) => void
   activeShape: ShapeKind
   shapeFilled: boolean
   activeColor: string
@@ -37,7 +37,7 @@ export interface UseDrawingInteractionsOptions {
   noteColor: string
   fontSize: number
   fontWeight: 'normal' | 'bold'
-  labels?: CanvasLabels
+  labels?: TualLabels
   addItem: (item: any) => void
   paintCanvas: () => void
 }

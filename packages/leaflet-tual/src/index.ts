@@ -8,7 +8,7 @@
  * The root entry is fully framework-agnostic (vanilla JS, Vue, Svelte, …).
  * React users should prefer the React subpath:
  *
- *     import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+ *     import { LeafletTual, useLeafletTual } from 'leaflet-tual/react'
  *
  * which wraps the same core engine exported here.
  */

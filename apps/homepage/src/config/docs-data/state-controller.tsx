@@ -30,10 +30,10 @@ export const stateControllerSection: DocSection = {
       <DocTable
         headers={['Option', 'Type', 'Default', 'Description']}
         rows={[
-          ['initialItems', 'CanvasItem[]', '[]', 'Initial array of items to load onto the canvas (uncontrolled mode).'],
-          ['items', 'CanvasItem[]', 'undefined', 'Controlled array of canvas items. When provided, component operates in controlled mode.'],
+          ['initialItems', 'TualItem[]', '[]', 'Initial array of items to load onto the canvas (uncontrolled mode).'],
+          ['items', 'TualItem[]', 'undefined', 'Controlled array of canvas items. When provided, component operates in controlled mode.'],
           ['maxHistory', 'number', '50', 'Maximum undo/redo stack depth in uncontrolled mode.'],
-          ['initialTool', 'CanvasTool', "'select'", 'Active drawing tool when the canvas mounts.'],
+          ['initialTool', 'TualTool', "'select'", 'Active drawing tool when the canvas mounts.'],
           ['readOnly', 'boolean', 'false', 'Disables drawing interactions, hides selection handles, and sets toolbar to read-only presentation mode.'],
           ['interactive', 'boolean', 'true', 'Whether canvas surface responds to pointer drag and click interactions.'],
           ['defaultColor', 'string', "'#000000'", 'Default stroke color for new arrows, shapes, and freehand sketches.'],
@@ -41,15 +41,15 @@ export const stateControllerSection: DocSection = {
           ['defaultNoteColor', 'string', "'#fef9c3'", 'Default background color for new sticky notes.'],
           ['defaultFontSize', 'number', '16', 'Default font size in pixels for text annotations.'],
           ['defaultShape', 'ShapeKind', "'square'", 'Default shape kind selected in the toolbar.'],
-          ['onChange / onItemsChange', '(items: CanvasItem[]) => void', 'undefined', 'Immediate callback triggered on every interaction tick, drag move, or property change.'],
-          ['onChangeComplete / onItemsChangeComplete', '(items: CanvasItem[], targetItem?: CanvasItem | null) => void', 'undefined', 'Completion callback triggered when editing finishes (deselect, blur, outside click activating select mode, Escape).'],
-          ['onEditEnd / onEditComplete', '(items: CanvasItem[], targetItem?: CanvasItem | null) => void', 'undefined', 'Aliases for onChangeComplete.'],
-          ['onItemSelect', '(item: CanvasItem | null) => void', 'undefined', 'Fired when selection changes to a specific item or is cleared.'],
-          ['onItemCreate', '(item: CanvasItem) => void', 'undefined', 'Fired when a new item is created on the canvas.'],
-          ['onItemChange', '(item: CanvasItem) => void', 'undefined', 'Fired on every intermediate modification of an existing item.'],
-          ['onItemChangeComplete', '(item: CanvasItem) => void', 'undefined', 'Fired when an item finishes its editing cycle.'],
+          ['onChange / onItemsChange', '(items: TualItem[]) => void', 'undefined', 'Immediate callback triggered on every interaction tick, drag move, or property change.'],
+          ['onChangeComplete / onItemsChangeComplete', '(items: TualItem[], targetItem?: TualItem | null) => void', 'undefined', 'Completion callback triggered when editing finishes (deselect, blur, outside click activating select mode, Escape).'],
+          ['onEditEnd / onEditComplete', '(items: TualItem[], targetItem?: TualItem | null) => void', 'undefined', 'Aliases for onChangeComplete.'],
+          ['onItemSelect', '(item: TualItem | null) => void', 'undefined', 'Fired when selection changes to a specific item or is cleared.'],
+          ['onItemCreate', '(item: TualItem) => void', 'undefined', 'Fired when a new item is created on the canvas.'],
+          ['onItemChange', '(item: TualItem) => void', 'undefined', 'Fired on every intermediate modification of an existing item.'],
+          ['onItemChangeComplete', '(item: TualItem) => void', 'undefined', 'Fired when an item finishes its editing cycle.'],
           ['onItemDelete', '(id: string) => void', 'undefined', 'Fired when an item is removed from the canvas.'],
-          ['onToolChange', '(tool: CanvasTool) => void', 'undefined', 'Fired when the active drawing tool changes.'],
+          ['onToolChange', '(tool: TualTool) => void', 'undefined', 'Fired when the active drawing tool changes.'],
         ]}
       />
 
@@ -65,13 +65,13 @@ export const stateControllerSection: DocSection = {
       <DocTable
         headers={['Property', 'Type', 'Description']}
         rows={[
-          ['items', 'CanvasItem[]', 'Array of all current canvas annotations.'],
-          ['activeTool', 'CanvasTool', 'Currently active tool (e.g. "select", "arrow-curved", "shape", "note", "text", "freedraw").'],
+          ['items', 'TualItem[]', 'Array of all current canvas annotations.'],
+          ['activeTool', 'TualTool', 'Currently active tool (e.g. "select", "arrow-curved", "shape", "note", "text", "freedraw").'],
           ['readOnly', 'boolean', 'Whether the canvas is in presentation read-only mode.'],
           ['activeShape', 'ShapeKind', 'Currently selected shape kind for the shape tool ("square", "circle", "star", etc.).'],
           ['shapeFilled', 'boolean', 'Whether new or selected shapes have their fill enabled.'],
           ['selectedId', 'string | null', 'ID of the currently selected canvas item, or null if none.'],
-          ['selectedItem', 'CanvasItem | null', 'The currently selected CanvasItem object, or null if none.'],
+          ['selectedItem', 'TualItem | null', 'The currently selected TualItem object, or null if none.'],
           ['activeColor', 'string', 'Currently active stroke color hex code.'],
           ['strokeWidth', 'number', 'Currently active stroke width in pixels.'],
           ['dashed', 'boolean', 'Whether dashed stroke style is active.'],
@@ -90,7 +90,7 @@ export const stateControllerSection: DocSection = {
       <DocTable
         headers={['Method', 'Signature', 'Description']}
         rows={[
-          ['setActiveTool / setTool', '(tool: CanvasTool) => void', 'Changes the active drawing tool.'],
+          ['setActiveTool / setTool', '(tool: TualTool) => void', 'Changes the active drawing tool.'],
           ['setReadOnly', '(readOnly: boolean) => void', 'Dynamically toggles presentation read-only mode.'],
           ['setActiveShape', '(shape: ShapeKind) => void', 'Sets the shape primitive to draw when the shape tool is used.'],
           ['setShapeFilled', '(filled: boolean) => void', 'Toggles filled styling for the active shape and currently selected shape.'],
@@ -101,14 +101,14 @@ export const stateControllerSection: DocSection = {
           ['setNoteColor', '(color: string) => void', 'Sets the background color for new and selected sticky notes.'],
           ['setFontSize', '(size: number) => void', 'Sets the font size for text annotations.'],
           ['setFontWeight', '(weight: "normal" | "bold") => void', 'Sets the font weight for text annotations.'],
-          ['addItem', '(item: CanvasItem) => void', 'Appends a new annotation item to the canvas.'],
-          ['updateItem', '(id: string, patch: Partial<CanvasItem>) => void', 'Applies partial attribute updates to an existing item.'],
+          ['addItem', '(item: TualItem) => void', 'Appends a new annotation item to the canvas.'],
+          ['updateItem', '(id: string, patch: Partial<TualItem>) => void', 'Applies partial attribute updates to an existing item.'],
           ['removeItem / deleteItem', '(id: string) => void', 'Removes an annotation by its ID.'],
           ['deleteSelected', '() => void', 'Deletes the currently selected item, if any.'],
           ['clearAll / clear', '() => void', 'Removes all annotations from the canvas.'],
           ['undo', '() => void', 'Reverts to the previous finalized edit snapshot.'],
           ['redo', '() => void', 'Reapplies the previously reverted history snapshot.'],
-          ['notifyChangeComplete', '(targetItem?: CanvasItem | null) => void', 'Manually triggers the onChangeComplete lifecycle callback.'],
+          ['notifyChangeComplete', '(targetItem?: TualItem | null) => void', 'Manually triggers the onChangeComplete lifecycle callback.'],
           ['exportJSON', '() => string', 'Serializes all current canvas items to a JSON string.'],
           ['importJSON', '(json: string) => boolean', 'Parses and loads items from a JSON string, returning true if successful.'],
         ]}
@@ -142,7 +142,7 @@ export const stateControllerSection: DocSection = {
 
       <DocCallout variant="tip" title="External Toolbar Connection">
         You can pass the <DocCode highlight>controller</DocCode> instance directly into an external{' '}
-        <DocCode highlight>&lt;CanvasToolbar controller={'{controller}'} /&gt;</DocCode> positioned
+        <DocCode highlight>&lt;TualToolbar controller={'{controller}'} /&gt;</DocCode> positioned
         anywhere in your application tree (e.g. inside an application navigation bar or floating dock).
       </DocCallout>
     </div>

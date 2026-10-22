@@ -1,7 +1,7 @@
 import type {
   ArrowStyle,
-  CanvasItem,
-  CanvasTool,
+  TualItem,
+  TualTool,
   GeoPoint,
   ShapeKind,
 } from './items.js'
@@ -23,7 +23,7 @@ export interface DraftRulerState {
   currentGeo: GeoPoint
 }
 
-export interface CanvasOverlayOptions {
+export interface TualOverlayOptions {
   interactive?: boolean
   readOnly?: boolean
   zIndex?: number
@@ -34,33 +34,31 @@ export interface CanvasOverlayOptions {
   defaultShape?: ShapeKind
 }
 
-export interface UseLeafletCanvasOptions extends CanvasOverlayOptions {
-  initialItems?: CanvasItem[]
-  items?: CanvasItem[]
+export interface UseLeafletTualOptions extends TualOverlayOptions {
+  initialItems?: TualItem[]
+  items?: TualItem[]
   maxHistory?: number
-  onItemsChange?: (items: CanvasItem[]) => void
-  onChange?: (items: CanvasItem[]) => void
-  onChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void
-  onItemsChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void
-  onEditEnd?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void
-  onEditComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void
-  onItemSelect?: (item: CanvasItem | null) => void
-  onItemCreate?: (item: CanvasItem) => void
-  onItemChange?: (item: CanvasItem) => void
+  onItemsChange?: (items: TualItem[]) => void
+  onChange?: (items: TualItem[]) => void
+  onChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void
+  onItemsChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void
+  onEditEnd?: (items: TualItem[], targetItem?: TualItem | null) => void
+  onEditComplete?: (items: TualItem[], targetItem?: TualItem | null) => void
+  onItemSelect?: (item: TualItem | null) => void
+  onItemCreate?: (item: TualItem) => void
+  onItemChange?: (item: TualItem) => void
   onItemDelete?: (id: string) => void
-  onItemChangeComplete?: (item: CanvasItem) => void
-  initialTool?: CanvasTool
-  onToolChange?: (tool: CanvasTool) => void
+  onItemChangeComplete?: (item: TualItem) => void
+  initialTool?: TualTool
+  onToolChange?: (tool: TualTool) => void
 }
 
-export type UseLeafletTualOptions = UseLeafletCanvasOptions
-export type LeafletTualOptions = UseLeafletCanvasOptions
-export type LeafletCanvasOptions = UseLeafletCanvasOptions
+export type LeafletTualOptions = UseLeafletTualOptions
 
 export interface LeafletTualController {
-  items: CanvasItem[]
-  activeTool: CanvasTool
-  setActiveTool: (tool: CanvasTool) => void
+  items: TualItem[]
+  activeTool: TualTool
+  setActiveTool: (tool: TualTool) => void
   readOnly: boolean
   setReadOnly: (readOnly: boolean) => void
   activeShape: ShapeKind
@@ -69,7 +67,7 @@ export interface LeafletTualController {
   setShapeFilled: (filled: boolean) => void
   selectedId: string | null
   setSelectedId: (id: string | null) => void
-  selectedItem: CanvasItem | null
+  selectedItem: TualItem | null
   isEditingLabel?: boolean
   setEditingLabel?: (editing: boolean) => void
   labelEditMode?: boolean
@@ -86,24 +84,22 @@ export interface LeafletTualController {
   setFontSize: (size: number) => void
   fontWeight: 'normal' | 'bold'
   setFontWeight: (weight: 'normal' | 'bold') => void
-  addItem: (item: CanvasItem) => void
-  updateItem: (id: string, patch: Partial<CanvasItem>) => void
+  addItem: (item: TualItem) => void
+  updateItem: (id: string, patch: Partial<TualItem>) => void
   removeItem: (id: string) => void
   deleteSelected: () => void
   clearAll: () => void
   clear: () => void
   deleteItem: (id: string) => void
-  setTool: (tool: CanvasTool) => void
+  setTool: (tool: TualTool) => void
   selectItem: (id: string | null) => void
   undo: () => void
   redo: () => void
   canUndo: boolean
   canRedo: boolean
-  notifyChangeComplete: (targetItem?: CanvasItem | null) => void
+  notifyChangeComplete: (targetItem?: TualItem | null) => void
   exportJSON: () => string
   importJSON: (json: string) => boolean
 }
-
-export type LeafletCanvasController = LeafletTualController
 
 

@@ -149,7 +149,7 @@ export function getMapDimensions(
   return null
 }
 
-export function truncateCanvasText(
+export function truncateTualText(
   ctx: CanvasRenderingContext2D,
   text: string,
   maxWidth: number,

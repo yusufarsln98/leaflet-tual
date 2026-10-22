@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type {
-  CanvasItem,
-  CanvasTool,
-  LeafletCanvasController,
-  UseLeafletCanvasOptions,
+  TualItem,
+  TualTool,
+  LeafletTualController,
+  UseLeafletTualOptions,
 } from '../types/index.js'
-import { useCanvasHistory } from './use-canvas-history.js'
-import { useCanvasStyles } from './use-canvas-styles.js'
+import { useTualHistory } from './use-tual-history.js'
+import { useTualStyles } from './use-tual-styles.js'
 
 export function useLeafletTual(
-  options: UseLeafletCanvasOptions = {},
-): LeafletCanvasController {
+  options: UseLeafletTualOptions = {},
+): LeafletTualController {
   const {
     items: controlledItems,
     initialTool = 'select',
@@ -30,9 +30,9 @@ export function useLeafletTual(
     notifyChangeComplete,
     undo: rawUndo,
     redo: rawRedo,
-  } = useCanvasHistory(options)
+  } = useTualHistory(options)
 
-  const [activeToolState, setActiveToolState] = useState<CanvasTool>(initialTool)
+  const [activeToolState, setActiveToolState] = useState<TualTool>(initialTool)
   const [readOnly, setReadOnly] = useState<boolean>(Boolean(options.readOnly ?? false))
   const prevOptionReadOnly = useRef(options.readOnly)
   useEffect(() => {
@@ -45,7 +45,7 @@ export function useLeafletTual(
   const [selectedId, setSelectedIdState] = useState<string | null>(null)
   const [isEditingLabel, setIsEditingLabel] = useState<boolean>(false)
 
-  const styles = useCanvasStyles({
+  const styles = useTualStyles({
     defaultColor,
     defaultStrokeWidth,
     defaultNoteColor,
@@ -73,7 +73,7 @@ export function useLeafletTual(
   )
 
   const setActiveTool = useCallback(
-    (tool: CanvasTool) => {
+    (tool: TualTool) => {
       if (readOnly && tool !== 'select') return
       setActiveToolState(tool)
       callbacksRef.current.onToolChange?.(tool)
@@ -82,7 +82,7 @@ export function useLeafletTual(
   )
 
   const addItem = useCallback(
-    (item: CanvasItem) => {
+    (item: TualItem) => {
       if (readOnly) return
       commitItems((prev) => [...prev, item])
       setSelectedId(item.id)
@@ -92,16 +92,16 @@ export function useLeafletTual(
   )
 
   const updateItem = useCallback(
-    (id: string, patch: Partial<CanvasItem>) => {
+    (id: string, patch: Partial<TualItem>) => {
       if (readOnly) {
         const patchKeys = Object.keys(patch)
         if (patchKeys.length !== 1 || patchKeys[0] !== 'minimized') return
       }
-      let updated: CanvasItem | undefined
+      let updated: TualItem | undefined
       commitItems((prev) =>
         prev.map((item) => {
           if (item.id === id) {
-            updated = { ...item, ...patch } as CanvasItem
+            updated = { ...item, ...patch } as TualItem
             return updated
           }
           return item
@@ -147,7 +147,7 @@ export function useLeafletTual(
       try {
         const parsed = JSON.parse(json)
         if (!Array.isArray(parsed)) return false
-        commitItems(() => parsed as CanvasItem[])
+        commitItems(() => parsed as TualItem[])
         setSelectedId(null)
         notifyChangeComplete()
         return true
@@ -190,6 +190,4 @@ export function useLeafletTual(
     importJSON,
   }
 }
-
-export const useLeafletCanvas = useLeafletTual
 

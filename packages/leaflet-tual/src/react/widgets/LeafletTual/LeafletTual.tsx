@@ -19,8 +19,6 @@ export function LeafletTual(props: LeafletTualProps) {
   return <LeafletTualWithContext {...props} />
 }
 
-export const LeafletCanvas = LeafletTual
-
 function LeafletTualOverlay(props: LeafletTualProps & { map: L.Map | null }) {
   const {
     map,

@@ -1,7 +1,7 @@
 import type {
-  CanvasIcons,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualIcons,
+  LeafletTualClassNames,
+  LeafletTualStyles,
 } from '../../types/index.js'
 import { DEFAULT_ICONS } from './icons.js'
 
@@ -16,9 +16,9 @@ export interface PixelSelectProps {
   /** Optional data attribute to distinguish multiple selects. */
   control?: string
   unstyled?: boolean
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
-  icons?: CanvasIcons
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
+  icons?: TualIcons
 }
 
 /**

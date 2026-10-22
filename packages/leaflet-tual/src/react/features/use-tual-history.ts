@@ -1,13 +1,13 @@
 import { useCallback, useRef, useState } from 'react'
-import type { CanvasItem, UseLeafletCanvasOptions } from '../types/index.js'
+import type { TualItem, UseLeafletTualOptions } from '../types/index.js'
 
 interface HistoryState {
-  past: CanvasItem[][]
-  present: CanvasItem[]
-  future: CanvasItem[][]
+  past: TualItem[][]
+  present: TualItem[]
+  future: TualItem[][]
 }
 
-export function useCanvasHistory(options: UseLeafletCanvasOptions) {
+export function useTualHistory(options: UseLeafletTualOptions) {
   const { initialItems = [], items: controlledItems, maxHistory = 50 } = options
   const maxPast = Math.max(0, maxHistory - 1)
 
@@ -23,19 +23,19 @@ export function useCanvasHistory(options: UseLeafletCanvasOptions) {
   historyRef.current = history
 
   const items = controlledItems ?? history.present
-  const currentItemsRef = useRef<CanvasItem[]>(items)
+  const currentItemsRef = useRef<TualItem[]>(items)
   currentItemsRef.current = items
 
   // Items as of the last completed edit — the snapshot pushed into `past`.
-  const committedItemsRef = useRef<CanvasItem[]>(items)
+  const committedItemsRef = useRef<TualItem[]>(items)
 
-  const triggerChange = useCallback((next: CanvasItem[]) => {
+  const triggerChange = useCallback((next: TualItem[]) => {
     callbacksRef.current.onItemsChange?.(next)
     callbacksRef.current.onChange?.(next)
   }, [])
 
   const triggerChangeComplete = useCallback(
-    (finalItems: CanvasItem[], targetItem?: CanvasItem | null) => {
+    (finalItems: TualItem[], targetItem?: TualItem | null) => {
       callbacksRef.current.onItemsChangeComplete?.(finalItems, targetItem)
       callbacksRef.current.onChangeComplete?.(finalItems, targetItem)
       callbacksRef.current.onEditEnd?.(finalItems, targetItem)
@@ -46,7 +46,7 @@ export function useCanvasHistory(options: UseLeafletCanvasOptions) {
   )
 
   const commitItems = useCallback(
-    (updater: (prev: CanvasItem[]) => CanvasItem[]) => {
+    (updater: (prev: TualItem[]) => TualItem[]) => {
       const next = updater(currentItemsRef.current)
       currentItemsRef.current = next
       triggerChange(next)
@@ -60,7 +60,7 @@ export function useCanvasHistory(options: UseLeafletCanvasOptions) {
   // delete, import, ...) and then reports it. No-op when nothing changed since
   // the last completion.
   const notifyChangeComplete = useCallback(
-    (targetItem?: CanvasItem | null) => {
+    (targetItem?: TualItem | null) => {
       const current = currentItemsRef.current
       if (current === committedItemsRef.current) return
       const anchor = committedItemsRef.current

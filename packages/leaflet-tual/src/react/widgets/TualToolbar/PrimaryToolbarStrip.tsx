@@ -1,11 +1,11 @@
 import type React from 'react'
 import type {
-  CanvasIcons,
-  CanvasLabels,
+  TualIcons,
+  TualLabels,
   CustomToolbarItem,
-  LeafletCanvasClassNames,
-  LeafletCanvasController,
-  LeafletCanvasStyles,
+  LeafletTualClassNames,
+  LeafletTualController,
+  LeafletTualStyles,
   ToolbarOrientation,
   ToolbarPosition,
   ToolbarToolGroupId,
@@ -16,7 +16,7 @@ import { CollapseTriggerButton } from './CollapseButtons.js'
 import { ToolbarToolButtons } from './ToolbarToolButtons.js'
 
 export interface PrimaryToolbarStripProps {
-  controller: LeafletCanvasController
+  controller: LeafletTualController
   readOnly: boolean
   position: ToolbarPosition
   orientation: ToolbarOrientation
@@ -29,11 +29,11 @@ export interface PrimaryToolbarStripProps {
   showHistoryControls: boolean
   showDeleteButton: boolean
   showClearButton: boolean
-  labels?: CanvasLabels
-  icons?: CanvasIcons
+  labels?: TualLabels
+  icons?: TualIcons
   unstyled: boolean
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   arrowOptions: readonly ArrowOption[]
   shapeOptions: readonly ShapeOption[]
   arrowGroupLabel: string

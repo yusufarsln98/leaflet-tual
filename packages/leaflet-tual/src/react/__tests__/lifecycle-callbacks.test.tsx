@@ -3,9 +3,9 @@ import type L from 'leaflet'
 import { describe, it, expect, vi } from 'vitest'
 import { render, fireEvent, act } from '@testing-library/react'
 import {
-  useLeafletCanvas,
-  LeafletCanvas,
-  type CanvasItem,
+  useLeafletTual,
+  LeafletTual,
+  type TualItem,
 } from '../index.js'
 import './test-utils.js'
 
@@ -21,10 +21,10 @@ describe('change completion and edit lifecycle callbacks', () => {
     const onItemChange = vi.fn()
     const onItemSelect = vi.fn()
 
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestHarness() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         onChange,
         onItemsChange,
         onChangeComplete,
@@ -41,7 +41,7 @@ describe('change completion and edit lifecycle callbacks', () => {
     render(React.createElement(TestHarness))
 
     // 1. Add item
-    const newItem: CanvasItem = {
+    const newItem: TualItem = {
       id: 'shape-1',
       type: 'shape',
       shape: 'square',
@@ -98,10 +98,10 @@ describe('change completion and edit lifecycle callbacks', () => {
 
   it('supports explicit notifyChangeComplete() for headless and custom workflows', () => {
     const onChangeComplete = vi.fn()
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestHarness() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         onChangeComplete,
       })
       return null
@@ -134,10 +134,10 @@ describe('change completion and edit lifecycle callbacks', () => {
   it('fires completion callbacks on delete and clearAll', () => {
     const onChangeComplete = vi.fn()
     const onItemDelete = vi.fn()
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestHarness() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         initialItems: [
           {
             id: 'arrow-1',
@@ -212,7 +212,7 @@ describe('change completion and edit lifecycle callbacks', () => {
     }) as unknown as typeof HTMLCanvasElement.prototype.getContext
 
     const { unmount } = render(
-      React.createElement(LeafletCanvas, {
+      React.createElement(LeafletTual, {
         map: mockMap,
         onChange,
         onChangeComplete,
@@ -222,7 +222,7 @@ describe('change completion and edit lifecycle callbacks', () => {
     )
 
     // Finding drawing surface
-    const drawingSurface = mapContainer.querySelector('[data-rlc-drawing-surface]')
+    const drawingSurface = mapContainer.querySelector('[data-tual-drawing-surface]')
     expect(drawingSurface).toBeTruthy()
 
     // User draws a stroke with freedraw
@@ -260,10 +260,10 @@ describe('change completion and edit lifecycle callbacks', () => {
 describe('completion-driven undo/redo history', () => {
   it('collapses all edits of an interaction into a single undo step recorded on completion', () => {
     const onChangeComplete = vi.fn()
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestHarness() {
-      controller = useLeafletCanvas({ onChangeComplete })
+      controller = useLeafletTual({ onChangeComplete })
       return null
     }
 
@@ -325,10 +325,10 @@ describe('completion-driven undo/redo history', () => {
   })
 
   it('coalesces successive updates between completions into one snapshot', () => {
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestHarness() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         initialItems: [
           {
             id: 'note-1',
@@ -368,10 +368,10 @@ describe('completion-driven undo/redo history', () => {
   })
 
   it('caps the recorded history depth with maxHistory', () => {
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestHarness() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         initialItems: [
           {
             id: 'text-1',

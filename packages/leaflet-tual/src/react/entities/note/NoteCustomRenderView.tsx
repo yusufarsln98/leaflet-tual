@@ -42,7 +42,7 @@ export function NoteCustomRenderView({
 }: NoteCustomRenderViewProps) {
   return (
     <div
-      data-rlc-note={item.id}
+      data-tual-note={item.id}
       data-collapsed={isCompact ? 'true' : undefined}
       data-compact={isCompact ? 'true' : undefined}
       data-selected={(!readOnly && isSelected) || undefined}

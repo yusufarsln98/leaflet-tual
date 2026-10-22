@@ -8,17 +8,17 @@ import type {
 } from '../../core/types/items.js'
 import type {
   ArrowRenderTheme,
-  CanvasAnnotationTheme,
-  CanvasLabels,
-  LeafletCanvasClassNames,
+  TualAnnotationTheme,
+  TualLabels,
+  LeafletTualClassNames,
   ToolbarOrientation,
   ToolbarPosition,
 } from '../../core/types/theme.js'
 import type {
-  LeafletCanvasController,
-  UseLeafletCanvasOptions,
+  LeafletTualController,
+  UseLeafletTualOptions,
 } from '../../core/types/controller.js'
-import type { CanvasIcons, LeafletCanvasStyles } from './theme.js'
+import type { TualIcons, LeafletTualStyles } from './theme.js'
 
 export * from '../../core/types/controller.js'
 
@@ -29,8 +29,8 @@ export interface CustomToolbarItem {
   icon?: React.ReactNode
   isActive?: boolean
   disabled?: boolean
-  onClick?: (controller: LeafletCanvasController) => void
-  render?: (controller: LeafletCanvasController) => React.ReactNode
+  onClick?: (controller: LeafletTualController) => void
+  render?: (controller: LeafletTualController) => React.ReactNode
 }
 
 export interface DragHandleTriggerProps {
@@ -68,10 +68,10 @@ export interface RenderTextProps {
   onDelete: () => void
 }
 
-export interface LeafletTualProps extends UseLeafletCanvasOptions {
+export interface LeafletTualProps extends UseLeafletTualOptions {
 
   map?: L.Map | null
-  controller?: LeafletCanvasController
+  controller?: LeafletTualController
   readOnly?: boolean
   showToolbar?: boolean
   toolbarPosition?: ToolbarPosition
@@ -88,17 +88,17 @@ export interface LeafletTualProps extends UseLeafletCanvasOptions {
   showDeleteButton?: boolean
   showClearButton?: boolean
   showToolLabels?: boolean
-  labels?: CanvasLabels
-  icons?: CanvasIcons
+  labels?: TualLabels
+  icons?: TualIcons
   unstyled?: boolean
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
-  annotationTheme?: CanvasAnnotationTheme
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
+  annotationTheme?: TualAnnotationTheme
   arrowTheme?: ArrowRenderTheme
   strokeColors?: readonly string[]
   strokeWidthOptions?: readonly number[]
   fontSizeOptions?: readonly number[]
-  renderToolbar?: (controller: LeafletCanvasController) => React.ReactNode
+  renderToolbar?: (controller: LeafletTualController) => React.ReactNode
   renderNote?: (props: RenderNoteProps) => React.ReactNode
   renderText?: (props: RenderTextProps) => React.ReactNode
   clampOverlaysToViewport?: boolean
@@ -107,6 +107,4 @@ export interface LeafletTualProps extends UseLeafletCanvasOptions {
   className?: string
   style?: React.CSSProperties
 }
-
-export type LeafletCanvasProps = LeafletTualProps
 

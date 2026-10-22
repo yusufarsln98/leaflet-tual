@@ -5,7 +5,7 @@ import type { ArrowItem, ShapeItem, TextItem } from '../../types/index.js'
 import { STROKE_COLORS } from '../../shared/constants.js'
 import { DEFAULT_ENABLED_TOOLS, POSITION_STYLES } from './constants.js'
 import { DEFAULT_ICONS } from './icons.js'
-import type { CanvasToolbarProps } from './types.js'
+import type { TualToolbarProps } from './types.js'
 import {
   buildArrowOptions,
   buildShapeOptions,
@@ -19,7 +19,7 @@ import { PrimaryToolbarStrip } from './PrimaryToolbarStrip.js'
 import { ContextualSettingsBar } from './ContextualSettingsBar.js'
 import { useToolbarContext } from './use-toolbar-context.js'
 
-export function CanvasToolbar({
+export function TualToolbar({
   controller,
   position = 'top-center',
   orientation: propOrientation,
@@ -45,7 +45,7 @@ export function CanvasToolbar({
   fontSizeOptions,
   className,
   style,
-}: CanvasToolbarProps) {
+}: TualToolbarProps) {
   const readOnly = Boolean(propReadOnly ?? controller.readOnly)
   const isVerticalPosition = position === 'left' || position === 'right' || position === 'left-center' || position === 'right-center'
   const orientation = propOrientation ?? (isVerticalPosition ? 'vertical' : 'horizontal')
@@ -106,7 +106,7 @@ export function CanvasToolbar({
   if (isCollapsed) {
     return (
       <div
-        data-rlc-toolbar
+        data-tual-toolbar
         data-readonly={readOnly || undefined}
         data-position={position}
         data-orientation={orientation}
@@ -125,7 +125,7 @@ export function CanvasToolbar({
 
   return (
     <div
-      data-rlc-toolbar
+      data-tual-toolbar
       data-readonly={readOnly || undefined}
       data-position={position}
       data-orientation={orientation}

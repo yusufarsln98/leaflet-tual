@@ -10,8 +10,8 @@
  * dependency on React or any UI framework, so it can be used directly from
  * vanilla JavaScript, TypeScript, Vue, Svelte, Angular, or a plain `<script>` tag.
  *
- * React users: see `leaflet-tual/react` for `<LeafletCanvas>`, `<CanvasToolbar>`,
- * `useLeafletCanvas`, and `useLeafletSync`.
+ * React users: see `leaflet-tual/react` for `<LeafletTual>`, `<TualToolbar>`,
+ * `useLeafletTual`, and `useLeafletSync`.
  */
 
 import pkg from '../../package.json'

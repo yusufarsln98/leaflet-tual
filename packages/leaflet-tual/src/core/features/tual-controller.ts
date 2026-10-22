@@ -1,9 +1,9 @@
 import type {
-  CanvasItem,
-  CanvasTool,
-  LeafletCanvasController,
+  TualItem,
+  TualTool,
+  LeafletTualController,
   ShapeKind,
-  UseLeafletCanvasOptions,
+  UseLeafletTualOptions,
 } from '../types/index.js'
 import {
   DEFAULT_FONT_SIZE,
@@ -13,22 +13,22 @@ import {
   NOTE_COLOR_THEMES,
 } from '../shared/constants.js'
 
-export interface LeafletCanvasStore extends LeafletCanvasController {
-  subscribe: (listener: (controller: LeafletCanvasController) => void) => () => void
-  getState: () => LeafletCanvasController
+export interface LeafletTualStore extends LeafletTualController {
+  subscribe: (listener: (controller: LeafletTualController) => void) => () => void
+  getState: () => LeafletTualController
   destroy: () => void
 }
 
-export function createLeafletCanvasController(
-  options: UseLeafletCanvasOptions = {},
-): LeafletCanvasStore {
+export function createLeafletTualController(
+  options: UseLeafletTualOptions = {},
+): LeafletTualStore {
   const maxPast = Math.max(0, (options.maxHistory ?? 50) - 1)
-  let past: CanvasItem[][] = []
-  let present: CanvasItem[] = options.items ?? options.initialItems ?? []
-  let future: CanvasItem[][] = []
-  let committedItems: CanvasItem[] = present
+  let past: TualItem[][] = []
+  let present: TualItem[] = options.items ?? options.initialItems ?? []
+  let future: TualItem[][] = []
+  let committedItems: TualItem[] = present
 
-  let activeTool: CanvasTool = options.initialTool ?? 'select'
+  let activeTool: TualTool = options.initialTool ?? 'select'
   let readOnly = Boolean(options.readOnly ?? false)
   let selectedId: string | null = null
   let isEditingLabel = false
@@ -42,7 +42,7 @@ export function createLeafletCanvasController(
   let fontSize = options.defaultFontSize ?? DEFAULT_FONT_SIZE
   let fontWeight: 'normal' | 'bold' = 'bold'
 
-  const listeners = new Set<(controller: LeafletCanvasController) => void>()
+  const listeners = new Set<(controller: LeafletTualController) => void>()
 
   const notifyListeners = () => {
     for (const listener of listeners) {
@@ -50,12 +50,12 @@ export function createLeafletCanvasController(
     }
   }
 
-  const triggerChange = (next: CanvasItem[]) => {
+  const triggerChange = (next: TualItem[]) => {
     options.onItemsChange?.(next)
     options.onChange?.(next)
   }
 
-  const triggerChangeComplete = (finalItems: CanvasItem[], targetItem?: CanvasItem | null) => {
+  const triggerChangeComplete = (finalItems: TualItem[], targetItem?: TualItem | null) => {
     options.onItemsChangeComplete?.(finalItems, targetItem)
     options.onChangeComplete?.(finalItems, targetItem)
     options.onEditEnd?.(finalItems, targetItem)
@@ -63,7 +63,7 @@ export function createLeafletCanvasController(
     if (targetItem) options.onItemChangeComplete?.(targetItem)
   }
 
-  const commitItems = (updater: (prev: CanvasItem[]) => CanvasItem[]) => {
+  const commitItems = (updater: (prev: TualItem[]) => TualItem[]) => {
     const next = updater(present)
     present = next
     triggerChange(next)
@@ -71,7 +71,7 @@ export function createLeafletCanvasController(
     return next
   }
 
-  const notifyChangeComplete = (targetItem?: CanvasItem | null) => {
+  const notifyChangeComplete = (targetItem?: TualItem | null) => {
     if (present === committedItems) return
     const anchor = committedItems
     committedItems = present
@@ -92,7 +92,7 @@ export function createLeafletCanvasController(
     }
   }
 
-  const setActiveTool = (tool: CanvasTool) => {
+  const setActiveTool = (tool: TualTool) => {
     if (readOnly && tool !== 'select') return
     activeTool = tool
     options.onToolChange?.(tool)
@@ -107,7 +107,7 @@ export function createLeafletCanvasController(
     notifyListeners()
   }
 
-  const patchSelected = (predicate: (it: CanvasItem) => boolean, patcher: (it: any) => any) => {
+  const patchSelected = (predicate: (it: TualItem) => boolean, patcher: (it: any) => any) => {
     if (!selectedId) return
     commitItems((prev) =>
       prev.map((it) => (it.id === selectedId && predicate(it) ? patcher(it) : it)),
@@ -193,23 +193,23 @@ export function createLeafletCanvasController(
     notifyListeners()
   }
 
-  const addItem = (item: CanvasItem) => {
+  const addItem = (item: TualItem) => {
     if (readOnly) return
     commitItems((prev) => [...prev, item])
     setSelectedId(item.id)
     options.onItemCreate?.(item)
   }
 
-  const updateItem = (id: string, patch: Partial<CanvasItem>) => {
+  const updateItem = (id: string, patch: Partial<TualItem>) => {
     if (readOnly) {
       const patchKeys = Object.keys(patch)
       if (patchKeys.length !== 1 || patchKeys[0] !== 'minimized') return
     }
-    let updated: CanvasItem | undefined
+    let updated: TualItem | undefined
     commitItems((prev) =>
       prev.map((item) => {
         if (item.id === id) {
-          updated = { ...item, ...patch } as CanvasItem
+          updated = { ...item, ...patch } as TualItem
           return updated
         }
         return item
@@ -268,7 +268,7 @@ export function createLeafletCanvasController(
     try {
       const parsed = JSON.parse(json)
       if (!Array.isArray(parsed)) return false
-      commitItems(() => parsed as CanvasItem[])
+      commitItems(() => parsed as TualItem[])
       setSelectedId(null)
       notifyChangeComplete()
       return true
@@ -277,7 +277,7 @@ export function createLeafletCanvasController(
     }
   }
 
-  const store: LeafletCanvasStore = {
+  const store: LeafletTualStore = {
     get items() {
       return present
     },
@@ -372,7 +372,5 @@ export function createLeafletCanvasController(
 
   return store
 }
-
-export const createLeafletTualController = createLeafletCanvasController
 
 

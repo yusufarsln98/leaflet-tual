@@ -1,9 +1,9 @@
 import type React from 'react'
 import type {
-  CanvasIcons,
-  CanvasLabels,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualIcons,
+  TualLabels,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   ToolbarOrientation,
   ToolbarPosition,
 } from '../../types/index.js'
@@ -16,10 +16,10 @@ export interface CollapseTriggerButtonProps {
   isVertical: boolean
   showToolLabels: boolean
   unstyled: boolean
-  labels?: CanvasLabels
-  icons?: CanvasIcons
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  labels?: TualLabels
+  icons?: TualIcons
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   onCollapse: () => void
 }
 
@@ -114,10 +114,10 @@ export interface ExpandTriggerButtonProps {
   showToolLabels: boolean
   unstyled: boolean
   activeToolInfo: { icon: React.ReactNode; label: string }
-  labels?: CanvasLabels
-  icons?: CanvasIcons
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  labels?: TualLabels
+  icons?: TualIcons
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   onExpand: () => void
 }
 

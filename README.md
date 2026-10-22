@@ -11,7 +11,7 @@ Draw arrows, place geometric shapes, sketch freehand paths, measure geodesic dis
 | Import                                   | Surface                                                                                                                         | React required?     |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | `leaflet-tual` / `leaflet-tual/core` | Framework-agnostic core (`createLeafletTual`, `createLeafletTualController`, `paintLeafletTual`, geo math, 2D renderers) | No                  |
-| `leaflet-tual/react`                   | React bindings (`<LeafletTual>`, `<CanvasToolbar>`, `useLeafletTual`, `useLeafletSync`)                                     | Yes (optional peer) |
+| `leaflet-tual/react`                   | React bindings (`<LeafletTual>`, `<TualToolbar>`, `useLeafletTual`, `useLeafletSync`)                                     | Yes (optional peer) |
 
 ---
 
@@ -167,7 +167,7 @@ Use the header's **Compact** and **Expand/Collapse** buttons to cycle states, or
 | `readOnly` | `boolean` | `false` | Enables read-only mode (disables drawing, editing, and selection). |
 | `controller` | `LeafletTualController` | `undefined` | Optional external controller from `useLeafletTual()`. |
 | `map` | `L.Map` | `undefined` | Leaflet map instance (auto-inferred via `useMap()` when inside `<MapContainer>`). |
-| `initialItems` | `CanvasItem[]` | `[]` | Initial annotations (when not providing an external controller). |
+| `initialItems` | `TualItem[]` | `[]` | Initial annotations (when not providing an external controller). |
 | `showToolbar` | `boolean` | `!readOnly` | Whether to display the toolbar. Defaults to `false` when `readOnly` is true. |
 | `toolbarPosition` | `ToolbarPosition \| 'none'` | `'top-center'` | Toolbar position (`'top'`, `'bottom'`, `'left'`, `'right'`, `'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`, `'none'`). |
 | `toolbarOrientation` | `'horizontal' \| 'vertical'` | Inferred from position | Toolbar orientation. Inferred as `'vertical'` for left/right positions and `'horizontal'` for top/bottom positions. |
@@ -176,24 +176,24 @@ Use the header's **Compact** and **Expand/Collapse** buttons to cycle states, or
 | `collapsed` | `boolean` | `undefined` | Controlled collapsed state. |
 | `onCollapsedChange` | `(collapsed: boolean) => void` | `undefined` | Callback fired when the toolbar collapses or expands. |
 | `showCollapseButton` | `boolean` | `true` | Whether to display the collapse toggle button. |
-| `labels` | `CanvasLabels` | `{}` | Custom labels and tooltips (supports `collapseToolbar`, `expandToolbar`, etc.). |
-| `icons` | `CanvasIcons` | `{}` | Custom icons for toolbar buttons (supports `collapseToolbar`, `expandToolbar`, etc.). |
+| `labels` | `TualLabels` | `{}` | Custom labels and tooltips (supports `collapseToolbar`, `expandToolbar`, etc.). |
+| `icons` | `TualIcons` | `{}` | Custom icons for toolbar buttons (supports `collapseToolbar`, `expandToolbar`, etc.). |
 | `classNames` | `LeafletTualClassNames` | `{}` | Custom CSS classes for container, canvas, toolbar, notes, and text. State-aware slots include `toolButtonActive` (active tool), `swatchButtonActive` (selected color), and `actionButtonDisabled` (disabled undo/redo history buttons). |
 | `styles` | `LeafletTualStyles` | `{}` | Inline CSS styles for container, canvas, toolbar, notes, and text. State-aware slots mirror `classNames` (e.g. `actionButtonDisabled` overrides only disabled undo/redo buttons). Disabled action buttons are automatically dimmed with `opacity: 0.45` and a `not-allowed` cursor. |
-| `arrowTheme` / `annotationTheme` | `CanvasAnnotationTheme` | `{}` | Custom theme for 2D canvas shapes, arrows, and label pills (supports `labelMinShapeSize`, `labelMaxTextWidth`, `fitLabelsToShape`). |
+| `arrowTheme` / `annotationTheme` | `TualAnnotationTheme` | `{}` | Custom theme for 2D canvas shapes, arrows, and label pills (supports `labelMinShapeSize`, `labelMaxTextWidth`, `fitLabelsToShape`). |
 | `clampOverlaysToViewport` | `boolean` | `true` | Keeps sticky note and text overlays inside map viewport boundaries so they never bleed off container edges on zoom or pan. |
 | `autoMinimizeNotesZoom` | `number` | `undefined` | Optional map zoom level threshold below which sticky notes automatically collapse into compact pill badges at low zoom. |
 | `strokeColors` | `string[]` | Built-in palette | Color swatches shown in the contextual settings bar. |
 | `strokeWidthOptions` | `number[]` | `[1, 2, 3, 4, 5, 6, 8, 10, 12]` | Pixel widths listed in the **Width** select box for arrows, shapes, and free draw. Style it via the `toolbarSelect` slot in `classNames` / `styles`. |
 | `fontSizeOptions` | `readonly number[]` | `[10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48]` | Font sizes (in pixels) listed in the **Size** select box for text overlays. Style it via the `toolbarSelect` slot in `classNames` / `styles`. |
 | `customToolbarItems` | `CustomToolbarItem[]` | `[]` | Custom buttons or items injected into the toolbar. |
-| `onChange` / `onItemsChange` | `(items: CanvasItem[]) => void` | `undefined` | Callback fired immediately on every mutation, stroke point, or attribute update. |
-| `onChangeComplete` / `onItemsChangeComplete` | `(items: CanvasItem[], targetItem?: CanvasItem \| null) => void` | `undefined` | Callback fired when editing finishes (e.g. user draws and clicks outside activating Select (V) mode, deselects, presses Escape, or blurs note/text editing). |
-| `onEditEnd` / `onEditComplete` | `(items: CanvasItem[], targetItem?: CanvasItem \| null) => void` | `undefined` | Aliases for `onChangeComplete`. |
-| `onItemSelect` | `(item: CanvasItem \| null) => void` | `undefined` | Callback fired when an item is selected or deselected. |
-| `onItemCreate` | `(item: CanvasItem) => void` | `undefined` | Callback fired when a new item is created. |
-| `onItemChange` | `(item: CanvasItem) => void` | `undefined` | Callback fired when an existing item is updated. |
-| `onItemChangeComplete` | `(item: CanvasItem) => void` | `undefined` | Callback fired when an item completes editing. |
+| `onChange` / `onItemsChange` | `(items: TualItem[]) => void` | `undefined` | Callback fired immediately on every mutation, stroke point, or attribute update. |
+| `onChangeComplete` / `onItemsChangeComplete` | `(items: TualItem[], targetItem?: TualItem \| null) => void` | `undefined` | Callback fired when editing finishes (e.g. user draws and clicks outside activating Select (V) mode, deselects, presses Escape, or blurs note/text editing). |
+| `onEditEnd` / `onEditComplete` | `(items: TualItem[], targetItem?: TualItem \| null) => void` | `undefined` | Aliases for `onChangeComplete`. |
+| `onItemSelect` | `(item: TualItem \| null) => void` | `undefined` | Callback fired when an item is selected or deselected. |
+| `onItemCreate` | `(item: TualItem) => void` | `undefined` | Callback fired when a new item is created. |
+| `onItemChange` | `(item: TualItem) => void` | `undefined` | Callback fired when an existing item is updated. |
+| `onItemChangeComplete` | `(item: TualItem) => void` | `undefined` | Callback fired when an item completes editing. |
 | `onItemDelete` | `(id: string) => void` | `undefined` | Callback fired when an item is deleted. |
 
 ### `useLeafletTual(options)` Options
@@ -201,18 +201,18 @@ Use the header's **Compact** and **Expand/Collapse** buttons to cycle states, or
 | Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `readOnly` | `boolean` | `false` | Sets initial read-only state. |
-| `initialItems` | `CanvasItem[]` | `[]` | Initial annotations array (uncontrolled mode). |
-| `items` | `CanvasItem[]` | `undefined` | Controlled annotations array. |
+| `initialItems` | `TualItem[]` | `[]` | Initial annotations array (uncontrolled mode). |
+| `items` | `TualItem[]` | `undefined` | Controlled annotations array. |
 | `maxHistory` | `number` | `50` | Maximum undo/redo stack depth in uncontrolled mode. |
-| `onChange` / `onItemsChange` | `(items: CanvasItem[]) => void` | `undefined` | Immediate change callback fired on every modification. |
-| `onChangeComplete` / `onItemsChangeComplete` | `(items: CanvasItem[], targetItem?: CanvasItem \| null) => void` | `undefined` | Completion callback fired when an edit finishes (click outside activating Select (V) mode, deselect, blur, Escape). |
-| `onEditEnd` / `onEditComplete` | `(items: CanvasItem[], targetItem?: CanvasItem \| null) => void` | `undefined` | Aliases for `onChangeComplete`. |
-| `onItemSelect` | `(item: CanvasItem \| null) => void` | `undefined` | Callback fired on selection change. |
-| `onItemCreate` | `(item: CanvasItem) => void` | `undefined` | Callback fired when a new item is created. |
-| `onItemChange` | `(item: CanvasItem) => void` | `undefined` | Callback fired when an existing item is updated. |
-| `onItemChangeComplete` | `(item: CanvasItem) => void` | `undefined` | Callback fired when an item finishes editing. |
+| `onChange` / `onItemsChange` | `(items: TualItem[]) => void` | `undefined` | Immediate change callback fired on every modification. |
+| `onChangeComplete` / `onItemsChangeComplete` | `(items: TualItem[], targetItem?: TualItem \| null) => void` | `undefined` | Completion callback fired when an edit finishes (click outside activating Select (V) mode, deselect, blur, Escape). |
+| `onEditEnd` / `onEditComplete` | `(items: TualItem[], targetItem?: TualItem \| null) => void` | `undefined` | Aliases for `onChangeComplete`. |
+| `onItemSelect` | `(item: TualItem \| null) => void` | `undefined` | Callback fired on selection change. |
+| `onItemCreate` | `(item: TualItem) => void` | `undefined` | Callback fired when a new item is created. |
+| `onItemChange` | `(item: TualItem) => void` | `undefined` | Callback fired when an existing item is updated. |
+| `onItemChangeComplete` | `(item: TualItem) => void` | `undefined` | Callback fired when an item finishes editing. |
 | `onItemDelete` | `(id: string) => void` | `undefined` | Callback fired when an item is deleted. |
-| `initialTool` | `CanvasTool` | `'select'` | Active tool on mount. |
+| `initialTool` | `TualTool` | `'select'` | Active tool on mount. |
 | `defaultColor` | `string` | `'#2563eb'` | Default stroke color. |
 | `defaultStrokeWidth` | `number` | `3` | Default stroke width in pixels. |
 | `defaultNoteColor` | `string` | `'#fef08a'` | Default sticky note background color. |
@@ -225,28 +225,28 @@ Use the header's **Compact** and **Expand/Collapse** buttons to cycle states, or
 | :--- | :--- | :--- |
 | `readOnly` | `boolean` | Current read-only mode state. |
 | `setReadOnly(readOnly)` | `(readOnly: boolean) => void` | Toggles read-only mode dynamically. |
-| `items` | `CanvasItem[]` | All current canvas items. |
-| `selectedItem` | `CanvasItem \| null` | Currently selected canvas item. |
+| `items` | `TualItem[]` | All current canvas items. |
+| `selectedItem` | `TualItem \| null` | Currently selected canvas item. |
 | `selectedId` | `string \| null` | ID of the currently selected canvas item. |
 | `isEditingLabel` | `boolean` | Whether label edit mode is active for the selected shape/item. |
 | `setEditingLabel(editing)` | `(editing: boolean) => void` | Toggles label edit mode for the focused shape/item. |
-| `activeTool` | `CanvasTool` | Currently active tool. |
+| `activeTool` | `TualTool` | Currently active tool. |
 | `activeColor` | `string` | Currently active color. |
 | `strokeWidth` | `number` | Currently active stroke width. |
 | `dashed` | `boolean` | Whether dashed line is active. |
 | `shapeFilled` | `boolean` | Whether shape fill is active. |
 | `canUndo` | `boolean` | Whether undo is possible (`false` in read-only mode). |
 | `canRedo` | `boolean` | Whether redo is possible (`false` in read-only mode). |
-| `setTool(tool)` | `(tool: CanvasTool) => void` | Change active tool. |
+| `setTool(tool)` | `(tool: TualTool) => void` | Change active tool. |
 | `selectItem(id)` | `(id: string \| null) => void` | Select an item by ID or clear selection with `null`. |
-| `addItem(item)` | `(item: CanvasItem) => void` | Add a new annotation. |
-| `updateItem(id, updater)` | `(id: string, updater: Partial<CanvasItem> \| fn) => void` | Update an existing item. |
+| `addItem(item)` | `(item: TualItem) => void` | Add a new annotation. |
+| `updateItem(id, updater)` | `(id: string, updater: Partial<TualItem> \| fn) => void` | Update an existing item. |
 | `removeItem(id)` | `(id: string) => void` | Remove an item by ID. |
 | `deleteSelected()` | `() => void` | Delete the currently selected item. |
 | `clearAll()` | `() => void` | Remove all canvas items. |
 | `undo()` | `() => void` | Revert to previous history snapshot. Snapshots are recorded when an edit completes (`onChangeComplete`), so an interaction (draw, drag, style tweak) collapses into one step. |
 | `redo()` | `() => void` | Re-apply reverted history snapshot. |
-| `notifyChangeComplete(targetItem?)` | `(targetItem?: CanvasItem \| null) => void` | Programmatically triggers `onChangeComplete` / `onItemsChangeComplete` with the current finalized items. |
+| `notifyChangeComplete(targetItem?)` | `(targetItem?: TualItem \| null) => void` | Programmatically triggers `onChangeComplete` / `onItemsChangeComplete` with the current finalized items. |
 | `exportJSON()` | `() => string` | Export canvas items to JSON string. |
 | `importJSON(json)` | `(json: string) => void` | Import canvas items from JSON string. |
 

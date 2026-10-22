@@ -45,7 +45,7 @@ describe('TextOverlay', () => {
       }),
     )
 
-    const el = container.querySelector('[data-rlc-text="text-edge"]') as HTMLElement
+    const el = container.querySelector('[data-tual-text="text-edge"]') as HTMLElement
     expect(el).toBeDefined()
     const leftVal = parseFloat(el.style.left)
     const topVal = parseFloat(el.style.top)

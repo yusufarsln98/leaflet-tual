@@ -1,20 +1,20 @@
 import type React from 'react'
 import type {
   ArrowStyle,
-  CanvasIcons,
-  CanvasLabels,
+  TualIcons,
+  TualLabels,
   CustomToolbarItem,
-  LeafletCanvasClassNames,
-  LeafletCanvasController,
-  LeafletCanvasStyles,
+  LeafletTualClassNames,
+  LeafletTualController,
+  LeafletTualStyles,
   ShapeKind,
   ToolbarOrientation,
   ToolbarPosition,
   ToolbarToolGroupId,
 } from '../../types/index.js'
 
-export interface CanvasToolbarProps {
-  controller: LeafletCanvasController
+export interface TualToolbarProps {
+  controller: LeafletTualController
   position?: ToolbarPosition
   orientation?: ToolbarOrientation
   collapsible?: boolean
@@ -29,11 +29,11 @@ export interface CanvasToolbarProps {
   showDeleteButton?: boolean
   showClearButton?: boolean
   showToolLabels?: boolean
-  labels?: CanvasLabels
-  icons?: CanvasIcons
+  labels?: TualLabels
+  icons?: TualIcons
   unstyled?: boolean
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   strokeColors?: readonly string[]
   strokeWidthOptions?: readonly number[]
   fontSizeOptions?: readonly number[]

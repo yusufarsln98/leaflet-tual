@@ -2,8 +2,8 @@ import type L from 'leaflet'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, fireEvent, act, cleanup } from '@testing-library/react'
 import {
-  LeafletCanvas,
-  useLeafletCanvas,
+  LeafletTual,
+  useLeafletTual,
   type ShapeItem,
 } from '../index.js'
 import { createMockCanvasContext } from './test-utils.js'
@@ -64,14 +64,14 @@ describe('Shape label edit mode and keyboard enter interaction', () => {
       createdAt: 100,
     }
 
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestApp() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         initialItems: [initialShape],
       })
       return (
-        <LeafletCanvas
+        <LeafletTual
           map={mockMap}
           controller={controller}
           showToolbar={true}
@@ -133,14 +133,14 @@ describe('Shape label edit mode and keyboard enter interaction', () => {
       createdAt: 100,
     }
 
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestApp() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         initialItems: [shapeWithoutLabelMode],
       })
       return (
-        <LeafletCanvas
+        <LeafletTual
           map={mockMap}
           controller={controller}
           showToolbar={true}
@@ -181,14 +181,14 @@ describe('Shape label edit mode and keyboard enter interaction', () => {
       createdAt: 100,
     }
 
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestApp() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         initialItems: [initialShape],
       })
       return (
-        <LeafletCanvas
+        <LeafletTual
           map={mockMap}
           controller={controller}
           showToolbar={false}
@@ -228,10 +228,10 @@ describe('Shape label edit mode and keyboard enter interaction', () => {
   })
 
   it('does NOT enable edit label mode if a non-labelable item (such as freedraw) is selected and Enter is pressed', () => {
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestApp() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         initialItems: [
           {
             id: 'freedraw-1',
@@ -247,7 +247,7 @@ describe('Shape label edit mode and keyboard enter interaction', () => {
         ],
       })
       return (
-        <LeafletCanvas
+        <LeafletTual
           map={mockMap}
           controller={controller}
           showToolbar={true}
@@ -269,10 +269,10 @@ describe('Shape label edit mode and keyboard enter interaction', () => {
   })
 
   it('enables edit mode and focuses on input when a normal text item is selected and Enter is pressed', () => {
-    let controller!: ReturnType<typeof useLeafletCanvas>
+    let controller!: ReturnType<typeof useLeafletTual>
 
     function TestApp() {
-      controller = useLeafletCanvas({
+      controller = useLeafletTual({
         initialItems: [
           {
             id: 'text-1',
@@ -286,7 +286,7 @@ describe('Shape label edit mode and keyboard enter interaction', () => {
         ],
       })
       return (
-        <LeafletCanvas
+        <LeafletTual
           map={mockMap}
           controller={controller}
           showToolbar={true}
@@ -313,7 +313,7 @@ describe('Shape label edit mode and keyboard enter interaction', () => {
 
     // The on-canvas text textarea should be focused for inline editing, NOT the toolbar input
     const textArea = getByPlaceholderText('Type text...') as HTMLTextAreaElement
-    const toolbarInput = document.querySelector('[data-rlc-text-input="text-1"]') as HTMLInputElement
+    const toolbarInput = document.querySelector('[data-tual-text-input="text-1"]') as HTMLInputElement
     expect(textArea).toBeTruthy()
     expect(toolbarInput).toBeTruthy()
     expect(textArea.value).toBe('Hello World')

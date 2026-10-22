@@ -1,10 +1,10 @@
 import type React from 'react'
 import type {
-  CanvasIcons,
-  CanvasItem,
-  CanvasLabels,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualIcons,
+  TualItem,
+  TualLabels,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   ToolbarOrientation,
 } from '../../types/index.js'
 import { DEFAULT_ICONS } from './icons.js'
@@ -16,7 +16,7 @@ export interface ActionButtonsProps {
   showDeleteButton: boolean
   showClearButton: boolean
   showToolLabels?: boolean
-  selectedItem: CanvasItem | null | undefined
+  selectedItem: TualItem | null | undefined
   itemsCount: number
   canUndo: boolean
   canRedo: boolean
@@ -25,11 +25,11 @@ export interface ActionButtonsProps {
   deleteSelected: () => void
   clearAll: () => void
   orientation?: ToolbarOrientation
-  labels?: CanvasLabels
-  icons?: CanvasIcons
+  labels?: TualLabels
+  icons?: TualIcons
   unstyled?: boolean
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
 }
 
 export function ActionButtons({

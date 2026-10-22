@@ -1,12 +1,12 @@
 import type React from 'react'
-import type { LeafletCanvasStyles } from '../../types/index.js'
+import type { LeafletTualStyles } from '../../types/index.js'
 
 export function getHistoryBtnStyle(
   enabled: boolean,
   isVertical: boolean,
   showToolLabels: boolean,
   unstyled: boolean,
-  styles?: LeafletCanvasStyles,
+  styles?: LeafletTualStyles,
 ): React.CSSProperties {
   const base: React.CSSProperties = unstyled
     ? {}
@@ -74,7 +74,7 @@ export function getActionRowStyle(
   isVertical: boolean,
   showToolLabels: boolean,
   unstyled: boolean,
-  styles?: LeafletCanvasStyles,
+  styles?: LeafletTualStyles,
   extraStyle?: React.CSSProperties,
 ): React.CSSProperties {
   const base: React.CSSProperties = unstyled

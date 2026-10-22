@@ -2,8 +2,8 @@ import type L from 'leaflet'
 import type {
   ArrowItem,
   ArrowRenderTheme,
-  CanvasAnnotationTheme,
-  CanvasLabels,
+  TualAnnotationTheme,
+  TualLabels,
   DraftArrowState,
   DraftRulerState,
   DraftShapeState,
@@ -12,7 +12,7 @@ import type {
   RulerItem,
   ScreenPoint,
   ShapeItem,
-  UseLeafletCanvasOptions,
+  UseLeafletTualOptions,
 } from '../types/index.js'
 import {
   constrainAngleTo45Degrees,
@@ -51,31 +51,27 @@ import {
   startShapeBodyDrag,
   startShapeHandleDrag,
 } from './select-drag-handlers.js'
-import { paintLeafletCanvas } from './canvas-painter.js'
+import { paintLeafletTual } from './tual-painter.js'
 import { bindBlockMapDblClick, bindLeafletSync } from './map-sync.js'
 import {
-  createLeafletCanvasController,
-  type LeafletCanvasStore,
-} from './canvas-controller.js'
+  createLeafletTualController,
+  type LeafletTualStore,
+} from './tual-controller.js'
 
-export interface CreateLeafletTualOptions extends UseLeafletCanvasOptions {
-  controller?: LeafletCanvasStore
-  annotationTheme?: CanvasAnnotationTheme
+export interface CreateLeafletTualOptions extends UseLeafletTualOptions {
+  controller?: LeafletTualStore
+  annotationTheme?: TualAnnotationTheme
   arrowTheme?: ArrowRenderTheme
-  labels?: CanvasLabels
+  labels?: TualLabels
 }
 
-export type CreateLeafletCanvasOptions = CreateLeafletTualOptions
-
 export interface LeafletTualInstance {
-  controller: LeafletCanvasStore
+  controller: LeafletTualStore
   container: HTMLDivElement
   canvas: HTMLCanvasElement
   repaint: () => void
   destroy: () => void
 }
-
-export type LeafletCanvasInstance = LeafletTualInstance
 
 export function createLeafletTual(
   map: L.Map,
@@ -90,11 +86,11 @@ export function createLeafletTual(
     ...controllerOptions
   } = options
 
-  const controller = externalController ?? createLeafletCanvasController(controllerOptions)
+  const controller = externalController ?? createLeafletTualController(controllerOptions)
   const mapContainer = map.getContainer()
 
   const container = document.createElement('div')
-  container.setAttribute('data-rlc-overlay', 'true')
+  container.setAttribute('data-tual-overlay', 'true')
   container.style.position = 'absolute'
   container.style.inset = '0'
   container.style.pointerEvents = 'none'
@@ -159,7 +155,7 @@ export function createLeafletTual(
   const repaint = () => {
     updateSurfaceInteractivity()
     const items = controller.items
-    paintLeafletCanvas({
+    paintLeafletTual({
       map,
       canvas,
       width: viewport.width,
@@ -312,7 +308,7 @@ export function createLeafletTual(
   const handleContainerPointerDown = (e: PointerEvent) => {
     if (e.button !== 0 || controller.readOnly || controller.activeTool !== 'select') return
     const target = e.target as HTMLElement | null
-    if (target?.closest('[data-rlc-toolbar], [data-rlc-note], [data-rlc-text], .leaflet-control')) {
+    if (target?.closest('[data-tual-toolbar], [data-tual-note], [data-tual-text], .leaflet-control')) {
       return
     }
 
@@ -479,7 +475,5 @@ export function createLeafletTual(
     },
   }
 }
-
-export const createLeafletCanvas = createLeafletTual
 
 

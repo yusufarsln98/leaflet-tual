@@ -1,1 +1,1 @@
-export { LeafletTual, LeafletCanvas } from './LeafletTual.js'
+export { LeafletTual } from './LeafletTual.js'

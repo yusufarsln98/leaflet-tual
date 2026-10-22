@@ -1,6 +1,6 @@
 import type L from 'leaflet'
 import type {
-  CanvasAnnotationTheme,
+  TualAnnotationTheme,
   RulerItem,
   ScreenPoint,
 } from '../../types/index.js'
@@ -11,9 +11,9 @@ import {
   geoToScreen,
 } from '../../shared/geo.js'
 import {
-  drawCanvasHandle,
-  drawCanvasLabelPill,
-} from '../../shared/canvas-render.js'
+  drawTualHandle,
+  drawTualLabelPill,
+} from '../../shared/tual-render.js'
 
 export type RulerHandleType = 'start' | 'end'
 
@@ -47,7 +47,7 @@ export function renderRulerOnCanvas(
   options: {
     isSelected?: boolean
     isPreview?: boolean
-    theme?: CanvasAnnotationTheme
+    theme?: TualAnnotationTheme
   } = {},
 ) {
   const { start, end, mid, lengthPx, angle } = projected
@@ -121,7 +121,7 @@ export function renderRulerOnCanvas(
     const maxW =
       theme?.labelMaxTextWidth ??
       (fitToShape ? Math.max(50, Math.min(300, lengthPx * 1.5)) : Infinity)
-    drawCanvasLabelPill(
+    drawTualLabelPill(
       ctx,
       displayLabel,
       Math.round(mid.x),
@@ -139,8 +139,8 @@ export function renderRulerOnCanvas(
     const endpointColor = theme?.endpointHandleColor ?? '#4f4f4f'
     const strokeWidth = theme?.handleStrokeWidth ?? 2
 
-    drawCanvasHandle(ctx, start, endpointColor, fill, handleRadius, strokeWidth)
-    drawCanvasHandle(ctx, end, endpointColor, fill, handleRadius, strokeWidth)
+    drawTualHandle(ctx, start, endpointColor, fill, handleRadius, strokeWidth)
+    drawTualHandle(ctx, end, endpointColor, fill, handleRadius, strokeWidth)
   }
 
   ctx.restore()

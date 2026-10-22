@@ -1,12 +1,12 @@
 import type React from 'react'
 import type {
-  CanvasIcons,
-  CanvasLabels,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualIcons,
+  TualLabels,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   NoteItem,
 } from '../../types/index.js'
-import { DEFAULT_ICONS } from '../../widgets/CanvasToolbar/icons.js'
+import { DEFAULT_ICONS } from '../../widgets/TualToolbar/icons.js'
 import type { ResolvedNoteTheme } from './types.js'
 
 export interface NoteCardHeaderProps {
@@ -14,10 +14,10 @@ export interface NoteCardHeaderProps {
   theme: ResolvedNoteTheme
   readOnly: boolean
   unstyled: boolean
-  labels?: CanvasLabels
-  icons?: CanvasIcons
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  labels?: TualLabels
+  icons?: TualIcons
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   onHeaderPointerDown: (e: React.PointerEvent<HTMLElement>) => void
   onCollapse: () => void
   onSelect: (id: string) => void

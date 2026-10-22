@@ -2,7 +2,7 @@ import type L from 'leaflet'
 import type {
   ArrowItem,
   ArrowRenderTheme,
-  CanvasAnnotationTheme,
+  TualAnnotationTheme,
   DraftArrowState,
   DraftRulerState,
   DraftShapeState,
@@ -23,7 +23,7 @@ import {
   renderShapeOnCanvas,
 } from '../entities/index.js'
 
-export interface PaintLeafletCanvasOptions {
+export interface PaintLeafletTualOptions {
   map: L.Map | null
   canvas: HTMLCanvasElement | null
   width: number
@@ -44,12 +44,12 @@ export interface PaintLeafletCanvasOptions {
   strokeWidth: number
   dashed: boolean
   shapeFilled: boolean
-  annotationTheme?: CanvasAnnotationTheme
+  annotationTheme?: TualAnnotationTheme
   arrowTheme?: ArrowRenderTheme
   isReadOnly: boolean
 }
 
-export function paintLeafletCanvas({
+export function paintLeafletTual({
   map,
   canvas,
   width,
@@ -70,7 +70,7 @@ export function paintLeafletCanvas({
   annotationTheme,
   arrowTheme,
   isReadOnly,
-}: PaintLeafletCanvasOptions) {
+}: PaintLeafletTualOptions) {
   if (!map || !canvas || width === 0 || height === 0) return
 
   const effectiveTheme = annotationTheme ?? arrowTheme
@@ -204,8 +204,5 @@ export function paintLeafletCanvas({
 
   ctx.restore()
 }
-
-export const paintLeafletTual = paintLeafletCanvas
-export type PaintLeafletTualOptions = PaintLeafletCanvasOptions
 
 

@@ -1,6 +1,6 @@
 import type L from 'leaflet'
 import type {
-  CanvasAnnotationTheme,
+  TualAnnotationTheme,
   FreeDrawItem,
   ScreenPoint,
 } from '../../types/index.js'
@@ -47,7 +47,7 @@ export function renderFreeDrawOnCanvas(
   options: {
     isSelected?: boolean
     isPreview?: boolean
-    theme?: CanvasAnnotationTheme
+    theme?: TualAnnotationTheme
   } = {},
 ) {
   if (screenPoints.length === 0) return

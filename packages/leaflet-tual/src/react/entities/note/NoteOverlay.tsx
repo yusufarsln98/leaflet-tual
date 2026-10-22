@@ -168,7 +168,7 @@ export const NoteOverlay = React.memo(function NoteOverlay({
   return (
     <div
       ref={cardRef}
-      data-rlc-note={item.id}
+      data-tual-note={item.id}
       data-collapsed={isCompact ? 'true' : undefined}
       data-compact={isCompact ? 'true' : undefined}
       data-selected={(!readOnly && isSelected) || undefined}

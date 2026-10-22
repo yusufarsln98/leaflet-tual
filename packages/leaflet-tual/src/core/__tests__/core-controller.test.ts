@@ -1,9 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
   VERSION,
-  createLeafletCanvasController,
   createLeafletTualController,
-  createLeafletCanvas,
   createLeafletTual,
   type ArrowItem,
 } from '../../index.js'
@@ -13,13 +11,13 @@ import { createMockCanvasContext, createMockMap } from './test-utils.js'
 describe('leaflet-tual core controller & vanilla instance', () => {
   it('exports VERSION from root entry', () => {
     expect(VERSION).toBe(pkg.version)
-    expect(createLeafletTual).toBe(createLeafletCanvas)
-    expect(createLeafletTualController).toBe(createLeafletCanvasController)
+    expect(createLeafletTual).toBeDefined()
+    expect(createLeafletTualController).toBeDefined()
   })
 
   it('manages state, history, and JSON export/import without React', () => {
     const onChange = vi.fn()
-    const controller = createLeafletCanvasController({ onChange })
+    const controller = createLeafletTualController({ onChange })
 
     expect(controller.items).toHaveLength(0)
     expect(controller.activeTool).toBe('select')
@@ -62,9 +60,9 @@ describe('leaflet-tual core controller & vanilla instance', () => {
       createMockCanvasContext() as unknown as RenderingContext,
     )
     const map = createMockMap()
-    const instance = createLeafletCanvas(map)
+    const instance = createLeafletTual(map)
 
-    expect(instance.container.getAttribute('data-rlc-overlay')).toBe('true')
+    expect(instance.container.getAttribute('data-tual-overlay')).toBe('true')
     expect(map.getContainer().contains(instance.container)).toBe(true)
 
     instance.controller.setTool('arrow-curved')

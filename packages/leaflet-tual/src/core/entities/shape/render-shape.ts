@@ -1,11 +1,11 @@
 import type L from 'leaflet'
 import type {
-  CanvasAnnotationTheme,
+  TualAnnotationTheme,
   ScreenPoint,
   ShapeItem,
 } from '../../types/index.js'
 import { geoToScreen } from '../../shared/geo.js'
-import { drawCanvasHandle, drawCanvasLabelPill } from '../../shared/canvas-render.js'
+import { drawTualHandle, drawTualLabelPill } from '../../shared/tual-render.js'
 import { tracePolygonShape } from './trace-shape.js'
 
 export type ShapeHandleType = 'start' | 'end'
@@ -56,7 +56,7 @@ export function renderShapeOnCanvas(
   options: {
     isSelected?: boolean
     isPreview?: boolean
-    theme?: CanvasAnnotationTheme
+    theme?: TualAnnotationTheme
   } = {},
 ) {
   if (projected.width < 4 && projected.height < 4) return
@@ -115,7 +115,7 @@ export function renderShapeOnCanvas(
       const maxW =
         theme?.labelMaxTextWidth ??
         (fitToShape ? Math.max(48, Math.min(280, projected.width * 2.2)) : Infinity)
-      drawCanvasLabelPill(ctx, shape.label, Math.round(projected.cx), Math.round(rawLabelY), shape.color, maxW, theme)
+      drawTualLabelPill(ctx, shape.label, Math.round(projected.cx), Math.round(rawLabelY), shape.color, maxW, theme)
     }
   }
 
@@ -132,8 +132,8 @@ export function renderShapeOnCanvas(
     ctx.strokeRect(projected.minX, projected.minY, projected.width, projected.height)
     ctx.restore()
 
-    drawCanvasHandle(ctx, projected.start, endpointColor, fill, handleRadius, strokeWidth)
-    drawCanvasHandle(ctx, projected.end, endpointColor, fill, handleRadius, strokeWidth)
+    drawTualHandle(ctx, projected.start, endpointColor, fill, handleRadius, strokeWidth)
+    drawTualHandle(ctx, projected.end, endpointColor, fill, handleRadius, strokeWidth)
   }
 
   ctx.restore()

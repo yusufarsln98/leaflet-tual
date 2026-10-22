@@ -2,27 +2,27 @@ import { useCallback, useRef } from 'react'
 import type L from 'leaflet'
 import type {
   ArrowItem,
-  CanvasItem,
+  TualItem,
   FreeDrawItem,
-  LeafletCanvasProps,
+  LeafletTualProps,
   NoteItem,
   RulerItem,
   ShapeItem,
   TextItem,
 } from '../../types/index.js'
-import { useLeafletCanvas, useLeafletSync } from '../../features/index.js'
-import { useCanvasPainter } from './use-canvas-painter.js'
-import { useCanvasKeyboardShortcuts } from './use-canvas-keyboard-shortcuts.js'
+import { useLeafletTual, useLeafletSync } from '../../features/index.js'
+import { useTualPainter } from './use-tual-painter.js'
+import { useTualKeyboardShortcuts } from './use-tual-keyboard-shortcuts.js'
 import { useSelectInteractions } from './use-select-interactions.js'
 import { useDrawingInteractions } from './use-drawing-interactions.js'
 import { useBlockMapDblClick } from './use-block-map-dblclick.js'
 import {
-  useOutsideCanvasPointerDown,
+  useOutsideTualPointerDown,
   useStableItemArray,
-} from './use-outside-canvas-deselect.js'
+} from './use-outside-tual-deselect.js'
 
 export function useLeafletTualOverlay(
-  props: LeafletCanvasProps & { map: L.Map | null },
+  props: LeafletTualProps & { map: L.Map | null },
 ) {
   const {
     map,
@@ -36,7 +36,7 @@ export function useLeafletTualOverlay(
   } = props
 
   const isReadOnly = Boolean(propReadOnly ?? externalController?.readOnly ?? false)
-  const internalController = useLeafletCanvas({ ...hookOptions, readOnly: isReadOnly })
+  const internalController = useLeafletTual({ ...hookOptions, readOnly: isReadOnly })
   const controller = externalController ?? internalController
   const showToolbar = propShowToolbar ?? !isReadOnly
 
@@ -44,7 +44,7 @@ export function useLeafletTualOverlay(
   propCallbacksRef.current = hookOptions
 
   const notifyChangeComplete = useCallback(
-    (targetItem?: CanvasItem | null) => {
+    (targetItem?: TualItem | null) => {
       controller.notifyChangeComplete(targetItem)
       if (externalController) {
         propCallbacksRef.current.onItemsChangeComplete?.(controller.items, targetItem)
@@ -77,7 +77,7 @@ export function useLeafletTualOverlay(
     deleteSelected,
   } = controller
 
-  useOutsideCanvasPointerDown(map, isReadOnly, activeTool, setActiveTool, selectedId, setSelectedId, notifyChangeComplete)
+  useOutsideTualPointerDown(map, isReadOnly, activeTool, setActiveTool, selectedId, setSelectedId, notifyChangeComplete)
 
   const viewport = useLeafletSync(map)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -117,7 +117,7 @@ export function useLeafletTualOverlay(
     paintCanvas: () => paintCanvas(),
   })
 
-  const paintCanvas = useCanvasPainter({
+  const paintCanvas = useTualPainter({
     map,
     viewport,
     canvasRef,
@@ -138,7 +138,7 @@ export function useLeafletTualOverlay(
     isReadOnly,
   })
 
-  useCanvasKeyboardShortcuts({
+  useTualKeyboardShortcuts({
     isReadOnly,
     selectedId,
     selectedItem: controller.selectedItem,
@@ -196,7 +196,5 @@ export function useLeafletTualOverlay(
     handleInteractionPointerMove,
   }
 }
-
-export const useLeafletCanvasOverlay = useLeafletTualOverlay
 
 

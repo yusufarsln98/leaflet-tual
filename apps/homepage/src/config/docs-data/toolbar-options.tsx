@@ -9,13 +9,13 @@ import { DocSection } from '../docs-data'
 
 export const toolbarOptionsSection: DocSection = {
   id: 'toolbar-options',
-  title: 'CanvasToolbar Configuration & Options',
+  title: 'TualToolbar Configuration & Options',
   category: 'advanced',
   content: (
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
-          The <DocCode highlight>CanvasToolbar</DocCode> widget provides a ready-to-use, floating or docked
+          The <DocCode highlight>TualToolbar</DocCode> widget provides a ready-to-use, floating or docked
           toolbar for drawing tool selection, color pickers, stroke widths, font sizes, history controls,
           and custom tools. It can be embedded inside <DocCode highlight>&lt;LeafletTual&gt;</DocCode>{' '}
           or rendered completely decoupled in an external application navigation bar.
@@ -168,7 +168,7 @@ const customExportTool: CustomToolbarItem = {
       <DocParagraph>
         To render the toolbar outside the Leaflet map container (for instance, in an application top
         navigation bar or side inspector dock), disable the embedded toolbar on <DocCode highlight>&lt;LeafletTual&gt;</DocCode>{' '}
-        using <DocCode highlight>showToolbar={'{false}'}</DocCode> and render <DocCode highlight>&lt;CanvasToolbar&gt;</DocCode>{' '}
+        using <DocCode highlight>showToolbar={'{false}'}</DocCode> and render <DocCode highlight>&lt;TualToolbar&gt;</DocCode>{' '}
         externally:
       </DocParagraph>
 
@@ -176,7 +176,7 @@ const customExportTool: CustomToolbarItem = {
         language="tsx"
         filename="AppWorkspace.tsx"
         code={`import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletTual, CanvasToolbar, useLeafletTual } from 'leaflet-tual/react'
+import { LeafletTual, TualToolbar, useLeafletTual } from 'leaflet-tual/react'
 
 export function AppWorkspace() {
   const controller = useLeafletTual()
@@ -186,7 +186,7 @@ export function AppWorkspace() {
       {/* Application Header with Decoupled Toolbar */}
       <header className="h-14 px-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
         <div className="text-white font-bold">Map Workspace</div>
-        <CanvasToolbar controller={controller} orientation="horizontal" />
+        <TualToolbar controller={controller} orientation="horizontal" />
       </header>
 
       {/* Map View without embedded floating toolbar */}

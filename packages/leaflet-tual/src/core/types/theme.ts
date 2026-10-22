@@ -10,7 +10,7 @@ export type ToolbarPosition =
 
 export type ToolbarOrientation = 'horizontal' | 'vertical'
 
-export interface CanvasLabels {
+export interface TualLabels {
   select?: string
   freedraw?: string
   arrowGroup?: string
@@ -65,7 +65,7 @@ export interface CanvasLabels {
   expandToolbar?: string
 }
 
-export interface CanvasAnnotationTheme {
+export interface TualAnnotationTheme {
   selectionGlowColor?: string
   selectionGlowWidth?: number
   guideLineDash?: readonly number[]
@@ -96,7 +96,7 @@ export interface CanvasAnnotationTheme {
   fitLabelsToShape?: boolean
 }
 
-export type ArrowRenderTheme = CanvasAnnotationTheme
+export type ArrowRenderTheme = TualAnnotationTheme
 
 export interface LeafletTualClassNames {
   overlay?: string
@@ -149,7 +149,5 @@ export interface LeafletTualClassNames {
   textInput?: string
   textDisplay?: string
 }
-
-export type LeafletCanvasClassNames = LeafletTualClassNames
 
 

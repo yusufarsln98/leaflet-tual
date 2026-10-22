@@ -3,7 +3,7 @@ import type { LeafletTualClassNames } from '../../core/types/theme.js'
 
 export * from '../../core/types/theme.js'
 
-export interface CanvasIcons {
+export interface TualIcons {
   select?: React.ReactNode
   freedraw?: React.ReactNode
   arrowGroup?: React.ReactNode
@@ -47,6 +47,4 @@ export interface CanvasIcons {
 export type LeafletTualStyles = {
   [K in keyof LeafletTualClassNames]?: React.CSSProperties
 }
-
-export type LeafletCanvasStyles = LeafletTualStyles
 

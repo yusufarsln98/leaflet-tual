@@ -2,9 +2,9 @@ import React from 'react'
 import type L from 'leaflet'
 import { vi } from 'vitest'
 import {
-  CanvasToolbar,
-  useLeafletCanvas,
-  type CanvasToolbarProps,
+  TualToolbar,
+  useLeafletTual,
+  type TualToolbarProps,
 } from '../index.js'
 
 export class MockPointerEvent extends MouseEvent {
@@ -18,10 +18,10 @@ if (typeof window.PointerEvent === 'undefined') {
   ;(globalThis as unknown as Record<string, unknown>).PointerEvent = MockPointerEvent
 }
 
-export type TestToolbarHarnessProps = Partial<CanvasToolbarProps>
+export type TestToolbarHarnessProps = Partial<TualToolbarProps>
 
 export const TestToolbarHarness: React.FC<TestToolbarHarnessProps> = (props) => {
-  const controller = useLeafletCanvas({
+  const controller = useLeafletTual({
     initialItems: [
       {
         id: 'arrow-1',
@@ -35,7 +35,7 @@ export const TestToolbarHarness: React.FC<TestToolbarHarnessProps> = (props) => 
       },
     ],
   })
-  return React.createElement(CanvasToolbar, { controller, ...props })
+  return React.createElement(TualToolbar, { controller, ...props })
 }
 
 export function createMockMap(overrides: Partial<Record<string, unknown>> = {}): L.Map {

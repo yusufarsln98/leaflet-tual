@@ -1,5 +1,5 @@
 import type {
-  CanvasAnnotationTheme,
+  TualAnnotationTheme,
   ShapeKind,
 } from '../../types/index.js'
 import type { ProjectedShape } from './render-shape.js'
@@ -8,7 +8,7 @@ export function tracePolygonShape(
   ctx: CanvasRenderingContext2D,
   proj: ProjectedShape,
   kind: ShapeKind,
-  theme?: CanvasAnnotationTheme,
+  theme?: TualAnnotationTheme,
 ) {
   const { minX, minY, maxX, maxY, width, height, cx, cy } = proj
 

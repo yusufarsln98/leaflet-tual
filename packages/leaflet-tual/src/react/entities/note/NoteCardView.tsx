@@ -1,12 +1,12 @@
 import type React from 'react'
 import type {
-  CanvasIcons,
-  CanvasLabels,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualIcons,
+  TualLabels,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   NoteItem,
 } from '../../types/index.js'
-import { DEFAULT_ICONS } from '../../widgets/CanvasToolbar/icons.js'
+import { DEFAULT_ICONS } from '../../widgets/TualToolbar/icons.js'
 import type { ResolvedNoteTheme } from './types.js'
 import { NoteCardHeader } from './NoteCardHeader.js'
 
@@ -17,10 +17,10 @@ export interface NoteCardViewProps {
   isDragging: boolean
   readOnly: boolean
   unstyled: boolean
-  labels?: CanvasLabels
-  icons?: CanvasIcons
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  labels?: TualLabels
+  icons?: TualIcons
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   textareaRef: React.RefObject<HTMLTextAreaElement | null>
   onHeaderPointerDown: (e: React.PointerEvent<HTMLElement>) => void
   onExpandFromCompact: (e?: React.MouseEvent) => void

@@ -14,11 +14,11 @@ leaflet-tual combines the mapping capabilities of Leaflet and react-leaflet with
 ## Documentation Index
 - [Introduction & Architecture](https://leaflet-tual.vercel.app/docs#introduction): Geographic coordinate binding, 2D canvas rendering, and DOM overlays.
 - [Quick Start](https://leaflet-tual.vercel.app/docs#quickstart): Installation (pnpm/npm/yarn/bun), MapContainer integration, and initial setup.
-- [Data Models](https://leaflet-tual.vercel.app/docs#data-models): Complete discriminated union CanvasItem (5 arrow styles, 8 shape kinds, freedraw, notes, text).
+- [Data Models](https://leaflet-tual.vercel.app/docs#data-models): Complete discriminated union TualItem (5 arrow styles, 8 shape kinds, freedraw, notes, text).
 - [State & Controller](https://leaflet-tual.vercel.app/docs#state-controller): useLeafletTual hook, controlled vs uncontrolled mode, undo/redo history, serialization.
 - [Toolbar & Customization](https://leaflet-tual.vercel.app/docs#toolbar-customization): Floating toolbar positions, collapsible states, custom tools, and decoupled external toolbars.
 - [Theming & Styling](https://leaflet-tual.vercel.app/docs#theming): Custom classNames, inline styles, annotation theme overrides, and unstyled mode.
-- [API Reference](https://leaflet-tual.vercel.app/docs#api-reference): Prop tables for LeafletTual and CanvasToolbar, controller methods, and geometry utilities.
+- [API Reference](https://leaflet-tual.vercel.app/docs#api-reference): Prop tables for LeafletTual and TualToolbar, controller methods, and geometry utilities.
 - [AI Integration](https://leaflet-tual.vercel.app/docs#skill-md): Pre-configured AI coding assistant skill specification.
 
 ## Core Architectural Invariants & AI Constraints
@@ -27,7 +27,7 @@ leaflet-tual combines the mapping capabilities of Leaflet and react-leaflet with
 3. **Controller Decoupling**: State should be managed through the `useLeafletTual` hook.
    - **Uncontrolled mode**: Omit `items`; the controller manages internal state and provides 50-step undo/redo history (`canUndo`, `canRedo`, `undo()`, `redo()`).
    - **Controlled mode**: Supply `items` and listen to `onItemsChange` (or `onChange`).
-4. **Toolbar Placement & Decoupling**: By default, `<LeafletTual>` displays a floating toolbar positioned via `toolbarPosition` (`'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`, `'top'`, `'bottom'`, `'left'`, `'right'`). To render a decoupled external toolbar outside the map, set `showToolbar={false}` on `<LeafletTual>` and render `<CanvasToolbar controller={controller} />` in your external UI.
+4. **Toolbar Placement & Decoupling**: By default, `<LeafletTual>` displays a floating toolbar positioned via `toolbarPosition` (`'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`, `'top'`, `'bottom'`, `'left'`, `'right'`). To render a decoupled external toolbar outside the map, set `showToolbar={false}` on `<LeafletTual>` and render `<TualToolbar controller={controller} />` in your external UI.
 5. **Shift-Key Snapping**: Holding `Shift` during vector creation or manipulation automatically snaps arrow directions to 45° angle increments and constrains shape bounding boxes to a 1:1 aspect ratio (e.g. perfect squares, circles, symmetric stars).
 6. **Dual Rendering Architecture**:
    - Vector arrows, geometric shapes, and freehand strokes render onto an interactive HTML5 2D `<canvas>` surface for optimal 60fps rendering during pan and zoom.
@@ -35,7 +35,7 @@ leaflet-tual combines the mapping capabilities of Leaflet and react-leaflet with
 
 ## Layout Data Model (JSON Schema)
 
-All annotations conform to the `CanvasItem` discriminated union on the `type` field:
+All annotations conform to the `TualItem` discriminated union on the `type` field:
 
 ```ts
 export type GeoPoint = {
@@ -60,7 +60,7 @@ export type ShapeKind =
   | 'hexagon'
   | 'marker'
 
-export type CanvasTool =
+export type TualTool =
   | 'select'
   | 'freedraw'
   | 'arrow-linear'
@@ -146,7 +146,7 @@ export interface TextItem {
   createdAt: number
 }
 
-export type CanvasItem = ArrowItem | FreeDrawItem | ShapeItem | NoteItem | TextItem
+export type TualItem = ArrowItem | FreeDrawItem | ShapeItem | NoteItem | TextItem
 ```
 
 ## Installation
@@ -200,7 +200,7 @@ export function MapAnnotationsView() {
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { CanvasToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
+import { TualToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
 
 export function DecoupledView() {
@@ -209,7 +209,7 @@ export function DecoupledView() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <header style={{ padding: '8px 16px', background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
-        <CanvasToolbar controller={controller} orientation="horizontal" />
+        <TualToolbar controller={controller} orientation="horizontal" />
       </header>
       <div style={{ flex: 1, position: 'relative' }}>
         <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -242,12 +242,12 @@ export function DecoupledView() {
 - `showDeleteButton?: boolean`: Show Delete selected item toolbar button.
 - `showClearButton?: boolean`: Show Clear All annotations toolbar button.
 - `showToolLabels?: boolean`: Show text labels alongside toolbar tool icons.
-- `labels?: CanvasLabels`: Localization strings and aria-label overrides for all buttons and modals.
-- `icons?: CanvasIcons`: ReactNode icon overrides for all toolbar items.
+- `labels?: TualLabels`: Localization strings and aria-label overrides for all buttons and modals.
+- `icons?: TualIcons`: ReactNode icon overrides for all toolbar items.
 - `unstyled?: boolean`: Strip default CSS styling for zero-specificity custom themes.
 - `classNames?: LeafletTualClassNames`: Fine-grained CSS class overrides for canvas, overlay containers, toolbar, notes, and text.
 - `styles?: LeafletTualStyles`: Fine-grained inline style overrides.
-- `annotationTheme?: CanvasAnnotationTheme`: 2D canvas styling theme (handles, control lines, selection halos, labels).
+- `annotationTheme?: TualAnnotationTheme`: 2D canvas styling theme (handles, control lines, selection halos, labels).
 - `arrowTheme?: ArrowRenderTheme`: Alias for `annotationTheme`.
 - `strokeColors?: readonly string[]`: Color palette swatches for stroke color picker.
 - `strokeWidthOptions?: readonly number[]`: Preset stroke width options (default: `[1, 2, 3, 4, 5, 6, 8, 10, 12]`).
@@ -261,15 +261,15 @@ export function DecoupledView() {
 - `zIndex?: number`: CSS z-index applied to the canvas and overlay containers (default: `650`).
 - `className?: string`: Container CSS class name.
 - `style?: React.CSSProperties`: Container inline styles.
-- `onChange?: (items: CanvasItem[]) => void` / `onItemsChange?: (items: CanvasItem[]) => void`: Immediate change callback fired on every annotation mutation.
-- `onChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void` / `onItemsChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void`: Completion callback fired when an edit finishes (click outside, blur, Escape, deselect). Aliased by `onEditEnd` and `onEditComplete`.
-- `onItemSelect?: (item: CanvasItem | null) => void`: Fired when selection changes.
-- `onItemCreate?: (item: CanvasItem) => void`: Fired when a new item is finalized.
-- `onItemChange?: (item: CanvasItem) => void`: Fired when an existing item is updated.
-- `onItemChangeComplete?: (item: CanvasItem) => void`: Fired when an item edit operation commits.
+- `onChange?: (items: TualItem[]) => void` / `onItemsChange?: (items: TualItem[]) => void`: Immediate change callback fired on every annotation mutation.
+- `onChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void` / `onItemsChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void`: Completion callback fired when an edit finishes (click outside, blur, Escape, deselect). Aliased by `onEditEnd` and `onEditComplete`.
+- `onItemSelect?: (item: TualItem | null) => void`: Fired when selection changes.
+- `onItemCreate?: (item: TualItem) => void`: Fired when a new item is finalized.
+- `onItemChange?: (item: TualItem) => void`: Fired when an existing item is updated.
+- `onItemChangeComplete?: (item: TualItem) => void`: Fired when an item edit operation commits.
 - `onItemDelete?: (id: string) => void`: Fired when an item is removed.
 
-### `<CanvasToolbar>` Props
+### `<TualToolbar>` Props
 - `controller: LeafletTualController`: Target canvas controller instance.
 - `position?: ToolbarPosition`: Preset positioning styling.
 - `orientation?: ToolbarOrientation`: Layout orientation (`'horizontal' | 'vertical'`).
@@ -285,8 +285,8 @@ export function DecoupledView() {
 - `showDeleteButton?: boolean`: Render Delete button.
 - `showClearButton?: boolean`: Render Clear All button.
 - `showToolLabels?: boolean`: Render text labels below icons.
-- `labels?: CanvasLabels`: Label and placeholder overrides.
-- `icons?: CanvasIcons`: Icon overrides.
+- `labels?: TualLabels`: Label and placeholder overrides.
+- `icons?: TualIcons`: Icon overrides.
 - `unstyled?: boolean`: Strip default styles.
 - `classNames?: LeafletTualClassNames`: CSS class overrides.
 - `styles?: LeafletTualStyles`: Inline style overrides.
@@ -299,8 +299,8 @@ export function DecoupledView() {
 ## Controller Hook API Reference
 
 ### `useLeafletTual(options)` Options
-- `initialItems?: CanvasItem[]`: Uncontrolled initial annotations.
-- `items?: CanvasItem[]`: Controlled annotations array.
+- `initialItems?: TualItem[]`: Uncontrolled initial annotations.
+- `items?: TualItem[]`: Controlled annotations array.
 - `maxHistory?: number`: Undo/redo history size (default: `50`).
 - `readOnly?: boolean`: Initial read-only state.
 - `defaultColor?: string`: Default stroke color (default: `'#000000'`).
@@ -308,30 +308,30 @@ export function DecoupledView() {
 - `defaultNoteColor?: string`: Default sticky note background color.
 - `defaultFontSize?: number`: Default text overlay font size (default: `16`).
 - `defaultShape?: ShapeKind`: Default shape kind (default: `'square'`).
-- `initialTool?: CanvasTool`: Initial active tool (default: `'select'`).
-- `onChange?: (items: CanvasItem[]) => void` / `onItemsChange?: (items: CanvasItem[]) => void`: Immediate change callback.
-- `onChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void` / `onItemsChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void`: Edit completion callback.
-- `onItemSelect?: (item: CanvasItem | null) => void`: Selection callback.
-- `onItemCreate?: (item: CanvasItem) => void`: Item creation callback.
-- `onItemChange?: (item: CanvasItem) => void`: Item update callback.
-- `onItemChangeComplete?: (item: CanvasItem) => void`: Item edit complete callback.
+- `initialTool?: TualTool`: Initial active tool (default: `'select'`).
+- `onChange?: (items: TualItem[]) => void` / `onItemsChange?: (items: TualItem[]) => void`: Immediate change callback.
+- `onChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void` / `onItemsChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void`: Edit completion callback.
+- `onItemSelect?: (item: TualItem | null) => void`: Selection callback.
+- `onItemCreate?: (item: TualItem) => void`: Item creation callback.
+- `onItemChange?: (item: TualItem) => void`: Item update callback.
+- `onItemChangeComplete?: (item: TualItem) => void`: Item edit complete callback.
 - `onItemDelete?: (id: string) => void`: Item deletion callback.
-- `onToolChange?: (tool: CanvasTool) => void`: Active tool change callback.
+- `onToolChange?: (tool: TualTool) => void`: Active tool change callback.
 
 ### `LeafletTualController` Properties & Methods
 - **Items State**:
-  - `items: CanvasItem[]`: Array of all active annotations.
+  - `items: TualItem[]`: Array of all active annotations.
   - `selectedId: string | null`: Currently selected item ID.
-  - `selectedItem: CanvasItem | null`: Currently selected item object.
-  - `addItem(item: CanvasItem): void`: Appends a new item to the canvas.
-  - `updateItem(id: string, patch: Partial<CanvasItem>): void`: Updates properties on an item.
+  - `selectedItem: TualItem | null`: Currently selected item object.
+  - `addItem(item: TualItem): void`: Appends a new item to the canvas.
+  - `updateItem(id: string, patch: Partial<TualItem>): void`: Updates properties on an item.
   - `removeItem(id: string): void` / `deleteItem(id: string): void`: Removes an item by ID.
   - `deleteSelected(): void`: Deletes the currently selected item.
   - `clearAll(): void` / `clear(): void`: Removes all items from the canvas.
   - `setSelectedId(id: string | null): void` / `selectItem(id: string | null): void`: Sets selected item ID.
 - **Tool & Drawing State**:
-  - `activeTool: CanvasTool`: Active canvas tool.
-  - `setActiveTool(tool: CanvasTool): void` / `setTool(tool: CanvasTool): void`: Switches active tool.
+  - `activeTool: TualTool`: Active canvas tool.
+  - `setActiveTool(tool: TualTool): void` / `setTool(tool: TualTool): void`: Switches active tool.
   - `activeShape: ShapeKind`: Active shape kind for shape tool.
   - `setActiveShape(shape: ShapeKind): void`: Sets shape kind.
   - `shapeFilled: boolean`: Shape fill toggle state.
@@ -355,7 +355,7 @@ export function DecoupledView() {
   - `canRedo: boolean`: True if redo is possible.
   - `undo(): void`: Steps backward in history stack.
   - `redo(): void`: Steps forward in history stack.
-  - `notifyChangeComplete(targetItem?: CanvasItem | null): void`: Explicitly dispatches change-complete notification.
+  - `notifyChangeComplete(targetItem?: TualItem | null): void`: Explicitly dispatches change-complete notification.
 - **Serialization**:
   - `exportJSON(): string`: Serializes all canvas items to a JSON string.
   - `importJSON(json: string): boolean`: Replaces canvas items with parsed JSON. Returns `true` on success.
@@ -374,6 +374,6 @@ Importable directly from `leaflet-tual`:
 - `distanceToSegment(p: ScreenPoint, v: ScreenPoint, w: ScreenPoint): number`: Computes shortest distance from point `p` to segment `vw` for click hit-testing.
 - `distanceToQuadraticBezier(p: ScreenPoint, p0: ScreenPoint, p1: ScreenPoint, p2: ScreenPoint, steps = 24): number`: Computes approximate distance from point `p` to a quadratic Bezier curve.
 - `getMapDimensions(map: L.Map | null | undefined): { width: number; height: number } | null`: Safely reads map container width and height.
-- `truncateCanvasText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string`: Truncates string with ellipsis (`…`) based on Canvas 2D measurement.
+- `truncateTualText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string`: Truncates string with ellipsis (`…`) based on Canvas 2D measurement.
 - `calculateZoomFontSize(initialFontSize = 16, currentZoom: number | null, baseZoom = 14, options?): number`: Calculates zoom-scaled font size with configurable scale factor, min, and max bounds.
 - `createId(prefix = 'rlc'): string`: Generates collision-resistant unique item IDs.

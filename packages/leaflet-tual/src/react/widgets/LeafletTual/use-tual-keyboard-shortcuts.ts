@@ -1,17 +1,17 @@
 import { useEffect } from 'react'
-import type { ArrowItem, CanvasItem, CanvasTool, ShapeItem } from '../../types/index.js'
+import type { ArrowItem, TualItem, TualTool, ShapeItem } from '../../types/index.js'
 import type { DraftArrowState, DraftRulerState, DraftShapeState } from './types.js'
 
 export interface UseCanvasKeyboardShortcutsOptions {
   isReadOnly: boolean
   selectedId: string | null
-  selectedItem?: CanvasItem | null
-  items?: CanvasItem[]
+  selectedItem?: TualItem | null
+  items?: TualItem[]
   isEditingLabel?: boolean
   setEditingLabel?: (editing: boolean) => void
   deleteSelected: () => void
   setSelectedId: (id: string | null) => void
-  setActiveTool: (tool: CanvasTool) => void
+  setActiveTool: (tool: TualTool) => void
   setDraftArrow: (draft: DraftArrowState | null) => void
   setDraftShape: (draft: DraftShapeState | null) => void
   setDraftRuler?: (draft: DraftRulerState | null) => void
@@ -19,7 +19,7 @@ export interface UseCanvasKeyboardShortcutsOptions {
   notifyChangeComplete?: () => void
 }
 
-export function useCanvasKeyboardShortcuts({
+export function useTualKeyboardShortcuts({
   isReadOnly,
   selectedId,
   selectedItem,
@@ -73,7 +73,7 @@ export function useCanvasKeyboardShortcuts({
             setEditingLabel?.(true)
             const focusInput = () => {
               const input = document.querySelector<HTMLInputElement>(
-                `[data-rlc-shape-label-input="${shape.id}"], [data-rlc-shape-label-input], input[placeholder*="Shape label"]`,
+                `[data-tual-shape-label-input="${shape.id}"], [data-tual-shape-label-input], input[placeholder*="Shape label"]`,
               )
               if (input) {
                 input.focus()
@@ -91,7 +91,7 @@ export function useCanvasKeyboardShortcuts({
           setEditingLabel?.(true)
           const focusInput = () => {
             const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-              `[data-rlc-text="${item.id}"] textarea, [data-rlc-text="${item.id}"] input, [data-rlc-text] textarea`,
+              `[data-tual-text="${item.id}"] textarea, [data-tual-text="${item.id}"] input, [data-tual-text] textarea`,
             )
             if (input) {
               input.focus()
@@ -110,7 +110,7 @@ export function useCanvasKeyboardShortcuts({
           setEditingLabel?.(true)
           const focusInput = () => {
             const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-              `[data-rlc-note="${item.id}"] textarea, [data-rlc-note="${item.id}"] input, [data-rlc-note] textarea`,
+              `[data-tual-note="${item.id}"] textarea, [data-tual-note="${item.id}"] input, [data-tual-note] textarea`,
             )
             if (input) {
               input.focus()
@@ -130,7 +130,7 @@ export function useCanvasKeyboardShortcuts({
             setEditingLabel?.(true)
             const focusInput = () => {
               const input = document.querySelector<HTMLInputElement>(
-                `[data-rlc-arrow-label-input="${arrow.id}"], [data-rlc-arrow-label-input], input[placeholder*="Arrow label"]`,
+                `[data-tual-arrow-label-input="${arrow.id}"], [data-tual-arrow-label-input], input[placeholder*="Arrow label"]`,
               )
               if (input) {
                 input.focus()

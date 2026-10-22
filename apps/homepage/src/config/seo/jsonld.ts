@@ -51,7 +51,7 @@ export const homeJsonLd = {
         'Decoupled state management via createLeafletTualController & useLeafletTual',
         'Presentation readOnly mode for dashboards and reports',
         'Framework-agnostic core with optional React subpath (leaflet-tual/react)',
-        'Decoupled CanvasToolbar for external header/sidebar placement',
+        'Decoupled TualToolbar for external header/sidebar placement',
       ],
       sameAs: [SEO_CONSTANTS.githubRepoUrl, SEO_CONSTANTS.npmPkgUrl],
     },

@@ -5,7 +5,7 @@ import {
   renderRulerOnCanvas,
   hitTestRuler,
   hitTestRulerHandle,
-  type CanvasAnnotationTheme,
+  type TualAnnotationTheme,
   type ArrowItem,
   type RulerItem,
   type ShapeItem,
@@ -13,7 +13,7 @@ import {
 import { createMockCanvasContext } from './test-utils.js'
 
 describe('unified canvas annotation theme (shapes, arrows, tooltips)', () => {
-  it('applies unified CanvasAnnotationTheme to shape labels/tooltips and handles', () => {
+  it('applies unified TualAnnotationTheme to shape labels/tooltips and handles', () => {
     const mockCtx = createMockCanvasContext()
 
     const shape: ShapeItem = {
@@ -41,7 +41,7 @@ describe('unified canvas annotation theme (shapes, arrows, tooltips)', () => {
       cy: 55,
     }
 
-    const customTheme: CanvasAnnotationTheme = {
+    const customTheme: TualAnnotationTheme = {
       labelBackgroundColor: '#fef08a',
       labelTextColor: '#713f12',
       labelBorderColor: '#ca8a04',
@@ -60,7 +60,7 @@ describe('unified canvas annotation theme (shapes, arrows, tooltips)', () => {
     expect(mockCtx.fillText).toHaveBeenCalledWith('Custom Shape Tooltip', 55, 55)
   })
 
-  it('applies unified CanvasAnnotationTheme to arrow labels/tooltips and handles', () => {
+  it('applies unified TualAnnotationTheme to arrow labels/tooltips and handles', () => {
     const mockCtx = createMockCanvasContext()
 
     const arrow: ArrowItem = {
@@ -81,7 +81,7 @@ describe('unified canvas annotation theme (shapes, arrows, tooltips)', () => {
       control: { x: 50, y: 50 },
     }
 
-    const customTheme: CanvasAnnotationTheme = {
+    const customTheme: TualAnnotationTheme = {
       labelBackgroundColor: '#ffffff',
       labelTextColor: '#000000',
       labelBorderRadius: 2,

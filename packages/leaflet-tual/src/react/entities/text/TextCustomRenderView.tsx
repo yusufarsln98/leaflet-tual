@@ -46,7 +46,7 @@ export function TextCustomRenderView({
 }: TextCustomRenderViewProps) {
   return (
     <div
-      data-rlc-text={item.id}
+      data-tual-text={item.id}
       data-compact={isCompact ? 'true' : undefined}
       data-selected={(!readOnly && isSelected) || undefined}
       className={wrapperClassName}

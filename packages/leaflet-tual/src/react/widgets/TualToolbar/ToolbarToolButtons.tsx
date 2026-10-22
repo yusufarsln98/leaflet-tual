@@ -1,10 +1,10 @@
 import React from 'react'
 import type {
-  CanvasIcons,
-  CanvasLabels,
-  CanvasTool,
+  TualIcons,
+  TualLabels,
+  TualTool,
   CustomToolbarItem,
-  LeafletCanvasController,
+  LeafletTualController,
   ShapeKind,
   ToolbarOrientation,
   ToolbarPosition,
@@ -16,7 +16,7 @@ import { ArrowDropdown } from './ArrowDropdown.js'
 import { ShapesModal } from './ShapesModal.js'
 
 export interface ToolbarToolButtonsProps {
-  controller: LeafletCanvasController
+  controller: LeafletTualController
   readOnly: boolean
   position: ToolbarPosition
   orientation: ToolbarOrientation
@@ -24,8 +24,8 @@ export interface ToolbarToolButtonsProps {
   showToolLabels: boolean
   enabledTools: readonly ToolbarToolGroupId[]
   customTools?: readonly CustomToolbarItem[]
-  labels?: CanvasLabels
-  icons?: CanvasIcons
+  labels?: TualLabels
+  icons?: TualIcons
   unstyled: boolean
   classNames?: any
   styles?: any
@@ -96,7 +96,7 @@ export function ToolbarToolButtons(props: ToolbarToolButtonsProps) {
       </>
     )
 
-  const renderSimpleToolBtn = (tool: CanvasTool, label: string, shortcut: string, icon: React.ReactNode, allowInReadOnly = false) => {
+  const renderSimpleToolBtn = (tool: TualTool, label: string, shortcut: string, icon: React.ReactNode, allowInReadOnly = false) => {
     const isActive = activeTool === tool
     return (
       <button

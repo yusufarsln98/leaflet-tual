@@ -20,7 +20,7 @@ export type ShapeKind =
   | 'hexagon'
   | 'marker'
 
-export type CanvasTool =
+export type TualTool =
   | 'select'
   | 'freedraw'
   | 'arrow-linear'
@@ -131,7 +131,7 @@ export interface RulerItem {
   createdAt: number
 }
 
-export type CanvasItem =
+export type TualItem =
   | ArrowItem
   | FreeDrawItem
   | ShapeItem

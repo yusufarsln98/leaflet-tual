@@ -41,7 +41,7 @@ export function bindBlockMapDblClick(map: L.Map): () => void {
     const target = e.target as LeafletFlaggedElement | null
     if (
       !target?.closest?.(
-        '[data-rlc-overlay], input, textarea, select, button, .rlc-overlay',
+        '[data-tual-overlay], input, textarea, select, button, .rlc-overlay',
       )
     ) {
       return
@@ -75,7 +75,7 @@ export function bindBlockMapDblClick(map: L.Map): () => void {
     const target = e.target as HTMLElement | null
     if (
       target?.closest?.(
-        'textarea, input, select, button, [data-rlc-note-resize], .rlc-note-resize-handle',
+        'textarea, input, select, button, [data-tual-note-resize], .rlc-note-resize-handle',
       )
     ) {
       if (map.dragging?.enabled?.()) {

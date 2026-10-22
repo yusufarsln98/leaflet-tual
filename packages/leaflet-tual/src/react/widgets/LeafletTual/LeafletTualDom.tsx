@@ -1,13 +1,13 @@
 import React from 'react'
 import type L from 'leaflet'
 import type {
-  CanvasIcons,
-  CanvasItem,
-  CanvasLabels,
+  TualIcons,
+  TualItem,
+  TualLabels,
   CustomToolbarItem,
-  LeafletCanvasClassNames,
-  LeafletCanvasController,
-  LeafletCanvasStyles,
+  LeafletTualClassNames,
+  LeafletTualController,
+  LeafletTualStyles,
   NoteItem,
   RenderNoteProps,
   RenderTextProps,
@@ -19,7 +19,7 @@ import type {
 } from '../../types/index.js'
 import { geoToScreen } from '../../shared/index.js'
 import { InlineShapeLabelEditor, NoteOverlay, TextOverlay } from '../../entities/index.js'
-import { CanvasToolbar } from '../CanvasToolbar/index.js'
+import { TualToolbar } from '../TualToolbar/index.js'
 
 export interface LeafletTualDomProps {
   map: L.Map
@@ -32,15 +32,15 @@ export interface LeafletTualDomProps {
   zIndex: number
   className?: string
   style?: React.CSSProperties
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   handleInteractionPointerDown: (e: React.PointerEvent<HTMLDivElement>) => void
   handleInteractionPointerMove: (e: React.PointerEvent<HTMLDivElement>) => void
   noteItems: NoteItem[]
   textItems: TextItem[]
   selectedId: string | null
-  labels?: CanvasLabels
-  icons?: CanvasIcons
+  labels?: TualLabels
+  icons?: TualIcons
   unstyled?: boolean
   clampOverlaysToViewport?: boolean
   autoMinimizeNotesZoom?: number
@@ -50,10 +50,10 @@ export interface LeafletTualDomProps {
   setSelectedId: (id: string | null) => void
   updateItem: (id: string, patch: any) => void
   removeItem: (id: string) => void
-  notifyChangeComplete: (targetItem?: CanvasItem | null) => void
-  renderToolbar?: (controller: LeafletCanvasController) => React.ReactNode
+  notifyChangeComplete: (targetItem?: TualItem | null) => void
+  renderToolbar?: (controller: LeafletTualController) => React.ReactNode
   showToolbar: boolean
-  controller: LeafletCanvasController
+  controller: LeafletTualController
   toolbarPosition: ToolbarPosition
   toolbarOrientation?: ToolbarOrientation
   collapsible?: boolean
@@ -71,8 +71,6 @@ export interface LeafletTualDomProps {
   strokeWidthOptions?: readonly number[]
   fontSizeOptions?: readonly number[]
 }
-
-export type LeafletCanvasDomProps = LeafletTualDomProps
 
 export function LeafletTualDom(props: LeafletTualDomProps) {
   const {
@@ -129,7 +127,7 @@ export function LeafletTualDom(props: LeafletTualDomProps) {
   return (
     <div
       className={['rlc-overlay', isReadOnly ? 'rlc-readonly' : undefined, classNames?.overlay, className].filter(Boolean).join(' ')}
-      data-rlc-overlay
+      data-tual-overlay
       data-readonly={isReadOnly || undefined}
       style={{ position: 'absolute', inset: 0, zIndex, pointerEvents: 'none', overflow: 'hidden', ...styles?.overlay, ...style }}
     >
@@ -141,7 +139,7 @@ export function LeafletTualDom(props: LeafletTualDomProps) {
 
       {isDrawingTool && (
         <div
-          data-rlc-drawing-surface
+          data-tual-drawing-surface
           className={['rlc-drawing-surface', classNames?.drawingSurface].filter(Boolean).join(' ')}
           onPointerDown={handleInteractionPointerDown}
           onPointerMove={handleInteractionPointerMove}
@@ -185,7 +183,7 @@ export function LeafletTualDom(props: LeafletTualDomProps) {
       {renderToolbar
         ? renderToolbar(controller)
         : showToolbar && (
-            <CanvasToolbar
+            <TualToolbar
               controller={controller}
               position={toolbarPosition}
               orientation={toolbarOrientation}
@@ -214,6 +212,4 @@ export function LeafletTualDom(props: LeafletTualDomProps) {
     </div>
   )
 }
-
-export const LeafletCanvasDom = LeafletTualDom
 

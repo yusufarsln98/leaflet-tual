@@ -1,7 +1,7 @@
 import React from 'react'
 import type {
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   ShapeKind,
 } from '../../types/index.js'
 import type { ShapeOption } from './types.js'
@@ -11,8 +11,8 @@ export interface ShapesModalGridProps {
   activeShape: ShapeKind
   isShapeToolActive: boolean
   unstyled?: boolean
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   onSelectShape: (kind: ShapeKind) => void
 }
 

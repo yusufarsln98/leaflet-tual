@@ -2,13 +2,13 @@
  * leaflet-tual/react
  *
  * React bindings on top of the framework-agnostic leaflet-tual core.
- * Exposes `<LeafletCanvas>`, `<CanvasToolbar>`, `useLeafletCanvas`,
+ * Exposes `<LeafletTual>`, `<TualToolbar>`, `useLeafletTual`,
  * `useLeafletSync`, and all overlay components, types, and utilities.
  *
  * Import from the dedicated subpath so non-React consumers never resolve
  * the React peer dependency:
  *
- *     import { LeafletCanvas, useLeafletCanvas } from 'leaflet-tual/react'
+ *     import { LeafletTual, useLeafletTual } from 'leaflet-tual/react'
  */
 
 export * from '../core/index.js'

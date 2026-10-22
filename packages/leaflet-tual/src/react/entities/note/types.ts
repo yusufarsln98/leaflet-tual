@@ -1,10 +1,10 @@
 import type React from 'react'
 import type L from 'leaflet'
 import type {
-  CanvasIcons,
-  CanvasLabels,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualIcons,
+  TualLabels,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   NoteItem,
   RenderNoteProps,
   ScreenPoint,
@@ -16,11 +16,11 @@ export interface NoteOverlayProps {
   isSelected: boolean
   map: L.Map
   readOnly?: boolean
-  labels?: CanvasLabels
-  icons?: CanvasIcons
+  labels?: TualLabels
+  icons?: TualIcons
   unstyled?: boolean
-  classNames?: LeafletCanvasClassNames
-  styles?: LeafletCanvasStyles
+  classNames?: LeafletTualClassNames
+  styles?: LeafletTualStyles
   clampToViewport?: boolean
   autoMinimizeZoomThreshold?: number
   renderNote?: (props: RenderNoteProps) => React.ReactNode

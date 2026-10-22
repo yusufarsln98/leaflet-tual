@@ -15,7 +15,7 @@ export const itemsSchemaSection: DocSection = {
     <div className="space-y-8">
       <div>
         <DocParagraph lead>
-          Every annotation on the canvas conforms to the <DocCode highlight>CanvasItem</DocCode> discriminated
+          Every annotation on the canvas conforms to the <DocCode highlight>TualItem</DocCode> discriminated
           union. All spatial coordinates are stored exclusively as <DocCode highlight>GeoPoint</DocCode> latitude
           and longitude objects, ensuring clean serialization, persistence, and zero map drift.
         </DocParagraph>
@@ -50,7 +50,7 @@ export type ShapeKind =
   | 'hexagon'
   | 'marker'
 
-export type CanvasTool =
+export type TualTool =
   | 'select'
   | 'freedraw'
   | 'arrow-linear'
@@ -205,8 +205,8 @@ export type NoteCollapseState = 'expanded' | 'collapsed' | 'compact'`}
 
       <DocCodeBlock
         language="typescript"
-        filename="CanvasItem.ts"
-        code={`export type CanvasItem =
+        filename="TualItem.ts"
+        code={`export type TualItem =
   | ArrowItem
   | FreeDrawItem
   | ShapeItem

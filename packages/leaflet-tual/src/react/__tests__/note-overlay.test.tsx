@@ -42,7 +42,7 @@ describe('NoteOverlay', () => {
     )
 
     // No custom corner overlay icon
-    expect(container.querySelector('[data-rlc-note-resize]')).toBeNull()
+    expect(container.querySelector('[data-tual-note-resize]')).toBeNull()
 
     // Native textarea resizer is active for both directions
     const textarea = container.querySelector(
@@ -86,7 +86,7 @@ describe('NoteOverlay', () => {
       }),
     )
 
-    expect(container.querySelector('[data-rlc-note-resize]')).toBeNull()
+    expect(container.querySelector('[data-tual-note-resize]')).toBeNull()
     const textarea = container.querySelector(
       '.rlc-note-textarea',
     ) as HTMLTextAreaElement
@@ -238,7 +238,7 @@ describe('NoteOverlay', () => {
       }),
     )
 
-    const card = container.querySelector('[data-rlc-note="note-edge"]') as HTMLElement
+    const card = container.querySelector('[data-tual-note="note-edge"]') as HTMLElement
     expect(card).toBeDefined()
     const leftVal = parseFloat(card.style.left)
     const topVal = parseFloat(card.style.top)
@@ -285,7 +285,7 @@ describe('NoteOverlay', () => {
       }),
     )
 
-    const card = container.querySelector('[data-rlc-note="note-auto-collapse"]') as HTMLElement
+    const card = container.querySelector('[data-tual-note="note-auto-collapse"]') as HTMLElement
     expect(card).toBeDefined()
     expect(card.getAttribute('data-collapsed')).toBe('true')
   })
@@ -328,7 +328,7 @@ describe('NoteOverlay', () => {
       }),
     )
 
-    const card = container.querySelector('[data-rlc-note="note-compact-1"]') as HTMLElement
+    const card = container.querySelector('[data-tual-note="note-compact-1"]') as HTMLElement
     expect(card).toBeDefined()
     expect(card.classList.contains('rlc-note-compact')).toBe(true)
     expect(card.getAttribute('data-compact')).toBe('true')

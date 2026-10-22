@@ -79,7 +79,7 @@ canvas.controller.setStrokeWidth(3)`,
     description:
       'Place the toolbar in your app header, sidebar, or docked layout while the canvas renders in the map.',
     code: `import { MapContainer, TileLayer } from 'react-leaflet'
-import { CanvasToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
+import { TualToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
 
 export function DecoupledApp() {
   const controller = useLeafletTual()
@@ -89,7 +89,7 @@ export function DecoupledApp() {
       {/* External Toolbar rendered outside the Map */}
       <header className="px-4 py-2 bg-slate-900 border-b border-slate-800 flex justify-between">
         <h1 className="text-white font-bold">Map Annotations</h1>
-        <CanvasToolbar controller={controller} />
+        <TualToolbar controller={controller} />
       </header>
 
       {/* Map with embedded toolbar disabled */}
@@ -111,12 +111,12 @@ export function DecoupledApp() {
       'Synchronize annotations with a remote database, REST API, or WebSocket feed via controlled props.',
     code: `import { useState, useCallback } from 'react'
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletTual, useLeafletTual, type CanvasItem } from 'leaflet-tual/react'
+import { LeafletTual, useLeafletTual, type TualItem } from 'leaflet-tual/react'
 
 export function ControlledCanvas() {
-  const [annotations, setAnnotations] = useState<CanvasItem[]>([])
+  const [annotations, setAnnotations] = useState<TualItem[]>([])
 
-  const handleItemsChange = useCallback((newItems: CanvasItem[]) => {
+  const handleItemsChange = useCallback((newItems: TualItem[]) => {
     setAnnotations(newItems)
     // Synchronize to backend or collaborative room
     fetch('/api/map/annotations', {

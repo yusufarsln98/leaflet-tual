@@ -1,16 +1,16 @@
 import type React from 'react'
 import type {
-  CanvasIcons,
-  CanvasLabels,
-  LeafletCanvasClassNames,
-  LeafletCanvasStyles,
+  TualIcons,
+  TualLabels,
+  LeafletTualClassNames,
+  LeafletTualStyles,
   ToolbarOrientation,
   ToolbarPosition,
 } from '../../types/index.js'
 import { DEFAULT_ICONS } from './icons.js'
 import type { ArrowOption, ShapeOption } from './types.js'
 
-export function buildArrowOptions(labels?: CanvasLabels, icons?: CanvasIcons): readonly ArrowOption[] {
+export function buildArrowOptions(labels?: TualLabels, icons?: TualIcons): readonly ArrowOption[] {
   return [
     {
       id: 'arrow-linear',
@@ -50,7 +50,7 @@ export function buildArrowOptions(labels?: CanvasLabels, icons?: CanvasIcons): r
   ]
 }
 
-export function buildShapeOptions(labels?: CanvasLabels, icons?: CanvasIcons): readonly ShapeOption[] {
+export function buildShapeOptions(labels?: TualLabels, icons?: TualIcons): readonly ShapeOption[] {
   return [
     { kind: 'square', label: labels?.shapeSquare ?? 'Square', icon: icons?.shapeSquare ?? DEFAULT_ICONS.shapeSquare },
     { kind: 'circle', label: labels?.shapeCircle ?? 'Circle', icon: icons?.shapeCircle ?? DEFAULT_ICONS.shapeCircle },
@@ -69,7 +69,7 @@ export function getToolbarButtonStyle(
   showToolLabels: boolean,
   readOnly: boolean,
   unstyled: boolean,
-  styles?: LeafletCanvasStyles,
+  styles?: LeafletTualStyles,
 ): React.CSSProperties {
   const baseStyle: React.CSSProperties = unstyled
     ? {}
@@ -138,7 +138,7 @@ export function getToolbarButtonStyle(
 
 export function getToolbarButtonClassName(
   isActive: boolean,
-  classNames?: LeafletCanvasClassNames,
+  classNames?: LeafletTualClassNames,
 ): string {
   return ['rlc-tool-btn', classNames?.toolButton, isActive ? classNames?.toolButtonActive : undefined]
     .filter(Boolean)
@@ -202,8 +202,8 @@ export function getActiveToolInfo(
   arrowGroupLabel: string,
   currentShapeIcon: React.ReactNode,
   shapesGroupLabel: string,
-  icons?: CanvasIcons,
-  labels?: CanvasLabels,
+  icons?: TualIcons,
+  labels?: TualLabels,
 ): { icon: React.ReactNode; label: string } {
   if (activeTool === 'select') return { icon: icons?.select ?? DEFAULT_ICONS.select, label: labels?.select ?? 'Select' }
   if (activeTool === 'freedraw') return { icon: icons?.freedraw ?? DEFAULT_ICONS.freedraw, label: labels?.freedraw ?? 'Free Draw' }

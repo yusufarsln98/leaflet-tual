@@ -76,7 +76,7 @@ export function useSelectInteractions({
 
     const handlePointerMove = (e: PointerEvent) => {
       const target = e.target as HTMLElement | null
-      if (target?.closest('[data-rlc-toolbar], [data-rlc-note], [data-rlc-text]')) {
+      if (target?.closest('[data-tual-toolbar], [data-tual-note], [data-tual-text]')) {
         setHoverCursor(null)
         return
       }
@@ -138,7 +138,7 @@ export function useSelectInteractions({
     const handlePointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return
       const target = e.target as HTMLElement | null
-      if (target?.closest('[data-rlc-toolbar], [data-rlc-note], [data-rlc-text], .leaflet-control')) {
+      if (target?.closest('[data-tual-toolbar], [data-tual-note], [data-tual-text], .leaflet-control')) {
         return
       }
 
@@ -238,7 +238,7 @@ export function useSelectInteractions({
       const target = e.target as HTMLElement | null
       if (
         target?.closest(
-          '[data-rlc-toolbar], [data-rlc-note], [data-rlc-text], .leaflet-control',
+          '[data-tual-toolbar], [data-tual-note], [data-tual-text], .leaflet-control',
         )
       ) {
         return
@@ -263,7 +263,7 @@ export function useSelectInteractions({
             setEditingLabel?.(true)
             const focusInput = () => {
               const input = document.querySelector<HTMLInputElement>(
-                `[data-rlc-shape-label-input="${shp.id}"], [data-rlc-shape-label-input], input[placeholder*="Shape label"]`,
+                `[data-tual-shape-label-input="${shp.id}"], [data-tual-shape-label-input], input[placeholder*="Shape label"]`,
               )
               if (input) {
                 input.focus()

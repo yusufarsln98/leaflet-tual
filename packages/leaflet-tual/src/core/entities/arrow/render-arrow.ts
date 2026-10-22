@@ -8,7 +8,7 @@ import {
   getQuadraticBezierPoint,
   getQuadraticEndAngle,
 } from '../../shared/geo.js'
-import { drawCanvasHandle, drawCanvasLabelPill } from '../../shared/canvas-render.js'
+import { drawTualHandle, drawTualLabelPill } from '../../shared/tual-render.js'
 import { drawArrowHead, traceArrowPath } from './arrow-geometry.js'
 
 export type ArrowHandleType = 'start' | 'end' | 'control'
@@ -123,7 +123,7 @@ export function renderArrowOnCanvas(
             : { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
       const fitToShape = theme?.fitLabelsToShape !== false
       const maxW = theme?.labelMaxTextWidth ?? (fitToShape ? Math.max(48, Math.min(280, dist * 1.6)) : Infinity)
-      drawCanvasLabelPill(ctx, arrow.label, Math.round(rawMid.x), Math.round(rawMid.y), arrow.color, maxW, theme)
+      drawTualLabelPill(ctx, arrow.label, Math.round(rawMid.x), Math.round(rawMid.y), arrow.color, maxW, theme)
     }
   }
 
@@ -145,10 +145,10 @@ export function renderArrowOnCanvas(
       ctx.lineWidth = theme?.guideLineWidth ?? 1.2
       ctx.stroke()
       ctx.restore()
-      drawCanvasHandle(ctx, control, controlColor, fill, handleRadius + 0.5, strokeWidth)
+      drawTualHandle(ctx, control, controlColor, fill, handleRadius + 0.5, strokeWidth)
     }
-    drawCanvasHandle(ctx, start, endpointColor, fill, handleRadius, strokeWidth)
-    drawCanvasHandle(ctx, end, endpointColor, fill, handleRadius, strokeWidth)
+    drawTualHandle(ctx, start, endpointColor, fill, handleRadius, strokeWidth)
+    drawTualHandle(ctx, end, endpointColor, fill, handleRadius, strokeWidth)
   }
 
   ctx.restore()
