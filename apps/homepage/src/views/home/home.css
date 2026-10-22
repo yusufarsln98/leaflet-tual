@@ -1,0 +1,505 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   Home — “Surveyor’s Folio”
+   Homepage-scoped visual language: warm paper, serif display voice, hairline
+   rules and cartographic detail. All tokens are local (`--oh-*`) and resolved
+   through light-dark(), so every other route keeps reading the global tokens.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* ── Palette & voices ────────────────────────────────────────────────────── */
+
+  .oh-root {
+    /* Map folio voices onto the global site tokens (single source of truth) */
+    --oh-paper: var(--bg-app);
+    --oh-plate: var(--bg-pane);
+    --oh-well: var(--bg-pane-inner);
+    --oh-ink: var(--text-primary);
+    --oh-ink-2: var(--text-secondary);
+    --oh-ink-3: var(--text-muted);
+    --oh-line: var(--border-primary);
+    --oh-line-2: var(--border-secondary);
+    --oh-lime: var(--accent);
+    --oh-lime-soft: light-dark(oklch(0.5 0.12 128 / 0.12), oklch(0.9 0.19 130 / 0.12));
+    --oh-cyan: var(--cyan);
+    --oh-needle: var(--danger);
+
+    /* Topographic contour tiles (resolved via tokens.css) */
+    --oh-contour: var(--bg-contour);
+
+    background-color: var(--oh-paper);
+    color: var(--oh-ink);
+  }
+
+  /* ── Typographic voices ──────────────────────────────────────────────────── */
+
+  .oh-serif {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .oh-tick-label {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--oh-ink-3);
+  }
+
+  /* ── Cartography chrome ──────────────────────────────────────────────────── */
+
+  /* Coordinate ruler strip (minor ticks every 24px, major every 7.5em) */
+  .oh-ruler {
+    height: 10px;
+    background-image:
+      repeating-linear-gradient(to right, var(--oh-line-2) 0 1px, transparent 1px 120px),
+      repeating-linear-gradient(to right, var(--oh-line-2) 0 1px, transparent 1px 24px);
+    background-size:
+      100% 10px,
+      100% 5px;
+    background-repeat: repeat-x;
+    background-position: left bottom;
+    border-bottom: 1px solid var(--oh-line-2);
+  }
+
+  /* Print registration marks around a plate */
+  .oh-marks {
+    position: relative;
+  }
+  .oh-reg {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    pointer-events: none;
+  }
+  .oh-reg-tl {
+    top: -8px;
+    left: -8px;
+    border-top: 1.5px solid var(--oh-ink-3);
+    border-left: 1.5px solid var(--oh-ink-3);
+  }
+  .oh-reg-tr {
+    top: -8px;
+    right: -8px;
+    border-top: 1.5px solid var(--oh-ink-3);
+    border-right: 1.5px solid var(--oh-ink-3);
+  }
+  .oh-reg-bl {
+    bottom: -8px;
+    left: -8px;
+    border-bottom: 1.5px solid var(--oh-ink-3);
+    border-left: 1.5px solid var(--oh-ink-3);
+  }
+  .oh-reg-br {
+    bottom: -8px;
+    right: -8px;
+    border-bottom: 1.5px solid var(--oh-ink-3);
+    border-right: 1.5px solid var(--oh-ink-3);
+  }
+
+  /* Plate = framed surface used by folio, tailpiece, code area */
+  .oh-plate {
+    background-color: var(--oh-plate);
+    border: 1px solid var(--oh-line-2);
+    border-radius: 3px;
+  }
+
+  .oh-well {
+    background-color: var(--oh-well);
+    background-image: var(--oh-contour);
+    border-radius: 2px;
+  }
+
+  /* Section scaffold: numbered hairline headers */
+  .oh-section {
+    padding-block: clamp(3.25rem, 7vw, 5.5rem);
+    border-bottom: 1px solid var(--oh-line);
+  }
+  .oh-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+    border-bottom: 1px solid var(--oh-line-2);
+    padding-bottom: 1.25rem;
+    margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+  }
+  .oh-num {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--oh-ink-3);
+    letter-spacing: 0.1em;
+  }
+
+  /* Diamond glyph (replaces the dot-pill vocabulary from the previous design) */
+  .oh-diamond {
+    width: 0.45rem;
+    height: 0.45rem;
+    background: var(--oh-lime);
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+
+  /* ── Buttons: squared ink/outline pair ───────────────────────────────────── */
+
+  .oh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.35rem;
+    border-radius: 2px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border: 1px solid var(--oh-line-2);
+    transition:
+      translate 0.16s var(--ease-out-expo),
+      background-color 0.16s var(--ease-out-expo),
+      border-color 0.16s var(--ease-out-expo),
+      box-shadow 0.16s var(--ease-out-expo);
+  }
+  .oh-btn:hover {
+    translate: 0 -1px;
+  }
+  .oh-btn:active {
+    translate: 0 0;
+  }
+
+  .oh-btn-solid {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+  }
+  .oh-btn-solid:hover {
+    box-shadow: 0 10px 22px -12px oklch(0.15 0.02 260 / 0.55);
+  }
+
+  .oh-btn-ghost {
+    background: transparent;
+    color: var(--oh-ink);
+  }
+  .oh-btn-ghost:hover {
+    background: var(--oh-plate);
+    border-color: var(--oh-ink-3);
+  }
+
+  /* ── Hero pieces ─────────────────────────────────────────────────────────── */
+
+  .oh-hero {
+    position: relative;
+    overflow: hidden;
+  }
+  .oh-hero::before {
+    /* Contour atmosphere behind the title block */
+    content: '';
+    position: absolute;
+    inset: -20% 0 auto;
+    height: 640px;
+    background-image: var(--oh-contour);
+    background-size: 420px;
+    -webkit-mask-image: radial-gradient(ellipse 62% 88% at 50% 8%, #000 35%, transparent 78%);
+    mask-image: radial-gradient(ellipse 62% 88% at 50% 8%, #000 35%, transparent 78%);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .oh-hero > * {
+    position: relative;
+  }
+
+  .oh-cartouche {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--oh-ink-2);
+  }
+  .oh-cartouche-sep {
+    color: var(--oh-line-2);
+  }
+
+  /* Hand-drawn marker under the italic serif keyword */
+  .oh-scribble {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.32em;
+    width: 100%;
+    color: var(--oh-lime);
+    overflow: visible;
+  }
+  .oh-scribble path {
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    fill: none;
+  }
+
+  /* Command strip */
+  .oh-cmd {
+    display: flex;
+    align-items: stretch;
+    width: fit-content;
+    max-width: 100%;
+    border: 1px solid var(--oh-line-2);
+    border-radius: 3px;
+    background: var(--oh-plate);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    overflow: hidden;
+  }
+  .oh-cmd-tab {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--oh-ink-3);
+    border-right: 1px solid var(--oh-line);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .oh-cmd-tab:hover {
+    color: var(--oh-ink-2);
+  }
+  .oh-cmd-tab:has(:checked) {
+    color: var(--oh-ink);
+    background: var(--oh-well);
+    box-shadow: inset 0 -2px 0 var(--oh-lime);
+  }
+  .oh-cmd-tab:has(:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .oh-cmd-cmd {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.9rem;
+    min-width: 0;
+    text-align: left;
+    color: var(--oh-ink);
+  }
+  .oh-cmd-cmd > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .oh-cmd-copy {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 0.75rem;
+    border-left: 1px solid var(--oh-line);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--oh-ink-3);
+    transition: color 0.15s ease;
+  }
+  .oh-cmd-copy:hover {
+    color: var(--oh-ink);
+    background: var(--oh-well);
+  }
+
+  /* Scale bar (hero metrics) */
+  .oh-scale {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .oh-scale-cell {
+    padding: 1.25rem 1rem;
+    border-right: 1px solid var(--oh-line);
+    border-top: 1px solid var(--oh-line-2);
+  }
+  .oh-scale-cell:nth-child(2n) {
+    border-right: 0;
+  }
+  @media (min-width: 640px) {
+    .oh-scale {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .oh-scale-cell:nth-child(2n) {
+      border-right: 1px solid var(--oh-line);
+    }
+    .oh-scale-cell:last-child {
+      border-right: 0;
+    }
+  }
+  .oh-scale-value {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    line-height: 1.05;
+    color: var(--oh-ink);
+  }
+
+  /* ── Legend checklist (hero folio) ───────────────────────────────────────── */
+
+  .oh-leg-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    padding: 0.72rem 0.85rem;
+    border-bottom: 1px solid var(--oh-line);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+  .oh-leg-item:last-child {
+    border-bottom: 0;
+  }
+  .oh-leg-item:hover {
+    background: color-mix(in oklch, var(--oh-well) 55%, transparent);
+  }
+  .oh-leg-item:has(:checked) {
+    background: var(--oh-well);
+    box-shadow: inset 2px 0 0 var(--oh-lime);
+  }
+  .oh-leg-item:has(:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .oh-leg-label {
+    flex: 1;
+    font-size: 0.8125rem;
+    font-weight: 550;
+    color: var(--oh-ink-2);
+  }
+  .oh-leg-item:has(:checked) .oh-leg-label {
+    color: var(--oh-ink);
+  }
+  .oh-leg-swatch {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 1px;
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    transition: box-shadow 0.15s ease;
+  }
+  .oh-leg-item:has(:checked) .oh-leg-swatch {
+    box-shadow: 0 0 0 2px color-mix(in oklch, var(--oh-lime) 30%, transparent);
+  }
+  .oh-leg-count {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--oh-ink-3);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Showcase / pillars / quickstart ─────────────────────────────────────── */
+
+  .oh-index-row {
+    display: grid;
+    grid-template-columns: 3rem 3.25rem 1fr;
+    gap: 0.25rem 0;
+    padding: 1.55rem 0.25rem;
+    border-bottom: 1px solid var(--oh-line);
+    align-items: start;
+    transition: background-color 0.16s ease;
+  }
+  @media (min-width: 1024px) {
+    .oh-index-row {
+      grid-template-columns: 3.5rem 3.5rem 1fr 13.5rem;
+    }
+  }
+  .oh-index-row:hover {
+    background: color-mix(in oklch, var(--oh-plate) 70%, transparent);
+  }
+  .oh-index-row:hover .oh-index-num {
+    color: var(--oh-lime);
+  }
+  .oh-index-num {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--oh-ink-3);
+    padding-top: 0.45rem;
+    transition: color 0.16s ease;
+  }
+  .oh-index-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    line-height: 1.2;
+    color: var(--oh-ink);
+  }
+  .oh-stamp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--oh-line-2);
+    border-radius: 2px;
+    color: var(--oh-ink-2);
+    background: var(--oh-plate);
+  }
+  .oh-index-row:hover .oh-stamp {
+    color: var(--oh-lime);
+    border-color: color-mix(in oklch, var(--oh-lime) 45%, var(--oh-line-2));
+  }
+  .oh-index-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--oh-ink-3);
+    padding-top: 0.35rem;
+  }
+
+  /* Plate index (quickstart nav) */
+  .oh-plate-item {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.9rem 0.85rem;
+    border-bottom: 1px solid var(--oh-line);
+    transition: background-color 0.15s ease;
+  }
+  li:last-child > .oh-plate-item,
+  .oh-plate-item:last-child {
+    border-bottom: 0;
+  }
+  .oh-plate-item:hover {
+    background: color-mix(in oklch, var(--oh-plate) 70%, transparent);
+  }
+  .oh-plate-item[aria-current='true'] {
+    background: var(--oh-plate);
+    box-shadow: inset 2px 0 0 var(--oh-lime);
+  }
+  .oh-plate-item[aria-current='true'] .oh-plate-name {
+    color: var(--oh-ink);
+  }
+  .oh-plate-item:has(:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .oh-plate-num {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--oh-ink-3);
+  }
+  .oh-plate-item[aria-current='true'] .oh-plate-num {
+    color: var(--oh-ink);
+  }
+  .oh-plate-name {
+    font-size: 0.875rem;
+    font-weight: 550;
+    color: var(--oh-ink-2);
+  }
+
+  /* ── Ambient (motion-safe only) ──────────────────────────────────────────── */
+
+  @media (prefers-reduced-motion: no-preference) {
+    .oh-live {
+      animation: pulse-dot 2.4s ease-in-out infinite;
+    }
+  }
+}

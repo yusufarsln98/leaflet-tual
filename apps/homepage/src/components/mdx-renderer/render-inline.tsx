@@ -1,0 +1,73 @@
+import React from 'react'
+import type { RootContent, Text, Strong, Emphasis, InlineCode, Link } from './types'
+
+import { isSafeUrl } from '@/lib/url'
+
+export function renderInline(nodes: RootContent[], keyPrefix = ''): React.ReactNode[] {
+  return nodes.map((node, i) => {
+    const key = `${keyPrefix}${i}`
+    switch (node.type) {
+      case 'text':
+        return <React.Fragment key={key}>{(node as Text).value}</React.Fragment>
+      case 'strong':
+        return (
+          <strong key={key} className="font-bold text-text-primary">
+            {renderInline((node as Strong).children as RootContent[], `${key}-`)}
+          </strong>
+        )
+      case 'emphasis':
+        return (
+          <em key={key}>{renderInline((node as Emphasis).children as RootContent[], `${key}-`)}</em>
+        )
+      case 'inlineCode':
+        return (
+          <code
+            key={key}
+            className="bg-bg-pane-inner border border-border-primary rounded px-1.5 py-0.5 text-xs font-mono text-accent"
+          >
+            {(node as InlineCode).value}
+          </code>
+        )
+      case 'link': {
+        const link = node as Link
+        const safeHref = isSafeUrl(link.url) ? link.url : '#'
+        const isExternal = safeHref.startsWith('http://') || safeHref.startsWith('https://')
+        return (
+          <a
+            key={key}
+            href={safeHref}
+            target={isExternal ? '_blank' : undefined}
+            rel={isExternal ? 'noopener noreferrer' : undefined}
+            className="text-accent hover:underline decoration-accent/40 underline-offset-2 font-medium"
+          >
+            {renderInline(link.children as RootContent[], `${key}-`)}
+          </a>
+        )
+      }
+      case 'delete':
+        return (
+          <del key={key}>
+            {renderInline((node as { children: RootContent[] }).children, `${key}-`)}
+          </del>
+        )
+      case 'image': {
+        const img = node as unknown as { url: string; alt?: string; title?: string }
+        return (
+          <img
+            key={key}
+            src={img.url}
+            alt={img.alt || ''}
+            title={img.title || undefined}
+            className="inline-block mr-1.5 align-middle"
+          />
+        )
+      }
+      case 'html':
+        return null
+      default:
+        if ('value' in node)
+          return <React.Fragment key={key}>{(node as { value: string }).value}</React.Fragment>
+        return null
+    }
+  })
+}

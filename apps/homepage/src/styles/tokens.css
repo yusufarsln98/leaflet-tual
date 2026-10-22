@@ -1,0 +1,98 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   Design tokens — leaflet-canvas “Surveyor’s Folio” palette
+   Warm paper surfaces, ink text, hairline warm borders, signal lime brand.
+   Every route reads these; the homepage simply maps its local --oh-* vars here.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+@custom-variant dark {
+  &:where(:root:has(> head > meta[name='color-scheme'][content='dark']) *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not(:has(> head > meta[name='color-scheme'][content='light'])) *) {
+      @slot;
+    }
+  }
+}
+
+@theme {
+  --font-sans:
+    'Geist Variable', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-mono:
+    'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: 'Instrument Serif', ui-serif, Georgia, serif;
+
+  /* Surfaces */
+  --color-bg-app: var(--bg-app);
+  --color-bg-sidebar: var(--bg-sidebar);
+  --color-bg-pane: var(--bg-pane);
+  --color-bg-pane-inner: var(--bg-pane-inner);
+  --color-bg-inverse: var(--bg-inverse);
+
+  /* Lines */
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+
+  /* Text */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-inverse: var(--text-inverse);
+
+  /* Brand Signature (Signal Lime & Cyan) */
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-fg: var(--accent-fg);
+  --color-lime: #B6F03C;
+  --color-cyan: var(--cyan);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --shadow-float:
+    0 1px 0 0 oklch(1 0 0 / 0.05) inset, 0 18px 44px -20px rgba(20, 18, 12, 0.4),
+    0 6px 16px -10px rgba(20, 18, 12, 0.28);
+}
+
+:root {
+  color-scheme: dark light;
+
+  &:has(> head > meta[name='color-scheme'][content='dark']) {
+    color-scheme: dark;
+  }
+  &:has(> head > meta[name='color-scheme'][content='light']) {
+    color-scheme: light;
+  }
+
+  /* Folio papers (light: warm ivory stack / dark: warm-coal stack) */
+  --bg-app: light-dark(oklch(0.977 0.013 84), #0d1014);
+  --bg-sidebar: light-dark(oklch(0.955 0.015 84), #12161b);
+  --bg-pane: light-dark(oklch(0.996 0.005 84), #14181e);
+  --bg-pane-inner: light-dark(oklch(0.988 0.008 84), #1b2026);
+  --bg-inverse: light-dark(#23282e, oklch(0.977 0.013 84));
+
+  --border-primary: light-dark(oklch(0.3 0.02 80 / 0.15), oklch(0.92 0.01 84 / 0.11));
+  --border-secondary: light-dark(oklch(0.3 0.02 80 / 0.38), oklch(0.92 0.01 84 / 0.3));
+
+  --text-primary: light-dark(oklch(0.21 0.018 265), #eceadf);
+  --text-secondary: light-dark(oklch(0.4 0.014 265), #a9a59a);
+  --text-muted: light-dark(oklch(0.56 0.01 265), #7c796f);
+  --text-inverse: light-dark(oklch(0.977 0.013 84), #0d1014);
+
+  /* Brand Accent: Signal Lime */
+  --accent: light-dark(#4d7c0f, #B6F03C);
+  --accent-strong: light-dark(#3f6212, #c7f665);
+  --accent-fg: light-dark(#ffffff, #111827);
+  --cyan: light-dark(#0891b2, #22D3EE);
+  --grid-line: light-dark(oklch(0.25 0.02 80 / 0.055), oklch(0.9 0.01 84 / 0.045));
+
+  --bg-contour: light-dark(
+    url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22420%22 height=%22420%22 viewBox=%220 0 420 420%22 fill=%22none%22 stroke=%22%234a5462%22 stroke-opacity=%220.2%22 stroke-width=%221%22%3E%3Cellipse cx=%22146%22 cy=%22142%22 rx=%22118%22 ry=%2278%22 stroke-dasharray=%223 6%22/%3E%3Cellipse cx=%22146%22 cy=%22142%22 rx=%2284%22 ry=%2254%22/%3E%3Cellipse cx=%22146%22 cy=%22142%22 rx=%2252%22 ry=%2230%22/%3E%3Cellipse cx=%22330%22 cy=%22318%22 rx=%2292%22 ry=%2266%22 stroke-dasharray=%223 6%22/%3E%3Cellipse cx=%22330%22 cy=%22318%22 rx=%2258%22 ry=%2240%22/%3E%3Cellipse cx=%22330%22 cy=%22318%22 rx=%2227%22 ry=%2217%22/%3E%3Cpath d=%22M0 380 Q 140 348 218 390 T 420 370%22/%3E%3Cpath d=%22M0 408 Q 150 384 236 412 T 420 398%22/%3E%3C/svg%3E'),
+    url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22420%22 height=%22420%22 viewBox=%220 0 420 420%22 fill=%22none%22 stroke=%22%2393a6b8%22 stroke-opacity=%220.11%22 stroke-width=%221%22%3E%3Cellipse cx=%22146%22 cy=%22142%22 rx=%22118%22 ry=%2278%22 stroke-dasharray=%223 6%22/%3E%3Cellipse cx=%22146%22 cy=%22142%22 rx=%2284%22 ry=%2254%22/%3E%3Cellipse cx=%22146%22 cy=%22142%22 rx=%2252%22 ry=%2230%22/%3E%3Cellipse cx=%22330%22 cy=%22318%22 rx=%2292%22 ry=%2266%22 stroke-dasharray=%223 6%22/%3E%3Cellipse cx=%22330%22 cy=%22318%22 rx=%2258%22 ry=%2240%22/%3E%3Cellipse cx=%22330%22 cy=%22318%22 rx=%2227%22 ry=%2217%22/%3E%3Cpath d=%22M0 380 Q 140 348 218 390 T 420 370%22/%3E%3Cpath d=%22M0 408 Q 150 384 236 412 T 420 398%22/%3E%3C/svg%3E')
+  );
+
+  --success: light-dark(oklch(0.56 0.13 155), #34D399);
+  --danger: light-dark(oklch(0.54 0.2 26), #F87171);
+}

@@ -1,0 +1,379 @@
+# leaflet-canvas
+
+> Interactive canvas and annotation toolkit for Leaflet maps in React — draw vector arrows, geometric shapes, sticky notes, and text anchored to geo-coordinates.
+
+leaflet-canvas combines the mapping capabilities of Leaflet and react-leaflet with a high-performance HTML5 2D canvas drawing surface and geo-anchored DOM overlays. Annotations scale, pan, and transform seamlessly with the map while maintaining immutable geographic coordinates.
+
+## Navigation & Quick Links
+- [Documentation](https://leaflet-canvas.vercel.app/docs): Comprehensive guides and API references.
+- [Interactive Demo](https://leaflet-canvas.vercel.app/demo): Live interactive canvas playground on top of Leaflet.
+- [GitHub Repository](https://github.com/leaflet-canvas/leaflet-canvas): Source code, issues, and contributing guidelines.
+- [npm Package](https://www.npmjs.com/package/leaflet-canvas): Official package distribution.
+- [SKILL.md Specification](https://leaflet-canvas.vercel.app/docs#skill-md): Official AI coding skill file for Antigravity, Cursor, and Claude Code.
+
+## Documentation Index
+- [Introduction & Architecture](https://leaflet-canvas.vercel.app/docs#introduction): Geographic coordinate binding, 2D canvas rendering, and DOM overlays.
+- [Quick Start](https://leaflet-canvas.vercel.app/docs#quickstart): Installation (pnpm/npm/yarn/bun), MapContainer integration, and initial setup.
+- [Data Models](https://leaflet-canvas.vercel.app/docs#data-models): Complete discriminated union CanvasItem (5 arrow styles, 8 shape kinds, freedraw, notes, text).
+- [State & Controller](https://leaflet-canvas.vercel.app/docs#state-controller): useLeafletCanvas hook, controlled vs uncontrolled mode, undo/redo history, serialization.
+- [Toolbar & Customization](https://leaflet-canvas.vercel.app/docs#toolbar-customization): Floating toolbar positions, collapsible states, custom tools, and decoupled external toolbars.
+- [Theming & Styling](https://leaflet-canvas.vercel.app/docs#theming): Custom classNames, inline styles, annotation theme overrides, and unstyled mode.
+- [API Reference](https://leaflet-canvas.vercel.app/docs#api-reference): Prop tables for LeafletCanvas and CanvasToolbar, controller methods, and geometry utilities.
+- [AI Integration](https://leaflet-canvas.vercel.app/docs#skill-md): Pre-configured AI coding assistant skill specification.
+
+## Core Architectural Invariants & AI Constraints
+1. **GeoPoint Storage Rule**: All persistent item coordinates MUST be stored as geographic latitude/longitude pairs (`GeoPoint`: `{ lat: number, lng: number }`). NEVER store screen `{ x, y }` coordinates in item objects. Screen projections (`geoToScreen` / `screenToGeo`) occur dynamically during render passes and drag interactions using Leaflet's coordinate projection engine.
+2. **Map Context Rule**: `<LeafletCanvas>` automatically acquires the Leaflet map instance via `useMap()` when rendered as a child of `<MapContainer>`. If rendered outside `<MapContainer>`, you MUST supply the Leaflet map instance explicitly via the `map` prop (`<LeafletCanvas map={mapInstance} />`).
+3. **Controller Decoupling**: State should be managed through the `useLeafletCanvas` hook.
+   - **Uncontrolled mode**: Omit `items`; the controller manages internal state and provides 50-step undo/redo history (`canUndo`, `canRedo`, `undo()`, `redo()`).
+   - **Controlled mode**: Supply `items` and listen to `onItemsChange` (or `onChange`).
+4. **Toolbar Placement & Decoupling**: By default, `<LeafletCanvas>` displays a floating toolbar positioned via `toolbarPosition` (`'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`, `'top'`, `'bottom'`, `'left'`, `'right'`). To render a decoupled external toolbar outside the map, set `showToolbar={false}` on `<LeafletCanvas>` and render `<CanvasToolbar controller={controller} />` in your external UI.
+5. **Shift-Key Snapping**: Holding `Shift` during vector creation or manipulation automatically snaps arrow directions to 45° angle increments and constrains shape bounding boxes to a 1:1 aspect ratio (e.g. perfect squares, circles, symmetric stars).
+6. **Dual Rendering Architecture**:
+   - Vector arrows, geometric shapes, and freehand strokes render onto an interactive HTML5 2D `<canvas>` surface for optimal 60fps rendering during pan and zoom.
+   - Sticky notes (`NoteItem`) and text overlays (`TextItem`) render as HTML DOM elements pinned to geographic coordinates via Leaflet container projection, enabling native input focus, textarea expansion, and accessibility.
+
+## Layout Data Model (JSON Schema)
+
+All annotations conform to the `CanvasItem` discriminated union on the `type` field:
+
+```ts
+export type GeoPoint = {
+  lat: number
+  lng: number
+}
+
+export type ScreenPoint = {
+  x: number
+  y: number
+}
+
+export type ArrowStyle = 'linear' | 'curved' | 'bi' | 'elbow' | 's-curve'
+
+export type ShapeKind =
+  | 'square'
+  | 'circle'
+  | 'star'
+  | 'actor'
+  | 'triangle'
+  | 'diamond'
+  | 'hexagon'
+  | 'marker'
+
+export type CanvasTool =
+  | 'select'
+  | 'freedraw'
+  | 'arrow-linear'
+  | 'arrow-curved'
+  | 'arrow-bi'
+  | 'arrow-elbow'
+  | 'arrow-s-curve'
+  | 'shape'
+  | 'note'
+  | 'text'
+
+export type ToolbarToolGroupId = 'select' | 'freedraw' | 'arrow' | 'shape' | 'note' | 'text'
+
+export type ArrowHeadStyle = 'triangle' | 'open' | 'both' | 'none'
+
+export interface ArrowItem {
+  id: string
+  type: 'arrow'
+  arrowStyle: ArrowStyle
+  start: GeoPoint
+  end: GeoPoint
+  controlPoint?: GeoPoint
+  color: string
+  strokeWidth: number
+  dashed?: boolean
+  headStyle?: ArrowHeadStyle
+  label?: string
+  createdAt: number
+}
+
+export interface FreeDrawItem {
+  id: string
+  type: 'freedraw'
+  points: GeoPoint[]
+  color: string
+  strokeWidth: number
+  dashed?: boolean
+  createdAt: number
+}
+
+export interface ShapeItem {
+  id: string
+  type: 'shape'
+  shape: ShapeKind
+  start: GeoPoint
+  end: GeoPoint
+  color: string
+  fillColor?: string
+  filled?: boolean
+  strokeWidth: number
+  dashed?: boolean
+  label?: string
+  createdAt: number
+}
+
+export type NoteCollapseState = 'expanded' | 'collapsed' | 'compact'
+
+export interface NoteItem {
+  id: string
+  type: 'note'
+  position: GeoPoint
+  title?: string
+  text: string
+  backgroundColor: string
+  textColor: string
+  width?: number
+  height?: number
+  minimized?: boolean | 'compact'
+  collapseState?: NoteCollapseState
+  createdAt: number
+}
+
+export interface TextItem {
+  id: string
+  type: 'text'
+  position: GeoPoint
+  text: string
+  color: string
+  initialFontSize?: number
+  baseZoom?: number
+  fontWeight?: 'normal' | 'bold'
+  backgroundColor?: string
+  createdAt: number
+}
+
+export type CanvasItem = ArrowItem | FreeDrawItem | ShapeItem | NoteItem | TextItem
+```
+
+## Installation
+
+```bash
+npm install leaflet-canvas leaflet react-leaflet
+# or
+pnpm add leaflet-canvas leaflet react-leaflet
+# or
+yarn add leaflet-canvas leaflet react-leaflet
+# or
+bun add leaflet-canvas leaflet react-leaflet
+```
+
+## Quick Start Example
+
+```tsx
+import { MapContainer, TileLayer } from 'react-leaflet'
+import { LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import 'leaflet/dist/leaflet.css'
+
+export function MapAnnotationsView() {
+  const controller = useLeafletCanvas({
+    initialItems: [
+      {
+        id: 'start-point',
+        type: 'shape',
+        shape: 'marker',
+        start: { lat: 40.7128, lng: -74.006 },
+        end: { lat: 40.7168, lng: -74.0 },
+        color: '#2563eb',
+        filled: true,
+        fillColor: '#60a5fa',
+        strokeWidth: 2,
+        label: 'Waypoint Alpha',
+        createdAt: Date.now(),
+      },
+    ],
+  })
+
+  return (
+    <MapContainer center={[40.7128, -74.006]} zoom={13} style={{ height: '100vh', width: '100%' }}>
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <LeafletCanvas controller={controller} toolbarPosition="top-center" />
+    </MapContainer>
+  )
+}
+```
+
+## Decoupled External Toolbar Example
+
+```tsx
+import { MapContainer, TileLayer } from 'react-leaflet'
+import { CanvasToolbar, LeafletCanvas, useLeafletCanvas } from 'leaflet-canvas/react'
+import 'leaflet/dist/leaflet.css'
+
+export function DecoupledView() {
+  const controller = useLeafletCanvas()
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <header style={{ padding: '8px 16px', background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
+        <CanvasToolbar controller={controller} orientation="horizontal" />
+      </header>
+      <div style={{ flex: 1, position: 'relative' }}>
+        <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }}>
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <LeafletCanvas controller={controller} showToolbar={false} />
+        </MapContainer>
+      </div>
+    </div>
+  )
+}
+```
+
+## Component API Reference
+
+### `<LeafletCanvas>` Props
+- `controller?: LeafletCanvasController`: External canvas controller instance from `useLeafletCanvas()`. If omitted, creates an internal controller.
+- `map?: L.Map | null`: Explicit Leaflet map instance (required when rendered outside `<MapContainer>`).
+- `readOnly?: boolean`: Read-only view mode; disables drawing, editing, and selection. Floating toolbar is hidden by default.
+- `showToolbar?: boolean`: Explicit toggle for floating toolbar visibility (defaults to `!readOnly`).
+- `toolbarPosition?: ToolbarPosition`: Placement of embedded floating toolbar (`'top'`, `'bottom'`, `'left'`, `'right'`, `'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`; default: `'top-center'`).
+- `toolbarOrientation?: ToolbarOrientation`: Layout orientation of embedded toolbar (`'horizontal' | 'vertical'`).
+- `collapsible?: boolean`: Allow the embedded toolbar to collapse into a trigger icon.
+- `defaultCollapsed?: boolean`: Initial collapsed state of toolbar.
+- `collapsed?: boolean`: Controlled collapsed state of toolbar.
+- `onCollapsedChange?: (collapsed: boolean) => void`: Callback when toolbar collapsed state changes.
+- `showCollapseButton?: boolean`: Show or hide toolbar collapse toggle button.
+- `enabledTools?: readonly ToolbarToolGroupId[]`: Limit toolbar tools (`'select'`, `'freedraw'`, `'arrow'`, `'shape'`, `'note'`, `'text'`).
+- `customTools?: readonly CustomToolbarItem[]`: Custom action items or buttons inserted into the toolbar.
+- `showHistoryControls?: boolean`: Show Undo and Redo toolbar buttons.
+- `showDeleteButton?: boolean`: Show Delete selected item toolbar button.
+- `showClearButton?: boolean`: Show Clear All annotations toolbar button.
+- `showToolLabels?: boolean`: Show text labels alongside toolbar tool icons.
+- `labels?: CanvasLabels`: Localization strings and aria-label overrides for all buttons and modals.
+- `icons?: CanvasIcons`: ReactNode icon overrides for all toolbar items.
+- `unstyled?: boolean`: Strip default CSS styling for zero-specificity custom themes.
+- `classNames?: LeafletCanvasClassNames`: Fine-grained CSS class overrides for canvas, overlay containers, toolbar, notes, and text.
+- `styles?: LeafletCanvasStyles`: Fine-grained inline style overrides.
+- `annotationTheme?: CanvasAnnotationTheme`: 2D canvas styling theme (handles, control lines, selection halos, labels).
+- `arrowTheme?: ArrowRenderTheme`: Alias for `annotationTheme`.
+- `strokeColors?: readonly string[]`: Color palette swatches for stroke color picker.
+- `strokeWidthOptions?: readonly number[]`: Preset stroke width options (default: `[1, 2, 3, 4, 5, 6, 8, 10, 12]`).
+- `fontSizeOptions?: readonly number[]`: Preset font size options for text overlays.
+- `renderToolbar?: (controller: LeafletCanvasController) => React.ReactNode`: Custom toolbar render function.
+- `renderNote?: (props: RenderNoteProps) => React.ReactNode`: Custom sticky note component renderer.
+- `renderText?: (props: RenderTextProps) => React.ReactNode`: Custom text overlay component renderer.
+- `clampOverlaysToViewport?: boolean`: Keep sticky notes and text overlays within map viewport boundaries (default: `true`).
+- `autoMinimizeNotesZoom?: number`: Zoom level below which notes automatically collapse into compact markers.
+- `autoMinimizeTextZoom?: number`: Zoom level below which text overlays automatically collapse into compact markers.
+- `zIndex?: number`: CSS z-index applied to the canvas and overlay containers (default: `650`).
+- `className?: string`: Container CSS class name.
+- `style?: React.CSSProperties`: Container inline styles.
+- `onChange?: (items: CanvasItem[]) => void` / `onItemsChange?: (items: CanvasItem[]) => void`: Immediate change callback fired on every annotation mutation.
+- `onChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void` / `onItemsChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void`: Completion callback fired when an edit finishes (click outside, blur, Escape, deselect). Aliased by `onEditEnd` and `onEditComplete`.
+- `onItemSelect?: (item: CanvasItem | null) => void`: Fired when selection changes.
+- `onItemCreate?: (item: CanvasItem) => void`: Fired when a new item is finalized.
+- `onItemChange?: (item: CanvasItem) => void`: Fired when an existing item is updated.
+- `onItemChangeComplete?: (item: CanvasItem) => void`: Fired when an item edit operation commits.
+- `onItemDelete?: (id: string) => void`: Fired when an item is removed.
+
+### `<CanvasToolbar>` Props
+- `controller: LeafletCanvasController`: Target canvas controller instance.
+- `position?: ToolbarPosition`: Preset positioning styling.
+- `orientation?: ToolbarOrientation`: Layout orientation (`'horizontal' | 'vertical'`).
+- `collapsible?: boolean`: Allow collapsing the toolbar.
+- `defaultCollapsed?: boolean`: Initial collapsed state.
+- `collapsed?: boolean`: Controlled collapsed state.
+- `onCollapsedChange?: (collapsed: boolean) => void`: Collapsed state handler.
+- `showCollapseButton?: boolean`: Render the collapse button.
+- `readOnly?: boolean`: Render in read-only mode.
+- `enabledTools?: readonly ToolbarToolGroupId[]`: Enabled tool groups.
+- `customTools?: readonly CustomToolbarItem[]`: Custom action items.
+- `showHistoryControls?: boolean`: Render Undo/Redo controls.
+- `showDeleteButton?: boolean`: Render Delete button.
+- `showClearButton?: boolean`: Render Clear All button.
+- `showToolLabels?: boolean`: Render text labels below icons.
+- `labels?: CanvasLabels`: Label and placeholder overrides.
+- `icons?: CanvasIcons`: Icon overrides.
+- `unstyled?: boolean`: Strip default styles.
+- `classNames?: LeafletCanvasClassNames`: CSS class overrides.
+- `styles?: LeafletCanvasStyles`: Inline style overrides.
+- `strokeColors?: readonly string[]`: Color palette options.
+- `strokeWidthOptions?: readonly number[]`: Stroke width options.
+- `fontSizeOptions?: readonly number[]`: Font size options.
+- `className?: string`: Wrapper class name.
+- `style?: React.CSSProperties`: Wrapper inline styles.
+
+## Controller Hook API Reference
+
+### `useLeafletCanvas(options)` Options
+- `initialItems?: CanvasItem[]`: Uncontrolled initial annotations.
+- `items?: CanvasItem[]`: Controlled annotations array.
+- `maxHistory?: number`: Undo/redo history size (default: `50`).
+- `readOnly?: boolean`: Initial read-only state.
+- `defaultColor?: string`: Default stroke color (default: `'#000000'`).
+- `defaultStrokeWidth?: number`: Default stroke width (default: `2`).
+- `defaultNoteColor?: string`: Default sticky note background color.
+- `defaultFontSize?: number`: Default text overlay font size (default: `16`).
+- `defaultShape?: ShapeKind`: Default shape kind (default: `'square'`).
+- `initialTool?: CanvasTool`: Initial active tool (default: `'select'`).
+- `onChange?: (items: CanvasItem[]) => void` / `onItemsChange?: (items: CanvasItem[]) => void`: Immediate change callback.
+- `onChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void` / `onItemsChangeComplete?: (items: CanvasItem[], targetItem?: CanvasItem | null) => void`: Edit completion callback.
+- `onItemSelect?: (item: CanvasItem | null) => void`: Selection callback.
+- `onItemCreate?: (item: CanvasItem) => void`: Item creation callback.
+- `onItemChange?: (item: CanvasItem) => void`: Item update callback.
+- `onItemChangeComplete?: (item: CanvasItem) => void`: Item edit complete callback.
+- `onItemDelete?: (id: string) => void`: Item deletion callback.
+- `onToolChange?: (tool: CanvasTool) => void`: Active tool change callback.
+
+### `LeafletCanvasController` Properties & Methods
+- **Items State**:
+  - `items: CanvasItem[]`: Array of all active annotations.
+  - `selectedId: string | null`: Currently selected item ID.
+  - `selectedItem: CanvasItem | null`: Currently selected item object.
+  - `addItem(item: CanvasItem): void`: Appends a new item to the canvas.
+  - `updateItem(id: string, patch: Partial<CanvasItem>): void`: Updates properties on an item.
+  - `removeItem(id: string): void` / `deleteItem(id: string): void`: Removes an item by ID.
+  - `deleteSelected(): void`: Deletes the currently selected item.
+  - `clearAll(): void` / `clear(): void`: Removes all items from the canvas.
+  - `setSelectedId(id: string | null): void` / `selectItem(id: string | null): void`: Sets selected item ID.
+- **Tool & Drawing State**:
+  - `activeTool: CanvasTool`: Active canvas tool.
+  - `setActiveTool(tool: CanvasTool): void` / `setTool(tool: CanvasTool): void`: Switches active tool.
+  - `activeShape: ShapeKind`: Active shape kind for shape tool.
+  - `setActiveShape(shape: ShapeKind): void`: Sets shape kind.
+  - `shapeFilled: boolean`: Shape fill toggle state.
+  - `setShapeFilled(filled: boolean): void`: Toggles shape fill.
+  - `activeColor: string`: Active stroke color.
+  - `setActiveColor(color: string): void`: Sets active stroke color.
+  - `strokeWidth: number`: Active stroke width.
+  - `setStrokeWidth(width: number): void`: Sets active stroke width.
+  - `dashed: boolean`: Dashed stroke toggle state.
+  - `setDashed(dashed: boolean): void`: Toggles dashed stroke.
+  - `noteColor: string`: Active note background color.
+  - `setNoteColor(color: string): void`: Sets active note background color.
+  - `fontSize: number`: Active text overlay font size.
+  - `setFontSize(size: number): void`: Sets active font size.
+  - `fontWeight: 'normal' | 'bold'`: Active font weight.
+  - `setFontWeight(weight: 'normal' | 'bold'): void`: Sets active font weight.
+  - `readOnly: boolean`: Active read-only mode state.
+  - `setReadOnly(readOnly: boolean): void`: Toggles read-only mode.
+- **History & Notifications**:
+  - `canUndo: boolean`: True if undo is possible.
+  - `canRedo: boolean`: True if redo is possible.
+  - `undo(): void`: Steps backward in history stack.
+  - `redo(): void`: Steps forward in history stack.
+  - `notifyChangeComplete(targetItem?: CanvasItem | null): void`: Explicitly dispatches change-complete notification.
+- **Serialization**:
+  - `exportJSON(): string`: Serializes all canvas items to a JSON string.
+  - `importJSON(json: string): boolean`: Replaces canvas items with parsed JSON. Returns `true` on success.
+
+## Pure Geometry & Coordinate Utilities
+
+Importable directly from `leaflet-canvas`:
+
+- `geoToScreen(map: L.Map, point: GeoPoint): ScreenPoint`: Projects `{ lat, lng }` to container pixel coordinates `{ x, y }`.
+- `screenToGeo(map: L.Map, point: ScreenPoint): GeoPoint`: Inverse-projects container pixel coordinates `{ x, y }` to `{ lat, lng }`.
+- `constrainToAspectRatio(anchor: ScreenPoint, target: ScreenPoint, aspectRatio = 1): ScreenPoint`: Locks bounding box to aspect ratio (e.g. 1:1 on Shift drag).
+- `constrainAngleTo45Degrees(anchor: ScreenPoint, target: ScreenPoint): ScreenPoint`: Snaps direction angle from anchor to nearest 45° increment (0°, 45°, 90°, 135°, etc.).
+- `computeDefaultControlGeoPoint(start: GeoPoint, end: GeoPoint, curvature = 0.25): GeoPoint`: Calculates perpendicular offset control point for curved quadratic Bezier arrows.
+- `getQuadraticBezierPoint(p0: ScreenPoint, p1: ScreenPoint, p2: ScreenPoint, t: number): ScreenPoint`: Evaluates point on quadratic Bezier curve at parameter `t` (`0 <= t <= 1`).
+- `getQuadraticEndAngle(p0: ScreenPoint, p1: ScreenPoint, p2: ScreenPoint): number`: Computes tangent angle at arrow endpoint for arrowhead alignment.
+- `distanceToSegment(p: ScreenPoint, v: ScreenPoint, w: ScreenPoint): number`: Computes shortest distance from point `p` to segment `vw` for click hit-testing.
+- `distanceToQuadraticBezier(p: ScreenPoint, p0: ScreenPoint, p1: ScreenPoint, p2: ScreenPoint, steps = 24): number`: Computes approximate distance from point `p` to a quadratic Bezier curve.
+- `getMapDimensions(map: L.Map | null | undefined): { width: number; height: number } | null`: Safely reads map container width and height.
+- `truncateCanvasText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string`: Truncates string with ellipsis (`…`) based on Canvas 2D measurement.
+- `calculateZoomFontSize(initialFontSize = 16, currentZoom: number | null, baseZoom = 14, options?): number`: Calculates zoom-scaled font size with configurable scale factor, min, and max bounds.
+- `createId(prefix = 'rlc'): string`: Generates collision-resistant unique item IDs.

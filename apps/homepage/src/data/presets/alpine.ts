@@ -1,0 +1,63 @@
+import type { ShowcasePreset } from './types'
+
+export const ALPINE_PRESET: ShowcasePreset = {
+  id: 'alpine',
+  name: 'Alpine Trails & Search Grid',
+  region: 'Chamonix / Mont Blanc',
+  center: [45.923, 6.869],
+  zoom: 12,
+  description:
+    'Mountain trail paths, high-altitude basecamps, and search perimeters in the Mont Blanc massif.',
+  items: [
+    {
+      id: 'flight-path-rescue',
+      type: 'arrow',
+      arrowStyle: 's-curve',
+      start: { lat: 45.905, lng: 6.84 },
+      end: { lat: 45.938, lng: 6.91 },
+      controlPoint: { lat: 45.93, lng: 6.86 },
+      color: '#0f172a',
+      strokeWidth: 3,
+      label: 'Rescue Helicopter Route',
+      createdAt: 1000,
+    },
+    {
+      id: 'summit-star',
+      type: 'shape',
+      shape: 'star',
+      start: { lat: 45.836, lng: 6.86 },
+      end: { lat: 45.828, lng: 6.872 },
+      color: '#111827',
+      fillColor: 'rgba(17, 24, 39, 0.2)',
+      filled: true,
+      strokeWidth: 2,
+      label: 'Mont Blanc (4807m)',
+      createdAt: 2000,
+    },
+    {
+      id: 'perimeter-zone',
+      type: 'shape',
+      shape: 'hexagon',
+      start: { lat: 45.932, lng: 6.85 },
+      end: { lat: 45.918, lng: 6.88 },
+      color: '#1e3a8a',
+      fillColor: 'rgba(30, 58, 138, 0.18)',
+      filled: true,
+      strokeWidth: 2,
+      label: 'Sector Bravo',
+      createdAt: 3000,
+    },
+    {
+      id: 'camp-note',
+      type: 'note',
+      position: { lat: 45.925, lng: 6.83 },
+      title: 'Chamonix Helipad Station',
+      text: 'Weather radar reports crosswinds < 15kt. Ready for mountain extraction standby.',
+      backgroundColor: '#0f172a',
+      textColor: '#f8fafc',
+      width: 240,
+      createdAt: 4000,
+    },
+  ],
+}
+

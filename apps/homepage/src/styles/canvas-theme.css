@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   leaflet-canvas & Leaflet Theme Integration
+   Synchronized seamlessly with the homepage design tokens (light & dark mode)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Leaflet Container & Core Surfaces */
+.leaflet-container {
+  background-color: var(--bg-app) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* Leaflet Zoom Control (+ / -) */
+.leaflet-bar {
+  border: 1px solid var(--border-primary) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  background-color: var(--bg-pane) !important;
+}
+
+.leaflet-bar a {
+  background-color: var(--bg-pane) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+  transition: background-color 0.15s ease, color 0.15s ease !important;
+  font-family: var(--font-mono) !important;
+  line-height: 26px !important;
+}
+
+.leaflet-bar a:last-child {
+  border-bottom: none !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--bg-sidebar) !important;
+  color: var(--accent) !important;
+}
+
+.leaflet-bar a.leaflet-disabled {
+  background-color: var(--bg-pane) !important;
+  color: var(--text-muted) !important;
+  opacity: 0.4 !important;
+}
+
+/* Leaflet Attribution Bar */
+.leaflet-control-attribution {
+  background-color: color-mix(in oklch, var(--bg-pane) 88%, transparent) !important;
+  backdrop-filter: blur(8px) !important;
+  color: var(--text-muted) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: 6px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  margin: 8px !important;
+  padding: 2px 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--accent) !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+.leaflet-control-attribution a:hover {
+  text-decoration: underline !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   leaflet-canvas Interactive Hover & Focus States
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Default Theme (Native HTML Form / Button Element Theme) */
+[data-canvas-theme='default'] .rlc-tool-btn:not([data-active]):not(:disabled):hover,
+[data-canvas-theme='default'] .rlc-action-btn:not([data-active]):not(:disabled):hover,
+[data-canvas-theme='default'] .rlc-toolbar-collapse-btn:hover,
+[data-canvas-theme='default'] .rlc-toolbar-expand-btn:hover {
+  background-color: #e5e5e5 !important;
+  border-color: #555555 !important;
+  color: #000000 !important;
+}
+
+[data-canvas-theme='default'] .rlc-tool-btn:disabled,
+[data-canvas-theme='default'] .rlc-action-btn:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+}
+
+[data-canvas-theme='default'] .rlc-tool-btn[data-active='true']:hover,
+[data-canvas-theme='default'] .rlc-action-btn[data-active='true']:hover {
+  background-color: #d6d6d6 !important;
+  border-color: #333333 !important;
+  color: #000000 !important;
+}
+
+[data-canvas-theme='default'] .rlc-delete-btn:hover {
+  background-color: #e5e5e5 !important;
+  border-color: #555555 !important;
+  color: #b91c1c !important;
+}
+
+[data-canvas-theme='default'] .rlc-arrow-dropdown-item:not([data-active]):hover {
+  background-color: #f3f4f6 !important;
+  border-color: transparent !important;
+  color: #111827 !important;
+}
+
+[data-canvas-theme='default'] .rlc-arrow-dropdown-item[data-active='true']:hover {
+  background-color: #d1d5db !important;
+  border-color: #9ca3af !important;
+  color: #111827 !important;
+}
+
+[data-canvas-theme='default'] .rlc-shapes-modal-item:not([data-active]):hover {
+  background-color: #f3f4f6 !important;
+  border-color: transparent !important;
+  color: #111827 !important;
+}
+
+[data-canvas-theme='default'] .rlc-shapes-modal-item[data-active='true']:hover {
+  background-color: #d1d5db !important;
+  border-color: #9ca3af !important;
+  color: #111827 !important;
+}
+
+[data-canvas-theme='default'] .rlc-text-control-btn:not([data-active]):hover {
+  background-color: #e5e5e5 !important;
+  border-color: #555555 !important;
+  color: #000000 !important;
+}
+
+[data-canvas-theme='default'] .rlc-text-control-btn[data-active='true']:hover {
+  background-color: #d6d6d6 !important;
+  border-color: #333333 !important;
+  color: #000000 !important;
+}
+
+/* Homepage Theme Integration */
+[data-canvas-theme='homepage'] .rlc-toolbar-primary,
+[data-canvas-theme='homepage'] .rlc-toolbar-secondary,
+[data-canvas-theme='homepage'] .rlc-toolbar-collapsed {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+[data-canvas-theme='homepage'] .rlc-tool-btn:not([data-active]):not(:disabled),
+[data-canvas-theme='homepage'] .rlc-action-btn:not([data-active]):not(.rlc-delete-btn):not(:disabled),
+[data-canvas-theme='homepage'] .rlc-toolbar-collapse-btn {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: light-dark(#1e293b, #f3f4f6) !important;
+  opacity: 1 !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-tool-btn:disabled,
+[data-canvas-theme='homepage'] .rlc-action-btn:disabled {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--text-primary) !important;
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-tool-btn:not([data-active]):not(:disabled):hover,
+[data-canvas-theme='homepage'] .rlc-action-btn:not([data-active]):not(:disabled):hover,
+[data-canvas-theme='homepage'] .rlc-toolbar-collapse-btn:hover {
+  background-color: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.1)) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-tool-btn[data-active='true'],
+[data-canvas-theme='homepage'] .rlc-action-btn[data-active='true'] {
+  background-color: var(--accent) !important;
+  color: var(--accent-fg) !important;
+  border-color: transparent !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-tool-btn[data-active='true']:hover,
+[data-canvas-theme='homepage'] .rlc-action-btn[data-active='true']:hover {
+  background-color: var(--accent-strong) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-delete-btn {
+  background-color: light-dark(rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.16)) !important;
+  border-color: light-dark(rgba(239, 68, 68, 0.25), rgba(248, 113, 113, 0.28)) !important;
+  color: light-dark(#dc2626, #fca5a5) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-delete-btn:hover {
+  background-color: light-dark(rgba(239, 68, 68, 0.2), rgba(248, 113, 113, 0.25)) !important;
+  color: light-dark(#b91c1c, #fca5a5) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-arrow-dropdown-item:not([data-active]) {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: light-dark(#1e293b, #e5e7eb) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-arrow-dropdown-item:not([data-active]):hover {
+  background-color: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.09)) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-arrow-dropdown-item[data-active='true'] {
+  background-color: var(--accent) !important;
+  color: var(--accent-fg) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-arrow-dropdown-item[data-active='true']:hover {
+  background-color: var(--accent-strong) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-shapes-modal-item:not([data-active]) {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: light-dark(#1e293b, #e5e7eb) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-shapes-modal-item:not([data-active]):hover {
+  background-color: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.09)) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-shapes-modal-item[data-active='true'] {
+  background-color: var(--accent) !important;
+  color: var(--accent-fg) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-shapes-modal-item[data-active='true']:hover {
+  background-color: var(--accent-strong) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-toolbar-secondary span {
+  color: inherit !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-toolbar-select {
+  background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.08)) !important;
+  border-color: light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.15)) !important;
+  color: light-dark(#0f172a, #f9fafb) !important;
+  border-radius: 6px !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-toolbar-select option {
+  background-color: light-dark(#ffffff, #161F30);
+  color: light-dark(#0f172a, #f9fafb);
+}
+
+/* Crisp SVG rendering */
+[data-canvas-theme='homepage'] .rlc-toolbar svg,
+[data-canvas-theme='homepage'] .rlc-toolbar-primary svg,
+[data-canvas-theme='homepage'] .rlc-toolbar-secondary svg {
+  shape-rendering: geometricPrecision;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Collapsed Note Badge */
+.rlc-note-card.rlc-note-collapsed {
+  backdrop-filter: blur(8px);
+}
+
+/* Text Floating Controls Buttons Hover */
+[data-canvas-theme='homepage'] .rlc-text-control-btn:not([data-active]):hover {
+  background-color: light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.12)) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-canvas-theme='homepage'] .rlc-text-control-btn[data-active='true']:hover {
+  background-color: var(--accent-strong) !important;
+}

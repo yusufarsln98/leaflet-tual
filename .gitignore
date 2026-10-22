@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# editor
+.vscode/*
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+
+# typescript
+*.tsbuildinfo
+
+# demo build / vite
+build/
+.next/
+out/
+.vercel/
+
+# coverage
+coverage/
+
