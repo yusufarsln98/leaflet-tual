@@ -5,21 +5,11 @@
 leaflet-tual combines the mapping capabilities of Leaflet and react-leaflet with a high-performance HTML5 2D canvas drawing surface and geo-anchored DOM overlays. Annotations scale, pan, and transform seamlessly with the map while maintaining immutable geographic coordinates.
 
 ## Navigation & Quick Links
-- [Documentation](https://leaflet-tual.vercel.app/docs): Comprehensive guides and API references.
+- [Website](https://leaflet-tual.vercel.app): Official website and interactive canvas overview.
 - [Interactive Demo](https://leaflet-tual.vercel.app/demo): Live interactive canvas playground on top of Leaflet.
 - [GitHub Repository](https://github.com/leaflet-tual/leaflet-tual): Source code, issues, and contributing guidelines.
 - [npm Package](https://www.npmjs.com/package/leaflet-tual): Official package distribution.
-- [SKILL.md Specification](https://leaflet-tual.vercel.app/docs#skill-md): Official AI coding skill file for Antigravity, Cursor, and Claude Code.
-
-## Documentation Index
-- [Introduction & Architecture](https://leaflet-tual.vercel.app/docs#introduction): Geographic coordinate binding, 2D canvas rendering, and DOM overlays.
-- [Quick Start](https://leaflet-tual.vercel.app/docs#quickstart): Installation (pnpm/npm/yarn/bun), MapContainer integration, and initial setup.
-- [Data Models](https://leaflet-tual.vercel.app/docs#data-models): Complete discriminated union TualItem (5 arrow styles, 8 shape kinds, freedraw, notes, text).
-- [State & Controller](https://leaflet-tual.vercel.app/docs#state-controller): useLeafletTual hook, controlled vs uncontrolled mode, undo/redo history, serialization.
-- [Toolbar & Customization](https://leaflet-tual.vercel.app/docs#toolbar-customization): Floating toolbar positions, collapsible states, custom tools, and decoupled external toolbars.
-- [Theming & Styling](https://leaflet-tual.vercel.app/docs#theming): Custom classNames, inline styles, annotation theme overrides, and unstyled mode.
-- [API Reference](https://leaflet-tual.vercel.app/docs#api-reference): Prop tables for LeafletTual and TualToolbar, controller methods, and geometry utilities.
-- [AI Integration](https://leaflet-tual.vercel.app/docs#skill-md): Pre-configured AI coding assistant skill specification.
+- [SKILL.md Specification](https://leaflet-tual.vercel.app/SKILL.md): Official AI coding skill file for Antigravity, Cursor, and Claude Code.
 
 ## Core Architectural Invariants & AI Constraints
 1. **GeoPoint Storage Rule**: All persistent item coordinates MUST be stored as geographic latitude/longitude pairs (`GeoPoint`: `{ lat: number, lng: number }`). NEVER store screen `{ x, y }` coordinates in item objects. Screen projections (`geoToScreen` / `screenToGeo`) occur dynamically during render passes and drag interactions using Leaflet's coordinate projection engine.

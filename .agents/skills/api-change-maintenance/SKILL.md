@@ -83,7 +83,19 @@ Update documentation to reflect any changes:
 
 ---
 
-## 5. Interactive Demo Maintenance
+## 5. AI Context Standards (SKILL.md & llms.txt)
+
+Documentation is maintained solely via singleton AI standards:
+- **SKILL.md:** `.agents/skills/leaflet-tual/SKILL.md` (mirrored to `apps/homepage/public/SKILL.md`)
+- **llms.txt:** `apps/homepage/public/llms.txt`
+
+When an API surface changes, audit and update the type definitions, prop signatures, and code examples in:
+1. `.agents/skills/leaflet-tual/SKILL.md` (and copy to `apps/homepage/public/SKILL.md`)
+2. `apps/homepage/public/llms.txt`
+
+---
+
+## 6. Interactive Demo Maintenance
 
 **File:** `apps/homepage/src/views/demo/demo-workbench.tsx`
 
@@ -93,7 +105,7 @@ The homepage application contains the live interactive demo workbench:
 
 ---
 
-## 6. Monorepo Verification Pipeline
+## 7. Monorepo Verification Pipeline
 
 Always run the full verification pipeline before committing or releasing any API change:
 
@@ -113,7 +125,7 @@ npm run build:homepage
 
 ---
 
-## 7. Quick Audit Checklist
+## 8. Quick Audit Checklist
 
 When changing any API, verify each item:
 
@@ -121,6 +133,8 @@ When changing any API, verify each item:
 - [ ] **Re-export**: Re-exported through slice barrel (`index.ts`) and root entrypoint (`src/index.ts`)
 - [ ] **Contract Test**: `packages/leaflet-tual/src/__tests__/index.test.ts` updated and passing
 - [ ] **Canonical README**: `packages/leaflet-tual/README.md` and root `README.md` updated
+- [ ] **AI SKILL.md**: `.agents/skills/leaflet-tual/SKILL.md` updated and mirrored to `apps/homepage/public/SKILL.md`
+- [ ] **AI llms.txt**: `apps/homepage/public/llms.txt` updated
 - [ ] **Homepage Demo**: `apps/homepage` demo workbench updated and tested
 - [ ] **Full Build**: `npm test`, `npm run typecheck`, `npm run build:lib`, and `npm run build:homepage` all pass cleanly
 - [ ] **Changeset**: Run `npm run changeset` if preparing for release

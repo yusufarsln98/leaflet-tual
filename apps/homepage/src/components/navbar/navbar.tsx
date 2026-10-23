@@ -5,8 +5,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { VERSION } from 'leaflet-tual'
 import { BrandIcon } from '../brand-icon'
-import { SearchModal } from '../../views/docs/search-modal'
-import { docsData } from '../../config/docs-data'
 import { NavbarLinks } from './navbar-links'
 import { NavbarActions } from './navbar-actions'
 import { MobileNav } from './mobile-nav'
@@ -16,35 +14,11 @@ export function Navbar() {
   const router = useRouter()
   const prefetched = useRef<Set<string>>(new Set())
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [searchModalOpen, setSearchModalOpen] = useState(false)
 
   // Automatically close mobile menu when path changes
   useEffect(() => {
     setMobileMenuOpen(false)
   }, [pathname])
-
-  // Keyboard shortcut listener: Cmd/Ctrl + K or /
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement
-      const isInput =
-        target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
-
-      if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !isInput)) {
-        e.preventDefault()
-        setSearchModalOpen(true)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  // Listen for global open-search event
-  useEffect(() => {
-    const handleOpen = () => setSearchModalOpen(true)
-    window.addEventListener('open-search', handleOpen)
-    return () => window.removeEventListener('open-search', handleOpen)
-  }, [])
 
   const prefetch = useCallback(
     (href: string) => {
@@ -54,14 +28,6 @@ export function Navbar() {
     },
     [router],
   )
-
-  const handleSelectResult = (id: string) => {
-    if (pathname === '/docs') {
-      window.dispatchEvent(new CustomEvent('scroll-to-section', { detail: id }))
-    } else {
-      router.push(`/docs#${id}`)
-    }
-  }
 
   const appVersion = VERSION
 
@@ -109,19 +75,11 @@ export function Navbar() {
         <NavbarActions
           mobileMenuOpen={mobileMenuOpen}
           onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
-          onOpenSearch={() => setSearchModalOpen(true)}
         />
       </nav>
 
       {/* Mobile Popover Navigation */}
       {mobileMenuOpen && <MobileNav pathname={pathname} />}
-
-      <SearchModal
-        isOpen={searchModalOpen}
-        onClose={() => setSearchModalOpen(false)}
-        sections={docsData}
-        onSelectResult={handleSelectResult}
-      />
     </header>
   )
 }

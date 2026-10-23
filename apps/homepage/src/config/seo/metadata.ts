@@ -89,15 +89,6 @@ export const homeMetadata: Metadata = {
   },
 }
 
-export const docsMetadata: Metadata = {
-  title: 'Documentation — leaflet-tual',
-  description:
-    'Comprehensive guides, API references, geographic projection math, and code recipes for integrating leaflet-tual with Leaflet in Vanilla JS and React.',
-  alternates: {
-    canonical: `${SEO_CONSTANTS.siteUrl}/docs`,
-  },
-}
-
 export const demoMetadata: Metadata = {
   title: 'Interactive Live Demo — leaflet-tual',
   description:
