@@ -1,4 +1,4 @@
-import { HelpCircle, FileText, Heart, Terminal, BookOpen, Layers } from 'lucide-react'
+import { HelpCircle, FileText, Heart, Terminal, Layers, Bot, FileCode } from 'lucide-react'
 import Link from 'next/link'
 import { VERSION } from 'leaflet-tual'
 import { BrandIcon } from './brand-icon'
@@ -6,7 +6,6 @@ import { BrandIcon } from './brand-icon'
 const PRODUCT_LINKS = [
   { href: '/', label: 'Overview', icon: Layers, tone: 'accent' },
   { href: '/demo', label: 'Interactive Demo', icon: Terminal, tone: 'accent' },
-  { href: '/docs', label: 'Documentation', icon: BookOpen, tone: 'accent' },
   { href: '/releases', label: 'Release Notes', icon: FileText, tone: 'muted' },
 ] as const
 
@@ -42,7 +41,7 @@ export function Footer() {
         </div>
 
         {/* Index columns */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-10 pt-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-10">
           <nav aria-label="Product" className="space-y-3">
             <h4 className="eyebrow">Product</h4>
             <ul className="space-y-2.5 text-xs font-medium">
@@ -61,6 +60,34 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+            </ul>
+          </nav>
+
+          <nav aria-label="AI & Standards" className="space-y-3">
+            <h4 className="eyebrow">AI &amp; Standards</h4>
+            <ul className="space-y-2.5 text-xs font-medium">
+              <li>
+                <a
+                  href="/SKILL.md"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2"
+                >
+                  <Bot className="w-3.5 h-3.5 text-accent" />
+                  <span>SKILL.md Spec</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/llms.txt"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2"
+                >
+                  <FileCode className="w-3.5 h-3.5 text-accent" />
+                  <span>llms.txt Index</span>
+                </a>
+              </li>
             </ul>
           </nav>
 

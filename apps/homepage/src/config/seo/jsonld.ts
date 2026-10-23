@@ -96,23 +96,6 @@ export const homeJsonLd = {
   ],
 }
 
-export const docsJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'TechArticle',
-  headline: 'leaflet-tual Documentation',
-  description:
-    'Complete guide to installing, configuring, and using leaflet-tual for geo-synchronized map annotations in React.',
-  url: `${SEO_CONSTANTS.siteUrl}/docs`,
-  author: {
-    '@type': 'Person',
-    name: SEO_CONSTANTS.authorName,
-  },
-  publisher: {
-    '@type': 'Person',
-    name: SEO_CONSTANTS.authorName,
-  },
-}
-
 export const changelogJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',

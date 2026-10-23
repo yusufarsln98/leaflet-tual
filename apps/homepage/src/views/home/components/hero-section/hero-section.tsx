@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, BookOpen } from 'lucide-react'
+import { ArrowRight, Bot } from 'lucide-react'
 import { InstallSnippet } from './install-snippet'
 import { HeroMetrics } from './hero-metrics'
 import { LegendPlate } from './legend-plate'
@@ -29,7 +29,10 @@ export function HeroSection({ appVersion }: HeroSectionProps) {
             <span className="oh-cartouche-sep">·</span>
             <span>Zero-Drift Lat/Lng Sync</span>
             <span className="oh-cartouche-sep">·</span>
-            <Link href="/releases" className="underline decoration-[var(--oh-line-2)] underline-offset-4 hover:decoration-[var(--oh-lime)] hover:text-[var(--oh-ink)] transition-colors">
+            <Link
+              href="/releases"
+              className="underline decoration-[var(--oh-line-2)] underline-offset-4 hover:decoration-[var(--oh-lime)] hover:text-[var(--oh-ink)] transition-colors"
+            >
               Release Notes
               <ArrowRight className="inline w-3 h-3 align-[-1px] ml-0.5" />
             </Link>
@@ -50,8 +53,8 @@ export function HeroSection({ appVersion }: HeroSectionProps) {
           <p className="text-base sm:text-lg text-[var(--oh-ink-2)] max-w-2xl mx-auto leading-relaxed text-pretty">
             Draw vector arrows, geometric shapes, freehand sketches, and pinned notes directly on
             your map with{' '}
-            <strong className="text-[var(--oh-ink)] font-semibold">zero coordinate drift</strong> across
-            continuous zoom and pan gestures.
+            <strong className="text-[var(--oh-ink)] font-semibold">zero coordinate drift</strong>{' '}
+            across continuous zoom and pan gestures.
           </p>
         </div>
 
@@ -63,10 +66,10 @@ export function HeroSection({ appVersion }: HeroSectionProps) {
               Launch Interactive Demo
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
-            <Link href="/docs" className="oh-btn oh-btn-ghost">
-              <BookOpen className="w-4 h-4" />
-              Documentation
-            </Link>
+            <a href="/SKILL.md" target="_blank" rel="noreferrer" className="oh-btn oh-btn-ghost">
+              <Bot className="w-4 h-4" />
+              SKILL.md Spec
+            </a>
           </div>
           <InstallSnippet />
         </div>

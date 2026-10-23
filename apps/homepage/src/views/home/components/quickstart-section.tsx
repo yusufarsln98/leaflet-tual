@@ -12,13 +12,20 @@ export function QuickstartSection() {
   const activeIndex = CODE_SAMPLES.findIndex((s) => s.id === activeSampleId)
 
   return (
-    <section id="quickstart" aria-labelledby="quickstart-title" className="oh-section px-4 sm:px-6 lg:px-8">
+    <section
+      id="quickstart"
+      aria-labelledby="quickstart-title"
+      className="oh-section px-4 sm:px-6 lg:px-8"
+    >
       <div className="max-w-6xl mx-auto">
         {/* Editorial header */}
         <div className="oh-head">
           <div className="max-w-xl">
             <span className="oh-num block mb-2.5">§ 02 · Quickstart</span>
-            <h2 id="quickstart-title" className="oh-serif text-3xl sm:text-4xl text-[var(--oh-ink)]">
+            <h2
+              id="quickstart-title"
+              className="oh-serif text-3xl sm:text-4xl text-[var(--oh-ink)]"
+            >
               Up and Running in 3 Minutes
             </h2>
           </div>
@@ -66,17 +73,21 @@ export function QuickstartSection() {
 
             {/* Current sample description */}
             <div className="mt-5 pl-5 border-l-2 border-[var(--oh-line-2)]">
-              <p className="oh-tick-label mb-1.5">Example {String(activeIndex + 1).padStart(2, '0')}</p>
+              <p className="oh-tick-label mb-1.5">
+                Example {String(activeIndex + 1).padStart(2, '0')}
+              </p>
               <p className="text-[13px] text-[var(--oh-ink-2)] leading-relaxed text-pretty">
                 <span className="font-mono text-[var(--oh-ink)]">{activeSample.filename}</span> —{' '}
                 {activeSample.description}
               </p>
-              <Link
-                href="/docs"
+              <a
+                href="/SKILL.md"
+                target="_blank"
+                rel="noreferrer"
                 className="link-grow inline-flex mt-3 text-[13px] font-semibold text-[var(--oh-ink)] underline decoration-[var(--oh-line-2)] underline-offset-4 hover:decoration-[var(--oh-lime)]"
               >
-                Full API reference
-              </Link>
+                Full SKILL.md specification
+              </a>
             </div>
           </nav>
 
