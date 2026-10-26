@@ -146,7 +146,6 @@ export function useCanvasNativeListeners(
     const container = canvas?.parentElement
     if (!canvas) return
     const handleContainerDown = (e: MouseEvent) => {
-      if (e.button !== 0) return
       if (
         (e.target as Element | null)?.closest?.(
           '.tual-secondary-tooltip, .tual-toolbar, .tual-popover',

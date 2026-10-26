@@ -39,33 +39,6 @@ describe('v2 Note Overlay Component', () => {
     expect(card.style.height).toBeDefined()
   })
 
-  it('only selects the note on primary (left) click', () => {
-    const map = createMockMap()
-    const controller = createController()
-    const note = controller.add({
-      type: 'note',
-      at: { lat: 41.0, lng: 28.0 },
-      text: 'Clickable note',
-    }) as NoteItem
-
-    const { container } = render(
-      <NoteOverlayView
-        map={map}
-        note={note}
-        controller={controller}
-      />,
-    )
-
-    const card = container.querySelector('.tual-note-card') as HTMLElement
-    fireEvent.pointerDown(card, { button: 1, clientX: 100, clientY: 100 })
-    expect(controller.selection).toEqual([])
-    fireEvent.pointerDown(card, { button: 2, clientX: 100, clientY: 100 })
-    expect(controller.selection).toEqual([])
-
-    fireEvent.pointerDown(card, { button: 0, clientX: 100, clientY: 100 })
-    expect(controller.selection).toEqual([note.id])
-  })
-
   it('renders 8 resize handles (4 corners + 4 edges) when selected', () => {
     const map = createMockMap()
     const controller = createController()

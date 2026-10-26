@@ -106,7 +106,7 @@ export function NoteOverlayView({
   }
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (controller.readOnly || e.button !== 0) return
+    if (controller.readOnly) return
     if ((e.target as HTMLElement).closest('textarea, .tual-note-handle')) return
     e.stopPropagation()
     const wasSelected = controller.selection.includes(note.id)
@@ -182,17 +182,10 @@ export function NoteOverlayView({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         onPointerDown={(e) => {
-          if (e.button !== 0) return
           e.stopPropagation()
           controller.select(note.id)
         }}
-        onMouseDown={(e) => {
-          if (e.button !== 0) {
-            e.preventDefault()
-            return
-          }
-          e.stopPropagation()
-        }}
+        onMouseDown={(e) => e.stopPropagation()}
         onChange={handleChange}
       />
 

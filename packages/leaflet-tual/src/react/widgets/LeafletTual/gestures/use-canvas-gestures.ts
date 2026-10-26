@@ -58,7 +58,7 @@ export function useCanvasGestures({
   }, [canvasRef])
 
   const handlePointerDown = useCallback((e: React.MouseEvent) => {
-    if (controller.readOnly || e.button !== 0) return
+    if (controller.readOnly) return
     isShiftPressedRef.current = e.shiftKey
     const pt = getCanvasPoint(e)
     const geo = screenToGeo(map, pt)

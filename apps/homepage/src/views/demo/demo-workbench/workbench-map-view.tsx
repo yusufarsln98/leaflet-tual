@@ -17,6 +17,7 @@ interface WorkbenchMapViewProps {
   readOnly: boolean
   collapsible: boolean
   toolbarPosition: WorkbenchToolbarPosition
+  theme: 'light' | 'dark'
 }
 
 export function WorkbenchMapView({
@@ -26,6 +27,7 @@ export function WorkbenchMapView({
   readOnly,
   collapsible,
   toolbarPosition,
+  theme,
 }: WorkbenchMapViewProps) {
   return (
     <div className="w-full h-full relative bg-bg-app">
@@ -48,6 +50,7 @@ export function WorkbenchMapView({
         <LeafletTual
           controller={controller}
           readOnly={readOnly}
+          theme={theme}
           toolbar={{
             position: toolbarPosition,
             collapsible,

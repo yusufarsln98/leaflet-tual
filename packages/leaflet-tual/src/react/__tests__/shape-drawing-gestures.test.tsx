@@ -349,44 +349,6 @@ describe('v2 shape drawing gestures', () => {
     expect(ruler.to.lng).toBeCloseTo(25, 6)
   })
 
-  it('only reacts to the primary (left) mouse button', () => {
-    const { canvas, controller } = setup({
-      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
-      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
-    })
-
-    act(() => {
-      controller.add({
-        type: 'shape',
-        kind: 'square',
-        at: { lat: 15, lng: 15 },
-        width: 100,
-        height: 100,
-      })
-      controller.select(null)
-    })
-
-    // Middle button (wheel click) and right button must not select items.
-    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 1 })
-    expect(controller.selection).toEqual([])
-    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 2 })
-    expect(controller.selection).toEqual([])
-
-    // Left button still selects normally.
-    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 0 })
-    expect(controller.selection).toHaveLength(1)
-  })
-
-  it('does not start drawing or place items on non-primary clicks', () => {
-    const { canvas, controller } = setup()
-    act(() => controller.setTool('shape', 'square'))
-
-    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100, button: 1 })
-    fireEvent.mouseUp(window, { clientX: 100, clientY: 100, button: 1 })
-
-    expect(controller.items).toHaveLength(0)
-  })
-
   it('does not allow directly moving an unselected item; requires clicking first to select then moving', () => {
     const { canvas, controller } = setup({
       latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),

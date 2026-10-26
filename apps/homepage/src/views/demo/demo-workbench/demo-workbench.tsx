@@ -150,6 +150,7 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
           readOnly={readOnly}
           collapsible={collapsible}
           toolbarPosition={toolbarPosition}
+          theme={siteTheme}
         />
       </div>
     </div>
