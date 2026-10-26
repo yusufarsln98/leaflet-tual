@@ -32,3 +32,16 @@ export interface DropdownMenuProps {
   className?: string
 }
 
+export interface ConfirmPopoverProps {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  message: ReactNode
+  confirmLabel: ReactNode
+  cancelLabel: ReactNode
+  triggerTitle?: string
+  triggerIcon?: ReactNode
+  onConfirm: () => void
+  className?: string
+}
+
+

@@ -15,7 +15,6 @@ interface WorkbenchMapViewProps {
   activeTile: FreeTileLayer
   controller: Controller
   readOnly: boolean
-  collapsible: boolean
   toolbarPosition: WorkbenchToolbarPosition
   theme: 'light' | 'dark'
 }
@@ -25,7 +24,6 @@ export function WorkbenchMapView({
   activeTile,
   controller,
   readOnly,
-  collapsible,
   toolbarPosition,
   theme,
 }: WorkbenchMapViewProps) {
@@ -51,10 +49,7 @@ export function WorkbenchMapView({
           controller={controller}
           readOnly={readOnly}
           theme={theme}
-          toolbar={{
-            position: toolbarPosition,
-            collapsible,
-          }}
+          toolbar={{ position: toolbarPosition }}
           collapseBelowZoom={{ notes: 12 }}
         />
       </MapContainer>

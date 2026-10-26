@@ -72,9 +72,7 @@
 
 /* Default Theme (Native HTML Form / Button Element Theme) */
 [data-canvas-theme='default'] .rlc-tool-btn:not([data-active]):not(:disabled):hover,
-[data-canvas-theme='default'] .rlc-action-btn:not([data-active]):not(:disabled):hover,
-[data-canvas-theme='default'] .rlc-toolbar-collapse-btn:hover,
-[data-canvas-theme='default'] .rlc-toolbar-expand-btn:hover {
+[data-canvas-theme='default'] .rlc-action-btn:not([data-active]):not(:disabled):hover {
   background-color: #e5e5e5 !important;
   border-color: #555555 !important;
   color: #000000 !important;
@@ -137,16 +135,15 @@
 
 /* Homepage Theme Integration */
 [data-canvas-theme='homepage'] .rlc-toolbar-primary,
-[data-canvas-theme='homepage'] .rlc-toolbar-secondary,
-[data-canvas-theme='homepage'] .rlc-toolbar-collapsed {
+[data-canvas-theme='homepage'] .rlc-toolbar-secondary {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 [data-canvas-theme='homepage'] .rlc-tool-btn:not([data-active]):not(:disabled),
-[data-canvas-theme='homepage'] .rlc-action-btn:not([data-active]):not(.rlc-delete-btn):not(:disabled),
-[data-canvas-theme='homepage'] .rlc-toolbar-collapse-btn {
+[data-canvas-theme='homepage']
+  .rlc-action-btn:not([data-active]):not(.rlc-delete-btn):not(:disabled) {
   background-color: transparent !important;
   border-color: transparent !important;
   color: light-dark(#1e293b, #f3f4f6) !important;
@@ -163,8 +160,7 @@
 }
 
 [data-canvas-theme='homepage'] .rlc-tool-btn:not([data-active]):not(:disabled):hover,
-[data-canvas-theme='homepage'] .rlc-action-btn:not([data-active]):not(:disabled):hover,
-[data-canvas-theme='homepage'] .rlc-toolbar-collapse-btn:hover {
+[data-canvas-theme='homepage'] .rlc-action-btn:not([data-active]):not(:disabled):hover {
   background-color: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.1)) !important;
   color: var(--text-primary) !important;
 }

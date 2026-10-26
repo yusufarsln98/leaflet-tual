@@ -159,6 +159,7 @@ export function NoteOverlayView({
         color: colors.text,
         border: borderWidth > 0 ? `${borderWidth}px ${borderDash} ${borderColor}` : 'none',
         borderRadius: radius,
+        opacity: note.style?.opacity ?? 1,
       }}
       onPointerDown={handlePointerDown}
     >

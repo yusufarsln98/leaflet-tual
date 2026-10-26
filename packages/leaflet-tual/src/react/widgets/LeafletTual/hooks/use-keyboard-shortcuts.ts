@@ -31,52 +31,6 @@ export function useKeyboardShortcuts(
         return
       }
 
-      if (isMeta && key === 'D') {
-        e.preventDefault()
-        for (const item of controller.selected) {
-          const dLat = 0.001
-          const dLng = 0.001
-          if (item.type === 'arrow' || item.type === 'ruler') {
-            controller.add({
-              ...item,
-              id: undefined,
-              from: { lat: item.from.lat + dLat, lng: item.from.lng + dLng },
-              to: { lat: item.to.lat + dLat, lng: item.to.lng + dLng },
-            })
-          } else if (item.type === 'shape' || item.type === 'note' || item.type === 'text') {
-            controller.add({
-              ...item,
-              id: undefined,
-              at: { lat: item.at.lat + dLat, lng: item.at.lng + dLng },
-            })
-          } else if (item.type === 'freedraw') {
-            controller.add({
-              ...item,
-              id: undefined,
-              points: item.points.map((point) => ({
-                lat: point.lat + dLat,
-                lng: point.lng + dLng,
-              })),
-            })
-          } else if (item.type === 'pen') {
-            const offset = (point: { lat: number; lng: number }) => ({
-              lat: point.lat + dLat,
-              lng: point.lng + dLng,
-            })
-            controller.add({
-              ...item,
-              id: undefined,
-              points: item.points.map((point) => ({
-                at: offset(point.at),
-                ...(point.in ? { in: offset(point.in) } : {}),
-                ...(point.out ? { out: offset(point.out) } : {}),
-              })),
-            })
-          }
-        }
-        return
-      }
-
       if (e.key === 'Enter') {
         if (controller.tool === 'pen' && onFinishPen) {
           e.preventDefault()

@@ -70,10 +70,12 @@ export function useTooltipEvents({
     }
 
     document.addEventListener('pointerdown', handlePointerDownOutside, true)
-    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('mousedown', handlePointerDownOutside, true)
+    document.addEventListener('keydown', handleKeyDown, true)
     return () => {
       document.removeEventListener('pointerdown', handlePointerDownOutside, true)
-      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('mousedown', handlePointerDownOutside, true)
+      document.removeEventListener('keydown', handleKeyDown, true)
     }
   }, [activePopover, onClosePopover, tooltipRef])
 }

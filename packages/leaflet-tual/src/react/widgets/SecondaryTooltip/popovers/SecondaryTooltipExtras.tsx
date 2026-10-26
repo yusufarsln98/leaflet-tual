@@ -5,7 +5,6 @@ import { useTranslation } from '../../../features/i18n/index.js'
 import { Divider, IconButton, ICONS, LABEL_POSITION_ICONS } from '../../../ui/index.js'
 import { BorderPopover } from './BorderPopover.js'
 import { LabelPositionDropdown } from './LabelPositionDropdown.js'
-import { MoreOptionsDropdown } from './MoreOptionsDropdown.js'
 
 export interface SecondaryTooltipExtrasProps {
   isNote: boolean
@@ -17,6 +16,8 @@ export interface SecondaryTooltipExtrasProps {
   controller: Controller
   scheme: 'light' | 'dark'
   activePopover: string | null
+  sidebarOpen?: boolean
+  onOpenSidebar?: () => void
   onToggle: (name: string) => void
   onClose: () => void
   onUpdateStyle: (patch: Partial<Style>) => void
@@ -32,6 +33,8 @@ export function SecondaryTooltipExtras({
   controller,
   scheme,
   activePopover,
+  sidebarOpen = false,
+  onOpenSidebar,
   onToggle,
   onClose,
   onUpdateStyle,
@@ -88,31 +91,20 @@ export function SecondaryTooltipExtras({
         </div>
       )}
 
-      <Divider variant="secondary" />
-
-      <div style={{ position: 'relative' }}>
-        <IconButton
-          variant="secondary-icon"
-          label={t('moreOptions')}
-          active={activePopover === 'more'}
-          icon={ICONS.moreVertical()}
-          onClick={() => onToggle('more')}
-        />
-        {activePopover === 'more' && (
-          <MoreOptionsDropdown
-            onDuplicate={() => {
-              const { id: _id, createdAt: _created, ...rest } = selectedItem
-              controller.select(controller.add(rest).id)
+      {!sidebarOpen && (
+        <>
+          <Divider variant="secondary" />
+          <IconButton
+            variant="secondary-icon"
+            label={t('moreOptions')}
+            icon={ICONS.moreVertical()}
+            onClick={() => {
               onClose()
+              onOpenSidebar?.()
             }}
-            onDelete={() => {
-              controller.remove(selectedItem.id)
-              onClose()
-            }}
-            onClose={onClose}
           />
-        )}
-      </div>
+        </>
+      )}
     </>
   )
 }

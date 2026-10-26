@@ -25,6 +25,7 @@ export function renderFreedrawOnCanvas(
   const dash = resolveDash(freedraw.style?.dash ?? 'solid').map((d) => d * scale)
 
   ctx.save()
+  ctx.globalAlpha = freedraw.style?.opacity ?? 1
   ctx.strokeStyle = color
   ctx.lineWidth = lineWidth
   ctx.setLineDash(dash)

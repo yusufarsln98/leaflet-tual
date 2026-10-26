@@ -13,9 +13,22 @@ export interface TranslationTokens {
   redo: string
 
   // Toolbar Chrome & Actions
-  expandToolbar: string
-  collapseToolbar: string
   zoomReset: string
+  toggleSidebar: string
+
+  // Sidebar
+  properties: string
+  closeSidebar: string
+  nothingSelected: string
+  clickElementToEdit: string
+  fillAndStroke: string
+  stroke: string
+  thickness: string
+  appearance: string
+  opacity: string
+  typography: string
+  confirmDelete: string
+  cancel: string
 
   // Pages
   page: string
@@ -23,10 +36,8 @@ export interface TranslationTokens {
   pageOptions: string
   newPage: string
   rename: string
-  duplicate: string
   delete: string
   pageDefault: string
-  pageCopy: string
 
   // Popover headers
   arrowStyle: string

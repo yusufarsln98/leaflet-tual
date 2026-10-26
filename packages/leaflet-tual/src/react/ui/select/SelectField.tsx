@@ -40,7 +40,7 @@ export function Select<T extends string | number>({
   useEffect(() => {
     if (!open) return
 
-    const handlePointerDown = (event: PointerEvent) => {
+    const handlePointerDown = (event: MouseEvent | PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
     }
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -50,11 +50,13 @@ export function Select<T extends string | number>({
       selectRef.current?.focus()
     }
 
-    document.addEventListener('pointerdown', handlePointerDown)
-    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('pointerdown', handlePointerDown, true)
+    document.addEventListener('mousedown', handlePointerDown, true)
+    document.addEventListener('keydown', handleKeyDown, true)
     return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
-      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('pointerdown', handlePointerDown, true)
+      document.removeEventListener('mousedown', handlePointerDown, true)
+      document.removeEventListener('keydown', handleKeyDown, true)
     }
   }, [open])
 

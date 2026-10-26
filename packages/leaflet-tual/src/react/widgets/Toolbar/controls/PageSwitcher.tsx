@@ -49,13 +49,17 @@ export function PageSwitcher({
       return
     }
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleMouseDown = (e: MouseEvent | PointerEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         onClose()
       }
     }
-    document.addEventListener('mousedown', handleMouseDown)
-    return () => document.removeEventListener('mousedown', handleMouseDown)
+    document.addEventListener('pointerdown', handleMouseDown, true)
+    document.addEventListener('mousedown', handleMouseDown, true)
+    return () => {
+      document.removeEventListener('pointerdown', handleMouseDown, true)
+      document.removeEventListener('mousedown', handleMouseDown, true)
+    }
   }, [isOpen, onClose])
 
   const commitRename = (pageId: string) => {
@@ -151,14 +155,6 @@ export function PageSwitcher({
                           onClick={() => {
                             setEditingId(page.id)
                             setEditingName(page.name)
-                            setActionMenuId(null)
-                          }}
-                        />
-                        <DropdownItem
-                          variant="action-menu"
-                          label={t('duplicate')}
-                          onClick={() => {
-                            controller.pages.duplicate(page.id)
                             setActionMenuId(null)
                           }}
                         />

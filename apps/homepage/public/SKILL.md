@@ -300,9 +300,6 @@ interface ToolbarOptions {
   }
   pages?: boolean             // page switcher, default true
   history?: boolean           // undo and redo, default true
-  collapsible?: boolean       // default false
-  collapsed?: boolean         // controlled
-  onCollapsedChange?: (collapsed: boolean) => void
   actions?: ToolbarAction[]   // your own buttons, appended after the tools
 }
 
@@ -419,7 +416,6 @@ tual.pages.list                       // { id, name }[]
 tual.pages.active                     // active page id
 tual.pages.add(name?)                 // returns the new page id and activates it
 tual.pages.rename(id, name)
-tual.pages.duplicate(id)
 tual.pages.remove(id)                 // no-op when only one page remains
 tual.pages.move(id, toIndex)
 tual.pages.select(id)                 // saves the current view, restores the target's view
@@ -534,7 +530,7 @@ tual.destroy()
 | `shape`    | `square` · `circle` · `star` · `actor` · `triangle` · `diamond` · `hexagon` · `marker` | S   | Drag a box, or click to place a default-sized shape. Fill via `style.fill`. |
 | `ruler`    |                                                                                        | R   | Drag to measure a geodesic distance.                             |
 
-Global: `Esc` cancels or deselects, `Cmd/Ctrl+Z` undo, `Cmd/Ctrl+Shift+Z` redo, `Cmd/Ctrl+D` duplicate, `Delete` remove, arrow keys nudge.
+Global: `Esc` cancels or deselects, `Cmd/Ctrl+Z` undo, `Cmd/Ctrl+Shift+Z` redo, `Delete` remove, arrow keys nudge.
 
 An active drawing tool disables map dragging and double-click zoom, and restores both when you switch away. On touch, one finger draws and two fingers pan and zoom.
 
@@ -581,7 +577,8 @@ v2 is a breaking release. There are no aliases and no compatibility layer.
 | `onChange`, `onItemsChange`, `onChangeComplete`, `onEditEnd`, `onEditComplete` | one `onChange(doc, { committed })`                        |
 | `onItemCreate/Change/ChangeComplete/Delete`                          | `info.reason` and `info.ids` on `onChange`                          |
 | `onItemSelect`                                                       | `onSelect(items)`                                                   |
-| `showToolbar`, `toolbarPosition`, `toolbarOrientation`, `collapsible`, `defaultCollapsed`, `collapsed`, `onCollapsedChange`, `showCollapseButton`, `enabledTools`, `showHistoryControls`, `showDeleteButton`, `showClearButton`, `showToolLabels` | one `toolbar` object (or `false`) |
+| `showToolbar`, `toolbarPosition`, `toolbarOrientation`, `enabledTools`, `showHistoryControls`, `showDeleteButton`, `showClearButton`, `showToolLabels` | one `toolbar` object (or `false`) |
+| `collapsible`, `defaultCollapsed`, `collapsed`, `onCollapsedChange`, `showCollapseButton` | removed; the toolbar is always expanded |
 | `customTools`, `renderToolbar`                                       | `toolbar.actions`, or `toolbar={false}` with your own UI            |
 | `<CanvasToolbar>`                                                    | `<Toolbar>`                                                         |
 | `strokeColors`, `strokeWidthOptions`, `fontSizeOptions`, `annotationTheme`, `arrowTheme` | `theme` and `tokens`; the palette and size scales are fixed |

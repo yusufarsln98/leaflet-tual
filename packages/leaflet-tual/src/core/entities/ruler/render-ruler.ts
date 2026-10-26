@@ -35,6 +35,7 @@ export function renderRulerOnCanvas(
   const dash = resolveDash(ruler.style?.dash ?? 'solid').map((d) => d * scale)
 
   ctx.save()
+  ctx.globalAlpha = ruler.style?.opacity ?? 1
   ctx.strokeStyle = color
   ctx.lineWidth = lineWidth
   ctx.setLineDash(dash)

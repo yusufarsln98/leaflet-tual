@@ -19,6 +19,10 @@ export interface LeafletTualProps {
   onToolChange?: (tool: ToolId, variant: string | null) => void
   theme?: Theme
   toolbar?: false | ToolbarOptions
+  sidebar?: boolean
+  defaultSidebarOpen?: boolean
+  sidebarOpen?: boolean
+  onSidebarOpenChange?: (open: boolean) => void
   readOnly?: boolean
   translations?: Partial<TranslationTokens>
   collapseBelowZoom?: { notes?: number; text?: number }

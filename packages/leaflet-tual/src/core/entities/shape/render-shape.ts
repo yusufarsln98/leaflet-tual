@@ -68,8 +68,10 @@ export function renderShapeOnCanvas(
   const dash = resolveDash(shape.style?.dash ?? 'solid').map((d) => d * scale)
   const fill = shape.style?.fill ?? 'solid'
   const radius = (shape.style?.radius ?? 8) * scale
+  const itemOpacity = shape.style?.opacity ?? 1
 
   ctx.save()
+  ctx.globalAlpha = itemOpacity
   ctx.strokeStyle = strokeColor
   ctx.lineWidth = lineWidth
   ctx.setLineDash(dash)
@@ -84,7 +86,7 @@ export function renderShapeOnCanvas(
     ctx.fill()
   } else if (fill === 'tint') {
     ctx.save()
-    ctx.globalAlpha = 0.25
+    ctx.globalAlpha = itemOpacity * 0.25
     ctx.fillStyle = fillColor
     ctx.fill()
     ctx.restore()

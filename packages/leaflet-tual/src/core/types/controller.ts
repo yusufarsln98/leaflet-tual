@@ -24,7 +24,6 @@ export interface ControllerPages {
   readonly active: string
   add(name?: string): string
   rename(id: string, name: string): void
-  duplicate(id: string): string
   remove(id: string): void
   move(id: string, toIndex: number): void
   select(id: string): void
@@ -102,9 +101,6 @@ export interface ToolbarOptions {
   pages?: boolean
   history?: boolean
   zoom?: boolean
-  collapsible?: boolean
-  collapsed?: boolean
-  onCollapsedChange?: (collapsed: boolean) => void
   actions?: ToolbarAction[]
 }
 

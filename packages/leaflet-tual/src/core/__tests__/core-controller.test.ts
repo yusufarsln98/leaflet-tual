@@ -45,7 +45,7 @@ describe('v2 Controller state machine', () => {
     expect((c.items[0] as ArrowItem).label).toBe('Route')
   })
 
-  it('manages pages (add, rename, duplicate, remove, select)', () => {
+  it('manages pages (add, rename, remove, select)', () => {
     const c = createController()
     const initialPageId = c.pages.active
     expect(c.pages.list.length).toBe(1)

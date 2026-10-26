@@ -17,10 +17,18 @@ import { SecondaryTooltipExtras } from './popovers/index.js'
 export interface SecondaryTooltipProps {
   map: L.Map
   controller: Controller
+  sidebarOpen?: boolean
+  onOpenSidebar?: () => void
   className?: string
 }
 
-export function SecondaryTooltip({ map, controller, className }: SecondaryTooltipProps) {
+export function SecondaryTooltip({
+  map,
+  controller,
+  sidebarOpen = false,
+  onOpenSidebar,
+  className,
+}: SecondaryTooltipProps) {
   const { t } = useTranslation(controller)
   const [activePopover, setActivePopover] = useState<string | null>(null)
   const [, setTick] = useState(0)
@@ -40,7 +48,7 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
     onClosePopover: () => setActivePopover(null),
   })
 
-  if (!selectedItem || controller.readOnly) return null
+  if (!selectedItem || controller.readOnly || sidebarOpen) return null
 
   const bounds = getItemBounds(map, selectedItem)
   const leftPos = Math.round(bounds.cx)
@@ -183,6 +191,8 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
         controller={controller}
         scheme={scheme as 'light' | 'dark'}
         activePopover={activePopover}
+        sidebarOpen={sidebarOpen}
+        onOpenSidebar={onOpenSidebar}
         onToggle={toggle}
         onClose={() => setActivePopover(null)}
         onUpdateStyle={updateStyle}

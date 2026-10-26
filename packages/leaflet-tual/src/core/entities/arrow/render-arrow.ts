@@ -43,6 +43,7 @@ export function renderArrowOnCanvas(
   const headSize = Math.max(2, headBase * scale)
 
   ctx.save()
+  ctx.globalAlpha = arrow.style?.opacity ?? 1
   ctx.strokeStyle = color
   ctx.lineWidth = lineWidth
   ctx.setLineDash(dash)

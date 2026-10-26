@@ -15,9 +15,22 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   redo: 'Redo',
 
   // Toolbar Chrome & Actions
-  expandToolbar: 'Expand toolbar',
-  collapseToolbar: 'Collapse toolbar',
   zoomReset: 'Zoom level (click to reset to 100%)',
+  toggleSidebar: 'Toggle sidebar',
+
+  // Sidebar
+  properties: 'Properties',
+  closeSidebar: 'Close sidebar',
+  nothingSelected: 'Nothing selected',
+  clickElementToEdit: 'Click any element in the design to edit it here.',
+  fillAndStroke: 'Fill & stroke',
+  stroke: 'Stroke',
+  thickness: 'Thickness',
+  appearance: 'Appearance',
+  opacity: 'Opacity',
+  typography: 'Typography',
+  confirmDelete: 'Delete item?',
+  cancel: 'Cancel',
 
   // Pages
   page: 'Page',
@@ -25,10 +38,8 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   pageOptions: 'Page options',
   newPage: 'New page',
   rename: 'Rename',
-  duplicate: 'Duplicate',
   delete: 'Delete',
   pageDefault: 'Page {n}',
-  pageCopy: '{name} Copy',
 
   // Popover headers
   arrowStyle: 'Arrow Style',

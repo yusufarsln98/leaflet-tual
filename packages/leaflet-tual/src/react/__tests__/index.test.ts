@@ -7,6 +7,8 @@ import {
   DocError,
   LeafletTual,
   Toolbar,
+  Sidebar,
+  SidebarTriggerBar,
   useLeafletTual,
   useLeafletSync,
   createController,
@@ -46,6 +48,7 @@ import {
   Select,
   SelectField,
   Popover,
+  ConfirmPopover,
   DropdownMenu,
   DropdownItem,
   ColorSwatch,
@@ -76,6 +79,8 @@ describe('leaflet-tual v2 package contract exports', () => {
   it('exports all core public components and hooks from leaflet-tual/react', () => {
     expect(LeafletTual).toBeDefined()
     expect(Toolbar).toBeDefined()
+    expect(Sidebar).toBeDefined()
+    expect(SidebarTriggerBar).toBeDefined()
     expect(useLeafletTual).toBeDefined()
     expect(useLeafletSync).toBeDefined()
     expect(createController).toBeDefined()
@@ -116,6 +121,7 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(Select).toBeDefined()
     expect(SelectField).toBeDefined()
     expect(Popover).toBeDefined()
+    expect(ConfirmPopover).toBeDefined()
     expect(DropdownMenu).toBeDefined()
     expect(DropdownItem).toBeDefined()
     expect(ColorSwatch).toBeDefined()

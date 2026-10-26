@@ -32,6 +32,7 @@ export function renderPenOnCanvas(
   const dash = resolveDash(pen.style?.dash ?? 'solid').map((d) => d * scale)
 
   ctx.save()
+  ctx.globalAlpha = pen.style?.opacity ?? 1
   ctx.strokeStyle = color
   ctx.lineWidth = lineWidth
   ctx.setLineDash(dash)

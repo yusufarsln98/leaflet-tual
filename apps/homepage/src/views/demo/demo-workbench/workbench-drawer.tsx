@@ -27,8 +27,6 @@ interface WorkbenchDrawerProps {
   onToolbarPositionChange: (pos: WorkbenchToolbarPosition) => void
   readOnly: boolean
   onToggleReadOnly: (val: boolean) => void
-  collapsible: boolean
-  onCollapsibleChange: (val: boolean) => void
   copied: boolean
   onCopyJson: () => void
 }
@@ -47,8 +45,6 @@ export function WorkbenchDrawer({
   onToolbarPositionChange,
   readOnly,
   onToggleReadOnly,
-  collapsible,
-  onCollapsibleChange,
   copied,
   onCopyJson,
 }: WorkbenchDrawerProps) {
@@ -105,8 +101,6 @@ export function WorkbenchDrawer({
         <WorkbenchFeatureToggles
           readOnly={readOnly}
           onToggleReadOnly={onToggleReadOnly}
-          collapsible={collapsible}
-          onCollapsibleChange={onCollapsibleChange}
         />
 
         {/* Selected Item Details */}

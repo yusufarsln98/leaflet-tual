@@ -237,7 +237,7 @@ Actions:
 - `exportPNG(artboardId, opts?)`
 - `load(doc)`
 - `setReadOnly(boolean)`
-- `pages.list`, `pages.active`, `pages.add(name?)`, `pages.rename(id, name)`, `pages.duplicate(id)`, `pages.remove(id)`, `pages.move(id, toIndex)`, `pages.select(id)`
+- `pages.list`, `pages.active`, `pages.add(name?)`, `pages.rename(id, name)`, `pages.remove(id)`, `pages.move(id, toIndex)`, `pages.select(id)`
 
 ## Geometry Utilities
 - `toWorld(geo)` / `fromWorld(point)`: Spherical Mercator world meters projection

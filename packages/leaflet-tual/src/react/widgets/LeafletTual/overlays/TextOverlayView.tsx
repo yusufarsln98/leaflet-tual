@@ -186,6 +186,7 @@ export function TextOverlayView({
         fontStyle,
         textDecoration,
         textAlign: align,
+        opacity: textItem.style?.opacity ?? 1,
         whiteSpace: 'pre-wrap',
         outline: controller.selection.includes(textItem.id)
           ? '1.5px solid var(--tual-accent)'

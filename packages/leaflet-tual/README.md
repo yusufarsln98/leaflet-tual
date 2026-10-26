@@ -268,7 +268,7 @@ const tual = useLeafletTual({
 - `load(doc)`
 - `setReadOnly(boolean)`
 - `setTranslations(patch)`
-- `pages`: `list`, `active`, `add(name?)`, `rename(id, name)`, `duplicate(id)`, `remove(id)`, `move(id, toIndex)`, `select(id)`
+- `pages`: `list`, `active`, `add(name?)`, `rename(id, name)`, `remove(id)`, `move(id, toIndex)`, `select(id)`
 
 ---
 

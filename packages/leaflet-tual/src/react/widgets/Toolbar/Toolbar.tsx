@@ -3,14 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 import type { DrawKind, ToolId } from '../../../core/index.js'
 import type { ToolbarProps } from '../../types/index.js'
-import { useTranslation } from '../../features/i18n/index.js'
-import { Button, Divider, IconButton, ICONS } from '../../ui/index.js'
+import { Button, Divider } from '../../ui/index.js'
 import {
   PageSwitcher,
   ToolbarHistoryControls,
   ToolbarDrawGroup,
   ToolbarItemButton,
-  ToolbarZoomControl,
 } from './controls/index.js'
 
 const ALL_TOOLS: ToolId[] = ['select', 'text', 'note', 'freedraw', 'pen', 'arrow', 'shape', 'ruler']
@@ -19,21 +17,14 @@ const DRAW_TOOLS: DrawKind[] = ['freedraw', 'pen']
 
 export function Toolbar({
   controller,
-  map,
-  currentZoom,
-  zoom = true,
   position = 'top-left',
   orientation = 'horizontal',
   tools = ALL_TOOLS,
   variants,
   pages = true,
   history = true,
-  collapsible = false,
-  collapsed,
-  onCollapsedChange,
   actions,
 }: ToolbarProps) {
-  const { t } = useTranslation(controller)
   const [, setTick] = useState(0)
 
   useEffect(() => {
@@ -42,8 +33,6 @@ export function Toolbar({
     })
   }, [controller])
 
-  const [internalCollapsed, setInternalCollapsed] = useState(false)
-  const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed
   const [activePopover, setActivePopover] = useState<'pages' | 'draw' | ToolId | null>(null)
   const toolbarRef = useRef<HTMLDivElement>(null)
   const lastDrawToolRef = useRef<DrawKind>('freedraw')
@@ -55,63 +44,22 @@ export function Toolbar({
   const availableDrawTools = DRAW_TOOLS.filter(
     (t) => tools.includes(t) && (!variants?.draw || variants.draw.includes(t)),
   )
-  const effZoom = currentZoom ?? map?.getZoom()
-  const zoomPercent = effZoom !== undefined ? Math.round(Math.pow(2, effZoom - 13) * 100) : null
-
-  const toggleCollapsed = () => {
-    const next = !isCollapsed
-    setInternalCollapsed(next)
-    onCollapsedChange?.(next)
-  }
-
-  const isVertical = orientation === 'vertical'
-  const isRightAnchored = position.includes('right')
-  const isBottomAnchored = position.startsWith('bottom')
-
-  const collapseIcon = isVertical
-    ? isBottomAnchored
-      ? ICONS.chevronsDown()
-      : ICONS.chevronsUp()
-    : isRightAnchored
-      ? ICONS.chevronsRight()
-      : ICONS.chevronsLeft()
-
-  const expandIcon = isVertical
-    ? isBottomAnchored
-      ? ICONS.chevronsUp()
-      : ICONS.chevronsDown()
-    : isRightAnchored
-      ? ICONS.chevronsLeft()
-      : ICONS.chevronsRight()
 
   const closePopover = () => setActivePopover(null)
 
   useEffect(() => {
-    const onDocClick = (e: MouseEvent) => {
+    const onDocClick = (e: MouseEvent | PointerEvent) => {
       if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node)) {
         closePopover()
       }
     }
-    window.addEventListener('mousedown', onDocClick)
-    return () => window.removeEventListener('mousedown', onDocClick)
+    window.addEventListener('pointerdown', onDocClick, true)
+    window.addEventListener('mousedown', onDocClick, true)
+    return () => {
+      window.removeEventListener('pointerdown', onDocClick, true)
+      window.removeEventListener('mousedown', onDocClick, true)
+    }
   }, [])
-
-  if (isCollapsed) {
-    return (
-      <div
-        ref={toolbarRef}
-        data-position={position}
-        data-orientation={orientation}
-        className="tual-toolbar"
-      >
-        <IconButton
-          icon={expandIcon}
-          label={t('expandToolbar')}
-          onClick={toggleCollapsed}
-        />
-      </div>
-    )
-  }
 
   return (
     <div
@@ -175,10 +123,7 @@ export function Toolbar({
         </>
       )}
 
-      {/* 4. Zoom percentage pill */}
-      {zoom !== false && <ToolbarZoomControl map={map} zoomPercent={zoomPercent} />}
-
-      {/* 5. Custom Toolbar Actions */}
+      {/* 4. Custom Toolbar Actions */}
       {actions && actions.length > 0 && (
         <>
           <Divider variant="toolbar" />
@@ -196,18 +141,6 @@ export function Toolbar({
               {typeof act.icon === 'function' ? act.icon() : (act.icon ?? act.label)}
             </Button>
           ))}
-        </>
-      )}
-
-      {/* 6. Collapse button */}
-      {collapsible && (
-        <>
-          <Divider variant="toolbar" />
-          <IconButton
-            icon={collapseIcon}
-            label={t('collapseToolbar')}
-            onClick={toggleCollapsed}
-          />
         </>
       )}
     </div>

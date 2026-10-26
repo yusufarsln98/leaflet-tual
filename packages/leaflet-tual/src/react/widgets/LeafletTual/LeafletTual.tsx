@@ -9,6 +9,7 @@ import { useLeafletSync } from '../../features/use-leaflet-sync.js'
 import { TranslationProvider } from '../../features/i18n/index.js'
 import { Toolbar } from '../Toolbar/Toolbar.js'
 import { SecondaryTooltip } from '../SecondaryTooltip/SecondaryTooltip.js'
+import { Sidebar, SidebarTriggerBar } from '../Sidebar/index.js'
 import type { LeafletTualProps } from '../../types/index.js'
 import { InlineShapeLabelEditor, NoteOverlayView, TextOverlayView } from './overlays/index.js'
 import { drawCanvasScene, type CanvasGesture, useCanvasGestures } from './gestures/index.js'
@@ -93,7 +94,20 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
 
   useKeyboardShortcuts(controller, gestures.cancelGesture, gestures.finishPen)
 
+  const [internalSidebarOpen, setInternalSidebarOpen] = useState(
+    props.defaultSidebarOpen ?? false,
+  )
+  const isSidebarOpen =
+    props.sidebarOpen !== undefined ? props.sidebarOpen : internalSidebarOpen
+
+  const handleSidebarChange = (next: boolean) => {
+    setInternalSidebarOpen(next)
+    props.onSidebarOpenChange?.(next)
+  }
+
   const showToolbar = props.toolbar !== false && (!props.readOnly || props.toolbar !== undefined)
+  const showSidebarControl =
+    props.sidebar !== false && showToolbar && (typeof props.toolbar !== 'object' || props.toolbar.zoom !== false)
 
   return (
     <TranslationProvider translations={props.translations}>
@@ -116,9 +130,14 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           ) : null,
         )}
 
-        {/* Floating Contextual Secondary Tooltip above selected shape / item */}
-        {controller.selected.length > 0 && !controller.readOnly && (
-          <SecondaryTooltip map={map} controller={controller} />
+        {/* Floating Contextual Secondary Tooltip above selected shape / item (hidden when sidebar is active) */}
+        {!isSidebarOpen && controller.selected.length > 0 && !controller.readOnly && (
+          <SecondaryTooltip
+            map={map}
+            controller={controller}
+            sidebarOpen={isSidebarOpen}
+            onOpenSidebar={() => handleSidebarChange(true)}
+          />
         )}
 
         {/* Note overlays */}
@@ -155,6 +174,26 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
             map={map}
             currentZoom={currentZoom}
             {...(typeof props.toolbar === 'object' ? props.toolbar : {})}
+          />
+        )}
+
+        {/* Floating Sidebar & Zoom Trigger Tooltip */}
+        {showSidebarControl && (
+          <SidebarTriggerBar
+            controller={controller}
+            map={map}
+            currentZoom={currentZoom}
+            sidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => handleSidebarChange(!isSidebarOpen)}
+          />
+        )}
+
+        {/* Right Properties & Layers Sidebar */}
+        {isSidebarOpen && !controller.readOnly && (
+          <Sidebar
+            controller={controller}
+            map={map}
+            onClose={() => handleSidebarChange(false)}
           />
         )}
       </div>

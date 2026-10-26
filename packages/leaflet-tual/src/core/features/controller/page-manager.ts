@@ -1,5 +1,5 @@
 import type L from 'leaflet'
-import type { ControllerPages, Doc, Item, Page, TranslationTokens } from '../../types/index.js'
+import type { ControllerPages, Doc, Page, TranslationTokens } from '../../types/index.js'
 import { createId } from '../../shared/geometry/geo.js'
 import { cloneDoc } from '../../shared/doc.js'
 import { getDefaultTranslations, translate } from '../../shared/i18n/index.js'
@@ -51,33 +51,6 @@ export function createPageManager(ctx: PageManagerContext): ControllerPages {
       const prev = cloneDoc(doc)
       target.name = name
       ctx.commitChange('page', [], true, prev)
-    },
-    duplicate(id: string): string {
-      const doc = ctx.getDoc()
-      const target = doc.pages.find((p) => p.id === id)
-      if (!target) return id
-      const prev = cloneDoc(doc)
-      const newId = createId('page')
-      const clonedItems: Item[] = target.items.map((item) => ({
-        ...item,
-        id: createId(item.type),
-        createdAt: Date.now(),
-      }))
-      const tokens = ctx.getTranslations?.() ?? getDefaultTranslations()
-      const newPage: Page = {
-        id: newId,
-        name: translate(tokens, 'pageCopy', { name: target.name }, `${target.name} Copy`),
-        items: clonedItems,
-        view: target.view ? { ...target.view } : undefined,
-      }
-      const idx = doc.pages.findIndex((p) => p.id === id)
-      doc.pages.splice(idx + 1, 0, newPage)
-      doc.page = newId
-      ctx.clearSelection()
-
-      ctx.emit('page', newId)
-      ctx.commitChange('page', [], true, prev)
-      return newId
     },
     remove(id: string): void {
       const doc = ctx.getDoc()
