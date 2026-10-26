@@ -1,33 +1,45 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import type L from 'leaflet'
-import { bindLeafletSync } from '../../core/features/map-sync.js'
-
-export interface MapViewportState {
-  width: number
-  height: number
-  tick: number
-}
 
 /**
  * Synchronizes React state and canvas redraws with a Leaflet map's pan, zoom, and resize events.
  */
-export function useLeafletSync(map: L.Map | null): MapViewportState {
-  const [viewport, setViewport] = useState<MapViewportState>({
-    width: 0,
-    height: 0,
-    tick: 0,
-  })
+export function useLeafletSync(
+  map: L.Map | null | undefined,
+  onRedraw?: () => void,
+): number {
+  const [tick, setTick] = useState(0)
 
   useEffect(() => {
     if (!map) return
-    return bindLeafletSync(map, ({ width, height }) => {
-      setViewport((prev) => ({
-        width,
-        height,
-        tick: prev.tick + 1,
-      }))
-    })
-  }, [map])
 
-  return viewport
+    let rafId: number | null = null
+
+    const handleEvent = () => {
+      onRedraw?.()
+      if (rafId === null) {
+        rafId = requestAnimationFrame(() => {
+          rafId = null
+          setTick((t) => (t + 1) % 1000000)
+        })
+      }
+    }
+
+    map.on('move', handleEvent)
+    map.on('zoom', handleEvent)
+    map.on('viewreset', handleEvent)
+    map.on('resize', handleEvent)
+
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
+      map.off('move', handleEvent)
+      map.off('zoom', handleEvent)
+      map.off('viewreset', handleEvent)
+      map.off('resize', handleEvent)
+    }
+  }, [map, onRedraw])
+
+  return tick
 }

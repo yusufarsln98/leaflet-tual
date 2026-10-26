@@ -1,0 +1,213 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import type L from 'leaflet'
+import type { Controller, Item, ShapeItem, Style } from '../../../core/index.js'
+import { resolveColor, resolveNoteColors } from '../../../core/index.js'
+import { ICONS, LABEL_POSITION_ICONS } from '../Toolbar/icons.js'
+import { ColorDropdown } from './ColorDropdown.js'
+import { BorderPopover } from './BorderPopover.js'
+import { getItemBounds } from './get-item-bounds.js'
+import { LabelPositionDropdown } from './LabelPositionDropdown.js'
+import { MoreOptionsDropdown } from './MoreOptionsDropdown.js'
+import { RadiusDropdown } from './RadiusDropdown.js'
+import { TypographyDropdown } from './TypographyDropdown.js'
+
+export interface SecondaryTooltipProps {
+  map: L.Map; controller: Controller; className?: string
+}
+
+export function SecondaryTooltip({ map, controller, className }: SecondaryTooltipProps) {
+  const [activePopover, setActivePopover] = useState<string | null>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const selectedItem = controller.selected[0] as Item | undefined
+
+  // Double-clicking the tooltip or one of its dropdowns must never zoom the map.
+  useEffect(() => {
+    const el = tooltipRef.current
+    if (!el) return
+    const stopDoubleClick = (event: Event) => event.stopPropagation()
+    el.addEventListener('dblclick', stopDoubleClick)
+    return () => el.removeEventListener('dblclick', stopDoubleClick)
+  }, [selectedItem?.id])
+
+  if (!selectedItem || controller.readOnly) return null
+
+  const bounds = getItemBounds(map, selectedItem)
+  const leftPos = Math.round(bounds.cx)
+  const topPos = Math.round(Math.max(16, bounds.minY - 48))
+  const scheme = controller.scheme
+  const style = selectedItem.style ?? {}
+  const colorHex = resolveColor(style.color ?? 'ink', scheme)
+
+  const updateStyle = (patch: Partial<Style>) => controller.update(selectedItem.id, { style: { ...style, ...patch } })
+  const toggle = (name: string) => setActivePopover((p) => (p === name ? null : name))
+
+  const isShape = selectedItem.type === 'shape'
+  const isArrow = selectedItem.type === 'arrow'
+  const isSquareShape = isShape && (selectedItem as ShapeItem).kind === 'square'
+  const isNote = selectedItem.type === 'note'
+  const isTextOrNote = isNote || selectedItem.type === 'text'
+  const hasTypography = isTextOrNote || isShape || isArrow
+  const hasBorder =
+    isShape ||
+    isNote ||
+    selectedItem.type === 'arrow' ||
+    selectedItem.type === 'ruler' ||
+    selectedItem.type === 'freedraw' ||
+    selectedItem.type === 'pen'
+
+  let typographyLabel = 'Body'
+  if (style.fontSize) {
+    typographyLabel = `${style.fontSize}px`
+  } else if (style.size === 'xl') {
+    typographyLabel = 'Heading 1'
+  } else if (style.size === 'l') {
+    typographyLabel = 'Heading 2'
+  } else if (style.size === 's') {
+    typographyLabel = 'Caption'
+  }
+
+  return (
+    <div
+      ref={tooltipRef}
+      className={`tual-secondary-tooltip ${className ?? ''}`}
+      style={{
+        position: 'absolute',
+        left: leftPos,
+        top: topPos,
+        transform: 'translateX(-50%)',
+        zIndex: 500,
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      {hasTypography && (
+        <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            className="tual-secondary-pill-btn"
+            title="Text Size & Style"
+            onClick={() => toggle('typography')}
+          >
+            <span style={{ opacity: 0.6, fontWeight: 700, fontSize: 13, marginRight: 2 }}>rT</span>
+            <span style={{ fontWeight: 500, margin: '0 4px' }}>{typographyLabel}</span>
+            <span style={{ fontSize: 9, opacity: 0.6 }}>⌄</span>
+          </button>
+          {activePopover === 'typography' && (
+            <TypographyDropdown
+              currentSize={style.size}
+              currentFontSize={style.fontSize}
+              currentWeight={style.weight}
+              currentFontStyle={style.fontStyle}
+              currentAlign={style.align}
+              onUpdateStyle={(patch) => {
+                updateStyle(patch)
+              }}
+              onClose={() => setActivePopover(null)}
+            />
+          )}
+        </div>
+      )}
+
+      {isNote ? (
+        <>
+          <div style={{ position: 'relative' }}>
+            <button type="button" className="tual-secondary-swatch-btn" title="Text Color" onClick={() => toggle('textColor')}>
+              <div className="tual-secondary-swatch-box" style={{ backgroundColor: resolveColor(style.textColor ?? 'ink', scheme) }} />
+            </button>
+            {activePopover === 'textColor' && <ColorDropdown title="Text Color" mode="stroke" currentColor={style.textColor ?? 'ink'} scheme={scheme as 'light' | 'dark'} onSelectColor={(c) => { updateStyle({ textColor: c }); setActivePopover(null) }} onClose={() => setActivePopover(null)} />}
+          </div>
+          <div style={{ position: 'relative' }}>
+            <button type="button" className="tual-secondary-swatch-btn" title="Background Color" onClick={() => toggle('bgColor')}>
+              <div className="tual-secondary-swatch-box" style={{ backgroundColor: resolveNoteColors(style.color ?? 'yellow', scheme, style.textColor, style.fillColor).bg }} />
+            </button>
+            {activePopover === 'bgColor' && <ColorDropdown title="Background Color" mode="fill" currentColor={style.fillColor ?? style.color ?? 'yellow'} scheme={scheme as 'light' | 'dark'} onSelectColor={(c) => { updateStyle({ fillColor: c, color: c }); setActivePopover(null) }} onClose={() => setActivePopover(null)} />}
+          </div>
+        </>
+      ) : (
+        <div style={{ position: 'relative' }}>
+          <button type="button" className="tual-secondary-swatch-btn" title="Color" onClick={() => toggle('color')}>
+            {style.fill === 'none' ? <div className="tual-secondary-swatch-box tual-no-fill-swatch" /> : <div className="tual-secondary-swatch-box" style={{ backgroundColor: colorHex }} />}
+          </button>
+          {activePopover === 'color' && (
+            <ColorDropdown
+              title="Color" mode={isShape ? 'fill' : 'stroke'} currentColor={style.color} currentFill={style.fill} scheme={scheme as 'light' | 'dark'}
+              onSelectColor={(c) => { updateStyle(style.fill === 'none' ? { color: c, fill: 'solid' } : { color: c }); setActivePopover(null) }}
+              onSelectFillMode={(mode) => { updateStyle({ fill: mode }); setActivePopover(null) }} onClose={() => setActivePopover(null)}
+            />
+          )}
+        </div>
+      )}
+
+      {isTextOrNote && (
+        <button type="button" className="tual-secondary-icon-btn" title="Text Alignment" onClick={() => updateStyle({ align: style.align === 'center' ? 'right' : style.align === 'right' ? 'left' : 'center' })}>
+          {style.align === 'center' ? ICONS.alignCenter() : style.align === 'right' ? ICONS.alignRight() : ICONS.alignLeft()}
+        </button>
+      )}
+
+      {isNote && (
+        <div style={{ position: 'relative' }}>
+          <button type="button" className="tual-secondary-icon-btn" title="Corner Radius" data-active={activePopover === 'radius'} onClick={() => toggle('radius')}>
+            {ICONS.radius()}
+          </button>
+          {activePopover === 'radius' && (
+            <RadiusDropdown currentRadius={style.radius} onSelectRadius={(r) => { updateStyle({ radius: r }); setActivePopover(null) }} onClose={() => setActivePopover(null)} />
+          )}
+        </div>
+      )}
+
+      {/* Border button with unified border popover & nested color select */}
+      {hasBorder && (
+        <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            className="tual-secondary-icon-btn"
+            title="Border & Stroke"
+            data-active={activePopover === 'border'}
+            onClick={() => toggle('border')}
+          >
+            {ICONS.strokeWidth()}
+          </button>
+          {activePopover === 'border' && (
+            <BorderPopover
+              currentDash={style.dash} currentColor={style.color} currentStrokeColor={style.strokeColor}
+              currentWidth={isNote ? (style.width ?? 's') : style.width} currentRadius={style.radius} scheme={scheme as 'light' | 'dark'} isSquareShape={isSquareShape}
+              onSelectDash={(d) => updateStyle({ dash: d })} onSelectStrokeColor={(c) => updateStyle({ strokeColor: c })}
+              onSelectWidth={(w) => updateStyle({ width: w })} onSelectRadius={(r) => updateStyle({ radius: r })} onClose={() => setActivePopover(null)}
+            />
+          )}
+        </div>
+      )}
+
+      {isShape && (
+        <div style={{ position: 'relative' }}>
+          <button type="button" className="tual-secondary-icon-btn" title="Label Position" data-active={activePopover === 'labelPosition'} onClick={() => toggle('labelPosition')}>
+            {LABEL_POSITION_ICONS.center()}
+          </button>
+          {activePopover === 'labelPosition' && (
+            <LabelPositionDropdown currentPosition={(selectedItem as ShapeItem).labelPosition} onSelectPosition={(p) => { controller.update(selectedItem.id, { labelPosition: p }); setActivePopover(null) }} onClose={() => setActivePopover(null)} />
+          )}
+        </div>
+      )}
+
+      <div className="tual-secondary-separator" />
+
+      <div style={{ position: 'relative' }}>
+        <button type="button" className="tual-secondary-icon-btn" title="More Options" data-active={activePopover === 'more'} onClick={() => toggle('more')}>
+          {ICONS.moreVertical()}
+        </button>
+        {activePopover === 'more' && (
+          <MoreOptionsDropdown
+            onDuplicate={() => {
+              const { id: _, createdAt: __, ...rest } = selectedItem as any
+              controller.select(controller.add(rest).id)
+              setActivePopover(null)
+            }}
+            onDelete={() => { controller.remove(selectedItem.id); setActivePopover(null) }}
+            onClose={() => setActivePopover(null)}
+          />
+        )}
+      </div>
+    </div>
+  )
+}

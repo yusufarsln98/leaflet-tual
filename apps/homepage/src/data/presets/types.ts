@@ -1,4 +1,4 @@
-import type { TualItem } from 'leaflet-tual/react'
+import type { Item } from 'leaflet-tual/react'
 
 export interface ShowcasePreset {
   id: string
@@ -7,6 +7,5 @@ export interface ShowcasePreset {
   center: [number, number]
   zoom: number
   description: string
-  items: TualItem[]
+  items: Item[]
 }
-

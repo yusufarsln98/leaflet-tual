@@ -2,36 +2,42 @@ import { describe, it, expect } from 'vitest'
 import {
   VERSION,
   createId,
+  emptyDoc,
+  parseDoc,
+  DocError,
   LeafletTual,
-  TualToolbar,
-  InlineShapeLabelEditor,
-  NoteOverlay,
-  TextOverlay,
+  Toolbar,
   useLeafletTual,
   useLeafletSync,
   createLeafletTual,
-  createLeafletTualController,
-  computeDefaultControlGeoPoint,
-  constrainToAspectRatio,
-  constrainAngleTo45Degrees,
-  distanceToSegment,
-  distanceToQuadraticBezier,
-  calculateGeodesicDistance,
-  formatRealWorldDistance,
-  calculateLineDistance,
-  renderShapeOnCanvas,
+  geoToScreen,
+  screenToGeo,
+  toWorld,
+  fromWorld,
+  lockAspect,
+  snapAngle,
+  defaultVia,
+  hitTest,
+  bounds,
+  distance,
+  pathDistance,
+  formatDistance,
+  resolveColor,
   renderArrowOnCanvas,
+  renderFreedrawOnCanvas,
+  renderShapeOnCanvas,
+  renderPenOnCanvas,
   renderRulerOnCanvas,
-  projectRuler,
-  hitTestRuler,
-  hitTestRulerHandle,
+  renderNoteOnCanvas,
+  renderTextOnCanvas,
 } from '../../react.js'
 
 import pkg from '../../../package.json'
 
-describe('leaflet-tual package exports', () => {
-  it('exports VERSION constant', () => {
+describe('leaflet-tual v2 package contract exports', () => {
+  it('exports VERSION constant matching package.json', () => {
     expect(VERSION).toBe(pkg.version)
+    expect(VERSION).toBe('2.0.0')
   })
 
   it('creates unique ids with prefix', () => {
@@ -43,30 +49,35 @@ describe('leaflet-tual package exports', () => {
 
   it('exports all core public components and hooks from leaflet-tual/react', () => {
     expect(LeafletTual).toBeDefined()
-    expect(TualToolbar).toBeDefined()
-    expect(InlineShapeLabelEditor).toBeDefined()
-    expect(NoteOverlay).toBeDefined()
-    expect(TextOverlay).toBeDefined()
+    expect(Toolbar).toBeDefined()
     expect(useLeafletTual).toBeDefined()
     expect(useLeafletSync).toBeDefined()
     expect(createLeafletTual).toBeDefined()
-    expect(createLeafletTualController).toBeDefined()
+    expect(emptyDoc).toBeDefined()
+    expect(parseDoc).toBeDefined()
+    expect(DocError).toBeDefined()
   })
 
   it('exports all core geometry and rendering utilities', () => {
-    expect(computeDefaultControlGeoPoint).toBeDefined()
-    expect(constrainToAspectRatio).toBeDefined()
-    expect(constrainAngleTo45Degrees).toBeDefined()
-    expect(distanceToSegment).toBeDefined()
-    expect(distanceToQuadraticBezier).toBeDefined()
-    expect(renderShapeOnCanvas).toBeDefined()
+    expect(geoToScreen).toBeDefined()
+    expect(screenToGeo).toBeDefined()
+    expect(toWorld).toBeDefined()
+    expect(fromWorld).toBeDefined()
+    expect(lockAspect).toBeDefined()
+    expect(snapAngle).toBeDefined()
+    expect(defaultVia).toBeDefined()
+    expect(hitTest).toBeDefined()
+    expect(bounds).toBeDefined()
+    expect(distance).toBeDefined()
+    expect(pathDistance).toBeDefined()
+    expect(formatDistance).toBeDefined()
+    expect(resolveColor).toBeDefined()
     expect(renderArrowOnCanvas).toBeDefined()
+    expect(renderFreedrawOnCanvas).toBeDefined()
+    expect(renderShapeOnCanvas).toBeDefined()
+    expect(renderPenOnCanvas).toBeDefined()
     expect(renderRulerOnCanvas).toBeDefined()
-    expect(projectRuler).toBeDefined()
-    expect(hitTestRuler).toBeDefined()
-    expect(hitTestRulerHandle).toBeDefined()
-    expect(calculateGeodesicDistance).toBeDefined()
-    expect(formatRealWorldDistance).toBeDefined()
-    expect(calculateLineDistance).toBeDefined()
+    expect(renderNoteOnCanvas).toBeDefined()
+    expect(renderTextOnCanvas).toBeDefined()
   })
 })

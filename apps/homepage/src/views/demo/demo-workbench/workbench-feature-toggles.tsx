@@ -5,8 +5,6 @@ interface WorkbenchFeatureTogglesProps {
   onToggleReadOnly: (val: boolean) => void
   collapsible: boolean
   onCollapsibleChange: (val: boolean) => void
-  showToolLabels: boolean
-  onShowToolLabelsChange: (val: boolean) => void
 }
 
 export function WorkbenchFeatureToggles({
@@ -14,8 +12,6 @@ export function WorkbenchFeatureToggles({
   onToggleReadOnly,
   collapsible,
   onCollapsibleChange,
-  showToolLabels,
-  onShowToolLabelsChange,
 }: WorkbenchFeatureTogglesProps) {
   return (
     <div className="flex items-center justify-between p-2.5 rounded-lg bg-bg-pane border border-border-primary text-xs font-mono shadow-2xs">
@@ -38,17 +34,6 @@ export function WorkbenchFeatureToggles({
         />
         <span>Collapsible</span>
       </label>
-      <span className="text-text-muted">•</span>
-      <label className="flex items-center gap-2 cursor-pointer text-text-secondary hover:text-text-primary">
-        <input
-          type="checkbox"
-          checked={showToolLabels}
-          onChange={(e) => onShowToolLabelsChange(e.target.checked)}
-          className="rounded border-border-primary text-accent focus:ring-accent"
-        />
-        <span>Labels</span>
-      </label>
     </div>
   )
 }
-

@@ -1,74 +1,125 @@
-import { describe, it, expect, vi } from 'vitest'
-import {
-  VERSION,
-  createLeafletTualController,
-  createLeafletTual,
-  type ArrowItem,
-} from '../../index.js'
-import pkg from '../../../package.json'
-import { createMockCanvasContext, createMockMap } from './test-utils.js'
+import { describe, it, expect } from 'vitest'
+import { createController } from '../features/controller.js'
+import type { ArrowItem } from '../types/items.js'
 
-describe('leaflet-tual core controller & vanilla instance', () => {
-  it('exports VERSION from root entry', () => {
-    expect(VERSION).toBe(pkg.version)
-    expect(createLeafletTual).toBeDefined()
-    expect(createLeafletTualController).toBeDefined()
+describe('v2 Controller state machine', () => {
+  it('initializes with default doc, selection and tool', () => {
+    const c = createController()
+    expect(c.doc.version).toBe(2)
+    expect(c.items).toEqual([])
+    expect(c.tool).toBe('select')
+    expect(c.selection).toEqual([])
+    expect(c.canUndo).toBe(false)
+    expect(c.canRedo).toBe(false)
   })
 
-  it('manages state, history, and JSON export/import without React', () => {
-    const onChange = vi.fn()
-    const controller = createLeafletTualController({ onChange })
-
-    expect(controller.items).toHaveLength(0)
-    expect(controller.activeTool).toBe('select')
-
-    const arrow: ArrowItem = {
-      id: 'arrow-1',
+  it('adds items, updates, and supports undo/redo', () => {
+    const c = createController()
+    const arrow = c.add({
       type: 'arrow',
-      arrowStyle: 'linear',
-      start: { lat: 41.0, lng: 28.9 },
-      end: { lat: 41.1, lng: 29.0 },
-      color: '#2563eb',
-      strokeWidth: 3,
-      createdAt: 1,
-    }
+      kind: 'curved',
+      from: { lat: 41, lng: 28 },
+      to: { lat: 41.1, lng: 28.1 },
+      label: 'Route',
+    })
 
-    controller.addItem(arrow)
-    controller.notifyChangeComplete(arrow)
-    expect(controller.items).toHaveLength(1)
-    expect(controller.canUndo).toBe(true)
-    expect(onChange).toHaveBeenCalled()
+    expect(c.items.length).toBe(1)
+    expect(c.items[0].id).toBe(arrow.id)
+    expect(c.canUndo).toBe(true)
 
-    controller.undo()
-    expect(controller.items).toHaveLength(0)
-    expect(controller.canRedo).toBe(true)
+    // Update item label
+    c.update(arrow.id, { label: 'Updated Route' })
+    expect((c.items[0] as ArrowItem).label).toBe('Updated Route')
 
-    controller.redo()
-    expect(controller.items).toHaveLength(1)
+    // Undo update
+    c.undo()
+    expect((c.items[0] as ArrowItem).label).toBe('Route')
 
-    const json = controller.exportJSON()
-    controller.clearAll()
-    expect(controller.items).toHaveLength(0)
+    // Undo add
+    c.undo()
+    expect(c.items.length).toBe(0)
 
-    expect(controller.importJSON(json)).toBe(true)
-    expect(controller.items).toHaveLength(1)
-    controller.destroy()
+    // Redo add
+    c.redo()
+    expect(c.items.length).toBe(1)
+    expect((c.items[0] as ArrowItem).label).toBe('Route')
   })
 
-  it('mounts and destroys a vanilla Leaflet canvas overlay', () => {
-    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
-      createMockCanvasContext() as unknown as RenderingContext,
-    )
-    const map = createMockMap()
-    const instance = createLeafletTual(map)
+  it('manages pages (add, rename, duplicate, remove, select)', () => {
+    const c = createController()
+    const initialPageId = c.pages.active
+    expect(c.pages.list.length).toBe(1)
 
-    expect(instance.container.getAttribute('data-tual-overlay')).toBe('true')
-    expect(map.getContainer().contains(instance.container)).toBe(true)
+    // Add page
+    const page2Id = c.pages.add('Phase 2')
+    expect(c.pages.list.length).toBe(2)
+    expect(c.pages.active).toBe(page2Id)
 
-    instance.controller.setTool('arrow-curved')
-    expect(instance.controller.activeTool).toBe('arrow-curved')
+    // Rename
+    c.pages.rename(page2Id, 'Phase 2 · Routes')
+    expect(c.pages.list.find((p) => p.id === page2Id)?.name).toBe('Phase 2 · Routes')
 
-    instance.destroy()
-    expect(map.getContainer().contains(instance.container)).toBe(false)
+    // Select page 1
+    c.pages.select(initialPageId)
+    expect(c.pages.active).toBe(initialPageId)
+
+    // Remove page 2
+    c.pages.remove(page2Id)
+    expect(c.pages.list.length).toBe(1)
+
+    // Cannot remove last remaining page
+    c.pages.remove(initialPageId)
+    expect(c.pages.list.length).toBe(1)
+  })
+
+  it('uses the ink (black) color for newly created items by default', () => {
+    const c = createController()
+    expect(c.style.color).toBe('ink')
+
+    const shape = c.add({
+      type: 'shape',
+      kind: 'square',
+      from: { lat: 41, lng: 28 },
+      to: { lat: 41.1, lng: 28.1 },
+    })
+    expect(shape.style?.color).toBe('ink')
+  })
+
+  it('selection-aware setStyle modifies selected items', () => {
+    const c = createController()
+    const item = c.add({
+      type: 'freedraw',
+      points: [
+        { lat: 41, lng: 28 },
+        { lat: 41.1, lng: 28.1 },
+      ],
+    })
+
+    c.select(item.id)
+    expect(c.selection).toEqual([item.id])
+
+    c.setStyle({ color: 'blue', width: 'l' })
+    expect(c.items[0].style?.color).toBe('blue')
+    expect(c.items[0].style?.width).toBe('l')
+  })
+
+  it('remembers the last-used variant for shape and arrow tools', () => {
+    const c = createController()
+
+    c.setTool('shape', 'circle')
+    c.setTool('select')
+    c.setTool('shape')
+    expect(c.variant).toBe('circle')
+
+    c.setTool('arrow', 'curved')
+    c.setTool('shape')
+    expect(c.variant).toBe('circle')
+
+    c.setTool('arrow')
+    expect(c.variant).toBe('curved')
+
+    // Other tools never carry a variant.
+    c.setTool('pen')
+    expect(c.variant).toBeNull()
   })
 })

@@ -1,105 +1,172 @@
 import type {
-  ArrowStyle,
-  TualItem,
-  TualTool,
-  GeoPoint,
+  ArrowKind,
+  Doc,
+  Item,
+  NewItem,
   ShapeKind,
+  Style,
 } from './items.js'
+import type { Theme, Tokens } from './theme.js'
 
-export interface DraftArrowState {
-  arrowStyle: ArrowStyle
-  startGeo: GeoPoint
-  currentGeo: GeoPoint
+/** Tools grouped under the toolbar's Draw dropdown. */
+export type DrawKind = 'freedraw' | 'pen'
+
+export type ToolId =
+  | 'select'
+  | 'text'
+  | 'note'
+  | DrawKind
+  | 'arrow'
+  | 'shape'
+  | 'ruler'
+
+export type ChangeReason =
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'reorder'
+  | 'page'
+  | 'load'
+  | 'undo'
+  | 'redo'
+
+export type ChangeInfo = {
+  reason: ChangeReason
+  ids: string[]
+  committed: boolean
 }
 
-export interface DraftShapeState {
-  shape: ShapeKind
-  startGeo: GeoPoint
-  currentGeo: GeoPoint
+export interface ControllerPages {
+  readonly list: { id: string; name: string }[]
+  readonly active: string
+  add(name?: string): string
+  rename(id: string, name: string): void
+  duplicate(id: string): string
+  remove(id: string): void
+  move(id: string, toIndex: number): void
+  select(id: string): void
 }
 
-export interface DraftRulerState {
-  startGeo: GeoPoint
-  currentGeo: GeoPoint
+export interface Controller {
+  readonly doc: Doc
+  readonly items: Item[]
+  readonly tool: ToolId
+  readonly variant: string | null
+  readonly style: Style
+  readonly selection: string[]
+  readonly selected: Item[]
+  readonly scheme: 'light' | 'dark'
+  readonly readOnly: boolean
+  readonly canUndo: boolean
+  readonly canRedo: boolean
+  readonly editingId: string | null
+
+  readonly pages: ControllerPages
+
+  setTool(tool: ToolId, variant?: string | null): void
+  setStyle(patch: Partial<Style>): void
+  add(item: NewItem): Item
+  update(id: string, patch: Partial<Item>, committed?: boolean): void
+  remove(ids?: string | string[]): void
+  clear(): void
+  select(ids: string[] | string | null): void
+  edit(id: string | null): void
+  undo(): void
+  redo(): void
+  fit(target: 'all' | 'selection' | string): void
+  load(doc: Doc): void
+  setReadOnly(v: boolean): void
+  on(
+    event: 'change' | 'select' | 'tool' | 'page' | 'state',
+    handler: (...args: any[]) => void,
+  ): () => void
 }
 
-export interface TualOverlayOptions {
-  interactive?: boolean
-  readOnly?: boolean
-  zIndex?: number
-  defaultColor?: string
-  defaultStrokeWidth?: number
-  defaultNoteColor?: string
-  defaultFontSize?: number
-  defaultShape?: ShapeKind
+export interface ToolbarAction {
+  id: string
+  label: string
+  title?: string
+  icon?: any
+  onClick?: () => void
+  run?: (controller: Controller) => void
+  active?: boolean
+  disabled?: boolean
 }
 
-export interface UseLeafletTualOptions extends TualOverlayOptions {
-  initialItems?: TualItem[]
-  items?: TualItem[]
+export interface ToolbarOptions {
+  position?:
+    | 'top-left'
+    | 'top'
+    | 'top-right'
+    | 'left'
+    | 'right'
+    | 'bottom-left'
+    | 'bottom'
+    | 'bottom-right'
+  orientation?: 'horizontal' | 'vertical'
+  tools?: ToolId[]
+  variants?: {
+    arrow?: ArrowKind[]
+    shape?: ShapeKind[]
+    draw?: DrawKind[]
+  }
+  pages?: boolean
+  history?: boolean
+  zoom?: boolean
+  collapsible?: boolean
+  collapsed?: boolean
+  onCollapsedChange?: (collapsed: boolean) => void
+  actions?: ToolbarAction[]
+}
+
+export interface Labels {
+  select: string
+  text: string
+  note: string
+  draw: string
+  freedraw: string
+  pen: string
+  arrow: string
+  shape: string
+  ruler: string
+  undo: string
+  redo: string
+  page: string
+  addPage: string
+  deletePage: string
+  renamePage: string
+  duplicatePage: string
+  color: string
+  strokeWidth: string
+  dash: string
+  fill: string
+  size: string
+  weight: string
+  align: string
+  collapse: string
+  expand: string
+  fit: string
+  placeholderNote: string
+  placeholderText: string
+  placeholderTitle: string
+  [key: string]: string
+}
+
+export interface CreateLeafletTualOptions {
+  defaultValue?: Doc
+  value?: Doc
+  onChange?: (doc: Doc, info: ChangeInfo) => void
+  onSelect?: (items: Item[]) => void
+  onToolChange?: (tool: ToolId, variant: string | null) => void
   maxHistory?: number
-  onItemsChange?: (items: TualItem[]) => void
-  onChange?: (items: TualItem[]) => void
-  onChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void
-  onItemsChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void
-  onEditEnd?: (items: TualItem[], targetItem?: TualItem | null) => void
-  onEditComplete?: (items: TualItem[], targetItem?: TualItem | null) => void
-  onItemSelect?: (item: TualItem | null) => void
-  onItemCreate?: (item: TualItem) => void
-  onItemChange?: (item: TualItem) => void
-  onItemDelete?: (id: string) => void
-  onItemChangeComplete?: (item: TualItem) => void
-  initialTool?: TualTool
-  onToolChange?: (tool: TualTool) => void
+  readOnly?: boolean
+  tool?: ToolId
+  variant?: string | null
+  style?: Partial<Style>
+  theme?: Theme
+  tokens?: Partial<Tokens>
+  toolbar?: false | ToolbarOptions
+  labels?: Partial<Labels>
+  collapseBelowZoom?: { notes?: number; text?: number }
+  zIndex?: number
 }
-
-export type LeafletTualOptions = UseLeafletTualOptions
-
-export interface LeafletTualController {
-  items: TualItem[]
-  activeTool: TualTool
-  setActiveTool: (tool: TualTool) => void
-  readOnly: boolean
-  setReadOnly: (readOnly: boolean) => void
-  activeShape: ShapeKind
-  setActiveShape: (shape: ShapeKind) => void
-  shapeFilled: boolean
-  setShapeFilled: (filled: boolean) => void
-  selectedId: string | null
-  setSelectedId: (id: string | null) => void
-  selectedItem: TualItem | null
-  isEditingLabel?: boolean
-  setEditingLabel?: (editing: boolean) => void
-  labelEditMode?: boolean
-  setLabelEditMode?: (editing: boolean) => void
-  activeColor: string
-  setActiveColor: (color: string) => void
-  strokeWidth: number
-  setStrokeWidth: (width: number) => void
-  dashed: boolean
-  setDashed: (dashed: boolean) => void
-  noteColor: string
-  setNoteColor: (color: string) => void
-  fontSize: number
-  setFontSize: (size: number) => void
-  fontWeight: 'normal' | 'bold'
-  setFontWeight: (weight: 'normal' | 'bold') => void
-  addItem: (item: TualItem) => void
-  updateItem: (id: string, patch: Partial<TualItem>) => void
-  removeItem: (id: string) => void
-  deleteSelected: () => void
-  clearAll: () => void
-  clear: () => void
-  deleteItem: (id: string) => void
-  setTool: (tool: TualTool) => void
-  selectItem: (id: string | null) => void
-  undo: () => void
-  redo: () => void
-  canUndo: boolean
-  canRedo: boolean
-  notifyChangeComplete: (targetItem?: TualItem | null) => void
-  exportJSON: () => string
-  importJSON: (json: string) => boolean
-}
-
-

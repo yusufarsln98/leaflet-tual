@@ -1,479 +1,188 @@
 import type L from 'leaflet'
-import type {
-  ArrowItem,
-  ArrowRenderTheme,
-  TualAnnotationTheme,
-  TualLabels,
-  DraftArrowState,
-  DraftRulerState,
-  DraftShapeState,
-  FreeDrawItem,
-  GeoPoint,
-  RulerItem,
-  ScreenPoint,
-  ShapeItem,
-  UseLeafletTualOptions,
-} from '../types/index.js'
-import {
-  constrainAngleTo45Degrees,
-  geoToScreen,
-  screenToGeo,
-  TOOL_TO_ARROW_STYLE,
-} from '../shared/index.js'
-import {
-  hitTestArrow,
-  hitTestArrowHandle,
-  hitTestFreeDraw,
-  hitTestRuler,
-  hitTestRulerHandle,
-  hitTestShape,
-  hitTestShapeHandle,
-  projectArrow,
-  projectFreeDraw,
-  projectRuler,
-  projectShape,
-} from '../entities/index.js'
-import {
-  buildArrowItem,
-  createDraftNote,
-  createDraftText,
-  startArrowDrag,
-  startFreeDrawDrag,
-  startRulerDrag,
-  startShapeDrag,
-} from './drawing-drag-handlers.js'
-import {
-  startArrowBodyDrag,
-  startArrowHandleDrag,
-  startFreeDrawBodyDrag,
-  startRulerBodyDrag,
-  startRulerHandleDrag,
-  startShapeBodyDrag,
-  startShapeHandleDrag,
-} from './select-drag-handlers.js'
-import { paintLeafletTual } from './tual-painter.js'
-import { bindBlockMapDblClick, bindLeafletSync } from './map-sync.js'
-import {
-  createLeafletTualController,
-  type LeafletTualStore,
-} from './tual-controller.js'
+import type { Controller, CreateLeafletTualOptions } from '../types/index.js'
+import { createController } from './controller.js'
+import { drawVanillaScene, type VanillaGesture } from './vanilla-drawing.js'
+import { createVanillaGestures } from './vanilla-gestures.js'
 
-export interface CreateLeafletTualOptions extends UseLeafletTualOptions {
-  controller?: LeafletTualStore
-  annotationTheme?: TualAnnotationTheme
-  arrowTheme?: ArrowRenderTheme
-  labels?: TualLabels
-}
-
-export interface LeafletTualInstance {
-  controller: LeafletTualStore
-  container: HTMLDivElement
-  canvas: HTMLCanvasElement
-  repaint: () => void
-  destroy: () => void
+export interface VanillaLeafletTual extends Controller {
+  destroy(): void
 }
 
 export function createLeafletTual(
   map: L.Map,
   options: CreateLeafletTualOptions = {},
-): LeafletTualInstance {
-  const {
-    controller: externalController,
-    annotationTheme,
-    arrowTheme,
-    labels,
-    zIndex = 650,
-    ...controllerOptions
-  } = options
-
-  const controller = externalController ?? createLeafletTualController(controllerOptions)
-  const mapContainer = map.getContainer()
+): VanillaLeafletTual {
+  const controller = createController(options, () => map)
 
   const container = document.createElement('div')
-  container.setAttribute('data-tual-overlay', 'true')
-  container.style.position = 'absolute'
-  container.style.inset = '0'
-  container.style.pointerEvents = 'none'
-  container.style.zIndex = String(zIndex)
-  container.style.overflow = 'hidden'
+  container.className = 'tual tual-container'
+  if (options.zIndex !== undefined) container.style.zIndex = `${options.zIndex}`
+  else container.style.zIndex = '650'
 
   const canvas = document.createElement('canvas')
-  canvas.style.position = 'absolute'
-  canvas.style.top = '0'
-  canvas.style.left = '0'
-  canvas.style.pointerEvents = 'none'
-
-  const drawingSurface = document.createElement('div')
-  drawingSurface.style.position = 'absolute'
-  drawingSurface.style.inset = '0'
-  drawingSurface.style.pointerEvents = 'none'
-
+  canvas.className = 'tual-canvas'
   container.appendChild(canvas)
-  container.appendChild(drawingSurface)
-  mapContainer.appendChild(container)
+  map.getContainer().appendChild(container)
 
-  let viewport = { width: 0, height: 0 }
-  let draftArrow: DraftArrowState | null = null
-  let draftShape: DraftShapeState | null = null
-  let draftRuler: DraftRulerState | null = null
-  const draftFreeDrawRef: {
-    current: { screenPoints: ScreenPoint[]; geoPoints: GeoPoint[] } | null
-  } = { current: null }
-  const rafIdRef: { current: number | null } = { current: null }
-
-  const setDraftArrow = (next: DraftArrowState | null) => {
-    draftArrow = next
-    repaint()
-  }
-
-  const setDraftShape = (next: DraftShapeState | null) => {
-    draftShape = next
-    repaint()
-  }
-
-  const setDraftRuler = (next: DraftRulerState | null) => {
-    draftRuler = next
-    repaint()
-  }
-
-  const clearDraftFreeDraw = () => {
-    draftFreeDrawRef.current = null
-    if (rafIdRef.current !== null && typeof window !== 'undefined') {
-      window.cancelAnimationFrame(rafIdRef.current)
-      rafIdRef.current = null
-    }
-  }
-
-  const updateSurfaceInteractivity = () => {
-    const isDrawing = !controller.readOnly && controller.activeTool !== 'select'
-    drawingSurface.style.pointerEvents = isDrawing ? 'auto' : 'none'
-    drawingSurface.style.cursor = isDrawing ? 'crosshair' : 'default'
-    canvas.style.width = `${viewport.width}px`
-    canvas.style.height = `${viewport.height}px`
-  }
-
-  const repaint = () => {
-    updateSurfaceInteractivity()
-    const items = controller.items
-    paintLeafletTual({
-      map,
-      canvas,
-      width: viewport.width,
-      height: viewport.height,
-      arrowItems: items.filter((it): it is ArrowItem => it.type === 'arrow'),
-      shapeItems: items.filter((it): it is ShapeItem => it.type === 'shape'),
-      freeDrawItems: items.filter((it): it is FreeDrawItem => it.type === 'freedraw'),
-      rulerItems: items.filter((it): it is RulerItem => it.type === 'ruler'),
-      selectedId: controller.selectedId,
-      draftShape,
-      draftArrow,
-      draftRuler,
-      draftFreeDraw: draftFreeDrawRef.current,
-      activeColor: controller.activeColor,
-      strokeWidth: controller.strokeWidth,
-      dashed: controller.dashed,
-      shapeFilled: controller.shapeFilled,
-      annotationTheme,
-      arrowTheme,
-      isReadOnly: controller.readOnly,
+  let systemDark = false
+  let mediaQuery: MediaQueryList | null = null
+  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+    mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    systemDark = mediaQuery.matches ?? false
+    mediaQuery.addEventListener?.('change', (e) => {
+      systemDark = e.matches
+      updateTheme()
     })
   }
 
-  const getLocalPoint = (e: PointerEvent | MouseEvent): ScreenPoint => {
-    const rect = mapContainer.getBoundingClientRect()
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top }
+  function resolveCurrentScheme(): 'light' | 'dark' {
+    if (options.theme === 'dark') return 'dark'
+    if (options.theme === 'light') return 'light'
+    return systemDark ? 'dark' : 'light'
   }
 
-  const handleSurfacePointerDown = (e: PointerEvent) => {
-    if (e.button !== 0 || controller.readOnly) return
-    e.stopPropagation()
-    e.preventDefault()
+  let resolvedScheme = resolveCurrentScheme()
 
-    const pt = getLocalPoint(e)
-    const geo = screenToGeo(map, pt)
-    const { activeTool, activeShape, shapeFilled, activeColor, strokeWidth, dashed, noteColor, fontSize, fontWeight } =
-      controller
+  function updateTheme() {
+    resolvedScheme = resolveCurrentScheme()
+    container.setAttribute('data-theme', resolvedScheme)
+    ;(controller as any)._setScheme(resolvedScheme)
+    redraw()
+  }
 
-    if (activeTool === 'freedraw') {
-      startFreeDrawDrag(
-        map,
-        mapContainer,
-        pt,
-        geo,
-        activeColor,
-        strokeWidth,
-        dashed,
-        draftFreeDrawRef,
-        rafIdRef,
-        repaint,
-        controller.addItem,
-        controller.setActiveTool,
-      )
-      return
-    }
-
-    if (activeTool === 'shape') {
-      startShapeDrag(
-        map,
-        mapContainer,
-        pt,
-        geo,
-        activeShape,
-        activeColor,
-        shapeFilled,
-        strokeWidth,
-        dashed,
-        setDraftShape,
-        controller.addItem,
-        controller.setActiveTool,
-      )
-      return
-    }
-
-    if (activeTool === 'note') {
-      controller.addItem(createDraftNote(geo, noteColor, labels?.noteDefaultTitle ?? 'Field Note'))
-      controller.setActiveTool('select')
-      return
-    }
-
-    if (activeTool === 'text') {
-      controller.addItem(
-        createDraftText(geo, activeColor, fontSize, fontWeight, map.getZoom?.() ?? 14),
-      )
-      controller.setActiveTool('select')
-      return
-    }
-
-    if (activeTool === 'ruler') {
-      startRulerDrag(
-        map,
-        mapContainer,
-        pt,
-        geo,
-        activeColor,
-        strokeWidth,
-        dashed,
-        setDraftRuler,
-        controller.addItem,
-        controller.setActiveTool,
-      )
-      return
-    }
-
-    const arrowStyle = TOOL_TO_ARROW_STYLE[activeTool]
-    if (!arrowStyle) return
-
-    if (!draftArrow) {
-      startArrowDrag(
-        map,
-        mapContainer,
-        pt,
-        geo,
-        arrowStyle,
-        activeColor,
-        strokeWidth,
-        dashed,
-        setDraftArrow,
-        controller.addItem,
-        controller.setActiveTool,
-      )
+  function updateMapInteractions() {
+    const isDrawingTool = controller.tool !== 'select'
+    if (isDrawingTool && !controller.readOnly) {
+      map.dragging.disable()
+      map.doubleClickZoom.disable()
+      canvas.style.cursor = 'crosshair'
     } else {
-      const startScreen = geoToScreen(map, draftArrow.startGeo)
-      const endScreen = e.shiftKey ? constrainAngleTo45Degrees(startScreen, pt) : pt
-      if (Math.hypot(endScreen.x - startScreen.x, endScreen.y - startScreen.y) >= 4) {
-        controller.addItem(
-          buildArrowItem(
-            draftArrow.arrowStyle,
-            draftArrow.startGeo,
-            screenToGeo(map, endScreen),
-            activeColor,
-            strokeWidth,
-            dashed,
-          ),
-        )
-      }
-      setDraftArrow(null)
-      controller.setActiveTool('select')
+      map.dragging.enable()
+      map.doubleClickZoom.enable()
+      canvas.style.cursor = 'default'
     }
+
+    // Shift is used by the annotation layer for aspect locks, angle snapping
+    // and resizing. Keep Leaflet's Shift+drag box zoom out of the way.
+    if (controller.readOnly) map.boxZoom.enable()
+    else map.boxZoom.disable()
   }
 
-  const handleSurfacePointerMove = (e: PointerEvent) => {
-    if (!draftArrow) return
-    const rawPt = getLocalPoint(e)
-    const startScreen = geoToScreen(map, draftArrow.startGeo)
-    const nextPt = e.shiftKey ? constrainAngleTo45Degrees(startScreen, rawPt) : rawPt
-    setDraftArrow({ ...draftArrow, currentGeo: screenToGeo(map, nextPt) })
+  let activeGesture: VanillaGesture | null = null
+  let isShiftPressed = false
+
+  function redraw() {
+    drawVanillaScene(
+      canvas,
+      map,
+      controller,
+      resolvedScheme,
+      activeGesture,
+      isShiftPressed,
+      options.tokens,
+    )
   }
 
-  const handleContainerPointerDown = (e: PointerEvent) => {
-    if (e.button !== 0 || controller.readOnly || controller.activeTool !== 'select') return
-    const target = e.target as HTMLElement | null
-    if (target?.closest('[data-tual-toolbar], [data-tual-note], [data-tual-text], .leaflet-control')) {
-      return
-    }
+  const gestures = createVanillaGestures({
+    canvas,
+    map,
+    controller,
+    getActiveGesture: () => activeGesture,
+    setActiveGesture: (g) => { activeGesture = g },
+    getShift: () => isShiftPressed,
+    setShift: (s) => { isShiftPressed = s },
+    redraw,
+  })
 
-    const pt = getLocalPoint(e)
-    const items = controller.items
-    const arrowItems = items.filter((it): it is ArrowItem => it.type === 'arrow')
-    const shapeItems = items.filter((it): it is ShapeItem => it.type === 'shape')
-    const freeDrawItems = items.filter((it): it is FreeDrawItem => it.type === 'freedraw')
-    const rulerItems = items.filter((it): it is RulerItem => it.type === 'ruler')
-    const selectedId = controller.selectedId
-
-    const selectedArrow = arrowItems.find((a) => a.id === selectedId)
-    if (selectedArrow) {
-      const projected = projectArrow(map, selectedArrow)
-      const handle = hitTestArrowHandle(pt, projected, selectedArrow)
-      if (handle) {
-        e.stopPropagation()
-        e.preventDefault()
-        startArrowHandleDrag(map, selectedArrow, projected, handle, getLocalPoint, controller.updateItem)
-        return
-      }
-    }
-
-    const selectedShape = shapeItems.find((s) => s.id === selectedId)
-    if (selectedShape) {
-      const projected = projectShape(map, selectedShape)
-      const handle = hitTestShapeHandle(pt, projected)
-      if (handle) {
-        e.stopPropagation()
-        e.preventDefault()
-        startShapeHandleDrag(map, selectedShape, projected, handle, getLocalPoint, controller.updateItem)
-        return
-      }
-    }
-
-    const selectedRuler = rulerItems.find((r) => r.id === selectedId)
-    if (selectedRuler) {
-      const projected = projectRuler(map, selectedRuler)
-      const handle = hitTestRulerHandle(pt, projected)
-      if (handle) {
-        e.stopPropagation()
-        e.preventDefault()
-        startRulerHandleDrag(map, selectedRuler, projected, handle, getLocalPoint, controller.updateItem)
-        return
-      }
-    }
-
-    for (let i = arrowItems.length - 1; i >= 0; i -= 1) {
-      const arrow = arrowItems[i]
-      const projected = projectArrow(map, arrow)
-      if (hitTestArrow(pt, projected, arrow)) {
-        e.stopPropagation()
-        e.preventDefault()
-        controller.setSelectedId(arrow.id)
-        startArrowBodyDrag(map, arrow, projected, pt, getLocalPoint, controller.updateItem)
-        return
-      }
-    }
-
-    for (let i = shapeItems.length - 1; i >= 0; i -= 1) {
-      const shp = shapeItems[i]
-      const projected = projectShape(map, shp)
-      if (hitTestShape(pt, projected)) {
-        e.stopPropagation()
-        e.preventDefault()
-        controller.setSelectedId(shp.id)
-        startShapeBodyDrag(map, shp, projected, pt, getLocalPoint, controller.updateItem)
-        return
-      }
-    }
-
-    for (let i = freeDrawItems.length - 1; i >= 0; i -= 1) {
-      const fd = freeDrawItems[i]
-      const initialScreenPts = projectFreeDraw(map, fd)
-      if (hitTestFreeDraw(pt, initialScreenPts, fd)) {
-        e.stopPropagation()
-        e.preventDefault()
-        controller.setSelectedId(fd.id)
-        startFreeDrawBodyDrag(map, fd, initialScreenPts, pt, getLocalPoint, controller.updateItem)
-        return
-      }
-    }
-
-    for (let i = rulerItems.length - 1; i >= 0; i -= 1) {
-      const ruler = rulerItems[i]
-      const projected = projectRuler(map, ruler)
-      if (hitTestRuler(pt, projected, ruler)) {
-        e.stopPropagation()
-        e.preventDefault()
-        controller.setSelectedId(ruler.id)
-        startRulerBodyDrag(map, ruler, projected, pt, getLocalPoint, controller.updateItem)
-        return
-      }
-    }
-
-    if (selectedId) {
-      controller.setSelectedId(null)
-      controller.notifyChangeComplete()
-    }
-  }
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (controller.readOnly) return
-    const target = e.target as HTMLElement | null
+  function onKeyDown(e: KeyboardEvent) {
     if (
-      target &&
-      (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      document.activeElement?.tagName === 'INPUT' ||
+      document.activeElement?.tagName === 'TEXTAREA' ||
+      (document.activeElement as HTMLElement)?.isContentEditable
     ) {
       return
     }
-    if (e.key === 'Escape') {
-      draftArrow = null
-      draftShape = null
-      draftRuler = null
-      clearDraftFreeDraw()
-      controller.setSelectedId(null)
-      controller.setActiveTool('select')
-      controller.notifyChangeComplete()
-      repaint()
-    } else if ((e.key === 'Delete' || e.key === 'Backspace') && controller.selectedId) {
+
+    const key = e.key.toUpperCase()
+    const isMeta = e.metaKey || e.ctrlKey
+
+    if (isMeta && key === 'Z') {
       e.preventDefault()
-      controller.deleteSelected()
+      if (e.shiftKey) controller.redo()
+      else controller.undo()
+      return
+    }
+    if (isMeta && key === 'Y') {
+      e.preventDefault()
+      controller.redo()
+      return
+    }
+    if (e.key === 'Enter' && controller.tool === 'pen') {
+      e.preventDefault()
+      gestures.finishPen(false)
+      return
+    }
+    if (e.key === 'Escape') {
+      activeGesture = null
+      controller.select(null)
+      controller.setTool('select')
+      return
+    }
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (controller.selection.length > 0) {
+        e.preventDefault()
+        controller.remove()
+      }
+      return
+    }
+
+    switch (key) {
+      case 'V': controller.setTool('select'); break
+      case 'T': controller.setTool('text'); break
+      case 'N': controller.setTool('note'); break
+      case 'F': controller.setTool('freedraw'); break
+      case 'P': controller.setTool('pen'); break
+      case 'L': controller.setTool('arrow'); break
+      case 'S': controller.setTool('shape'); break
+      case 'R': controller.setTool('ruler'); break
     }
   }
 
-  drawingSurface.addEventListener('pointerdown', handleSurfacePointerDown)
-  drawingSurface.addEventListener('pointermove', handleSurfacePointerMove)
-  mapContainer.addEventListener('pointerdown', handleContainerPointerDown, { capture: true })
-  if (typeof window !== 'undefined') {
-    window.addEventListener('keydown', handleKeyDown)
-  }
+  updateMapInteractions()
+  updateTheme()
+  redraw()
 
-  const unbindSync = bindLeafletSync(map, (dims) => {
-    viewport = dims
-    repaint()
+  const mapHandler = () => redraw()
+  map.on('move zoom viewreset resize', mapHandler)
+
+  canvas.addEventListener('mousedown', gestures.onPointerDown)
+  window.addEventListener('mousemove', gestures.onPointerMove)
+  window.addEventListener('mouseup', gestures.onPointerUp)
+  canvas.addEventListener('touchstart', gestures.onPointerDown, { passive: true })
+  window.addEventListener('touchmove', gestures.onPointerMove, { passive: true })
+  window.addEventListener('touchend', gestures.onPointerUp, { passive: true })
+  window.addEventListener('keydown', onKeyDown)
+
+  const unlistenState = controller.on('state', () => {
+    updateMapInteractions()
+    redraw()
   })
-  const unbindDblClick = bindBlockMapDblClick(map)
-  const unsubscribeController = controller.subscribe(() => {
-    repaint()
-  })
 
-  repaint()
-
-  return {
-    controller,
-    container,
-    canvas,
-    repaint,
+  return Object.assign(controller, {
     destroy() {
-      drawingSurface.removeEventListener('pointerdown', handleSurfacePointerDown)
-      drawingSurface.removeEventListener('pointermove', handleSurfacePointerMove)
-      mapContainer.removeEventListener('pointerdown', handleContainerPointerDown, { capture: true })
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('keydown', handleKeyDown)
-      }
-      clearDraftFreeDraw()
-      unbindSync()
-      unbindDblClick()
-      unsubscribeController()
-      if (!externalController) {
-        controller.destroy()
-      }
+      unlistenState()
       container.remove()
+      map.off('move zoom viewreset resize', mapHandler)
+      canvas.removeEventListener('mousedown', gestures.onPointerDown)
+      window.removeEventListener('mousemove', gestures.onPointerMove)
+      window.removeEventListener('mouseup', gestures.onPointerUp)
+      canvas.removeEventListener('touchstart', gestures.onPointerDown)
+      window.removeEventListener('touchmove', gestures.onPointerMove)
+      window.removeEventListener('touchend', gestures.onPointerUp)
+      window.removeEventListener('keydown', onKeyDown)
+      map.dragging.enable()
+      map.doubleClickZoom.enable()
+      map.boxZoom.enable()
     },
-  }
+  })
 }
-
-

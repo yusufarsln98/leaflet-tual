@@ -1,141 +1,165 @@
-export type GeoPoint = {
-  lat: number
-  lng: number
+import type { GeoPoint } from './geo.js'
+
+export type ColorName =
+  'ink' | 'gray' | 'taupe' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'pink'
+
+export type FontSizeName = 's' | 'm' | 'l' | 'xl'
+
+export type FontWeight =
+  | 'regular'
+  | 'medium'
+  | 'semibold'
+  | 'bold'
+  | 'black'
+  | number
+
+export interface Style {
+  color?: ColorName
+  fillColor?: ColorName
+  textColor?: ColorName
+  strokeColor?: ColorName
+  width?: 's' | 'm' | 'l' | number
+  dash?: 'solid' | 'dashed' | 'dotted' | 'none'
+  fill?: 'none' | 'tint' | 'solid'
+  size?: FontSizeName | number
+  fontSize?: number
+  weight?: FontWeight
+  fontStyle?: 'normal' | 'italic'
+  align?: 'left' | 'center' | 'right'
+  radius?: number
 }
 
-export type ScreenPoint = {
-  x: number
-  y: number
+export interface Base {
+  id: string
+  style?: Style
+  locked?: boolean
+  meta?: Record<string, unknown>
+  baseZoom?: number
+  readonly createdAt: number
 }
 
-export type ArrowStyle = 'linear' | 'curved' | 'bi' | 'elbow' | 's-curve'
+export type ArrowKind = 'linear' | 'curved' | 'elbow' | 's-curve'
+export type Head = 'triangle' | 'open' | 'none'
 
 export type ShapeKind =
-  | 'square'
-  | 'circle'
-  | 'star'
-  | 'actor'
-  | 'triangle'
-  | 'diamond'
-  | 'hexagon'
-  | 'marker'
+  'square' | 'circle' | 'star' | 'actor' | 'triangle' | 'diamond' | 'hexagon' | 'marker'
 
-export type TualTool =
-  | 'select'
-  | 'freedraw'
-  | 'arrow-linear'
-  | 'arrow-curved'
-  | 'arrow-bi'
-  | 'arrow-elbow'
-  | 'arrow-s-curve'
-  | 'shape'
-  | 'ruler'
-  | 'note'
-  | 'text'
-
-export type ToolbarToolGroupId =
-  | 'select'
-  | 'freedraw'
-  | 'arrow'
-  | 'shape'
-  | 'ruler'
-  | 'note'
-  | 'text'
-
-export type ArrowHeadStyle = 'triangle' | 'open' | 'both' | 'none'
-
-export interface ArrowItem {
-  id: string
+export interface ArrowItem extends Base {
   type: 'arrow'
-  arrowStyle: ArrowStyle
-  start: GeoPoint
-  end: GeoPoint
-  controlPoint?: GeoPoint
-  color: string
-  strokeWidth: number
-  dashed?: boolean
-  headStyle?: ArrowHeadStyle
+  kind: ArrowKind
+  from: GeoPoint
+  to: GeoPoint
+  via?: GeoPoint
+  heads?: { start?: Head; end?: Head }
   label?: string
-  labelMode?: boolean
-  hasLabelMode?: boolean
-  createdAt: number
 }
 
-export interface FreeDrawItem {
-  id: string
+export interface ShapeItem extends Base {
+  type: 'shape'
+  kind: ShapeKind
+  from: GeoPoint
+  to: GeoPoint
+  label?: string
+  labelPosition?: LabelPosition
+}
+
+/** Where the label pill sits relative to the shape's bounding box. */
+export type LabelPosition = 'top' | 'center' | 'bottom'
+
+/**
+ * A freehand stroke recorded from pointer samples.
+ *
+ * Kept as its own item type so it stays independent from the bezier
+ * {@link PenItem}. Documents created before the pen tool existed used
+ * `type: 'pen'` for this shape; `parseDoc` migrates those automatically.
+ */
+export interface FreedrawItem extends Base {
   type: 'freedraw'
   points: GeoPoint[]
-  color: string
-  strokeWidth: number
-  dashed?: boolean
-  createdAt: number
 }
 
-export interface ShapeItem {
-  id: string
-  type: 'shape'
-  shape: ShapeKind
-  start: GeoPoint
-  end: GeoPoint
-  color: string
-  fillColor?: string
-  filled?: boolean
-  strokeWidth: number
-  dashed?: boolean
+/**
+ * One anchor of a bezier pen path.
+ *
+ * `at` is the anchor itself. `in` and `out` are absolute geographic control
+ * points for the incoming and outgoing cubic segments. When they are omitted
+ * the segment is a straight line.
+ */
+export interface PenPoint {
+  at: GeoPoint
+  in?: GeoPoint
+  out?: GeoPoint
+}
+
+/** A bezier path created with the pen tool (click to add anchors, drag for curves). */
+export interface PenItem extends Base {
+  type: 'pen'
+  points: PenPoint[]
+  closed?: boolean
+}
+
+export interface RulerItem extends Base {
+  type: 'ruler'
+  from: GeoPoint
+  to: GeoPoint
+  unit?: 'metric' | 'imperial'
   label?: string
-  labelMode?: boolean
-  hasLabelMode?: boolean
-  createdAt: number
 }
 
-export type NoteCollapseState = 'expanded' | 'collapsed' | 'compact'
-
-export interface NoteItem {
-  id: string
+export interface ScaledNoteItem extends Base {
   type: 'note'
-  position: GeoPoint
-  title?: string
-  text: string
-  backgroundColor: string
-  textColor: string
+  from: GeoPoint
+  to: GeoPoint
+  at?: GeoPoint
   width?: number
   height?: number
-  minimized?: boolean | 'compact'
-  collapseState?: NoteCollapseState
-  createdAt: number
-}
-
-export interface TextItem {
-  id: string
-  type: 'text'
-  position: GeoPoint
   text: string
-  color: string
-  initialFontSize?: number
-  baseZoom?: number
-  fontWeight?: 'normal' | 'bold'
-  backgroundColor?: string
-  createdAt: number
+  title?: string
 }
 
-export interface RulerItem {
-  id: string
-  type: 'ruler'
-  start: GeoPoint
-  end: GeoPoint
-  color: string
-  strokeWidth: number
-  dashed?: boolean
-  label?: string
-  unit?: 'metric' | 'imperial'
-  createdAt: number
+export interface PinnedNoteItem extends Base {
+  type: 'note'
+  at: GeoPoint
+  width?: number
+  height?: number
+  from?: GeoPoint
+  to?: GeoPoint
+  text: string
+  title?: string
 }
 
-export type TualItem =
+export type NoteItem = ScaledNoteItem | PinnedNoteItem
+
+export interface TextItem extends Base {
+  type: 'text'
+  at: GeoPoint
+  text: string
+}
+
+export type Item =
   | ArrowItem
-  | FreeDrawItem
   | ShapeItem
+  | FreedrawItem
+  | PenItem
+  | RulerItem
   | NoteItem
   | TextItem
-  | RulerItem
 
+export type DistributiveOmit<T, K extends keyof any> = T extends any ? Omit<T, K> : never
+
+export type NewItem = DistributiveOmit<Item, 'id' | 'createdAt'> & {
+  id?: string
+}
+
+export interface Page {
+  id: string
+  name: string
+  view?: { center: GeoPoint; zoom: number }
+  items: Item[]
+}
+
+export interface Doc {
+  version: 2
+  page: string
+  pages: Page[]
+}

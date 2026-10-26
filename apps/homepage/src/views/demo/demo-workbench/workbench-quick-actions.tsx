@@ -1,10 +1,10 @@
 'use client'
 
 import { Redo2, RefreshCw, Undo2 } from 'lucide-react'
-import type { LeafletTualController } from 'leaflet-tual/react'
+import type { Controller } from 'leaflet-tual/react'
 
 interface WorkbenchQuickActionsProps {
-  controller: LeafletTualController
+  controller: Controller
   readOnly: boolean
   onResetScenario: () => void
 }

@@ -1,163 +1,118 @@
 import type L from 'leaflet'
-import type {
-  TualAnnotationTheme,
-  ScreenPoint,
-  ShapeItem,
-} from '../../types/index.js'
+import type { ShapeItem, Tokens } from '../../types/index.js'
 import { geoToScreen } from '../../shared/geo.js'
-import { drawTualHandle, drawTualLabelPill } from '../../shared/tual-render.js'
-import { tracePolygonShape } from './trace-shape.js'
-
-export type ShapeHandleType = 'start' | 'end'
-
-export interface ProjectedShape {
-  start: ScreenPoint
-  end: ScreenPoint
-  minX: number
-  minY: number
-  maxX: number
-  maxY: number
-  width: number
-  height: number
-  cx: number
-  cy: number
-}
-
-export function projectShape(map: L.Map, shape: ShapeItem): ProjectedShape {
-  const start = geoToScreen(map, shape.start)
-  const end = geoToScreen(map, shape.end)
-  const minX = Math.min(start.x, end.x)
-  const minY = Math.min(start.y, end.y)
-  const maxX = Math.max(start.x, end.x)
-  const maxY = Math.max(start.y, end.y)
-  const width = Math.max(4, maxX - minX)
-  const height = Math.max(4, maxY - minY)
-  return {
-    start,
-    end,
-    minX,
-    minY,
-    maxX,
-    maxY,
-    width,
-    height,
-    cx: minX + width / 2,
-    cy: minY + height / 2,
-  }
-}
+import {
+  resolveColor,
+  resolveDash,
+  resolveSize,
+  resolveWeight,
+  resolveWidth,
+} from '../../shared/theme.js'
+import { drawHandle, drawLabelPill } from '../../shared/canvas-utils.js'
+import { getShapeLabelY } from '../../shared/shape-label.js'
+import { getItemZoomScale } from '../../shared/zoom.js'
+import { type ShapeBounds, traceShapePath } from './trace-shape.js'
 
 export function renderShapeOnCanvas(
   ctx: CanvasRenderingContext2D,
-  projected: ProjectedShape,
-  shape: Pick<
-    ShapeItem,
-    'shape' | 'color' | 'fillColor' | 'filled' | 'strokeWidth' | 'dashed' | 'label'
-  >,
+  map: L.Map,
+  shape: ShapeItem,
+  scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
-    isPreview?: boolean
-    theme?: TualAnnotationTheme
+    isEditing?: boolean
+    tokens?: Partial<Tokens>
   } = {},
 ) {
-  if (projected.width < 4 && projected.height < 4) return
+  const p1 = geoToScreen(map, shape.from)
+  const p2 = geoToScreen(map, shape.to)
 
-  const theme = options.theme
+  const minX = Math.min(p1.x, p2.x)
+  const maxX = Math.max(p1.x, p2.x)
+  const minY = Math.min(p1.y, p2.y)
+  const maxY = Math.max(p1.y, p2.y)
+  const rawWidth = maxX - minX
+  const rawHeight = maxY - minY
+
+  const width = Math.max(0.1, rawWidth)
+  const height = Math.max(0.1, rawHeight)
+  const cx = minX + width / 2
+  const cy = minY + height / 2
+
+  const bounds: ShapeBounds = { minX, minY, maxX, maxY, width, height, cx, cy }
+
+  const scale = getItemZoomScale(map, shape)
+
+  const strokeColor = resolveColor(shape.style?.strokeColor ?? shape.style?.color ?? 'ink', scheme, options.tokens)
+  const fillColor = resolveColor(shape.style?.fillColor ?? shape.style?.color ?? 'ink', scheme, options.tokens)
+  const baseLineWidth = resolveWidth(shape.style?.width ?? 'm')
+  const lineWidth = shape.style?.dash === 'none' || shape.style?.width === 0 ? 0 : Math.max(0.5, baseLineWidth * scale)
+  const dash = resolveDash(shape.style?.dash ?? 'solid').map((d) => d * scale)
+  const fill = shape.style?.fill ?? 'solid'
+  const radius = (shape.style?.radius ?? 8) * scale
+
   ctx.save()
-  if (options.isPreview) ctx.globalAlpha = 0.85
-
-  if (options.isSelected) {
-    ctx.save()
-    ctx.beginPath()
-    tracePolygonShape(ctx, projected, shape.shape, theme)
-    ctx.strokeStyle = theme?.selectionGlowColor ?? 'rgba(0, 0, 0, 0.2)'
-    ctx.lineWidth = shape.strokeWidth + (theme?.selectionGlowWidth ?? 6)
-    ctx.lineCap = 'round'
-    ctx.lineJoin = 'round'
-    ctx.stroke()
-    ctx.restore()
-  }
-
-  ctx.save()
-  ctx.shadowColor = theme?.shadowColor ?? 'rgba(0, 0, 0, 0.2)'
-  ctx.shadowBlur = theme?.shadowBlur ?? 3
-  ctx.shadowOffsetY = theme?.shadowOffsetY ?? 1.5
-
-  ctx.beginPath()
-  tracePolygonShape(ctx, projected, shape.shape, theme)
-
-  if (shape.filled) {
-    const defaultFillOpacity = theme?.shapeDefaultFillOpacity ?? 0.16
-    const fillHex = Math.round(Math.min(1, Math.max(0, defaultFillOpacity)) * 255)
-      .toString(16)
-      .padStart(2, '0')
-    ctx.fillStyle = shape.fillColor ?? `${shape.color}${fillHex}`
-    ctx.fill()
-  }
-
-  ctx.strokeStyle = shape.color
-  ctx.lineWidth = shape.strokeWidth
+  ctx.strokeStyle = strokeColor
+  ctx.lineWidth = lineWidth
+  ctx.setLineDash(dash)
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-  ctx.setLineDash(shape.dashed ? [shape.strokeWidth * 3, shape.strokeWidth * 2] : [])
-  ctx.stroke()
-  ctx.restore()
 
-  if (shape.label) {
-    const minShapeSize = typeof theme?.labelMinShapeSize === 'number' ? theme.labelMinShapeSize : 18
-    if (
-      minShapeSize <= 0 ||
-      (Math.max(projected.width, projected.height) >= minShapeSize &&
-        projected.width >= 8 &&
-        projected.height >= 8)
-    ) {
-      const rawLabelY = shape.shape === 'actor' ? projected.maxY + 14 : projected.cy
-      const fitToShape = theme?.fitLabelsToShape !== false
-      const maxW =
-        theme?.labelMaxTextWidth ??
-        (fitToShape ? Math.max(48, Math.min(280, projected.width * 2.2)) : Infinity)
-      drawTualLabelPill(ctx, shape.label, Math.round(projected.cx), Math.round(rawLabelY), shape.color, maxW, theme)
-    }
+  ctx.beginPath()
+  traceShapePath(ctx, shape.kind, bounds, radius)
+
+  if (fill === 'solid') {
+    ctx.fillStyle = fillColor
+    ctx.fill()
+  } else if (fill === 'tint') {
+    ctx.save()
+    ctx.globalAlpha = 0.25
+    ctx.fillStyle = fillColor
+    ctx.fill()
+    ctx.restore()
+  }
+
+  if (shape.style?.dash !== 'none' && lineWidth > 0) {
+    ctx.stroke()
+  }
+
+  if (shape.label && !options.isEditing) {
+    const position = shape.labelPosition ?? 'center'
+    const labelY = getShapeLabelY(position, minY, maxY, cy)
+    const baseFontSize = shape.style?.fontSize ?? (shape.style?.size ? resolveSize(shape.style.size) : 12)
+    drawLabelPill(ctx, { x: cx, y: labelY }, shape.label, {
+      textColor: scheme === 'dark' ? '#ECEAE6' : '#1D1D1B',
+      bgColor: scheme === 'dark' ? '#1E1E1E' : '#FFFFFF',
+      borderColor: scheme === 'dark' ? '#333333' : '#E3E1DD',
+      fontSize: baseFontSize * scale,
+      fontWeight: resolveWeight(shape.style?.weight),
+      fontStyle: shape.style?.fontStyle,
+      paddingX: Math.max(3, 4 * scale),
+      paddingY: Math.max(1.5, 2 * scale),
+    })
   }
 
   if (options.isSelected) {
-    const handleRadius = theme?.handleRadius ?? 5
-    const fill = theme?.handleFillColor ?? '#ffffff'
-    const endpointColor = theme?.endpointHandleColor ?? '#4f4f4f'
-    const strokeWidth = theme?.handleStrokeWidth ?? 2
+    const handleColor = resolveColor('blue', scheme, options.tokens)
 
+    // Selection frame between the resize handles.
     ctx.save()
-    ctx.setLineDash(theme?.guideLineDash ? [...theme.guideLineDash] : [4, 4])
-    ctx.strokeStyle = theme?.guideLineColor ?? 'rgba(100, 100, 100, 0.6)'
-    ctx.lineWidth = theme?.guideLineWidth ?? 1.2
-    ctx.strokeRect(projected.minX, projected.minY, projected.width, projected.height)
+    ctx.strokeStyle = handleColor
+    ctx.lineWidth = Math.max(0.5, 1 * scale)
+    ctx.setLineDash([4 * scale, 4 * scale])
+    ctx.strokeRect(minX, minY, rawWidth, rawHeight)
     ctx.restore()
 
-    drawTualHandle(ctx, projected.start, endpointColor, fill, handleRadius, strokeWidth)
-    drawTualHandle(ctx, projected.end, endpointColor, fill, handleRadius, strokeWidth)
+    const handleSize = Math.max(4, 8 * scale)
+    drawHandle(ctx, { x: minX, y: minY }, handleColor, handleSize)
+    drawHandle(ctx, { x: maxX, y: minY }, handleColor, handleSize)
+    drawHandle(ctx, { x: maxX, y: maxY }, handleColor, handleSize)
+    drawHandle(ctx, { x: minX, y: maxY }, handleColor, handleSize)
+    drawHandle(ctx, { x: cx, y: minY }, handleColor, handleSize)
+    drawHandle(ctx, { x: cx, y: maxY }, handleColor, handleSize)
+    drawHandle(ctx, { x: minX, y: cy }, handleColor, handleSize)
+    drawHandle(ctx, { x: maxX, y: cy }, handleColor, handleSize)
   }
 
   ctx.restore()
-}
-
-export function hitTestShapeHandle(
-  point: ScreenPoint,
-  projected: ProjectedShape,
-  tolerance = 11,
-): ShapeHandleType | null {
-  if (Math.hypot(point.x - projected.end.x, point.y - projected.end.y) <= tolerance) return 'end'
-  if (Math.hypot(point.x - projected.start.x, point.y - projected.start.y) <= tolerance) return 'start'
-  return null
-}
-
-export function hitTestShape(
-  point: ScreenPoint,
-  projected: ProjectedShape,
-  tolerance = 8,
-): boolean {
-  return (
-    point.x >= projected.minX - tolerance &&
-    point.x <= projected.maxX + tolerance &&
-    point.y >= projected.minY - tolerance &&
-    point.y <= projected.maxY + tolerance
-  )
 }

@@ -2,9 +2,9 @@ import React from 'react'
 import type L from 'leaflet'
 import { vi } from 'vitest'
 import {
-  TualToolbar,
+  Toolbar,
   useLeafletTual,
-  type TualToolbarProps,
+  type ToolbarProps,
 } from '../index.js'
 
 export class MockPointerEvent extends MouseEvent {
@@ -18,78 +18,76 @@ if (typeof window.PointerEvent === 'undefined') {
   ;(globalThis as unknown as Record<string, unknown>).PointerEvent = MockPointerEvent
 }
 
-export type TestToolbarHarnessProps = Partial<TualToolbarProps>
+export type TestToolbarHarnessProps = Partial<ToolbarProps>
 
 export const TestToolbarHarness: React.FC<TestToolbarHarnessProps> = (props) => {
   const controller = useLeafletTual({
-    initialItems: [
-      {
-        id: 'arrow-1',
-        type: 'arrow',
-        arrowStyle: 'linear',
-        start: { lat: 41.0, lng: 28.9 },
-        end: { lat: 41.02, lng: 28.95 },
-        color: '#2563eb',
-        strokeWidth: 3,
-        createdAt: 1,
-      },
-    ],
+    defaultValue: {
+      version: 2,
+      page: 'p1',
+      pages: [
+        {
+          id: 'p1',
+          name: 'Page 1',
+          items: [
+            {
+              id: 'arrow-1',
+              type: 'arrow',
+              kind: 'linear',
+              from: { lat: 41.0, lng: 28.9 },
+              to: { lat: 41.02, lng: 28.95 },
+              style: { color: 'blue', width: 'm' },
+              createdAt: 1,
+            },
+          ],
+        },
+      ],
+    },
   })
-  return React.createElement(TualToolbar, { controller, ...props })
+  return React.createElement(Toolbar, { controller, ...props })
 }
 
 export function createMockMap(overrides: Partial<Record<string, unknown>> = {}): L.Map {
   const mapContainer = document.createElement('div')
+  const draggingState = { enabled: true }
+  const scrollWheelZoomState = { enabled: true }
+  const boxZoomState = { enabled: true }
   return {
     getContainer: () => mapContainer,
     getSize: () => ({ x: 800, y: 600 }),
     getZoom: () => 14,
     latLngToContainerPoint: () => ({ x: 100, y: 100 }),
-    containerPointToLatLng: (pt: { x: number; y: number }) => ({
-      lat: pt.y / 10,
-      lng: pt.x / 10,
-    }),
+    containerPointToLatLng: (pt: [number, number] | { x: number; y: number }) => {
+      const [x, y] = Array.isArray(pt) ? pt : [pt.x, pt.y]
+      return { lat: y / 10, lng: x / 10 }
+    },
     layerPointToLatLng: () => ({ lat: 41.0, lng: 28.0 }),
     latLngToLayerPoint: () => ({ x: 100, y: 100 }),
+    fitBounds: vi.fn(),
+    setView: vi.fn(),
+    getCenter: () => ({ lat: 41, lng: 28 }),
     on: vi.fn(),
     off: vi.fn(),
     dragging: {
-      enable: vi.fn(),
-      disable: vi.fn(),
-      enabled: () => true,
+      enable: vi.fn(() => { draggingState.enabled = true }),
+      disable: vi.fn(() => { draggingState.enabled = false }),
+      enabled: () => draggingState.enabled,
+    },
+    scrollWheelZoom: {
+      enable: vi.fn(() => { scrollWheelZoomState.enabled = true }),
+      disable: vi.fn(() => { scrollWheelZoomState.enabled = false }),
+      enabled: () => scrollWheelZoomState.enabled,
     },
     doubleClickZoom: {
       enable: vi.fn(),
       disable: vi.fn(),
       enabled: () => true,
     },
+    boxZoom: {
+      enable: vi.fn(() => { boxZoomState.enabled = true }),
+      disable: vi.fn(() => { boxZoomState.enabled = false }),
+      enabled: () => boxZoomState.enabled,
+    },
     ...overrides,
   } as unknown as L.Map
-}
-
-export function createMockCanvasContext(): CanvasRenderingContext2D {
-  return {
-    clearRect: vi.fn(),
-    scale: vi.fn(),
-    translate: vi.fn(),
-    setTransform: vi.fn(),
-    save: vi.fn(),
-    restore: vi.fn(),
-    beginPath: vi.fn(),
-    closePath: vi.fn(),
-    stroke: vi.fn(),
-    fill: vi.fn(),
-    moveTo: vi.fn(),
-    lineTo: vi.fn(),
-    arc: vi.fn(),
-    rect: vi.fn(),
-    roundRect: vi.fn(),
-    ellipse: vi.fn(),
-    quadraticCurveTo: vi.fn(),
-    bezierCurveTo: vi.fn(),
-    strokeRect: vi.fn(),
-    setLineDash: vi.fn(),
-    measureText: vi.fn().mockReturnValue({ width: 50 }),
-    fillText: vi.fn(),
-  } as unknown as CanvasRenderingContext2D
 }

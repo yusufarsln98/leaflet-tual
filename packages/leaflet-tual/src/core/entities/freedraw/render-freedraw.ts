@@ -1,142 +1,61 @@
 import type L from 'leaflet'
-import type {
-  TualAnnotationTheme,
-  FreeDrawItem,
-  ScreenPoint,
-} from '../../types/index.js'
-import { distanceToSegment, geoToScreen } from '../../shared/geo.js'
+import type { FreedrawItem, ScreenPoint, Tokens } from '../../types/index.js'
+import { geoToScreen } from '../../shared/geo.js'
+import { resolveColor, resolveDash, resolveWidth } from '../../shared/theme.js'
+import { drawHandle } from '../../shared/canvas-utils.js'
+import { getItemZoomScale } from '../../shared/zoom.js'
 
-export function projectFreeDraw(
+export function renderFreedrawOnCanvas(
+  ctx: CanvasRenderingContext2D,
   map: L.Map,
-  item: Pick<FreeDrawItem, 'points'>,
-): ScreenPoint[] {
-  return item.points.map((pt) => geoToScreen(map, pt))
-}
-
-function traceSmoothPolyline(
-  ctx: CanvasRenderingContext2D,
-  points: ScreenPoint[],
-) {
-  if (points.length === 0) return
-  ctx.moveTo(points[0].x, points[0].y)
-
-  if (points.length === 1) {
-    ctx.lineTo(points[0].x + 0.5, points[0].y + 0.5)
-    return
-  }
-
-  if (points.length === 2) {
-    ctx.lineTo(points[1].x, points[1].y)
-    return
-  }
-
-  for (let i = 1; i < points.length - 1; i += 1) {
-    const midX = (points[i].x + points[i + 1].x) / 2
-    const midY = (points[i].y + points[i + 1].y) / 2
-    ctx.quadraticCurveTo(points[i].x, points[i].y, midX, midY)
-  }
-
-  const last = points[points.length - 1]
-  ctx.lineTo(last.x, last.y)
-}
-
-export function renderFreeDrawOnCanvas(
-  ctx: CanvasRenderingContext2D,
-  screenPoints: ScreenPoint[],
-  item: Pick<FreeDrawItem, 'color' | 'strokeWidth' | 'dashed'>,
+  freedraw: FreedrawItem,
+  scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
-    isPreview?: boolean
-    theme?: TualAnnotationTheme
+    tokens?: Partial<Tokens>
   } = {},
 ) {
-  if (screenPoints.length === 0) return
+  if (freedraw.points.length < 2) return
 
-  const theme = options.theme
-  ctx.save()
-
-  if (options.isPreview) {
-    ctx.globalAlpha = 0.9
-  }
-
-  if (options.isSelected) {
-    ctx.save()
-    ctx.beginPath()
-    traceSmoothPolyline(ctx, screenPoints)
-    ctx.strokeStyle = theme?.selectionGlowColor ?? 'rgba(0, 0, 0, 0.2)'
-    ctx.lineWidth = item.strokeWidth + (theme?.selectionGlowWidth ?? 6)
-    ctx.lineCap = 'round'
-    ctx.lineJoin = 'round'
-    ctx.stroke()
-    ctx.restore()
-  }
+  const screenPoints: ScreenPoint[] = freedraw.points.map((p) => geoToScreen(map, p))
+  const scale = getItemZoomScale(map, freedraw)
+  const color = resolveColor(freedraw.style?.color ?? 'ink', scheme, options.tokens)
+  const baseLineWidth = resolveWidth(freedraw.style?.width ?? 'm')
+  const lineWidth = Math.max(0.5, baseLineWidth * scale)
+  const dash = resolveDash(freedraw.style?.dash ?? 'solid').map((d) => d * scale)
 
   ctx.save()
-  ctx.shadowColor = theme?.shadowColor ?? 'rgba(0, 0, 0, 0.2)'
-  ctx.shadowBlur = theme?.shadowBlur ?? 3
-  ctx.shadowOffsetY = theme?.shadowOffsetY ?? 1
-
-  ctx.beginPath()
-  traceSmoothPolyline(ctx, screenPoints)
-  ctx.strokeStyle = item.color
-  ctx.lineWidth = item.strokeWidth
+  ctx.strokeStyle = color
+  ctx.lineWidth = lineWidth
+  ctx.setLineDash(dash)
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-  if (item.dashed) {
-    ctx.setLineDash([item.strokeWidth * 3, item.strokeWidth * 2])
+
+  ctx.beginPath()
+  ctx.moveTo(screenPoints[0].x, screenPoints[0].y)
+
+  if (screenPoints.length === 2) {
+    ctx.lineTo(screenPoints[1].x, screenPoints[1].y)
   } else {
-    ctx.setLineDash([])
-  }
-  ctx.stroke()
-  ctx.restore()
-
-  ctx.restore()
-}
-
-export function hitTestFreeDraw(
-  point: ScreenPoint,
-  screenPoints: ScreenPoint[],
-  item: FreeDrawItem,
-  tolerance = 9,
-): boolean {
-  if (screenPoints.length === 0) return false
-  const threshold = Math.max(tolerance, item.strokeWidth / 2 + 6)
-  if (screenPoints.length === 1) {
-    return (
-      Math.hypot(point.x - screenPoints[0].x, point.y - screenPoints[0].y) <=
-      threshold
-    )
-  }
-
-  // Fast bounding box check before segment iteration
-  let minX = Infinity
-  let minY = Infinity
-  let maxX = -Infinity
-  let maxY = -Infinity
-  for (let i = 0; i < screenPoints.length; i += 1) {
-    const p = screenPoints[i]
-    if (p.x < minX) minX = p.x
-    if (p.y < minY) minY = p.y
-    if (p.x > maxX) maxX = p.x
-    if (p.y > maxY) maxY = p.y
-  }
-  if (
-    point.x < minX - threshold ||
-    point.x > maxX + threshold ||
-    point.y < minY - threshold ||
-    point.y > maxY + threshold
-  ) {
-    return false
-  }
-
-  for (let i = 0; i < screenPoints.length - 1; i += 1) {
-    if (
-      distanceToSegment(point, screenPoints[i], screenPoints[i + 1]) <=
-      threshold
-    ) {
-      return true
+    for (let i = 1; i < screenPoints.length - 1; i += 1) {
+      const pCurrent = screenPoints[i]
+      const pNext = screenPoints[i + 1]
+      const midX = (pCurrent.x + pNext.x) / 2
+      const midY = (pCurrent.y + pNext.y) / 2
+      ctx.quadraticCurveTo(pCurrent.x, pCurrent.y, midX, midY)
     }
+    const last = screenPoints[screenPoints.length - 1]
+    ctx.lineTo(last.x, last.y)
   }
-  return false
-}
 
+  ctx.stroke()
+
+  if (options.isSelected) {
+    const handleColor = resolveColor('blue', scheme, options.tokens)
+    const handleSize = Math.max(4, 8 * scale)
+    drawHandle(ctx, screenPoints[0], handleColor, handleSize)
+    drawHandle(ctx, screenPoints[screenPoints.length - 1], handleColor, handleSize)
+  }
+
+  ctx.restore()
+}

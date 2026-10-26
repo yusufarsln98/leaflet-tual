@@ -70,6 +70,7 @@ const nextConfig: NextConfig = {
       'leaflet-tual$': path.resolve(__dirname, '../../packages/leaflet-tual/src/index.ts'),
       'leaflet-tual/core': path.resolve(__dirname, '../../packages/leaflet-tual/src/index.ts'),
       'leaflet-tual/react': path.resolve(__dirname, '../../packages/leaflet-tual/src/react.ts'),
+      'leaflet-tual/styles.css': path.resolve(__dirname, '../../packages/leaflet-tual/src/styles.css'),
     }
     config.resolve.extensionAlias = {
       '.js': ['.ts', '.tsx', '.js'],

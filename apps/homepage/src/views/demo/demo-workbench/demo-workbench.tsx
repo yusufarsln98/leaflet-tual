@@ -2,30 +2,22 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { PanelLeftOpen } from 'lucide-react'
-import {
-  type ToolbarPosition,
-  useLeafletTual,
-} from 'leaflet-tual/react'
+import { useLeafletTual } from 'leaflet-tual/react'
 import { SHOWCASE_PRESETS, type ShowcasePreset } from '../../../data/presets'
 import { FREE_TILE_LAYERS, type FreeTileLayer } from '../../../data/tiles'
-import { useTheme } from '../../../components/theme-provider'
 import type { DemoWorkbenchProps } from './types'
-import { useCanvasThemeStyles } from './use-canvas-theme-styles'
 import { WorkbenchMockHeader } from './workbench-mock-header'
 import { WorkbenchDrawer } from './workbench-drawer'
 import { WorkbenchMapView } from './workbench-map-view'
+import type { WorkbenchToolbarPosition } from './workbench-configuration-selects'
 
 export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWorkbenchProps) {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
-
   const [activePreset, setActivePreset] = useState<ShowcasePreset>(SHOWCASE_PRESETS[0])
   const [tileLayerId, setTileLayerId] = useState<string>('osm')
   const [canvasTheme, setCanvasTheme] = useState<'default' | 'homepage'>('homepage')
-  const [toolbarPosition, setToolbarPosition] = useState<ToolbarPosition>('top-center')
+  const [toolbarPosition, setToolbarPosition] = useState<WorkbenchToolbarPosition>('top')
   const [readOnly, setReadOnly] = useState<boolean>(false)
   const [collapsible, setCollapsible] = useState<boolean>(true)
-  const [showToolLabels, setShowToolLabels] = useState<boolean>(false)
   const [copied, setCopied] = useState<boolean>(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(
     initialDrawerOpen !== undefined ? initialDrawerOpen : mode === 'fullscreen',
@@ -55,11 +47,19 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
     FREE_TILE_LAYERS.find((t) => t.id === tileLayerId) ?? FREE_TILE_LAYERS[0]
 
   const controller = useLeafletTual({
-    initialItems: activePreset.items,
+    defaultValue: {
+      version: 2,
+      page: 'p1',
+      pages: [
+        {
+          id: 'p1',
+          name: 'Page 1',
+          items: activePreset.items,
+        },
+      ],
+    },
     readOnly,
   })
-
-  const { arrowTheme, strokeColors, canvasStyles } = useCanvasThemeStyles(isDark)
 
   const handleToggleReadOnly = (next: boolean) => {
     setReadOnly(next)
@@ -70,17 +70,17 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
     const preset = SHOWCASE_PRESETS.find((p) => p.id === presetId)
     if (!preset) return
     setActivePreset(preset)
-    controller.clearAll()
-    preset.items.forEach((item) => controller.addItem(item))
+    controller.clear()
+    preset.items.forEach((item) => controller.add(item))
   }
 
   const handleResetScenario = () => {
-    controller.clearAll()
-    activePreset.items.forEach((item) => controller.addItem(item))
+    controller.clear()
+    activePreset.items.forEach((item) => controller.add(item))
   }
 
   const handleCopyJson = () => {
-    navigator.clipboard.writeText(controller.exportJSON())
+    navigator.clipboard.writeText(JSON.stringify(controller.doc, null, 2))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -98,20 +98,25 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
 
       {/* Workbench Workspace: Map Viewport + Overlay Drawer */}
       <div
-        className={`relative w-full ${
-          isFullscreen ? 'flex-1 min-h-0' : 'h-[620px]'
-        } overflow-hidden`}
+        className={`relative w-full overflow-hidden ${
+          isFullscreen ? 'flex-1 min-h-0' : 'h-[640px]'
+        }`}
       >
-        {/* Mobile Backdrop when drawer is open */}
-        {isDrawerOpen && (
-          <div
-            className="sm:hidden absolute inset-0 bg-black/40 z-[1040] backdrop-blur-[2px] transition-opacity"
-            onClick={() => setIsDrawerOpen(false)}
-            aria-hidden="true"
-          />
+        {/* Toggle Drawer Trigger Button (visible when drawer closed) */}
+        {!isDrawerOpen && (
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            className="absolute top-3.5 left-3.5 z-[1000] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-sidebar/95 backdrop-blur-md border border-border-primary shadow-float text-text-primary hover:text-accent hover:border-accent text-xs font-mono font-semibold transition-all cursor-pointer"
+            title="Open Controls Drawer"
+            aria-label="Open Controls Drawer"
+          >
+            <PanelLeftOpen className="w-4 h-4 text-accent" />
+            <span>Workbench Controls</span>
+          </button>
         )}
 
-        {/* Controls Drawer */}
+        {/* Collapsible Left Drawer with Presets, Settings, Annotations & Live JSON */}
         <WorkbenchDrawer
           drawerRef={drawerRef}
           isDrawerOpen={isDrawerOpen}
@@ -130,45 +135,21 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
           onToggleReadOnly={handleToggleReadOnly}
           collapsible={collapsible}
           onCollapsibleChange={setCollapsible}
-          showToolLabels={showToolLabels}
-          onShowToolLabelsChange={setShowToolLabels}
           copied={copied}
           onCopyJson={handleCopyJson}
         />
 
-        {/* Floating Open Drawer Button when closed */}
-        {!isDrawerOpen && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              setIsDrawerOpen(true)
-            }}
-            className="absolute top-3 left-3 z-[1001] inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-bg-pane/95 backdrop-blur-md border border-border-primary hover:border-accent text-text-primary text-xs font-mono font-bold shadow-lg hover:shadow-xl hover:bg-bg-sidebar transition-all cursor-pointer group"
-            title="Open Controls Drawer"
-            aria-label="Open Controls Drawer"
-          >
-            <PanelLeftOpen className="w-4 h-4 text-accent transition-transform group-hover:scale-110" />
-            <span>Controls</span>
-          </button>
-        )}
-
-        {/* Map Viewport */}
+        {/* Leaflet Map + LeafletTual Vector Canvas Overlay */}
         <WorkbenchMapView
           activePreset={activePreset}
           activeTile={activeTile}
           controller={controller}
           canvasTheme={canvasTheme}
-          arrowTheme={arrowTheme}
-          canvasStyles={canvasStyles}
-          strokeColors={strokeColors}
           readOnly={readOnly}
           collapsible={collapsible}
           toolbarPosition={toolbarPosition}
-          showToolLabels={showToolLabels}
         />
       </div>
     </div>
   )
 }
-

@@ -1,9 +1,11 @@
 {
   "name": "leaflet-tual",
-  "version": "1.0.0",
-  "description": "Framework-agnostic interactive canvas and annotation toolkit for Leaflet maps — draw arrows, shapes, freehand sketches, rulers, notes, and text pinned to geo-coordinates. Optional React bindings.",
+  "version": "2.0.0",
+  "description": "Opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, artboards, pages) for Leaflet maps. Optional React bindings.",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -44,10 +46,12 @@
       },
       "default": "./dist/react.js"
     },
+    "./styles.css": "./src/styles.css",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
+    "src/styles.css",
     "README.md"
   ],
   "author": "Yusuf Arslan",
@@ -82,7 +86,7 @@
     "react-leaflet"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && cp src/styles.css dist/styles.css",
     "dev": "tsup --watch",
     "lint": "eslint src --ext ts,tsx",
     "typecheck": "tsc --noEmit",

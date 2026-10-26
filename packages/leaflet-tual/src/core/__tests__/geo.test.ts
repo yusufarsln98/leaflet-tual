@@ -1,83 +1,72 @@
 import { describe, it, expect } from 'vitest'
 import {
-  computeDefaultControlGeoPoint,
-  constrainToAspectRatio,
-  constrainAngleTo45Degrees,
-  distanceToSegment,
-  distanceToQuadraticBezier,
-  calculateGeodesicDistance,
-  formatRealWorldDistance,
-  calculateLineDistance,
+  distance,
+  formatDistance,
+  pathDistance,
+  lockAspect,
+  snapAngle,
+  defaultVia,
+  toWorld,
+  fromWorld,
 } from '../index.js'
 
-describe('geo math & geometry utilities', () => {
-  it('computes perpendicular control point for curved arrows', () => {
-    const start = { lat: 40, lng: 28 }
-    const end = { lat: 40, lng: 30 }
-    const ctrl = computeDefaultControlGeoPoint(start, end, 0.25)
-    expect(ctrl.lng).toBe(29)
-    expect(ctrl.lat).toBeCloseTo(40.5)
+describe('v2 geometry utilities & world space math', () => {
+  it('round-trips toWorld and fromWorld accurately', () => {
+    const geo = { lat: 41.0082, lng: 28.9784 }
+    const world = toWorld(geo)
+    const back = fromWorld(world)
+    expect(back.lat).toBeCloseTo(geo.lat, 6)
+    expect(back.lng).toBeCloseTo(geo.lng, 6)
   })
 
-  it('calculates segment and quadratic Bezier distances accurately', () => {
-    const dSeg = distanceToSegment({ x: 5, y: 3 }, { x: 0, y: 0 }, { x: 10, y: 0 })
-    expect(dSeg).toBeCloseTo(3)
+  it('computes defaultVia perpendicular control point in world space', () => {
+    const from = { lat: 40, lng: 28 }
+    const to = { lat: 40, lng: 30 }
+    const via = defaultVia(from, to, 0.25)
+    expect(via.lng).toBeCloseTo(29, 1)
+    expect(via.lat).toBeGreaterThan(40)
+  })
 
-    const dCurve = distanceToQuadraticBezier(
-      { x: 5, y: 5 },
-      { x: 0, y: 0 },
-      { x: 5, y: 10 },
-      { x: 10, y: 0 },
+  it('lockAspect locks aspect ratio in world space', () => {
+    const anchor = { lat: 41, lng: 28 }
+    const target = { lat: 41.05, lng: 28.1 }
+    const locked = lockAspect(anchor, target, 1)
+    const wAnchor = toWorld(anchor)
+    const wLocked = toWorld(locked)
+    expect(Math.abs(wLocked.x - wAnchor.x)).toBeCloseTo(
+      Math.abs(wLocked.y - wAnchor.y),
+      1,
     )
-    expect(dCurve).toBeLessThan(1)
   })
 
-  it('constrains shape bounding box to 1:1 or custom aspect ratio when Shift is active', () => {
-    const anchor = { x: 100, y: 100 }
-    const locked1to1 = constrainToAspectRatio(anchor, { x: 180, y: 130 }, 1)
-    expect(Math.abs(locked1to1.x - anchor.x)).toBeCloseTo(
-      Math.abs(locked1to1.y - anchor.y),
-    )
-    expect(locked1to1.x).toBe(180)
-    expect(locked1to1.y).toBe(180)
-
-    // Preserve 2:1 aspect ratio
-    const locked2to1 = constrainToAspectRatio(anchor, { x: 150, y: 160 }, 2)
-    expect(
-      Math.abs(locked2to1.x - anchor.x) / Math.abs(locked2to1.y - anchor.y),
-    ).toBeCloseTo(2)
-  })
-
-  it('snaps arrow angles to 45-degree increments when Shift is active', () => {
-    const anchor = { x: 0, y: 0 }
-    const snappedHorizontal = constrainAngleTo45Degrees(anchor, { x: 100, y: 8 })
-    expect(snappedHorizontal.y).toBeCloseTo(0, 5)
-    expect(snappedHorizontal.x).toBeCloseTo(Math.hypot(100, 8), 4)
-
-    const snappedDiagonal = constrainAngleTo45Degrees(anchor, { x: 95, y: 100 })
-    expect(snappedDiagonal.x).toBeCloseTo(snappedDiagonal.y, 4)
+  it('snapAngle snaps angle to 45 degree increments in world space', () => {
+    const anchor = { lat: 41, lng: 28 }
+    const target = { lat: 41.001, lng: 28.1 }
+    const snapped = snapAngle(anchor, target, 45)
+    const wAnchor = toWorld(anchor)
+    const wSnapped = toWorld(snapped)
+    const angle = Math.atan2(wSnapped.y - wAnchor.y, wSnapped.x - wAnchor.x)
+    const stepRad = (45 * Math.PI) / 180
+    const rem = Math.abs(angle % stepRad)
+    expect(rem < 0.001 || Math.abs(rem - stepRad) < 0.001).toBe(true)
   })
 
   it('calculates geodesic distances and formats real world lengths correctly', () => {
-    // Distance between London (51.5074, -0.1278) and Paris (48.8566, 2.3522) is approx 343-344 km
     const london = { lat: 51.5074, lng: -0.1278 }
     const paris = { lat: 48.8566, lng: 2.3522 }
-    const dist = calculateGeodesicDistance(london, paris)
+    const dist = distance(london, paris)
     expect(dist).toBeGreaterThan(340000)
     expect(dist).toBeLessThan(350000)
 
-    // Formatted metric
-    expect(formatRealWorldDistance(450)).toBe('450 m')
-    expect(formatRealWorldDistance(1450)).toBe('1.45 km')
-    expect(formatRealWorldDistance(25000)).toBe('25.0 km')
+    expect(formatDistance(450)).toBe('450 m')
+    expect(formatDistance(1450)).toBe('1.45 km')
+    expect(formatDistance(25000)).toBe('25.0 km')
 
-    // Formatted imperial
-    expect(formatRealWorldDistance(50, 'imperial')).toBe('164 ft')
-    expect(formatRealWorldDistance(3000, 'imperial')).toBe('1.86 mi')
+    expect(formatDistance(50, 'imperial')).toBe('164 ft')
+    expect(formatDistance(3000, 'imperial')).toBe('1.86 mi')
 
-    // Polyline distance
     const intermediate = { lat: 50.0, lng: 1.0 }
-    const polylineDist = calculateLineDistance([london, intermediate, paris])
+    const polylineDist = pathDistance([london, intermediate, paris])
     expect(polylineDist).toBeGreaterThan(dist)
   })
 })

@@ -1,369 +1,239 @@
-# leaflet-tual
+# leaflet-tual v2
 
-> Interactive canvas and annotation toolkit for Leaflet maps in React — draw vector arrows, geometric shapes, sticky notes, and text anchored to geo-coordinates.
+> Opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, artboards, pages) for Leaflet maps. Everything stored in geographic coordinates.
 
-leaflet-tual combines the mapping capabilities of Leaflet and react-leaflet with a high-performance HTML5 2D canvas drawing surface and geo-anchored DOM overlays. Annotations scale, pan, and transform seamlessly with the map while maintaining immutable geographic coordinates.
+Draw on a map the way you draw on a design canvas. Coordinates are always `GeoPoint` (`{ lat, lng }`), keeping annotations attached to the ground while the map pans and zooms.
 
 ## Navigation & Quick Links
-- [Website](https://leaflet-tual.vercel.app): Official website and interactive canvas overview.
-- [Interactive Demo](https://leaflet-tual.vercel.app/demo): Live interactive canvas playground on top of Leaflet.
-- [GitHub Repository](https://github.com/leaflet-tual/leaflet-tual): Source code, issues, and contributing guidelines.
-- [npm Package](https://www.npmjs.com/package/leaflet-tual): Official package distribution.
-- [SKILL.md Specification](https://leaflet-tual.vercel.app/SKILL.md): Official AI coding skill file for Antigravity, Cursor, and Claude Code.
+- Website: https://leaflet-tual.dev
+- Interactive Demo: https://leaflet-tual.dev/demo
+- GitHub Repository: https://github.com/yusufarsln98/leaflet-tual
+- npm Package: https://www.npmjs.com/package/leaflet-tual
+- SKILL.md Specification: https://leaflet-tual.dev/SKILL.md
 
-## Core Architectural Invariants & AI Constraints
-1. **GeoPoint Storage Rule**: All persistent item coordinates MUST be stored as geographic latitude/longitude pairs (`GeoPoint`: `{ lat: number, lng: number }`). NEVER store screen `{ x, y }` coordinates in item objects. Screen projections (`geoToScreen` / `screenToGeo`) occur dynamically during render passes and drag interactions using Leaflet's coordinate projection engine.
-2. **Map Context Rule**: `<LeafletTual>` automatically acquires the Leaflet map instance via `useMap()` when rendered as a child of `<MapContainer>`. If rendered outside `<MapContainer>`, you MUST supply the Leaflet map instance explicitly via the `map` prop (`<LeafletTual map={mapInstance} />`).
-3. **Controller Decoupling**: State should be managed through the `useLeafletTual` hook.
-   - **Uncontrolled mode**: Omit `items`; the controller manages internal state and provides 50-step undo/redo history (`canUndo`, `canRedo`, `undo()`, `redo()`).
-   - **Controlled mode**: Supply `items` and listen to `onItemsChange` (or `onChange`).
-4. **Toolbar Placement & Decoupling**: By default, `<LeafletTual>` displays a floating toolbar positioned via `toolbarPosition` (`'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`, `'top'`, `'bottom'`, `'left'`, `'right'`). To render a decoupled external toolbar outside the map, set `showToolbar={false}` on `<LeafletTual>` and render `<TualToolbar controller={controller} />` in your external UI.
-5. **Shift-Key Snapping**: Holding `Shift` during vector creation or manipulation automatically snaps arrow directions to 45° angle increments and constrains shape bounding boxes to a 1:1 aspect ratio (e.g. perfect squares, circles, symmetric stars).
-6. **Dual Rendering Architecture**:
-   - Vector arrows, geometric shapes, and freehand strokes render onto an interactive HTML5 2D `<canvas>` surface for optimal 60fps rendering during pan and zoom.
-   - Sticky notes (`NoteItem`) and text overlays (`TextItem`) render as HTML DOM elements pinned to geographic coordinates via Leaflet container projection, enabling native input focus, textarea expansion, and accessibility.
+## Core Invariants & Rules
+1. **Store geography, never pixels.** Every persisted coordinate is a `GeoPoint` (`{ lat, lng }`). Never put screen `{ x, y }` in an item.
+2. **Do geometry in world space.** Aspect locks, 45° snapping, circle radii, curve offsets, hit tests and resizing run in a zoom-independent plane (`toWorld` / `fromWorld`), never in current-zoom pixels. Squares stay square and curves keep their shape at every zoom level and latitude.
+3. **Use the built-in style values.** Colors are palette names, widths are `'s' | 'm' | 'l'`, text sizes are `'s' | 'm' | 'l' | 'xl'`. Do not store hex colors or pixel sizes in items.
+4. **Change the look through `theme` and `tokens`**, not by overriding library internals with CSS selectors.
+5. **Change the toolbar through the `toolbar` prop.**
+6. **One document, one change callback.** State is a plain JSON `Doc`. Save from `onChange` only when `info.committed` is `true`.
+7. **Controlled or uncontrolled, never both.** Pass `value` or `defaultValue`. Undo and redo work in both modes and report through `onChange`.
+8. **Mutate through the controller** (`add`, `update`, `remove`). Never edit `doc` or `items` in place.
+9. **Modifiers are built in.** `Shift` locks aspect (1:1) and snaps angles to 45°. `Alt` resizes from the center.
+10. **Validate untrusted JSON** with `parseDoc(input)` before `load`.
+11. **Map context.** Inside `<MapContainer>`, `<LeafletTual>` finds the map itself. Outside it, pass `map={mapInstance}`.
+12. **Items inside an artboard move with it.**
 
-## Layout Data Model (JSON Schema)
-
-All annotations conform to the `TualItem` discriminated union on the `type` field:
+## Data Model
 
 ```ts
-export type GeoPoint = {
-  lat: number
-  lng: number
+export type GeoPoint = { lat: number; lng: number }
+
+export interface Doc {
+  version: 2
+  page: string          // id of the active page
+  pages: Page[]
 }
 
-export type ScreenPoint = {
-  x: number
-  y: number
+export interface Page {
+  id: string
+  name: string
+  view?: { center: GeoPoint; zoom: number }
+  items: Item[]
 }
 
-export type ArrowStyle = 'linear' | 'curved' | 'bi' | 'elbow' | 's-curve'
+export type ColorName =
+  | 'ink' | 'gray' | 'taupe' | 'red' | 'orange'
+  | 'yellow' | 'green' | 'blue' | 'purple' | 'pink'
 
+export interface Style {
+  color?: ColorName
+  width?: 's' | 'm' | 'l'
+  dash?: 'solid' | 'dashed' | 'dotted'
+  fill?: 'none' | 'tint' | 'solid'
+  size?: 's' | 'm' | 'l' | 'xl'
+  weight?: 'regular' | 'bold'
+  align?: 'left' | 'center' | 'right'
+}
+
+export type ArrowKind = 'linear' | 'curved' | 'elbow' | 's-curve'
+export type Head = 'triangle' | 'open' | 'none'
 export type ShapeKind =
-  | 'square'
-  | 'circle'
-  | 'star'
-  | 'actor'
-  | 'triangle'
-  | 'diamond'
-  | 'hexagon'
-  | 'marker'
-
-export type TualTool =
-  | 'select'
-  | 'freedraw'
-  | 'arrow-linear'
-  | 'arrow-curved'
-  | 'arrow-bi'
-  | 'arrow-elbow'
-  | 'arrow-s-curve'
-  | 'shape'
-  | 'note'
-  | 'text'
-
-export type ToolbarToolGroupId = 'select' | 'freedraw' | 'arrow' | 'shape' | 'note' | 'text'
-
-export type ArrowHeadStyle = 'triangle' | 'open' | 'both' | 'none'
+  | 'square' | 'circle' | 'star' | 'actor'
+  | 'triangle' | 'diamond' | 'hexagon' | 'marker'
+export type LabelPosition = 'top' | 'center' | 'bottom'
 
 export interface ArrowItem {
   id: string
   type: 'arrow'
-  arrowStyle: ArrowStyle
-  start: GeoPoint
-  end: GeoPoint
-  controlPoint?: GeoPoint
-  color: string
-  strokeWidth: number
-  dashed?: boolean
-  headStyle?: ArrowHeadStyle
+  kind: ArrowKind
+  from: GeoPoint
+  to: GeoPoint
+  via?: GeoPoint
+  heads?: { start?: Head; end?: Head }
   label?: string
-  createdAt: number
-}
-
-export interface FreeDrawItem {
-  id: string
-  type: 'freedraw'
-  points: GeoPoint[]
-  color: string
-  strokeWidth: number
-  dashed?: boolean
+  style?: Style
   createdAt: number
 }
 
 export interface ShapeItem {
   id: string
   type: 'shape'
-  shape: ShapeKind
-  start: GeoPoint
-  end: GeoPoint
-  color: string
-  fillColor?: string
-  filled?: boolean
-  strokeWidth: number
-  dashed?: boolean
+  kind: ShapeKind
+  from: GeoPoint
+  to: GeoPoint
   label?: string
+  labelPosition?: LabelPosition   // default 'center'
+  style?: Style
   createdAt: number
 }
 
-export type NoteCollapseState = 'expanded' | 'collapsed' | 'compact'
+export interface FreedrawItem {
+  id: string
+  type: 'freedraw'
+  points: GeoPoint[]
+  style?: Style
+  createdAt: number
+}
+
+export interface PenPoint {
+  at: GeoPoint
+  in?: GeoPoint     // incoming bezier control point (absolute geography)
+  out?: GeoPoint    // outgoing bezier control point (absolute geography)
+}
+
+export interface PenItem {
+  id: string
+  type: 'pen'
+  points: PenPoint[]
+  closed?: boolean
+  style?: Style
+  createdAt: number
+}
+
+export interface RulerItem {
+  id: string
+  type: 'ruler'
+  from: GeoPoint
+  to: GeoPoint
+  unit?: 'metric' | 'imperial'
+  label?: string
+  style?: Style
+  createdAt: number
+}
 
 export interface NoteItem {
   id: string
   type: 'note'
-  position: GeoPoint
+  at: GeoPoint
   title?: string
   text: string
-  backgroundColor: string
-  textColor: string
-  width?: number
-  height?: number
-  minimized?: boolean | 'compact'
-  collapseState?: NoteCollapseState
+  collapsed?: boolean
+  style?: Style
   createdAt: number
 }
 
 export interface TextItem {
   id: string
   type: 'text'
-  position: GeoPoint
+  at: GeoPoint
   text: string
-  color: string
-  initialFontSize?: number
-  baseZoom?: number
-  fontWeight?: 'normal' | 'bold'
-  backgroundColor?: string
+  style?: Style
   createdAt: number
 }
 
-export type TualItem = ArrowItem | FreeDrawItem | ShapeItem | NoteItem | TextItem
+export interface ArtboardItem {
+  id: string
+  type: 'artboard'
+  from: GeoPoint
+  to: GeoPoint
+  title: string
+  style?: Style
+  createdAt: number
+}
+
+export type Item =
+  | ArrowItem | ShapeItem | FreedrawItem | PenItem | RulerItem
+  | NoteItem | TextItem | ArtboardItem
 ```
 
-## Installation
-
-```bash
-npm install leaflet-tual leaflet react-leaflet
-# or
-pnpm add leaflet-tual leaflet react-leaflet
-# or
-yarn add leaflet-tual leaflet react-leaflet
-# or
-bun add leaflet-tual leaflet react-leaflet
-```
-
-## Quick Start Example
+## Quick Start (React)
 
 ```tsx
 import { MapContainer, TileLayer } from 'react-leaflet'
-import { LeafletTual, useLeafletTual } from 'leaflet-tual/react'
+import { LeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet-tual/styles.css'
 
-export function MapAnnotationsView() {
-  const controller = useLeafletTual({
-    initialItems: [
-      {
-        id: 'start-point',
-        type: 'shape',
-        shape: 'marker',
-        start: { lat: 40.7128, lng: -74.006 },
-        end: { lat: 40.7168, lng: -74.0 },
-        color: '#2563eb',
-        filled: true,
-        fillColor: '#60a5fa',
-        strokeWidth: 2,
-        label: 'Waypoint Alpha',
-        createdAt: Date.now(),
-      },
-    ],
-  })
-
+export function MapView() {
   return (
-    <MapContainer center={[40.7128, -74.006]} zoom={13} style={{ height: '100vh', width: '100%' }}>
+    <MapContainer center={[41.01, 28.97]} zoom={13} style={{ height: '100vh' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LeafletTual controller={controller} toolbarPosition="top-center" />
+      <LeafletTual theme="system" onChange={(doc, { committed }) => committed && save(doc)} />
     </MapContainer>
   )
 }
 ```
 
-## Decoupled External Toolbar Example
+## Vanilla JS Core (No React)
 
-```tsx
-import { MapContainer, TileLayer } from 'react-leaflet'
-import { TualToolbar, LeafletTual, useLeafletTual } from 'leaflet-tual/react'
-import 'leaflet/dist/leaflet.css'
+```ts
+import L from 'leaflet'
+import { createLeafletTual, emptyDoc } from 'leaflet-tual'
+import 'leaflet-tual/styles.css'
 
-export function DecoupledView() {
-  const controller = useLeafletTual()
+const map = L.map('map').setView([41.01, 28.97], 13)
+const tual = createLeafletTual(map, {
+  defaultValue: emptyDoc(),
+  theme: 'system',
+  toolbar: { position: 'top-left' },
+  onChange: (doc, info) => info.committed && save(doc),
+})
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <header style={{ padding: '8px 16px', background: '#ffffff', borderBottom: '1px solid #e5e7eb' }}>
-        <TualToolbar controller={controller} orientation="horizontal" />
-      </header>
-      <div style={{ flex: 1, position: 'relative' }}>
-        <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100%', width: '100%' }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <LeafletTual controller={controller} showToolbar={false} />
-        </MapContainer>
-      </div>
-    </div>
-  )
-}
+tual.setTool('freedraw') // or tual.setTool('pen') for the bezier pen
+tual.on('select', (items) => console.log(items))
+// cleanup
+tual.destroy()
 ```
 
-## Component API Reference
+## Controller API (`useLeafletTual` & `createLeafletTual`)
 
-### `<LeafletTual>` Props
-- `controller?: LeafletTualController`: External canvas controller instance from `useLeafletTual()`. If omitted, creates an internal controller.
-- `map?: L.Map | null`: Explicit Leaflet map instance (required when rendered outside `<MapContainer>`).
-- `readOnly?: boolean`: Read-only view mode; disables drawing, editing, and selection. Floating toolbar is hidden by default.
-- `showToolbar?: boolean`: Explicit toggle for floating toolbar visibility (defaults to `!readOnly`).
-- `toolbarPosition?: ToolbarPosition`: Placement of embedded floating toolbar (`'top'`, `'bottom'`, `'left'`, `'right'`, `'top-center'`, `'bottom-center'`, `'left-center'`, `'right-center'`; default: `'top-center'`).
-- `toolbarOrientation?: ToolbarOrientation`: Layout orientation of embedded toolbar (`'horizontal' | 'vertical'`).
-- `collapsible?: boolean`: Allow the embedded toolbar to collapse into a trigger icon.
-- `defaultCollapsed?: boolean`: Initial collapsed state of toolbar.
-- `collapsed?: boolean`: Controlled collapsed state of toolbar.
-- `onCollapsedChange?: (collapsed: boolean) => void`: Callback when toolbar collapsed state changes.
-- `showCollapseButton?: boolean`: Show or hide toolbar collapse toggle button.
-- `enabledTools?: readonly ToolbarToolGroupId[]`: Limit toolbar tools (`'select'`, `'freedraw'`, `'arrow'`, `'shape'`, `'note'`, `'text'`).
-- `customTools?: readonly CustomToolbarItem[]`: Custom action items or buttons inserted into the toolbar.
-- `showHistoryControls?: boolean`: Show Undo and Redo toolbar buttons.
-- `showDeleteButton?: boolean`: Show Delete selected item toolbar button.
-- `showClearButton?: boolean`: Show Clear All annotations toolbar button.
-- `showToolLabels?: boolean`: Show text labels alongside toolbar tool icons.
-- `labels?: TualLabels`: Localization strings and aria-label overrides for all buttons and modals.
-- `icons?: TualIcons`: ReactNode icon overrides for all toolbar items.
-- `unstyled?: boolean`: Strip default CSS styling for zero-specificity custom themes.
-- `classNames?: LeafletTualClassNames`: Fine-grained CSS class overrides for canvas, overlay containers, toolbar, notes, and text.
-- `styles?: LeafletTualStyles`: Fine-grained inline style overrides.
-- `annotationTheme?: TualAnnotationTheme`: 2D canvas styling theme (handles, control lines, selection halos, labels).
-- `arrowTheme?: ArrowRenderTheme`: Alias for `annotationTheme`.
-- `strokeColors?: readonly string[]`: Color palette swatches for stroke color picker.
-- `strokeWidthOptions?: readonly number[]`: Preset stroke width options (default: `[1, 2, 3, 4, 5, 6, 8, 10, 12]`).
-- `fontSizeOptions?: readonly number[]`: Preset font size options for text overlays.
-- `renderToolbar?: (controller: LeafletTualController) => React.ReactNode`: Custom toolbar render function.
-- `renderNote?: (props: RenderNoteProps) => React.ReactNode`: Custom sticky note component renderer.
-- `renderText?: (props: RenderTextProps) => React.ReactNode`: Custom text overlay component renderer.
-- `clampOverlaysToViewport?: boolean`: Keep sticky notes and text overlays within map viewport boundaries (default: `true`).
-- `autoMinimizeNotesZoom?: number`: Zoom level below which notes automatically collapse into compact markers.
-- `autoMinimizeTextZoom?: number`: Zoom level below which text overlays automatically collapse into compact markers.
-- `zIndex?: number`: CSS z-index applied to the canvas and overlay containers (default: `650`).
-- `className?: string`: Container CSS class name.
-- `style?: React.CSSProperties`: Container inline styles.
-- `onChange?: (items: TualItem[]) => void` / `onItemsChange?: (items: TualItem[]) => void`: Immediate change callback fired on every annotation mutation.
-- `onChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void` / `onItemsChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void`: Completion callback fired when an edit finishes (click outside, blur, Escape, deselect). Aliased by `onEditEnd` and `onEditComplete`.
-- `onItemSelect?: (item: TualItem | null) => void`: Fired when selection changes.
-- `onItemCreate?: (item: TualItem) => void`: Fired when a new item is finalized.
-- `onItemChange?: (item: TualItem) => void`: Fired when an existing item is updated.
-- `onItemChangeComplete?: (item: TualItem) => void`: Fired when an item edit operation commits.
-- `onItemDelete?: (id: string) => void`: Fired when an item is removed.
+State:
+- `doc: Doc`
+- `items: Item[]`
+- `tool: ToolId`
+- `variant: string | null`
+- `style: Style`
+- `selection: string[]`
+- `selected: Item[]`
+- `scheme: 'light' | 'dark'`
+- `readOnly: boolean`
+- `canUndo: boolean`
+- `canRedo: boolean`
 
-### `<TualToolbar>` Props
-- `controller: LeafletTualController`: Target canvas controller instance.
-- `position?: ToolbarPosition`: Preset positioning styling.
-- `orientation?: ToolbarOrientation`: Layout orientation (`'horizontal' | 'vertical'`).
-- `collapsible?: boolean`: Allow collapsing the toolbar.
-- `defaultCollapsed?: boolean`: Initial collapsed state.
-- `collapsed?: boolean`: Controlled collapsed state.
-- `onCollapsedChange?: (collapsed: boolean) => void`: Collapsed state handler.
-- `showCollapseButton?: boolean`: Render the collapse button.
-- `readOnly?: boolean`: Render in read-only mode.
-- `enabledTools?: readonly ToolbarToolGroupId[]`: Enabled tool groups.
-- `customTools?: readonly CustomToolbarItem[]`: Custom action items.
-- `showHistoryControls?: boolean`: Render Undo/Redo controls.
-- `showDeleteButton?: boolean`: Render Delete button.
-- `showClearButton?: boolean`: Render Clear All button.
-- `showToolLabels?: boolean`: Render text labels below icons.
-- `labels?: TualLabels`: Label and placeholder overrides.
-- `icons?: TualIcons`: Icon overrides.
-- `unstyled?: boolean`: Strip default styles.
-- `classNames?: LeafletTualClassNames`: CSS class overrides.
-- `styles?: LeafletTualStyles`: Inline style overrides.
-- `strokeColors?: readonly string[]`: Color palette options.
-- `strokeWidthOptions?: readonly number[]`: Stroke width options.
-- `fontSizeOptions?: readonly number[]`: Font size options.
-- `className?: string`: Wrapper class name.
-- `style?: React.CSSProperties`: Wrapper inline styles.
+Actions:
+- `setTool(tool, variant?)`
+- `setStyle(patch)` (selection-aware)
+- `add(item)`
+- `update(id, patch)`
+- `remove(ids?)`
+- `clear()`
+- `select(ids)`
+- `edit(id)`
+- `undo()` / `redo()`
+- `fit(target)` ('all', 'selection', artboardId)
+- `exportPNG(artboardId, opts?)`
+- `load(doc)`
+- `setReadOnly(boolean)`
+- `pages.list`, `pages.active`, `pages.add(name?)`, `pages.rename(id, name)`, `pages.duplicate(id)`, `pages.remove(id)`, `pages.move(id, toIndex)`, `pages.select(id)`
 
-## Controller Hook API Reference
-
-### `useLeafletTual(options)` Options
-- `initialItems?: TualItem[]`: Uncontrolled initial annotations.
-- `items?: TualItem[]`: Controlled annotations array.
-- `maxHistory?: number`: Undo/redo history size (default: `50`).
-- `readOnly?: boolean`: Initial read-only state.
-- `defaultColor?: string`: Default stroke color (default: `'#000000'`).
-- `defaultStrokeWidth?: number`: Default stroke width (default: `2`).
-- `defaultNoteColor?: string`: Default sticky note background color.
-- `defaultFontSize?: number`: Default text overlay font size (default: `16`).
-- `defaultShape?: ShapeKind`: Default shape kind (default: `'square'`).
-- `initialTool?: TualTool`: Initial active tool (default: `'select'`).
-- `onChange?: (items: TualItem[]) => void` / `onItemsChange?: (items: TualItem[]) => void`: Immediate change callback.
-- `onChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void` / `onItemsChangeComplete?: (items: TualItem[], targetItem?: TualItem | null) => void`: Edit completion callback.
-- `onItemSelect?: (item: TualItem | null) => void`: Selection callback.
-- `onItemCreate?: (item: TualItem) => void`: Item creation callback.
-- `onItemChange?: (item: TualItem) => void`: Item update callback.
-- `onItemChangeComplete?: (item: TualItem) => void`: Item edit complete callback.
-- `onItemDelete?: (id: string) => void`: Item deletion callback.
-- `onToolChange?: (tool: TualTool) => void`: Active tool change callback.
-
-### `LeafletTualController` Properties & Methods
-- **Items State**:
-  - `items: TualItem[]`: Array of all active annotations.
-  - `selectedId: string | null`: Currently selected item ID.
-  - `selectedItem: TualItem | null`: Currently selected item object.
-  - `addItem(item: TualItem): void`: Appends a new item to the canvas.
-  - `updateItem(id: string, patch: Partial<TualItem>): void`: Updates properties on an item.
-  - `removeItem(id: string): void` / `deleteItem(id: string): void`: Removes an item by ID.
-  - `deleteSelected(): void`: Deletes the currently selected item.
-  - `clearAll(): void` / `clear(): void`: Removes all items from the canvas.
-  - `setSelectedId(id: string | null): void` / `selectItem(id: string | null): void`: Sets selected item ID.
-- **Tool & Drawing State**:
-  - `activeTool: TualTool`: Active canvas tool.
-  - `setActiveTool(tool: TualTool): void` / `setTool(tool: TualTool): void`: Switches active tool.
-  - `activeShape: ShapeKind`: Active shape kind for shape tool.
-  - `setActiveShape(shape: ShapeKind): void`: Sets shape kind.
-  - `shapeFilled: boolean`: Shape fill toggle state.
-  - `setShapeFilled(filled: boolean): void`: Toggles shape fill.
-  - `activeColor: string`: Active stroke color.
-  - `setActiveColor(color: string): void`: Sets active stroke color.
-  - `strokeWidth: number`: Active stroke width.
-  - `setStrokeWidth(width: number): void`: Sets active stroke width.
-  - `dashed: boolean`: Dashed stroke toggle state.
-  - `setDashed(dashed: boolean): void`: Toggles dashed stroke.
-  - `noteColor: string`: Active note background color.
-  - `setNoteColor(color: string): void`: Sets active note background color.
-  - `fontSize: number`: Active text overlay font size.
-  - `setFontSize(size: number): void`: Sets active font size.
-  - `fontWeight: 'normal' | 'bold'`: Active font weight.
-  - `setFontWeight(weight: 'normal' | 'bold'): void`: Sets active font weight.
-  - `readOnly: boolean`: Active read-only mode state.
-  - `setReadOnly(readOnly: boolean): void`: Toggles read-only mode.
-- **History & Notifications**:
-  - `canUndo: boolean`: True if undo is possible.
-  - `canRedo: boolean`: True if redo is possible.
-  - `undo(): void`: Steps backward in history stack.
-  - `redo(): void`: Steps forward in history stack.
-  - `notifyChangeComplete(targetItem?: TualItem | null): void`: Explicitly dispatches change-complete notification.
-- **Serialization**:
-  - `exportJSON(): string`: Serializes all canvas items to a JSON string.
-  - `importJSON(json: string): boolean`: Replaces canvas items with parsed JSON. Returns `true` on success.
-
-## Pure Geometry & Coordinate Utilities
-
-Importable directly from `leaflet-tual`:
-
-- `geoToScreen(map: L.Map, point: GeoPoint): ScreenPoint`: Projects `{ lat, lng }` to container pixel coordinates `{ x, y }`.
-- `screenToGeo(map: L.Map, point: ScreenPoint): GeoPoint`: Inverse-projects container pixel coordinates `{ x, y }` to `{ lat, lng }`.
-- `constrainToAspectRatio(anchor: ScreenPoint, target: ScreenPoint, aspectRatio = 1): ScreenPoint`: Locks bounding box to aspect ratio (e.g. 1:1 on Shift drag).
-- `constrainAngleTo45Degrees(anchor: ScreenPoint, target: ScreenPoint): ScreenPoint`: Snaps direction angle from anchor to nearest 45° increment (0°, 45°, 90°, 135°, etc.).
-- `computeDefaultControlGeoPoint(start: GeoPoint, end: GeoPoint, curvature = 0.25): GeoPoint`: Calculates perpendicular offset control point for curved quadratic Bezier arrows.
-- `getQuadraticBezierPoint(p0: ScreenPoint, p1: ScreenPoint, p2: ScreenPoint, t: number): ScreenPoint`: Evaluates point on quadratic Bezier curve at parameter `t` (`0 <= t <= 1`).
-- `getQuadraticEndAngle(p0: ScreenPoint, p1: ScreenPoint, p2: ScreenPoint): number`: Computes tangent angle at arrow endpoint for arrowhead alignment.
-- `distanceToSegment(p: ScreenPoint, v: ScreenPoint, w: ScreenPoint): number`: Computes shortest distance from point `p` to segment `vw` for click hit-testing.
-- `distanceToQuadraticBezier(p: ScreenPoint, p0: ScreenPoint, p1: ScreenPoint, p2: ScreenPoint, steps = 24): number`: Computes approximate distance from point `p` to a quadratic Bezier curve.
-- `getMapDimensions(map: L.Map | null | undefined): { width: number; height: number } | null`: Safely reads map container width and height.
-- `truncateTualText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string`: Truncates string with ellipsis (`…`) based on Canvas 2D measurement.
-- `calculateZoomFontSize(initialFontSize = 16, currentZoom: number | null, baseZoom = 14, options?): number`: Calculates zoom-scaled font size with configurable scale factor, min, and max bounds.
-- `createId(prefix = 'rlc'): string`: Generates collision-resistant unique item IDs.
+## Geometry Utilities
+- `toWorld(geo)` / `fromWorld(point)`: Spherical Mercator world meters projection
+- `geoToScreen(map, geo)` / `screenToGeo(map, point)`
+- `lockAspect(anchor, target, ratio = 1)` (world space)
+- `snapAngle(anchor, target, step = 45)` (world space)
+- `defaultVia(from, to, curvature = 0.25)` (world space)
+- `distance(a, b)` / `pathDistance(points)` / `formatDistance(meters, unit)`
+- `bounds(item)` / `hitTest(item, point, tolerance)`
+- `resolveColor(name, scheme, tokens?)`

@@ -1,10 +1,10 @@
 'use client'
 
 import { Trash2 } from 'lucide-react'
-import type { LeafletTualController } from 'leaflet-tual/react'
+import type { Controller } from 'leaflet-tual/react'
 
 interface WorkbenchAnnotationsListProps {
-  controller: LeafletTualController
+  controller: Controller
   readOnly: boolean
 }
 
@@ -21,7 +21,7 @@ export function WorkbenchAnnotationsList({
         {controller.items.length > 0 && !readOnly && (
           <button
             type="button"
-            onClick={() => controller.clearAll()}
+            onClick={() => controller.clear()}
             className="text-[11px] text-danger hover:underline font-semibold cursor-pointer"
           >
             Clear All
@@ -36,14 +36,14 @@ export function WorkbenchAnnotationsList({
           </div>
         ) : (
           controller.items.map((item) => {
-            const isSelected = item.id === controller.selectedId
+            const isSelected = controller.selection.includes(item.id)
             let label = item.type.toUpperCase()
             let detail = ''
             if (item.type === 'arrow') {
-              label = `Arrow (${item.arrowStyle})`
+              label = `Arrow (${item.kind})`
               detail = item.label || 'Vector arrow'
             } else if (item.type === 'shape') {
-              label = `Shape (${item.shape})`
+              label = `Shape (${item.kind})`
               detail = item.label || 'Geometric shape'
             } else if (item.type === 'note') {
               label = 'Sticky Note'
@@ -52,21 +52,25 @@ export function WorkbenchAnnotationsList({
               label = 'Text'
               detail = item.text || 'Text annotation'
             } else if (item.type === 'freedraw') {
-              label = 'Free Draw'
+              label = 'Free draw'
               detail = `${item.points.length} pts`
+            } else if (item.type === 'pen') {
+              label = 'Pen'
+              detail = `${item.points.length} anchors${item.closed ? ' · closed' : ''}`
+            } else if (item.type === 'ruler') {
+              label = 'Ruler'
+              detail = item.label || 'Distance meter'
             }
 
             return (
               <div
                 key={item.id}
                 tabIndex={0}
-                onClick={() => controller.setSelectedId(item.id)}
+                onClick={() => controller.select(item.id)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    controller.setSelectedId(item.id)
-                    if (item.type === 'shape') {
-                      controller.setEditingLabel?.(true)
-                    }
+                    controller.select(item.id)
+                    controller.edit(item.id)
                   }
                 }}
                 className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-mono cursor-pointer transition-colors border outline-none focus-visible:ring-1 focus-visible:ring-accent ${
@@ -84,7 +88,7 @@ export function WorkbenchAnnotationsList({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
-                      controller.removeItem(item.id)
+                      controller.remove(item.id)
                     }}
                     className="p-1 text-text-muted hover:text-danger cursor-pointer"
                     title="Delete item"
@@ -100,4 +104,3 @@ export function WorkbenchAnnotationsList({
     </div>
   )
 }
-

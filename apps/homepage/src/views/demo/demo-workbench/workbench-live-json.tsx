@@ -1,10 +1,10 @@
 'use client'
 
 import { Check, Code, Copy } from 'lucide-react'
-import type { LeafletTualController } from 'leaflet-tual/react'
+import type { Controller } from 'leaflet-tual/react'
 
 interface WorkbenchLiveJsonProps {
-  controller: LeafletTualController
+  controller: Controller
   copied: boolean
   onCopyJson: () => void
 }
@@ -40,9 +40,8 @@ export function WorkbenchLiveJson({
         </button>
       </div>
       <pre className="font-mono text-[10px] bg-bg-app border border-border-primary rounded-lg p-2.5 max-h-40 overflow-y-auto text-emerald-600 dark:text-emerald-400 leading-relaxed scrollbar-thin">
-        {controller.exportJSON()}
+        {JSON.stringify(controller.doc, null, 2)}
       </pre>
     </div>
   )
 }
-

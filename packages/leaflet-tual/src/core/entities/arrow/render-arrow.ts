@@ -1,194 +1,242 @@
 import type L from 'leaflet'
-import type { ArrowItem, ArrowRenderTheme, ScreenPoint } from '../../types/index.js'
+import type { ArrowItem, ScreenPoint, Tokens } from '../../types/index.js'
 import {
-  computeDefaultControlGeoPoint,
-  distanceToQuadraticBezier,
-  distanceToSegment,
+  defaultVia,
   geoToScreen,
+  getCubicBezierPoint,
   getQuadraticBezierPoint,
-  getQuadraticEndAngle,
 } from '../../shared/geo.js'
-import { drawTualHandle, drawTualLabelPill } from '../../shared/tual-render.js'
-import { drawArrowHead, traceArrowPath } from './arrow-geometry.js'
+import {
+  resolveColor,
+  resolveDash,
+  resolveSize,
+  resolveWeight,
+  resolveWidth,
+} from '../../shared/theme.js'
+import { drawHandle, drawLabelPill } from '../../shared/canvas-utils.js'
+import { getItemZoomScale } from '../../shared/zoom.js'
+import { drawArrowHead } from './arrow-geometry.js'
 
-export type ArrowHandleType = 'start' | 'end' | 'control'
-
-export interface ProjectedArrow {
-  start: ScreenPoint
-  end: ScreenPoint
-  control: ScreenPoint
+function trimQuadBezier(
+  p0: ScreenPoint,
+  p1: ScreenPoint,
+  p2: ScreenPoint,
+  t0: number,
+  t1: number,
+): { q0: ScreenPoint; q1: ScreenPoint; q2: ScreenPoint } {
+  const q0 = {
+    x: (1 - t0) * (1 - t0) * p0.x + 2 * (1 - t0) * t0 * p1.x + t0 * t0 * p2.x,
+    y: (1 - t0) * (1 - t0) * p0.y + 2 * (1 - t0) * t0 * p1.y + t0 * t0 * p2.y,
+  }
+  const q1 = {
+    x: (1 - t0) * (1 - t1) * p0.x + (t0 + t1 - 2 * t0 * t1) * p1.x + t0 * t1 * p2.x,
+    y: (1 - t0) * (1 - t1) * p0.y + (t0 + t1 - 2 * t0 * t1) * p1.y + t0 * t1 * p2.y,
+  }
+  const q2 = {
+    x: (1 - t1) * (1 - t1) * p0.x + 2 * (1 - t1) * t1 * p1.x + t1 * t1 * p2.x,
+    y: (1 - t1) * (1 - t1) * p0.y + 2 * (1 - t1) * t1 * p1.y + t1 * t1 * p2.y,
+  }
+  return { q0, q1, q2 }
 }
 
-export function projectArrow(map: L.Map, arrow: ArrowItem): ProjectedArrow {
-  const start = geoToScreen(map, arrow.start)
-  const end = geoToScreen(map, arrow.end)
-  const needsOffsetControl =
-    arrow.arrowStyle === 'curved' || arrow.arrowStyle === 's-curve'
-  const controlGeo = arrow.controlPoint
-    ? arrow.controlPoint
-    : needsOffsetControl
-      ? computeDefaultControlGeoPoint(arrow.start, arrow.end)
-      : {
-          lat: (arrow.start.lat + arrow.end.lat) / 2,
-          lng: (arrow.start.lng + arrow.end.lng) / 2,
-        }
-  const control = geoToScreen(map, controlGeo)
-  return { start, end, control }
+function trimCubicBezier(
+  p0: ScreenPoint,
+  p1: ScreenPoint,
+  p2: ScreenPoint,
+  p3: ScreenPoint,
+  t0: number,
+  t1: number,
+): { q0: ScreenPoint; q1: ScreenPoint; q2: ScreenPoint; q3: ScreenPoint } {
+  const a = { x: (1 - t1) * p0.x + t1 * p1.x, y: (1 - t1) * p0.y + t1 * p1.y }
+  const b = { x: (1 - t1) * p1.x + t1 * p2.x, y: (1 - t1) * p1.y + t1 * p2.y }
+  const c = { x: (1 - t1) * p2.x + t1 * p3.x, y: (1 - t1) * p2.y + t1 * p3.y }
+  const d = { x: (1 - t1) * a.x + t1 * b.x, y: (1 - t1) * a.y + t1 * b.y }
+  const e = { x: (1 - t1) * b.x + t1 * c.x, y: (1 - t1) * b.y + t1 * c.y }
+  const f = { x: (1 - t1) * d.x + t1 * e.x, y: (1 - t1) * d.y + t1 * e.y }
+
+  if (t0 <= 0.0001) {
+    return { q0: p0, q1: a, q2: d, q3: f }
+  }
+
+  const u = t0 / t1
+  const a2 = { x: (1 - u) * p0.x + u * a.x, y: (1 - u) * p0.y + u * a.y }
+  const b2 = { x: (1 - u) * a.x + u * d.x, y: (1 - u) * a.y + u * d.y }
+  const c2 = { x: (1 - u) * d.x + u * f.x, y: (1 - u) * d.y + u * f.y }
+  const d2 = { x: (1 - u) * a2.x + u * b2.x, y: (1 - u) * a2.y + u * b2.y }
+  const e2 = { x: (1 - u) * b2.x + u * c2.x, y: (1 - u) * b2.y + u * c2.y }
+  const f2 = { x: (1 - u) * d2.x + u * e2.x, y: (1 - u) * d2.y + u * e2.y }
+
+  return { q0: f2, q1: e2, q2: c2, q3: f }
 }
 
 export function renderArrowOnCanvas(
   ctx: CanvasRenderingContext2D,
-  projected: ProjectedArrow,
-  arrow: Pick<
-    ArrowItem,
-    'arrowStyle' | 'color' | 'strokeWidth' | 'dashed' | 'headStyle' | 'label'
-  >,
+  map: L.Map,
+  arrow: ArrowItem,
+  scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
-    isPreview?: boolean
-    theme?: ArrowRenderTheme
+    isEditing?: boolean
+    tokens?: Partial<Tokens>
   } = {},
 ) {
-  const { start, end, control } = projected
+  const start = geoToScreen(map, arrow.from)
+  const end = geoToScreen(map, arrow.to)
   const dist = Math.hypot(end.x - start.x, end.y - start.y)
-  if (dist < 2) return
+  if (dist < 1) return
 
-  const theme = options.theme
-  const headSize = Math.max(12, arrow.strokeWidth * 3.8)
-
-  let endAngle = Math.atan2(end.y - start.y, end.x - start.x)
-  let startAngle = Math.atan2(start.y - end.y, start.x - end.x)
-
-  if (arrow.arrowStyle === 'curved') {
-    endAngle = getQuadraticEndAngle(start, control, end)
-    startAngle = getQuadraticEndAngle(end, control, start)
-  } else if (arrow.arrowStyle === 'elbow') {
-    const dx = end.x - control.x
-    const dy = end.y - start.y
-    endAngle = Math.abs(dx) > 1 ? Math.atan2(0, dx) : Math.atan2(dy, 0)
-    const sdx = start.x - control.x
-    startAngle = Math.abs(sdx) > 1 ? Math.atan2(0, sdx) : Math.atan2(-dy, 0)
-  } else if (arrow.arrowStyle === 's-curve') {
-    const dx = end.x - start.x
-    endAngle = getQuadraticEndAngle(start, { x: start.x + dx * 0.5, y: end.y }, end)
-  }
+  const scale = getItemZoomScale(map, arrow)
+  const color = resolveColor(arrow.style?.strokeColor ?? arrow.style?.color ?? 'ink', scheme, options.tokens)
+  const baseLineWidth = resolveWidth(arrow.style?.width ?? 'm')
+  const lineWidth = Math.max(0.5, baseLineWidth * scale)
+  const dash = resolveDash(arrow.style?.dash ?? 'solid').map((d) => d * scale)
+  const heads = arrow.heads ?? { start: 'none', end: 'triangle' }
+  const headBase = arrow.style?.width === 'l' ? 18 : arrow.style?.width === 's' ? 10 : 14
+  const headSize = Math.max(2, headBase * scale)
 
   ctx.save()
-  if (options.isPreview) ctx.globalAlpha = 0.85
-
-  if (options.isSelected) {
-    ctx.save()
-    ctx.beginPath()
-    traceArrowPath(ctx, projected, arrow.arrowStyle)
-    ctx.strokeStyle = theme?.selectionGlowColor ?? 'rgba(0, 0, 0, 0.2)'
-    ctx.lineWidth = arrow.strokeWidth + (theme?.selectionGlowWidth ?? 6)
-    ctx.lineCap = 'round'
-    ctx.lineJoin = 'round'
-    ctx.stroke()
-    ctx.restore()
-  }
-
-  ctx.save()
-  ctx.shadowColor = theme?.shadowColor ?? 'rgba(0, 0, 0, 0.2)'
-  ctx.shadowBlur = theme?.shadowBlur ?? 3
-  ctx.shadowOffsetY = theme?.shadowOffsetY ?? 1.5
-
-  ctx.beginPath()
-  traceArrowPath(ctx, projected, arrow.arrowStyle)
-  ctx.strokeStyle = arrow.color
-  ctx.lineWidth = arrow.strokeWidth
+  ctx.strokeStyle = color
+  ctx.lineWidth = lineWidth
+  ctx.setLineDash(dash)
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
-  const isDashed = Boolean(arrow.dashed || (arrow.arrowStyle as string) === 'dashed')
-  ctx.setLineDash(isDashed ? [arrow.strokeWidth * 3, arrow.strokeWidth * 2] : [])
-  ctx.stroke()
 
-  const headStyle = arrow.headStyle ?? (arrow.arrowStyle === 'bi' ? 'both' : 'triangle')
-  if (headStyle !== 'none') {
-    drawArrowHead(ctx, end, endAngle, headSize, arrow.color, headStyle !== 'open')
-    if (headStyle === 'both') {
-      drawArrowHead(ctx, start, startAngle, headSize, arrow.color, true)
-    }
-  }
-  ctx.restore()
-
-  if (arrow.label) {
-    const minArrowSize = typeof theme?.labelMinShapeSize === 'number' ? theme.labelMinShapeSize : 24
-    if (minArrowSize <= 0 || dist >= minArrowSize) {
-      const rawMid =
-        arrow.arrowStyle === 'curved'
-          ? getQuadraticBezierPoint(start, control, end, 0.5)
-          : arrow.arrowStyle === 'elbow'
-            ? { x: control.x, y: (start.y + end.y) / 2 }
-            : { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
-      const fitToShape = theme?.fitLabelsToShape !== false
-      const maxW = theme?.labelMaxTextWidth ?? (fitToShape ? Math.max(48, Math.min(280, dist * 1.6)) : Infinity)
-      drawTualLabelPill(ctx, arrow.label, Math.round(rawMid.x), Math.round(rawMid.y), arrow.color, maxW, theme)
-    }
+  let startAngle = Math.atan2(start.y - end.y, start.x - end.x)
+  let endAngle = Math.atan2(end.y - start.y, end.x - start.x)
+  let labelCenter: ScreenPoint = {
+    x: (start.x + end.x) / 2,
+    y: (start.y + end.y) / 2,
   }
 
+  const startOffset = heads.start === 'triangle' ? headSize * 0.72 - 1.5 : 0
+  const endOffset = heads.end === 'triangle' ? headSize * 0.72 - 1.5 : 0
+
+  let viaScreen: ScreenPoint | null = null
+
+  ctx.beginPath()
+
+  if (arrow.kind === 'linear') {
+    if (dist > startOffset + endOffset) {
+      const angle = Math.atan2(end.y - start.y, end.x - start.x)
+      const sx = start.x + Math.cos(angle) * startOffset
+      const sy = start.y + Math.sin(angle) * startOffset
+      const ex = end.x - Math.cos(angle) * endOffset
+      const ey = end.y - Math.sin(angle) * endOffset
+      ctx.moveTo(sx, sy)
+      ctx.lineTo(ex, ey)
+      ctx.stroke()
+    }
+  } else if (arrow.kind === 'curved') {
+    const viaGeo = arrow.via ?? defaultVia(arrow.from, arrow.to)
+    viaScreen = geoToScreen(map, viaGeo)
+    startAngle = Math.atan2(start.y - viaScreen.y, start.x - viaScreen.x)
+    endAngle = Math.atan2(end.y - viaScreen.y, end.x - viaScreen.x)
+    labelCenter = getQuadraticBezierPoint(start, viaScreen, end, 0.5)
+
+    const approxLen =
+      Math.hypot(viaScreen.x - start.x, viaScreen.y - start.y) +
+      Math.hypot(end.x - viaScreen.x, end.y - viaScreen.y)
+
+    const t0 = startOffset > 0 && approxLen > 0 ? Math.min(0.45, startOffset / approxLen) : 0
+    const t1 = endOffset > 0 && approxLen > 0 ? Math.max(0.55, 1 - endOffset / approxLen) : 1
+
+    if (t0 < t1) {
+      const { q0, q1, q2 } = trimQuadBezier(start, viaScreen, end, t0, t1)
+      ctx.moveTo(q0.x, q0.y)
+      ctx.quadraticCurveTo(q1.x, q1.y, q2.x, q2.y)
+      ctx.stroke()
+    }
+  } else if (arrow.kind === 'elbow') {
+    const corner: ScreenPoint = { x: end.x, y: start.y }
+    startAngle = Math.atan2(start.y - corner.y, start.x - corner.x)
+    endAngle = Math.atan2(end.y - corner.y, end.x - corner.x)
+    labelCenter = { x: (corner.x + end.x) / 2, y: (corner.y + end.y) / 2 }
+
+    const segStartLen = Math.hypot(corner.x - start.x, corner.y - start.y)
+    const clampedStartOffset = Math.min(startOffset, Math.max(0, segStartLen - 2))
+    const segEndLen = Math.hypot(end.x - corner.x, end.y - corner.y)
+    const clampedEndOffset = Math.min(endOffset, Math.max(0, segEndLen - 2))
+
+    const sx = start.x - Math.cos(startAngle) * clampedStartOffset
+    const sy = start.y - Math.sin(startAngle) * clampedStartOffset
+    const ex = end.x - Math.cos(endAngle) * clampedEndOffset
+    const ey = end.y - Math.sin(endAngle) * clampedEndOffset
+
+    ctx.moveTo(sx, sy)
+    ctx.lineTo(corner.x, corner.y)
+    ctx.lineTo(ex, ey)
+    ctx.stroke()
+  } else if (arrow.kind === 's-curve') {
+    const c1: ScreenPoint = { x: start.x + (end.x - start.x) * 0.5, y: start.y }
+    const c2: ScreenPoint = { x: start.x + (end.x - start.x) * 0.5, y: end.y }
+    startAngle = Math.atan2(start.y - c1.y, start.x - c1.x)
+    endAngle = Math.atan2(end.y - c2.y, end.x - c2.x)
+    labelCenter = getCubicBezierPoint(start, c1, c2, end, 0.5)
+
+    const approxLen =
+      Math.hypot(c1.x - start.x, c1.y - start.y) +
+      Math.hypot(c2.x - c1.x, c2.y - c1.y) +
+      Math.hypot(end.x - c2.x, end.y - c2.y)
+
+    const t0 = startOffset > 0 && approxLen > 0 ? Math.min(0.45, startOffset / approxLen) : 0
+    const t1 = endOffset > 0 && approxLen > 0 ? Math.max(0.55, 1 - endOffset / approxLen) : 1
+
+    if (t0 < t1) {
+      const { q0, q1, q2, q3 } = trimCubicBezier(start, c1, c2, end, t0, t1)
+      ctx.moveTo(q0.x, q0.y)
+      ctx.bezierCurveTo(q1.x, q1.y, q2.x, q2.y, q3.x, q3.y)
+      ctx.stroke()
+    }
+  }
+
+  // Draw arrowheads
+  if (heads.start && heads.start !== 'none') {
+    drawArrowHead(ctx, start, startAngle, heads.start, color, headSize, lineWidth)
+  }
+  if (heads.end && heads.end !== 'none') {
+    drawArrowHead(ctx, end, endAngle, heads.end, color, headSize, lineWidth)
+  }
+
+  // Draw label
+  if (arrow.label && !options.isEditing) {
+    const baseFontSize = arrow.style?.fontSize ?? (arrow.style?.size ? resolveSize(arrow.style.size) : 12)
+    drawLabelPill(ctx, labelCenter, arrow.label, {
+      textColor: scheme === 'dark' ? '#ECEAE6' : '#1D1D1B',
+      bgColor: scheme === 'dark' ? '#1E1E1E' : '#FFFFFF',
+      borderColor: scheme === 'dark' ? '#333333' : '#E3E1DD',
+      fontSize: baseFontSize * scale,
+      fontWeight: resolveWeight(arrow.style?.weight),
+      fontStyle: arrow.style?.fontStyle,
+      paddingX: Math.max(3, 4 * scale),
+      paddingY: Math.max(1.5, 2 * scale),
+    })
+  }
+
+  // Draw selection handles
   if (options.isSelected) {
-    const handleRadius = theme?.handleRadius ?? 5
-    const fill = theme?.handleFillColor ?? '#ffffff'
-    const endpointColor = theme?.endpointHandleColor ?? '#4f4f4f'
-    const controlColor = theme?.controlHandleColor ?? '#767676'
-    const strokeWidth = theme?.handleStrokeWidth ?? 2
+    const handleColor = resolveColor('blue', scheme, options.tokens)
+    const handleSize = Math.max(4, 8 * scale)
 
-    if (arrow.arrowStyle === 'curved' || arrow.arrowStyle === 'elbow') {
+    // Curved arrows get a dashed guide from start → control point → end.
+    if (viaScreen) {
       ctx.save()
+      ctx.strokeStyle = handleColor
+      ctx.lineWidth = Math.max(0.5, 1 * scale)
+      ctx.setLineDash([4 * scale, 4 * scale])
       ctx.beginPath()
-      ctx.setLineDash(theme?.guideLineDash ? [...theme.guideLineDash] : [4, 4])
       ctx.moveTo(start.x, start.y)
-      ctx.lineTo(control.x, control.y)
+      ctx.lineTo(viaScreen.x, viaScreen.y)
       ctx.lineTo(end.x, end.y)
-      ctx.strokeStyle = theme?.guideLineColor ?? 'rgba(100, 100, 100, 0.6)'
-      ctx.lineWidth = theme?.guideLineWidth ?? 1.2
       ctx.stroke()
       ctx.restore()
-      drawTualHandle(ctx, control, controlColor, fill, handleRadius + 0.5, strokeWidth)
     }
-    drawTualHandle(ctx, start, endpointColor, fill, handleRadius, strokeWidth)
-    drawTualHandle(ctx, end, endpointColor, fill, handleRadius, strokeWidth)
+
+    drawHandle(ctx, start, handleColor, handleSize)
+    drawHandle(ctx, end, handleColor, handleSize)
+    if (viaScreen) {
+      drawHandle(ctx, viaScreen, handleColor, handleSize)
+    }
   }
 
   ctx.restore()
-}
-
-export function hitTestArrowHandle(
-  point: ScreenPoint,
-  projected: ProjectedArrow,
-  arrow: ArrowItem,
-  tolerance = 11,
-): ArrowHandleType | null {
-  if (Math.hypot(point.x - projected.end.x, point.y - projected.end.y) <= tolerance) return 'end'
-  if (Math.hypot(point.x - projected.start.x, point.y - projected.start.y) <= tolerance) return 'start'
-  if (
-    (arrow.arrowStyle === 'curved' || arrow.arrowStyle === 'elbow') &&
-    Math.hypot(point.x - projected.control.x, point.y - projected.control.y) <= tolerance
-  ) {
-    return 'control'
-  }
-  return null
-}
-
-export function hitTestArrow(
-  point: ScreenPoint,
-  projected: ProjectedArrow,
-  arrow: ArrowItem,
-  tolerance = 9,
-): boolean {
-  const hitThreshold = Math.max(tolerance, arrow.strokeWidth / 2 + 6)
-  if (arrow.arrowStyle === 'curved') {
-    return distanceToQuadraticBezier(point, projected.start, projected.control, projected.end) <= hitThreshold
-  }
-  if (arrow.arrowStyle === 'elbow') {
-    const c1 = { x: projected.control.x, y: projected.start.y }
-    const c2 = { x: projected.control.x, y: projected.end.y }
-    return (
-      distanceToSegment(point, projected.start, c1) <= hitThreshold ||
-      distanceToSegment(point, c1, c2) <= hitThreshold ||
-      distanceToSegment(point, c2, projected.end) <= hitThreshold
-    )
-  }
-  return distanceToSegment(point, projected.start, projected.end) <= hitThreshold
 }

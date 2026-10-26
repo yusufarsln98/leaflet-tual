@@ -14,25 +14,31 @@ if (typeof window.PointerEvent === 'undefined') {
 
 export function createMockMap(overrides: Partial<Record<string, unknown>> = {}): L.Map {
   const mapContainer = document.createElement('div')
+  const draggingState = { enabled: true }
   return {
     getContainer: () => mapContainer,
     getSize: () => ({ x: 800, y: 600 }),
     getZoom: () => 14,
     latLngToContainerPoint: () => ({ x: 100, y: 100 }),
-    containerPointToLatLng: (pt: { x: number; y: number }) => ({
-      lat: pt.y / 10,
-      lng: pt.x / 10,
-    }),
+    containerPointToLatLng: (pt: [number, number] | { x: number; y: number }) => {
+      const [x, y] = Array.isArray(pt) ? pt : [pt.x, pt.y]
+      return { lat: y / 10, lng: x / 10 }
+    },
     layerPointToLatLng: () => ({ lat: 41.0, lng: 28.0 }),
     latLngToLayerPoint: () => ({ x: 100, y: 100 }),
     on: vi.fn(),
     off: vi.fn(),
     dragging: {
+      enable: vi.fn(() => { draggingState.enabled = true }),
+      disable: vi.fn(() => { draggingState.enabled = false }),
+      enabled: () => draggingState.enabled,
+    },
+    doubleClickZoom: {
       enable: vi.fn(),
       disable: vi.fn(),
       enabled: () => true,
     },
-    doubleClickZoom: {
+    boxZoom: {
       enable: vi.fn(),
       disable: vi.fn(),
       enabled: () => true,

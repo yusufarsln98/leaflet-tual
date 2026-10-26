@@ -1,2 +1,3 @@
-export * from './TualToolbar/index.js'
+export * from './Toolbar/index.js'
+export * from './SecondaryTooltip/index.js'
 export * from './LeafletTual/index.js'

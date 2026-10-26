@@ -1,21 +1,28 @@
-import type {
-  TualAnnotationTheme,
-  ShapeKind,
-} from '../../types/index.js'
-import type { ProjectedShape } from './render-shape.js'
+import type { ShapeKind } from '../../types/index.js'
 
-export function tracePolygonShape(
+export interface ShapeBounds {
+  minX: number
+  minY: number
+  maxX: number
+  maxY: number
+  width: number
+  height: number
+  cx: number
+  cy: number
+}
+
+export function traceShapePath(
   ctx: CanvasRenderingContext2D,
-  proj: ProjectedShape,
   kind: ShapeKind,
-  theme?: TualAnnotationTheme,
+  b: ShapeBounds,
+  radius = 8,
 ) {
-  const { minX, minY, maxX, maxY, width, height, cx, cy } = proj
+  const { minX, minY, maxX, maxY, width, height, cx, cy } = b
 
   if (kind === 'square') {
-    const radius = theme?.shapeBorderRadius ?? 0
-    if (radius > 0 && typeof ctx.roundRect === 'function') {
-      ctx.roundRect(minX, minY, width, height, radius)
+    const r = Math.min(radius, width / 2, height / 2)
+    if (r > 0 && typeof ctx.roundRect === 'function') {
+      ctx.roundRect(minX, minY, width, height, r)
     } else {
       ctx.rect(minX, minY, width, height)
     }
@@ -77,14 +84,28 @@ export function tracePolygonShape(
     return
   }
 
-  if (kind === 'marker' || (kind as string) === 'cloud') {
+  if (kind === 'marker') {
     const rx = width / 2
     const ry = height * 0.36
     const headCy = minY + ry
     ctx.moveTo(cx, maxY)
-    ctx.bezierCurveTo(minX + width * 0.05, minY + height * 0.7, minX, minY + height * 0.5, minX, headCy)
+    ctx.bezierCurveTo(
+      minX + width * 0.05,
+      minY + height * 0.7,
+      minX,
+      minY + height * 0.5,
+      minX,
+      headCy,
+    )
     ctx.ellipse(cx, headCy, rx, ry, 0, Math.PI, 0, false)
-    ctx.bezierCurveTo(maxX, minY + height * 0.5, maxX - width * 0.05, minY + height * 0.7, cx, maxY)
+    ctx.bezierCurveTo(
+      maxX,
+      minY + height * 0.5,
+      maxX - width * 0.05,
+      minY + height * 0.7,
+      cx,
+      maxY,
+    )
     ctx.closePath()
 
     const innerRx = rx * 0.35
@@ -106,7 +127,6 @@ export function tracePolygonShape(
     const armSpan = width * 0.36
     const legSpan = width * 0.32
 
-    ctx.moveTo(cx + headRadius, headCy)
     ctx.arc(cx, headCy, headRadius, 0, Math.PI * 2)
     ctx.closePath()
     ctx.moveTo(cx, neckY)
@@ -119,4 +139,3 @@ export function tracePolygonShape(
     ctx.lineTo(cx + legSpan, maxY)
   }
 }
-
