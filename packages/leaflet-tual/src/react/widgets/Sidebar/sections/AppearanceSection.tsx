@@ -2,6 +2,7 @@
 
 import type { Controller, Item, Style } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
+import { Collapsible } from '../../../ui/index.js'
 
 export interface AppearanceSectionProps {
   selectedItem: Item
@@ -19,9 +20,7 @@ export function AppearanceSection({
   const opacity = style.opacity ?? 1
 
   return (
-    <div className="tual-sidebar-section">
-      <div className="tual-sidebar-section-title">{t('appearance')}</div>
-
+    <Collapsible title={t('appearance')} className="tual-sidebar-section">
       <div className="tual-sidebar-prop-row">
         <span className="tual-sidebar-prop-label">{t('opacity')}</span>
         <div className="tual-sidebar-prop-control">
@@ -47,7 +46,7 @@ export function AppearanceSection({
           </div>
         </div>
       </div>
-    </div>
+    </Collapsible>
   )
 }
 

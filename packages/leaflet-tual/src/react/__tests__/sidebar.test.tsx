@@ -30,6 +30,91 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
     expect(onToggle).toHaveBeenCalledTimes(1)
   })
 
+  it('opens a zoom menu with zoom, fit, and history actions', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    const map = createMockMap({ setZoom: vi.fn(), zoomIn: vi.fn(), zoomOut: vi.fn() })
+
+    render(
+      <SidebarTriggerBar
+        controller={result.current}
+        map={map}
+        currentZoom={14}
+        sidebarOpen={false}
+        onToggleSidebar={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(screen.getByTitle('Zoom level'))
+
+    expect(screen.getByText('Zoom in')).toBeDefined()
+    expect(screen.getByText('Zoom out')).toBeDefined()
+    expect(screen.getByText('Fit in View')).toBeDefined()
+    expect(screen.getByText('Fit selection')).toBeDefined()
+    expect(screen.getByText('Undo')).toBeDefined()
+    expect(screen.getByText('Redo')).toBeDefined()
+
+    const fitAll = screen.getByText('Fit in View').closest('button') as HTMLButtonElement
+    const fitSelection = screen.getByText('Fit selection').closest('button') as HTMLButtonElement
+    expect(fitAll.disabled).toBe(true)
+    expect(fitSelection.disabled).toBe(true)
+
+    fireEvent.click(screen.getByText('50%'))
+    expect(map.setZoom).toHaveBeenCalledWith(12)
+    expect(screen.queryByText('Zoom in')).toBeNull()
+  })
+
+  it('fits all items and the current selection from the zoom menu', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+
+    act(() => {
+      const item = result.current.add({
+        type: 'text',
+        at: { lat: 41.05, lng: 28.05 },
+        text: 'Hello',
+      })
+      result.current.select(item.id)
+    })
+
+    const map = createMockMap({ setZoom: vi.fn() })
+    render(<LeafletTual map={map} controller={result.current} />)
+
+    fireEvent.click(screen.getByTitle('Zoom level'))
+    fireEvent.click(screen.getByText('Fit selection'))
+    expect(map.fitBounds).toHaveBeenCalledTimes(1)
+
+    fireEvent.click(screen.getByTitle('Zoom level'))
+    fireEvent.click(screen.getByText('Fit in View'))
+    expect(map.fitBounds).toHaveBeenCalledTimes(2)
+  })
+
+  it('runs undo from the zoom menu', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    const map = createMockMap({ setZoom: vi.fn() })
+
+    act(() => {
+      result.current.add({
+        type: 'text',
+        at: { lat: 41.05, lng: 28.05 },
+        text: 'Hello',
+      })
+    })
+
+    render(
+      <SidebarTriggerBar
+        controller={result.current}
+        map={map}
+        currentZoom={13}
+        sidebarOpen={false}
+        onToggleSidebar={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(screen.getByTitle('Zoom level'))
+    fireEvent.click(screen.getByText('Undo'))
+
+    expect(result.current.items).toHaveLength(0)
+  })
+
   it('shows empty state when sidebar is open and nothing is selected', () => {
     const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
     const map = createMockMap()
@@ -81,9 +166,26 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
     expect(screen.getByText('Square')).toBeDefined()
     expect(screen.getByText('“Park”')).toBeDefined()
 
-    // Properties sections are shown in sidebar
+    // Selecting an item in the sidebar layer tree focuses on it in the map
+    act(() => {
+      result.current.select(null)
+    })
+    fireEvent.click(screen.getByRole('treeitem'))
+    expect(result.current.selection).toEqual([shapeId])
+    expect(map.fitBounds).toHaveBeenCalledTimes(1)
+
+    // Properties sections are shown in sidebar (including Preview) and are collapsible
     expect(screen.getByText('Fill & stroke')).toBeDefined()
     expect(screen.getByText('Appearance')).toBeDefined()
+    expect(screen.getByText('Preview')).toBeDefined()
+    expect(container.querySelector('.tual-sidebar-preview-box')).not.toBeNull()
+
+    // Collapsing and expanding a section via Collapsible header
+    const appearanceHeader = screen.getByText('Appearance').closest('button') as HTMLButtonElement
+    fireEvent.click(appearanceHeader)
+    expect(screen.queryByLabelText('Opacity')).toBeNull()
+    fireEvent.click(appearanceHeader)
+    expect(screen.getByLabelText('Opacity')).toBeDefined()
 
     // Opening a color menu in the sidebar and clicking outside closes the menu
     fireEvent.click(screen.getByTitle('Stroke'))
@@ -111,4 +213,3 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
     expect(result.current.items.find((i) => i.id === shapeId)).toBeUndefined()
   })
 })
-

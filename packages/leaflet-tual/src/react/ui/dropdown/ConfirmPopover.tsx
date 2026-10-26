@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Button } from '../button/index.js'
 import { ICONS } from '../icons/index.js'
 import { Popover } from './Popover.js'
 import type { ConfirmPopoverProps } from './types.js'
+import { useOutsideDismiss } from './use-outside-dismiss.js'
 
 export function ConfirmPopover({
   open: controlledOpen,
@@ -21,37 +22,16 @@ export function ConfirmPopover({
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
   const rootRef = useRef<HTMLDivElement>(null)
 
-  const setOpen = (next: boolean) => {
-    setInternalOpen(next)
-    onOpenChange?.(next)
-  }
+  const setOpen = useCallback(
+    (next: boolean) => {
+      setInternalOpen(next)
+      onOpenChange?.(next)
+    },
+    [onOpenChange],
+  )
 
-  useEffect(() => {
-    if (!isOpen) return
-
-    const handlePointerDownOutside = (e: MouseEvent | PointerEvent) => {
-      const target = e.target as Node | null
-      if (rootRef.current && target && !rootRef.current.contains(target)) {
-        setOpen(false)
-      }
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation()
-        setOpen(false)
-      }
-    }
-
-    document.addEventListener('pointerdown', handlePointerDownOutside, true)
-    document.addEventListener('mousedown', handlePointerDownOutside, true)
-    document.addEventListener('keydown', handleKeyDown, true)
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDownOutside, true)
-      document.removeEventListener('mousedown', handlePointerDownOutside, true)
-      document.removeEventListener('keydown', handleKeyDown, true)
-    }
-  }, [isOpen])
+  const dismiss = useCallback(() => setOpen(false), [setOpen])
+  useOutsideDismiss(rootRef, isOpen, dismiss)
 
   return (
     <div

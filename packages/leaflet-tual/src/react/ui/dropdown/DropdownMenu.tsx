@@ -10,11 +10,7 @@ const LAYOUT_CLASSES: Record<NonNullable<DropdownMenuProps['layout']>, string> =
   'action-menu': 'tual-page-action-menu',
 }
 
-export function DropdownMenu({
-  children,
-  layout = 'list',
-  className,
-}: DropdownMenuProps) {
+export function DropdownMenu({ children, layout = 'list', className }: DropdownMenuProps) {
   const classes = [LAYOUT_CLASSES[layout], className ?? ''].filter(Boolean).join(' ')
   return <div className={classes}>{children}</div>
 }
@@ -25,19 +21,17 @@ export function DropdownItem({
   meta,
   selected = false,
   danger = false,
+  disabled = false,
   variant = 'option',
   title,
   onClick,
 }: DropdownItemProps) {
   if (variant === 'action-menu') {
-    const cls = [
-      'tual-action-menu-item',
-      danger ? 'tual-action-menu-item-danger' : '',
-    ]
+    const cls = ['tual-action-menu-item', danger ? 'tual-action-menu-item-danger' : '']
       .filter(Boolean)
       .join(' ')
     return (
-      <button type="button" className={cls} title={title} onClick={onClick}>
+      <button type="button" className={cls} title={title} disabled={disabled} onClick={onClick}>
         {label}
       </button>
     )
@@ -50,6 +44,7 @@ export function DropdownItem({
         className="tual-btn tual-variant-item"
         data-active={selected}
         title={title}
+        disabled={disabled}
         onClick={onClick}
       >
         {leading && <span className="tual-variant-icon">{leading}</span>}
@@ -65,6 +60,7 @@ export function DropdownItem({
         className="tual-typo-row"
         data-selected={selected}
         title={title}
+        disabled={disabled}
         onClick={onClick}
       >
         <div className="tual-typo-row-label">
@@ -91,9 +87,7 @@ export function DropdownItem({
     )
   }
 
-  const classes = ['tual-option-row', danger ? 'tual-option-danger' : '']
-    .filter(Boolean)
-    .join(' ')
+  const classes = ['tual-option-row', danger ? 'tual-option-danger' : ''].filter(Boolean).join(' ')
 
   return (
     <button
@@ -101,12 +95,13 @@ export function DropdownItem({
       className={classes}
       data-active={selected}
       title={title}
+      disabled={disabled}
       onClick={onClick}
     >
       {leading}
       <span className="tual-option-label">{label}</span>
+      {meta && <span className="tual-option-meta">{meta}</span>}
       {selected && <span className="tual-check">✓</span>}
     </button>
   )
 }
-

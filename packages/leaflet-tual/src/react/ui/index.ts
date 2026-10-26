@@ -5,4 +5,6 @@ export * from './select/index.js'
 export * from './dropdown/index.js'
 export * from './input/index.js'
 export * from './color/index.js'
+export * from './collapsible/index.js'
+
 

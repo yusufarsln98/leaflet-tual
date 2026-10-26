@@ -13,7 +13,10 @@ export interface TranslationTokens {
   redo: string
 
   // Toolbar Chrome & Actions
-  zoomReset: string
+  zoomLevel: string
+  zoomIn: string
+  zoomOut: string
+  fitSelection: string
   toggleSidebar: string
 
   // Sidebar
@@ -27,6 +30,7 @@ export interface TranslationTokens {
   appearance: string
   opacity: string
   typography: string
+  preview: string
   confirmDelete: string
   cancel: string
 

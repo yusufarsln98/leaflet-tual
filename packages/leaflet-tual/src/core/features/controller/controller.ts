@@ -234,7 +234,7 @@ export function createController(
       const items = getActivePage().items
       const set = new Set(selection)
       const targetItems = target === 'all' ? items : target === 'selection' ? items.filter((i) => set.has(i.id)) : items.filter((i) => i.id === target)
-      fitItemsToBounds(mapGetter?.(), targetItems)
+      fitItemsToBounds(getMap(), targetItems)
     },
 
     load(newDoc: Doc) {

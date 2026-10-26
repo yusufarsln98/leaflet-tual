@@ -5,7 +5,7 @@ import type L from 'leaflet'
 import type { ColorName, Item, ShapeItem, Style } from '../../../../core/index.js'
 import { resolveColor, resolveNoteColors, resolveWidth } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { NumberField, Select } from '../../../ui/index.js'
+import { Collapsible, NumberField, Select } from '../../../ui/index.js'
 import { ColorDropdown } from '../../SecondaryTooltip/color/ColorDropdown.js'
 
 export interface FillStrokeSectionProps {
@@ -105,9 +105,7 @@ export function FillStrokeSection({
   }
 
   return (
-    <div className="tual-sidebar-section">
-      <div className="tual-sidebar-section-title">{t('fillAndStroke')}</div>
-
+    <Collapsible title={t('fillAndStroke')} className="tual-sidebar-section">
       {/* Primary Stroke / Text Color Row */}
       {!isNote && (
         <div className="tual-sidebar-prop-row">
@@ -316,7 +314,7 @@ export function FillStrokeSection({
           </div>
         </div>
       )}
-    </div>
+    </Collapsible>
   )
 }
 

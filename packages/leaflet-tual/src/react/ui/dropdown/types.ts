@@ -21,6 +21,7 @@ export interface DropdownItemProps {
   meta?: ReactNode
   selected?: boolean
   danger?: boolean
+  disabled?: boolean
   variant?: 'option' | 'action-menu' | 'variant' | 'typo'
   title?: string
   onClick?: () => void
@@ -43,5 +44,3 @@ export interface ConfirmPopoverProps {
   onConfirm: () => void
   className?: string
 }
-
-

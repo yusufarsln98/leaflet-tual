@@ -15,7 +15,10 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   redo: 'Redo',
 
   // Toolbar Chrome & Actions
-  zoomReset: 'Zoom level (click to reset to 100%)',
+  zoomLevel: 'Zoom level',
+  zoomIn: 'Zoom in',
+  zoomOut: 'Zoom out',
+  fitSelection: 'Fit selection',
   toggleSidebar: 'Toggle sidebar',
 
   // Sidebar
@@ -29,6 +32,7 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   appearance: 'Appearance',
   opacity: 'Opacity',
   typography: 'Typography',
+  preview: 'Preview',
   confirmDelete: 'Delete item?',
   cancel: 'Cancel',
 

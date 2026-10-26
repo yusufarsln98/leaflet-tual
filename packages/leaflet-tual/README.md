@@ -210,7 +210,9 @@ export type Item =
 
 Default layout, one floating row:
 
-`[Page ▾] │ Select · Text · Note · Draw ▾ · Arrow ▾ · Shapes ▾ · Ruler │ Undo · Redo`
+`[Page ▾] │ Select · Text · Note · Draw ▾ · Arrow ▾ · Shapes ▾ · Ruler`
+
+Zoom controls and undo/redo live in the zoom menu next to the sidebar toggle.
 
 The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors with draggable curve handles). With the Select tool, drag a pen's anchors or curve handles to reshape it; dragging one curve handle mirrors the opposite handle.
 
@@ -220,7 +222,6 @@ The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (b
     position: 'top-left',
     tools: ['select', 'freedraw', 'pen', 'arrow', 'shape', 'note'],
     pages: true,
-    history: true,
   }}
 />
 ```

@@ -4,12 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { DrawKind, ToolId } from '../../../core/index.js'
 import type { ToolbarProps } from '../../types/index.js'
 import { Button, Divider } from '../../ui/index.js'
-import {
-  PageSwitcher,
-  ToolbarHistoryControls,
-  ToolbarDrawGroup,
-  ToolbarItemButton,
-} from './controls/index.js'
+import { PageSwitcher, ToolbarDrawGroup, ToolbarItemButton } from './controls/index.js'
 
 const ALL_TOOLS: ToolId[] = ['select', 'text', 'note', 'freedraw', 'pen', 'arrow', 'shape', 'ruler']
 
@@ -22,7 +17,6 @@ export function Toolbar({
   tools = ALL_TOOLS,
   variants,
   pages = true,
-  history = true,
   actions,
 }: ToolbarProps) {
   const [, setTick] = useState(0)
@@ -115,15 +109,7 @@ export function Toolbar({
         )
       })}
 
-      {/* 3. History Undo / Redo */}
-      {history && (
-        <>
-          <Divider variant="toolbar" />
-          <ToolbarHistoryControls controller={controller} />
-        </>
-      )}
-
-      {/* 4. Custom Toolbar Actions */}
+      {/* 3. Custom Toolbar Actions */}
       {actions && actions.length > 0 && (
         <>
           <Divider variant="toolbar" />
@@ -138,7 +124,7 @@ export function Toolbar({
                 act.run?.(controller)
               }}
             >
-              {typeof act.icon === 'function' ? act.icon() : (act.icon ?? act.label)}
+              {typeof act.icon === 'function' ? act.icon() : act.icon ?? act.label}
             </Button>
           ))}
         </>

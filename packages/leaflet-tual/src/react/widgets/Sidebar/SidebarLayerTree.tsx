@@ -113,6 +113,7 @@ export function SidebarLayerTree({ controller }: SidebarLayerTreeProps) {
                           controller.pages.select(page.id)
                         }
                         controller.select(item.id)
+                        controller.fit(item.id)
                       }}
                     >
                       <span className="tual-sidebar-tree-icon">{getItemIcon(item)}</span>

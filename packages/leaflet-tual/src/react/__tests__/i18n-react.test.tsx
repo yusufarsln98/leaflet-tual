@@ -36,8 +36,6 @@ describe('React i18n translation customization', () => {
     expect(screen.getByTitle(/^Cetvel/)).toBeDefined()
     expect(screen.getByTitle(/^Not/)).toBeDefined()
     expect(screen.getByTitle(/^Metin/)).toBeDefined()
-    expect(screen.getByTitle(/^Geri Al/)).toBeDefined()
-    expect(screen.getByTitle(/^Yinele/)).toBeDefined()
 
     // Adding a page uses the pageDefault translation token
     act(() => {

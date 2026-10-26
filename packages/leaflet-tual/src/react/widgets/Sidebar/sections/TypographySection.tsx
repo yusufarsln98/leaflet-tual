@@ -3,7 +3,7 @@
 import type { Controller, FontWeight, Item, LabelPosition, ShapeItem, Style } from '../../../../core/index.js'
 import { resolveSize, WEIGHT_OPTIONS } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { NumberField, Select } from '../../../ui/index.js'
+import { Collapsible, NumberField, Select } from '../../../ui/index.js'
 import { TextFormattingControls } from '../../SecondaryTooltip/typography/TextFormattingControls.js'
 
 export interface TypographySectionProps {
@@ -52,9 +52,7 @@ export function TypographySection({
   ]
 
   return (
-    <div className="tual-sidebar-section">
-      <div className="tual-sidebar-section-title">{t('typography')}</div>
-
+    <Collapsible title={t('typography')} className="tual-sidebar-section">
       <div className="tual-sidebar-prop-row">
         <span className="tual-sidebar-prop-label">{t('fontSize')}</span>
         <div className="tual-sidebar-prop-control">
@@ -121,7 +119,7 @@ export function TypographySection({
           </div>
         </div>
       )}
-    </div>
+    </Collapsible>
   )
 }
 

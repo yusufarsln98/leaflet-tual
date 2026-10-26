@@ -265,7 +265,9 @@ Notes and text-on-fill use a soft surface derived from the color, with automatic
 
 Default layout, one floating row:
 
-`[Page ▾] │ Select · Text · Note · Draw ▾ · Arrow ▾ · Shapes ▾ · Ruler │ Undo · Redo`
+`[Page ▾] │ Select · Text · Note · Draw ▾ · Arrow ▾ · Shapes ▾ · Ruler`
+
+Zoom controls and undo/redo live in the zoom menu next to the sidebar toggle.
 
 The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors, drag from an anchor to shape its curve). Both tools live in one toolbar group; its icon shows the last-used drawing tool. **Pen** supports clicking to add anchors, dragging to pull mirrored control handles, clicking the first anchor to close, `Enter` or a double-click to finish an open path, and `Escape` to cancel. After drawing, use the Select tool to drag anchors or control handles and reshape the path; dragging one control handle mirrors the opposite one.
 
@@ -299,7 +301,6 @@ interface ToolbarOptions {
     shape?: ShapeKind[]
   }
   pages?: boolean             // page switcher, default true
-  history?: boolean           // undo and redo, default true
   actions?: ToolbarAction[]   // your own buttons, appended after the tools
 }
 
@@ -465,7 +466,7 @@ tual.add({ type: 'note', at: { lat: 41.015, lng: 28.97 }, text: 'Meet here', sty
 ### Minimal toolbar for end users
 
 ```tsx
-<LeafletTual toolbar={{ tools: ['select', 'freedraw', 'pen', 'note'], pages: false, history: true }} />
+<LeafletTual toolbar={{ tools: ['select', 'freedraw', 'pen', 'note'], pages: false }} />
 ```
 
 ### Pages
@@ -577,8 +578,9 @@ v2 is a breaking release. There are no aliases and no compatibility layer.
 | `onChange`, `onItemsChange`, `onChangeComplete`, `onEditEnd`, `onEditComplete` | one `onChange(doc, { committed })`                        |
 | `onItemCreate/Change/ChangeComplete/Delete`                          | `info.reason` and `info.ids` on `onChange`                          |
 | `onItemSelect`                                                       | `onSelect(items)`                                                   |
-| `showToolbar`, `toolbarPosition`, `toolbarOrientation`, `enabledTools`, `showHistoryControls`, `showDeleteButton`, `showClearButton`, `showToolLabels` | one `toolbar` object (or `false`) |
+| `showToolbar`, `toolbarPosition`, `toolbarOrientation`, `enabledTools`, `showDeleteButton`, `showClearButton`, `showToolLabels` | one `toolbar` object (or `false`) |
 | `collapsible`, `defaultCollapsed`, `collapsed`, `onCollapsedChange`, `showCollapseButton` | removed; the toolbar is always expanded |
+| `showHistoryControls` | removed; undo/redo live in the zoom menu |
 | `customTools`, `renderToolbar`                                       | `toolbar.actions`, or `toolbar={false}` with your own UI            |
 | `<CanvasToolbar>`                                                    | `<Toolbar>`                                                         |
 | `strokeColors`, `strokeWidthOptions`, `fontSizeOptions`, `annotationTheme`, `arrowTheme` | `theme` and `tokens`; the palette and size scales are fixed |

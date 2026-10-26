@@ -1,8 +1,11 @@
 'use client'
 
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from '../../features/i18n/index.js'
-import { IconButton, ICONS, PillButton } from '../../ui/index.js'
+import { IconButton, ICONS, PillButton, useOutsideDismiss } from '../../ui/index.js'
 import type { SidebarTriggerBarProps } from './types.js'
+import { ZoomMenuPopover } from './ZoomMenuPopover.js'
+import { getZoomPercent, zoomPercentToLevel } from './zoom-utils.js'
 
 export function SidebarTriggerBar({
   controller,
@@ -13,8 +16,21 @@ export function SidebarTriggerBar({
   className,
 }: SidebarTriggerBarProps) {
   const { t } = useTranslation(controller)
-  const effZoom = currentZoom ?? map?.getZoom()
-  const zoomPercent = effZoom !== undefined ? Math.round(Math.pow(2, effZoom - 13) * 100) : 100
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [, setTick] = useState(0)
+
+  useEffect(() => controller.on('state', () => setTick((n) => n + 1)), [controller])
+
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  useOutsideDismiss(menuRef, menuOpen, closeMenu)
+
+  const zoomPercent = getZoomPercent(currentZoom ?? map?.getZoom())
+
+  const handleSelectPreset = (percent: number) => {
+    map?.setZoom(zoomPercentToLevel(percent))
+    closeMenu()
+  }
 
   return (
     <div
@@ -31,16 +47,29 @@ export function SidebarTriggerBar({
         active={sidebarOpen}
         onClick={onToggleSidebar}
       />
-      <PillButton
-        variant="zoom"
-        title={t('zoomReset')}
-        label={<span>{zoomPercent}%</span>}
-        trailing={<span className="tual-page-chevron">{ICONS.chevronDown()}</span>}
-        onClick={() => {
-          map?.setZoom(13)
-        }}
-      />
+
+      <div ref={menuRef} className="tual-zoom-menu-anchor">
+        <PillButton
+          variant="zoom"
+          title={t('zoomLevel')}
+          active={menuOpen}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          label={<span>{zoomPercent}%</span>}
+          trailing={<span className="tual-page-chevron">{ICONS.chevronDown()}</span>}
+          onClick={() => setMenuOpen((open) => !open)}
+        />
+
+        {menuOpen && (
+          <ZoomMenuPopover
+            controller={controller}
+            map={map}
+            zoomPercent={zoomPercent}
+            onSelectPreset={handleSelectPreset}
+            onClose={closeMenu}
+          />
+        )}
+      </div>
     </div>
   )
 }
-

@@ -99,7 +99,6 @@ export interface ToolbarOptions {
     draw?: DrawKind[]
   }
   pages?: boolean
-  history?: boolean
   zoom?: boolean
   actions?: ToolbarAction[]
 }

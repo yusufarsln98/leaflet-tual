@@ -56,8 +56,8 @@ describe('v2 Toolbar Component', () => {
     expect(screen.queryByText('Page 1')).toBeNull()
   })
 
-  it('hides history buttons when history: false', () => {
-    render(<TestToolbar toolbarProps={{ history: false }} />)
+  it('keeps undo and redo out of the primary toolbar', () => {
+    render(<TestToolbar />)
     expect(screen.queryByTitle(/Undo/i)).toBeNull()
     expect(screen.queryByTitle(/Redo/i)).toBeNull()
   })
