@@ -1,11 +1,11 @@
 import type {
   GeoPoint,
   Item,
+  PenHandleType,
   PenPoint,
   ScreenPoint,
+  ShapeHandleType,
 } from '../../../../core/index.js'
-import type { PenHandleType } from './use-pen-handles.js'
-import type { ShapeHandleType } from './use-shape-handles.js'
 
 export type CanvasGesture =
   | {

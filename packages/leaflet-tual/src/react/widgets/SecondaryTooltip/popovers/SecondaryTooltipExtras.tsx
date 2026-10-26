@@ -2,7 +2,7 @@
 
 import type { Controller, Item, ShapeItem, Style } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { ICONS, LABEL_POSITION_ICONS } from '../../Toolbar/icons/index.js'
+import { Divider, IconButton, ICONS, LABEL_POSITION_ICONS } from '../../../ui/index.js'
 import { BorderPopover } from './BorderPopover.js'
 import { LabelPositionDropdown } from './LabelPositionDropdown.js'
 import { MoreOptionsDropdown } from './MoreOptionsDropdown.js'
@@ -43,15 +43,13 @@ export function SecondaryTooltipExtras({
     <>
       {isNote && (
         <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="tual-secondary-icon-btn"
-            title={t('cornerRadius')}
-            data-active={activePopover === 'radius'}
+          <IconButton
+            variant="secondary-icon"
+            label={t('cornerRadius')}
+            active={activePopover === 'radius'}
+            icon={ICONS.radius()}
             onClick={() => onToggle('radius')}
-          >
-            {ICONS.radius()}
-          </button>
+          />
           {activePopover === 'radius' && (
             <RadiusDropdown
               currentRadius={style.radius}
@@ -64,15 +62,13 @@ export function SecondaryTooltipExtras({
 
       {hasBorder && (
         <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="tual-secondary-icon-btn"
-            title={t('borderAndStroke')}
-            data-active={activePopover === 'border'}
+          <IconButton
+            variant="secondary-icon"
+            label={t('borderAndStroke')}
+            active={activePopover === 'border'}
+            icon={ICONS.strokeWidth()}
             onClick={() => onToggle('border')}
-          >
-            {ICONS.strokeWidth()}
-          </button>
+          />
           {activePopover === 'border' && (
             <BorderPopover
               currentDash={style.dash}
@@ -94,15 +90,13 @@ export function SecondaryTooltipExtras({
 
       {isShape && (
         <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="tual-secondary-icon-btn"
-            title={t('labelPosition')}
-            data-active={activePopover === 'labelPosition'}
+          <IconButton
+            variant="secondary-icon"
+            label={t('labelPosition')}
+            active={activePopover === 'labelPosition'}
+            icon={LABEL_POSITION_ICONS.center()}
             onClick={() => onToggle('labelPosition')}
-          >
-            {LABEL_POSITION_ICONS.center()}
-          </button>
+          />
           {activePopover === 'labelPosition' && (
             <LabelPositionDropdown
               currentPosition={(selectedItem as ShapeItem).labelPosition}
@@ -113,18 +107,16 @@ export function SecondaryTooltipExtras({
         </div>
       )}
 
-      <div className="tual-secondary-separator" />
+      <Divider variant="secondary" />
 
       <div style={{ position: 'relative' }}>
-        <button
-          type="button"
-          className="tual-secondary-icon-btn"
-          title={t('moreOptions')}
-          data-active={activePopover === 'more'}
+        <IconButton
+          variant="secondary-icon"
+          label={t('moreOptions')}
+          active={activePopover === 'more'}
+          icon={ICONS.moreVertical()}
           onClick={() => onToggle('more')}
-        >
-          {ICONS.moreVertical()}
-        </button>
+        />
         {activePopover === 'more' && (
           <MoreOptionsDropdown
             onDuplicate={() => {

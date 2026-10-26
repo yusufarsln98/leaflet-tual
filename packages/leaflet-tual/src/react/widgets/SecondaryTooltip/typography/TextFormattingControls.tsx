@@ -1,15 +1,15 @@
 'use client'
 
 import type { Style } from '../../../../core/index.js'
-import { useTranslation } from '../../../features/i18n/index.js'
-import { ICONS } from '../../Toolbar/icons/index.js'
 import {
   isItemBold,
   isItemItalic,
   isItemUnderline,
   isTextBulleted,
   toggleBulletList,
-} from './text-formatting-utils.js'
+} from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
+import { Divider, IconButton, ICONS } from '../../../ui/index.js'
 
 export interface TextFormattingControlsProps {
   style: Style
@@ -65,60 +65,47 @@ export function TextFormattingControls({
 
   return (
     <>
-      <button
-        type="button"
-        className="tual-secondary-icon-btn"
-        title={t('bold')}
-        aria-label={t('bold')}
-        data-active={isBold}
+      <IconButton
+        variant="secondary-icon"
+        label={t('bold')}
+        active={isBold}
+        icon={ICONS.bold()}
         onClick={toggleBold}
-      >
-        {ICONS.bold()}
-      </button>
-      <button
-        type="button"
-        className="tual-secondary-icon-btn"
-        title={t('italic')}
-        aria-label={t('italic')}
-        data-active={isItalic}
+      />
+      <IconButton
+        variant="secondary-icon"
+        label={t('italic')}
+        active={isItalic}
+        icon={ICONS.italic()}
         onClick={toggleItalic}
-      >
-        {ICONS.italic()}
-      </button>
-      <button
-        type="button"
-        className="tual-secondary-icon-btn"
-        title={t('underline')}
-        aria-label={t('underline')}
-        data-active={isUnderline}
+      />
+      <IconButton
+        variant="secondary-icon"
+        label={t('underline')}
+        active={isUnderline}
+        icon={ICONS.underline()}
         onClick={toggleUnderline}
-      >
-        {ICONS.underline()}
-      </button>
-      <div className="tual-secondary-separator" />
-      <button
-        type="button"
-        className="tual-secondary-icon-btn"
-        title={t('bulletedList')}
-        aria-label={t('bulletedList')}
-        data-active={isBulleted}
+      />
+      <Divider variant="secondary" />
+      <IconButton
+        variant="secondary-icon"
+        label={t('bulletedList')}
+        active={isBulleted}
+        icon={ICONS.bullets()}
         onClick={toggleBullets}
-      >
-        {ICONS.bullets()}
-      </button>
-      <button
-        type="button"
-        className="tual-secondary-icon-btn"
-        title={t('textAlignment')}
-        aria-label={t('textAlignment')}
+      />
+      <IconButton
+        variant="secondary-icon"
+        label={t('textAlignment')}
+        icon={
+          style.align === 'center'
+            ? ICONS.alignCenter()
+            : style.align === 'right'
+              ? ICONS.alignRight()
+              : ICONS.alignLeft()
+        }
         onClick={toggleAlign}
-      >
-        {style.align === 'center'
-          ? ICONS.alignCenter()
-          : style.align === 'right'
-            ? ICONS.alignRight()
-            : ICONS.alignLeft()}
-      </button>
+      />
     </>
   )
 }

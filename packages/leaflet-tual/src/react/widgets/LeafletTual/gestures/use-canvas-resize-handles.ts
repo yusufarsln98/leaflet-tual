@@ -1,12 +1,12 @@
 import type L from 'leaflet'
-import type { Item, ScreenPoint, GeoPoint } from '../../../../core/index.js'
-import type { CanvasGesture } from './gesture-types.js'
-import { hitTestPenHandle } from './use-pen-handles.js'
+import type { GeoPoint, Item, ScreenPoint } from '../../../../core/index.js'
 import {
   hitTestArrowHandle,
+  hitTestPenHandle,
   hitTestRulerHandle,
   hitTestShapeHandle,
-} from './use-shape-handles.js'
+} from '../../../../core/index.js'
+import type { CanvasGesture } from './gesture-types.js'
 
 export function findResizeGestureUnderPointer(
   map: L.Map,

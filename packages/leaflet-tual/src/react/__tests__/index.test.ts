@@ -9,7 +9,7 @@ import {
   Toolbar,
   useLeafletTual,
   useLeafletSync,
-  createLeafletTual,
+  createController,
   geoToScreen,
   screenToGeo,
   toWorld,
@@ -19,6 +19,7 @@ import {
   defaultVia,
   hitTest,
   bounds,
+  getItemBounds,
   distance,
   pathDistance,
   formatDistance,
@@ -28,8 +29,8 @@ import {
   renderShapeOnCanvas,
   renderPenOnCanvas,
   renderRulerOnCanvas,
-  renderNoteOnCanvas,
-  renderTextOnCanvas,
+  hitTestShapeHandle,
+  resizeShape,
   DEFAULT_TRANSLATION_TOKENS,
   resolveTranslations,
   createTranslator,
@@ -38,6 +39,23 @@ import {
   resetDefaultTranslations,
   useTranslation,
   TranslationProvider,
+  Button,
+  IconButton,
+  PillButton,
+  SegmentedControl,
+  Select,
+  SelectField,
+  Popover,
+  DropdownMenu,
+  DropdownItem,
+  ColorSwatch,
+  ColorPaletteGrid,
+  ColorSwatchList,
+  CustomColorPicker,
+  NumberField,
+  TextField,
+  Divider,
+  ICONS,
 } from '../../react.js'
 
 import pkg from '../../../package.json'
@@ -60,7 +78,7 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(Toolbar).toBeDefined()
     expect(useLeafletTual).toBeDefined()
     expect(useLeafletSync).toBeDefined()
-    expect(createLeafletTual).toBeDefined()
+    expect(createController).toBeDefined()
     expect(emptyDoc).toBeDefined()
     expect(parseDoc).toBeDefined()
     expect(DocError).toBeDefined()
@@ -76,6 +94,7 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(defaultVia).toBeDefined()
     expect(hitTest).toBeDefined()
     expect(bounds).toBeDefined()
+    expect(getItemBounds).toBeDefined()
     expect(distance).toBeDefined()
     expect(pathDistance).toBeDefined()
     expect(formatDistance).toBeDefined()
@@ -85,8 +104,28 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(renderShapeOnCanvas).toBeDefined()
     expect(renderPenOnCanvas).toBeDefined()
     expect(renderRulerOnCanvas).toBeDefined()
-    expect(renderNoteOnCanvas).toBeDefined()
-    expect(renderTextOnCanvas).toBeDefined()
+    expect(hitTestShapeHandle).toBeDefined()
+    expect(resizeShape).toBeDefined()
+  })
+
+  it('exports React UI primitives from react/ui', () => {
+    expect(Button).toBeDefined()
+    expect(IconButton).toBeDefined()
+    expect(PillButton).toBeDefined()
+    expect(SegmentedControl).toBeDefined()
+    expect(Select).toBeDefined()
+    expect(SelectField).toBeDefined()
+    expect(Popover).toBeDefined()
+    expect(DropdownMenu).toBeDefined()
+    expect(DropdownItem).toBeDefined()
+    expect(ColorSwatch).toBeDefined()
+    expect(ColorPaletteGrid).toBeDefined()
+    expect(ColorSwatchList).toBeDefined()
+    expect(CustomColorPicker).toBeDefined()
+    expect(NumberField).toBeDefined()
+    expect(TextField).toBeDefined()
+    expect(Divider).toBeDefined()
+    expect(ICONS).toBeDefined()
   })
 
   it('exports translation and internationalization utilities', () => {

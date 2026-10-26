@@ -30,6 +30,34 @@ describe('v2 Text Overlay Component', () => {
     expect(screen.getByText('Bosphorus Strait')).toBeDefined()
   })
 
+  it('only selects the text on primary (left) click', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const text = controller.add({
+      type: 'text',
+      at: { lat: 41, lng: 28 },
+      text: 'Clickable text',
+    }) as TextItem
+
+    const { container } = render(
+      <TextOverlayView
+        map={map}
+        textItem={text}
+        controller={controller}
+        currentZoom={14}
+      />,
+    )
+
+    const textEl = container.querySelector('.tual-text-item') as HTMLElement
+    fireEvent.pointerDown(textEl, { button: 1, clientX: 100, clientY: 100 })
+    expect(controller.selection).toEqual([])
+    fireEvent.pointerDown(textEl, { button: 2, clientX: 100, clientY: 100 })
+    expect(controller.selection).toEqual([])
+
+    fireEvent.pointerDown(textEl, { button: 0, clientX: 100, clientY: 100 })
+    expect(controller.selection).toEqual([text.id])
+  })
+
   it('switches to inline textarea editor on double click', () => {
     const map = createMockMap()
     const controller = createController()

@@ -2,7 +2,7 @@
 
 import type { ArrowKind, Controller, ShapeKind, ToolId } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { ARROW_ICONS, ICONS, SHAPE_ICONS } from '../icons/index.js'
+import { ARROW_ICONS, ICONS, SHAPE_ICONS } from '../../../ui/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
 import { ToolVariantsPopover } from '../popovers/index.js'
 

@@ -1,8 +1,13 @@
 'use client'
 
 import { useTranslation } from '../../../features/i18n/index.js'
-import { ICONS } from '../../Toolbar/icons/index.js'
-import { useWheelGuard } from '../utils/use-wheel-guard.js'
+import {
+  Divider,
+  DropdownItem,
+  DropdownMenu,
+  ICONS,
+  Popover,
+} from '../../../ui/index.js'
 
 export interface MoreOptionsDropdownProps {
   onDuplicate: () => void
@@ -17,41 +22,33 @@ export function MoreOptionsDropdown({
   onFitInView,
 }: MoreOptionsDropdownProps) {
   const { t } = useTranslation()
-  const guardRef = useWheelGuard<HTMLDivElement>()
 
   return (
-    <div
-      ref={guardRef}
-      className="tual-popover tual-options-popover"
-      onPointerDown={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="tual-options-list">
-        <button type="button" className="tual-option-row" onClick={onDuplicate}>
-          {ICONS.copy ? ICONS.copy() : <span>⧉</span>}
-          <span className="tual-option-label">{t('duplicate')}</span>
-        </button>
+    <Popover variant="options">
+      <DropdownMenu>
+        <DropdownItem
+          leading={ICONS.copy ? ICONS.copy() : <span>⧉</span>}
+          label={t('duplicate')}
+          onClick={onDuplicate}
+        />
 
         {onFitInView && (
-          <button type="button" className="tual-option-row" onClick={onFitInView}>
-            <span>⛶</span>
-            <span className="tual-option-label">{t('fitInView')}</span>
-          </button>
+          <DropdownItem
+            leading={<span>⛶</span>}
+            label={t('fitInView')}
+            onClick={onFitInView}
+          />
         )}
 
-        <div className="tual-popover-divider" />
+        <Divider variant="popover" />
 
-        <button
-          type="button"
-          className="tual-option-row tual-option-danger"
+        <DropdownItem
+          danger
+          leading={ICONS.trash ? ICONS.trash() : <span>🗑</span>}
+          label={t('delete')}
           onClick={onDelete}
-        >
-          {ICONS.trash ? ICONS.trash() : <span>🗑</span>}
-          <span className="tual-option-label">{t('delete')}</span>
-        </button>
-      </div>
-    </div>
+        />
+      </DropdownMenu>
+    </Popover>
   )
 }
-

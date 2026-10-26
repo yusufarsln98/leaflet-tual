@@ -2,7 +2,14 @@
 
 import type { ArrowKind, Controller, DrawKind, ShapeKind } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { ARROW_ICONS, DRAW_ICONS, SHAPE_ICONS } from '../icons/index.js'
+import {
+  ARROW_ICONS,
+  DRAW_ICONS,
+  DropdownItem,
+  DropdownMenu,
+  Popover,
+  SHAPE_ICONS,
+} from '../../../ui/index.js'
 
 export interface ToolVariantsPopoverProps {
   controller: Controller
@@ -45,116 +52,107 @@ export function ToolVariantsPopover({
   if (type === 'arrow') {
     const variants = allowedArrowVariants ?? ALL_ARROW_KINDS
     return (
-      <div
-        className={`tual-popover ${className ?? ''}`}
+      <Popover
+        header={t('arrowStyle')}
+        className={className}
         style={{
           position: 'absolute',
           top: 'calc(100% + 6px)',
           left: 0,
           minWidth: 105,
         }}
-        onClick={(e) => e.stopPropagation()}
       >
-        <div className="tual-popover-header">{t('arrowStyle')}</div>
-        <div className="tual-variant-list">
+        <DropdownMenu layout="variant-list">
           {variants.map((v) => {
             const tokenKey = v === 's-curve' ? 'sCurve' : v
             const label = t(tokenKey, undefined, v.charAt(0).toUpperCase() + v.slice(1))
             return (
-              <button
+              <DropdownItem
                 key={v}
-                type="button"
-                className="tual-btn tual-variant-item"
-                data-active={controller.tool === 'arrow' && controller.variant === v}
+                variant="variant"
+                selected={controller.tool === 'arrow' && controller.variant === v}
+                leading={ARROW_ICONS[v]?.()}
+                label={label}
                 onClick={() => {
                   controller.setTool('arrow', v)
                   onClose()
                 }}
-              >
-                <span className="tual-variant-icon">{ARROW_ICONS[v]?.()}</span>
-                <span className="tual-variant-label">{label}</span>
-              </button>
+              />
             )
           })}
-        </div>
-      </div>
+        </DropdownMenu>
+      </Popover>
     )
   }
 
   if (type === 'draw') {
     const variants = allowedDrawVariants ?? ALL_DRAW_KINDS
     return (
-      <div
-        className={`tual-popover ${className ?? ''}`}
+      <Popover
+        header={t('draw')}
+        className={className}
         style={{
           position: 'absolute',
           top: 'calc(100% + 6px)',
           left: 0,
           minWidth: 115,
         }}
-        onClick={(e) => e.stopPropagation()}
       >
-        <div className="tual-popover-header">{t('draw')}</div>
-        <div className="tual-variant-list">
+        <DropdownMenu layout="variant-list">
           {variants.map((variant) => {
             const label = t(variant, undefined, DRAW_LABELS[variant])
             return (
-              <button
+              <DropdownItem
                 key={variant}
-                type="button"
-                className="tual-btn tual-variant-item"
-                data-active={
+                variant="variant"
+                selected={
                   (controller.tool === 'freedraw' || controller.tool === 'pen') &&
                   controller.tool === variant
                 }
+                leading={DRAW_ICONS[variant]?.()}
+                label={label}
                 onClick={() => {
                   controller.setTool(variant)
                   onClose()
                 }}
-              >
-                <span className="tual-variant-icon">{DRAW_ICONS[variant]?.()}</span>
-                <span className="tual-variant-label">{label}</span>
-              </button>
+              />
             )
           })}
-        </div>
-      </div>
+        </DropdownMenu>
+      </Popover>
     )
   }
 
   const shapeVariants = allowedShapeVariants ?? ALL_SHAPE_KINDS
   return (
-    <div
-      className={`tual-popover ${className ?? ''}`}
+    <Popover
+      header={t('shapeType')}
+      className={className}
       style={{
         position: 'absolute',
         top: 'calc(100% + 6px)',
         left: 0,
         minWidth: 175,
       }}
-      onClick={(e) => e.stopPropagation()}
     >
-      <div className="tual-popover-header">{t('shapeType')}</div>
-      <div className="tual-variant-grid">
+      <DropdownMenu layout="variant-grid">
         {shapeVariants.map((s) => {
           const label = t(s, undefined, s.charAt(0).toUpperCase() + s.slice(1))
           return (
-            <button
+            <DropdownItem
               key={s}
-              type="button"
-              className="tual-btn tual-variant-item"
-              data-active={controller.tool === 'shape' && controller.variant === s}
+              variant="variant"
+              selected={controller.tool === 'shape' && controller.variant === s}
+              leading={SHAPE_ICONS[s]?.()}
+              label={label}
               onClick={() => {
                 controller.setTool('shape', s)
                 onClose()
               }}
-            >
-              <span className="tual-variant-icon">{SHAPE_ICONS[s]?.()}</span>
-              <span className="tual-variant-label">{label}</span>
-            </button>
+            />
           )
         })}
-      </div>
-    </div>
+      </DropdownMenu>
+    </Popover>
   )
 }

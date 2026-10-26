@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { DrawKind, ToolId } from '../../../core/index.js'
 import type { ToolbarProps } from '../../types/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
-import { ICONS } from './icons/index.js'
+import { Button, Divider, IconButton, ICONS } from '../../ui/index.js'
 import {
   PageSwitcher,
   ToolbarHistoryControls,
@@ -104,15 +104,11 @@ export function Toolbar({
         data-orientation={orientation}
         className="tual-toolbar"
       >
-        <button
-          type="button"
-          className="tual-btn"
-          title={t('expandToolbar')}
-          aria-label={t('expandToolbar')}
+        <IconButton
+          icon={expandIcon}
+          label={t('expandToolbar')}
           onClick={toggleCollapsed}
-        >
-          {expandIcon}
-        </button>
+        />
       </div>
     )
   }
@@ -136,7 +132,7 @@ export function Toolbar({
             onToggle={() => setActivePopover((p) => (p === 'pages' ? null : 'pages'))}
             onClose={closePopover}
           />
-          <div className="tual-separator" />
+          <Divider variant="toolbar" />
         </>
       )}
 
@@ -174,7 +170,7 @@ export function Toolbar({
       {/* 3. History Undo / Redo */}
       {history && (
         <>
-          <div className="tual-separator" />
+          <Divider variant="toolbar" />
           <ToolbarHistoryControls controller={controller} />
         </>
       )}
@@ -185,12 +181,12 @@ export function Toolbar({
       {/* 5. Custom Toolbar Actions */}
       {actions && actions.length > 0 && (
         <>
-          <div className="tual-separator" />
+          <Divider variant="toolbar" />
           {actions.map((act) => (
-            <button
+            <Button
               key={act.id}
-              type="button"
-              className="tual-btn"
+              active={act.active}
+              disabled={act.disabled}
               title={act.title ?? act.label}
               onClick={() => {
                 act.onClick?.()
@@ -198,7 +194,7 @@ export function Toolbar({
               }}
             >
               {typeof act.icon === 'function' ? act.icon() : (act.icon ?? act.label)}
-            </button>
+            </Button>
           ))}
         </>
       )}
@@ -206,16 +202,12 @@ export function Toolbar({
       {/* 6. Collapse button */}
       {collapsible && (
         <>
-          <div className="tual-separator" />
-          <button
-            type="button"
-            className="tual-btn"
-            title={t('collapseToolbar')}
-            aria-label={t('collapseToolbar')}
+          <Divider variant="toolbar" />
+          <IconButton
+            icon={collapseIcon}
+            label={t('collapseToolbar')}
             onClick={toggleCollapsed}
-          >
-            {collapseIcon}
-          </button>
+          />
         </>
       )}
     </div>

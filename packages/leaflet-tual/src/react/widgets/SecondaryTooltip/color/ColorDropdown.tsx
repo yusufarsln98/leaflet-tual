@@ -2,13 +2,17 @@
 
 import type L from 'leaflet'
 import { useState } from 'react'
-import type { ColorName } from '../../../../core/types/index.js'
+import type { ColorName } from '../../../../core/index.js'
+import { PRESET_COLORS } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { useWheelGuard } from '../utils/use-wheel-guard.js'
-import { PRESET_COLORS } from './color-utils.js'
-import { CustomColorPicker } from './CustomColorPicker.js'
+import {
+  ColorSwatchList,
+  CustomColorPicker,
+  Popover,
+  SegmentedControl,
+} from '../../../ui/index.js'
 
-export { PRESET_COLORS } from './color-utils.js'
+export { PRESET_COLORS } from '../../../../core/index.js'
 
 export interface ColorDropdownProps {
   title?: string
@@ -34,87 +38,49 @@ export function ColorDropdown({
   onSelectFillMode,
 }: ColorDropdownProps) {
   const { t } = useTranslation()
-  const guardRef = useWheelGuard<HTMLDivElement>()
   const [activeTab, setActiveTab] = useState<'theme' | 'custom'>('theme')
 
   return (
-    <div
-      ref={guardRef}
-      className={`tual-popover tual-color-popover ${allowCustom ? 'tual-color-popover-with-tabs' : ''}`}
-      onPointerDown={(e) => {
-        e.stopPropagation()
-        map?.dragging?.disable()
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation()
-        map?.dragging?.disable()
-      }}
-      onClick={(e) => e.stopPropagation()}
+    <Popover
+      variant="color"
+      className={allowCustom ? 'tual-color-popover-with-tabs' : undefined}
+      disableMapDraggingOnPointerDown={() => map?.dragging?.disable()}
     >
       {allowCustom && (
-        <div className="tual-color-tabs" onPointerDown={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            className="tual-color-tab"
-            data-active={activeTab === 'theme'}
-            onClick={() => setActiveTab('theme')}
-          >
-            {t('theme')}
-          </button>
-          <button
-            type="button"
-            className="tual-color-tab"
-            data-active={activeTab === 'custom'}
-            onClick={() => setActiveTab('custom')}
-          >
-            {t('custom')}
-          </button>
-        </div>
+        <SegmentedControl
+          variant="color-tabs"
+          stopPropagation
+          value={activeTab}
+          options={[
+            { value: 'theme', label: t('theme') },
+            { value: 'custom', label: t('custom') },
+          ]}
+          onChange={setActiveTab}
+        />
       )}
 
       {activeTab === 'theme' ? (
-        <div className="tual-color-list" onPointerDown={(e) => e.stopPropagation()}>
-          {mode === 'fill' && onSelectFillMode && (
-            <button
-              type="button"
-              className="tual-color-row"
-              data-active={currentFill === 'none'}
-              onClick={() => {
-                onSelectFillMode('none')
-              }}
-            >
-              <div className="tual-no-fill-swatch" />
-              <span className="tual-color-label">{t('noFill')}</span>
-              {currentFill === 'none' && <span className="tual-check">✓</span>}
-            </button>
-          )}
-
-          {PRESET_COLORS.map((c) => {
-            const hex = c.light
-            const isSelected = currentColor === c.name || currentColor === hex
-            return (
-              <button
-                key={c.name}
-                type="button"
-                className="tual-color-row"
-                title={t(c.name, undefined, c.name)}
-                data-active={isSelected && (mode !== 'fill' || currentFill !== 'none')}
-                onClick={() => {
-                  if (mode === 'fill' && onSelectFillMode && currentFill === 'none') {
-                    onSelectFillMode('solid')
-                  }
-                  onSelectColor(c.name, hex)
-                }}
-              >
-                <div className="tual-color-swatch-box" style={{ backgroundColor: hex }} />
-                <span className="tual-color-label">{hex.toUpperCase()}</span>
-                {isSelected && (mode !== 'fill' || currentFill !== 'none') && (
-                  <span className="tual-check">✓</span>
-                )}
-              </button>
-            )
-          })}
-        </div>
+        <ColorSwatchList
+          variant="color-dropdown"
+          items={PRESET_COLORS.map((c) => ({
+            name: c.name,
+            hex: c.light,
+            title: t(c.name, undefined, c.name),
+          }))}
+          selectedColor={currentColor}
+          showNoFill={Boolean(mode === 'fill' && onSelectFillMode)}
+          noFillSelected={mode === 'fill' && currentFill === 'none'}
+          noFillLabel={t('noFill')}
+          onSelectNoFill={
+            mode === 'fill' && onSelectFillMode ? () => onSelectFillMode('none') : undefined
+          }
+          onSelectColor={(name, hex) => {
+            if (mode === 'fill' && onSelectFillMode && currentFill === 'none') {
+              onSelectFillMode('solid')
+            }
+            onSelectColor(name, hex)
+          }}
+        />
       ) : (
         <CustomColorPicker
           currentColor={currentColor}
@@ -123,6 +89,6 @@ export function ColorDropdown({
           onSelectColor={onSelectColor}
         />
       )}
-    </div>
+    </Popover>
   )
 }

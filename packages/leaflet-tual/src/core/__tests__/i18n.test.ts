@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import {
   DEFAULT_TRANSLATION_TOKENS,
   resolveTranslations,
@@ -7,9 +7,8 @@ import {
   resetDefaultTranslations,
   formatDistance,
 } from '../shared/index.js'
-import { createLeafletTual } from '../features/index.js'
+import { createController } from '../features/index.js'
 import { emptyDoc } from '../shared/doc.js'
-import L from 'leaflet'
 
 describe('i18n core translations and tokens', () => {
   beforeEach(() => {
@@ -91,30 +90,8 @@ describe('i18n core translations and tokens', () => {
     expect(formatDistance(2000, 'metric', customTokens)).toBe('2 kilometre')
   })
 
-  it('allows managing translations on vanilla LeafletTual controller', () => {
-    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
-      save: vi.fn(),
-      restore: vi.fn(),
-      clearRect: vi.fn(),
-      beginPath: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      stroke: vi.fn(),
-      fill: vi.fn(),
-      closePath: vi.fn(),
-      setLineDash: vi.fn(),
-      arc: vi.fn(),
-      fillRec: vi.fn(),
-      strokeRect: vi.fn(),
-      fillText: vi.fn(),
-      measureText: vi.fn().mockReturnValue({ width: 10 }),
-      setTransform: vi.fn(),
-    })
-
-    const container = document.createElement('div')
-    const map = L.map(container).setView([0, 0], 1)
-
-    const tual = createLeafletTual(map, {
+  it('allows managing translations on controller', () => {
+    const tual = createController({
       defaultValue: emptyDoc(),
       translations: {
         select: 'Auswählen',
@@ -136,8 +113,5 @@ describe('i18n core translations and tokens', () => {
     expect(tual.translations.select).toBe('Auswählen')
     expect(tual.translations.freedraw).toBe('Freihand')
     expect(notified).toBe(true)
-
-    tual.destroy()
-    map.remove()
   })
 })

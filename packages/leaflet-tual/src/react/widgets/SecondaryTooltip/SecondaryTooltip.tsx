@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import type { Controller, Item, ShapeItem, Style } from '../../../core/index.js'
-import { resolveColor } from '../../../core/index.js'
+import { getItemBounds, resolveColor, resolveTypographyLabel } from '../../../core/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
-import { getItemBounds, useTooltipEvents } from './utils/index.js'
+import { PillButton } from '../../ui/index.js'
+import { useTooltipEvents } from './utils/index.js'
 import {
   TypographyDropdown,
-  resolveTypographyLabel,
   TextFormattingControls,
 } from './typography/index.js'
 import { ColorSwatchControls } from './color/index.js'
@@ -115,26 +115,26 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
     >
       {hasTypography && (
         <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="tual-secondary-pill-btn"
+          <PillButton
+            variant="secondary"
             title={t('textSizeAndStyle')}
             onClick={() => toggle('typography')}
-          >
-            <span
-              style={{
-                opacity: 0.7,
-                fontWeight: 700,
-                fontSize: 11,
-                marginRight: 3,
-                letterSpacing: -0.5,
-              }}
-            >
-              TT
-            </span>
-            <span style={{ fontWeight: 500, margin: '0 4px' }}>{typographyLabel}</span>
-            <span style={{ fontSize: 9, opacity: 0.6 }}>⌄</span>
-          </button>
+            leading={
+              <span
+                style={{
+                  opacity: 0.7,
+                  fontWeight: 700,
+                  fontSize: 11,
+                  marginRight: 3,
+                  letterSpacing: -0.5,
+                }}
+              >
+                TT
+              </span>
+            }
+            label={<span style={{ fontWeight: 500, margin: '0 4px' }}>{typographyLabel}</span>}
+            trailing={<span style={{ fontSize: 9, opacity: 0.6 }}>⌄</span>}
+          />
           {activePopover === 'typography' && (
             <TypographyDropdown
               currentSize={style.size}

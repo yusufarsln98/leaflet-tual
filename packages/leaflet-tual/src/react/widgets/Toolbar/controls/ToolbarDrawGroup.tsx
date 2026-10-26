@@ -2,7 +2,7 @@
 
 import type { Controller, DrawKind } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { DRAW_ICONS } from '../icons/index.js'
+import { DRAW_ICONS } from '../../../ui/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
 import { ToolVariantsPopover } from '../popovers/index.js'
 

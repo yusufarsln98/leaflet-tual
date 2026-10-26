@@ -5,7 +5,13 @@ export * from './canvas-gesture-handlers.js'
 export * from './canvas-cursor.js'
 export * from './gesture-types.js'
 export * from './use-pen-draft.js'
-export * from './use-pen-handles.js'
-export * from './use-shape-handles.js'
-export * from './resize-shape.js'
-
+export {
+  getShapeScreenHandles,
+  hitTestArrowHandle,
+  hitTestRulerHandle,
+  hitTestShapeHandle,
+  resizeShape,
+  resizeShapeInWorld,
+  type ShapeHandle,
+  type ShapeHandleType,
+} from '../../../../core/index.js'

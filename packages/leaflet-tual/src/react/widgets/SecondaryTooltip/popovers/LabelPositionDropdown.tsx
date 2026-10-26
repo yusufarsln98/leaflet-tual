@@ -1,9 +1,13 @@
 'use client'
 
-import type { LabelPosition } from '../../../../core/types/index.js'
+import type { LabelPosition } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { LABEL_POSITION_ICONS } from '../../Toolbar/icons/index.js'
-import { useWheelGuard } from '../utils/use-wheel-guard.js'
+import {
+  DropdownItem,
+  DropdownMenu,
+  LABEL_POSITION_ICONS,
+  Popover,
+} from '../../../ui/index.js'
 
 export interface LabelPositionDropdownProps {
   currentPosition?: LabelPosition
@@ -22,35 +26,20 @@ export function LabelPositionDropdown({
   onSelectPosition,
 }: LabelPositionDropdownProps) {
   const { t } = useTranslation()
-  const guardRef = useWheelGuard<HTMLDivElement>()
 
   return (
-    <div
-      ref={guardRef}
-      className="tual-popover tual-options-popover"
-      onPointerDown={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="tual-popover-header">{t('labelPosition')}</div>
-      <div className="tual-options-list">
-        {POSITIONS.map((p) => {
-          const isSelected = currentPosition === p.id
-          return (
-            <button
-              key={p.id}
-              type="button"
-              className="tual-option-row"
-              data-active={isSelected}
-              onClick={() => onSelectPosition(p.id)}
-            >
-              {LABEL_POSITION_ICONS[p.id]()}
-              <span className="tual-option-label">{t(p.id, undefined, p.label)}</span>
-              {isSelected && <span className="tual-check">✓</span>}
-            </button>
-          )
-        })}
-      </div>
-    </div>
+    <Popover variant="options" header={t('labelPosition')}>
+      <DropdownMenu>
+        {POSITIONS.map((p) => (
+          <DropdownItem
+            key={p.id}
+            selected={currentPosition === p.id}
+            leading={LABEL_POSITION_ICONS[p.id]()}
+            label={t(p.id, undefined, p.label)}
+            onClick={() => onSelectPosition(p.id)}
+          />
+        ))}
+      </DropdownMenu>
+    </Popover>
   )
 }

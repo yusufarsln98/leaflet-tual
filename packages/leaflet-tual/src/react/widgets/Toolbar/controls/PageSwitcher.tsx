@@ -3,7 +3,16 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Controller } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { ICONS } from '../icons/index.js'
+import {
+  Divider,
+  DropdownItem,
+  DropdownMenu,
+  IconButton,
+  ICONS,
+  PillButton,
+  Popover,
+  TextField,
+} from '../../../ui/index.js'
 
 export interface PageSwitcherProps {
   controller: Controller
@@ -59,26 +68,24 @@ export function PageSwitcher({
 
   return (
     <div ref={containerRef} style={{ position: 'relative' }}>
-      <button
-        type="button"
-        className="tual-page-pill"
+      <PillButton
+        variant="page"
         onClick={onToggle}
         title={t('pageSwitcher')}
-      >
-        <span className="tual-page-badge">{pageCount}</span>
-        <span className="tual-page-name">{pageName}</span>
-        <span className="tual-page-chevron">{ICONS.chevronDown()}</span>
-      </button>
+        leading={<span className="tual-page-badge">{pageCount}</span>}
+        label={<span className="tual-page-name">{pageName}</span>}
+        trailing={<span className="tual-page-chevron">{ICONS.chevronDown()}</span>}
+      />
 
       {isOpen && (
-        <div
-          className={`tual-popover tual-page-popover ${className ?? ''}`}
+        <Popover
+          variant="page"
+          className={className}
           style={{
             position: 'absolute',
             top: 'calc(100% + 6px)',
             left: 0,
           }}
-          onClick={(e) => e.stopPropagation()}
         >
           <div className="tual-page-list">
             {controller.pages.list.map((page) => {
@@ -89,12 +96,11 @@ export function PageSwitcher({
               if (isRenaming) {
                 return (
                   <div key={page.id} className="tual-page-row" data-active={isActive}>
-                    <input
-                      type="text"
+                    <TextField
                       className="tual-page-rename-input"
                       value={editingName}
                       autoFocus
-                      onChange={(e) => setEditingName(e.target.value)}
+                      onChange={setEditingName}
                       onBlur={() => commitRename(page.id)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
@@ -128,53 +134,46 @@ export function PageSwitcher({
                       <span className="tual-page-check">{ICONS.check()}</span>
                     )}
 
-                    <button
-                      type="button"
-                      className="tual-popover-action-btn"
+                    <IconButton
+                      variant="popover-action"
                       title={t('pageOptions')}
+                      icon={ICONS.more()}
                       onClick={() =>
                         setActionMenuId((prev) => (prev === page.id ? null : page.id))
                       }
-                    >
-                      {ICONS.more()}
-                    </button>
+                    />
 
                     {isActionOpen && (
-                      <div className="tual-page-action-menu">
-                        <button
-                          type="button"
-                          className="tual-action-menu-item"
+                      <DropdownMenu layout="action-menu">
+                        <DropdownItem
+                          variant="action-menu"
+                          label={t('rename')}
                           onClick={() => {
                             setEditingId(page.id)
                             setEditingName(page.name)
                             setActionMenuId(null)
                           }}
-                        >
-                          {t('rename')}
-                        </button>
-                        <button
-                          type="button"
-                          className="tual-action-menu-item"
+                        />
+                        <DropdownItem
+                          variant="action-menu"
+                          label={t('duplicate')}
                           onClick={() => {
                             controller.pages.duplicate(page.id)
                             setActionMenuId(null)
                           }}
-                        >
-                          {t('duplicate')}
-                        </button>
+                        />
                         {controller.pages.list.length > 1 && (
-                          <button
-                            type="button"
-                            className="tual-action-menu-item tual-action-menu-item-danger"
+                          <DropdownItem
+                            variant="action-menu"
+                            danger
+                            label={t('delete')}
                             onClick={() => {
                               controller.pages.remove(page.id)
                               setActionMenuId(null)
                             }}
-                          >
-                            {t('delete')}
-                          </button>
+                          />
                         )}
-                      </div>
+                      </DropdownMenu>
                     )}
                   </div>
                 </div>
@@ -182,7 +181,7 @@ export function PageSwitcher({
             })}
           </div>
 
-          <div className="tual-popover-divider" />
+          <Divider variant="popover" />
 
           <button
             type="button"
@@ -194,7 +193,7 @@ export function PageSwitcher({
             <span className="tual-page-add-icon">{ICONS.plus()}</span>
             <span>{t('newPage')}</span>
           </button>
-        </div>
+        </Popover>
       )}
     </div>
   )

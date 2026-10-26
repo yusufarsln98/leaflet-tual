@@ -1,9 +1,15 @@
 'use client'
 
-import type { ColorName, Style } from '../../../../core/types/index.js'
-import { resolveColor } from '../../../../core/index.js'
+import type { ColorName, Style } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { useWheelGuard } from '../utils/use-wheel-guard.js'
+import {
+  ColorPaletteGrid,
+  Divider,
+  DropdownItem,
+  DropdownMenu,
+  Popover,
+  PopoverHeader,
+} from '../../../ui/index.js'
 
 export interface BorderDropdownProps {
   scheme: 'light' | 'dark'
@@ -20,20 +26,6 @@ const DASH_STYLES: { id: NonNullable<Style['dash']>; label: string; dasharray?: 
   { id: 'dotted', label: 'Dotted', dasharray: '2 3' },
 ]
 
-/** Theme palette only — custom hex stays in the Color dropdown. */
-const BORDER_COLORS: ColorName[] = [
-  'ink',
-  'gray',
-  'taupe',
-  'red',
-  'orange',
-  'yellow',
-  'green',
-  'blue',
-  'purple',
-  'pink',
-]
-
 export function BorderDropdown({
   scheme,
   currentDash = 'solid',
@@ -42,48 +34,26 @@ export function BorderDropdown({
   onSelectColor,
 }: BorderDropdownProps) {
   const { t } = useTranslation()
-  const guardRef = useWheelGuard<HTMLDivElement>()
 
   return (
-    <div
-      ref={guardRef}
-      className="tual-popover tual-options-popover tual-border-popover"
-      onMouseDown={(e) => e.stopPropagation()}
-    >
-      <div className="tual-popover-header">{t('borderColor')}</div>
-      <div className="tual-border-color-row">
-        {BORDER_COLORS.map((c) => {
-          const hex = resolveColor(c, scheme)
-          const isSelected = currentColor === c
-          return (
-            <button
-              key={c}
-              type="button"
-              className="tual-border-swatch"
-              data-active={isSelected || undefined}
-              style={{ backgroundColor: hex }}
-              title={t(c, undefined, c.charAt(0).toUpperCase() + c.slice(1))}
-              aria-label={t(c, undefined, c)}
-              onClick={() => onSelectColor(c)}
-            />
-          )
-        })}
-      </div>
+    <Popover variant="options" className="tual-border-popover">
+      <ColorPaletteGrid
+        variant="border"
+        scheme={scheme}
+        selectedColor={currentColor}
+        header={t('borderColor')}
+        onSelectColor={onSelectColor}
+      />
 
-      <div className="tual-popover-divider" />
+      <Divider variant="popover" />
 
-      <div className="tual-popover-header">{t('borderStyle')}</div>
-      <div className="tual-options-list">
-        {DASH_STYLES.map((d) => {
-          const isSelected = currentDash === d.id
-          return (
-            <button
-              key={d.id}
-              type="button"
-              className="tual-option-row"
-              data-active={isSelected}
-              onClick={() => onSelectDash(d.id)}
-            >
+      <PopoverHeader>{t('borderStyle')}</PopoverHeader>
+      <DropdownMenu>
+        {DASH_STYLES.map((d) => (
+          <DropdownItem
+            key={d.id}
+            selected={currentDash === d.id}
+            leading={
               <svg width="28" height="6" style={{ overflow: 'visible' }}>
                 <line
                   x1="0"
@@ -95,12 +65,12 @@ export function BorderDropdown({
                   strokeDasharray={d.dasharray}
                 />
               </svg>
-              <span className="tual-option-label">{t(d.id, undefined, d.label)}</span>
-              {isSelected && <span className="tual-check">✓</span>}
-            </button>
-          )
-        })}
-      </div>
-    </div>
+            }
+            label={t(d.id, undefined, d.label)}
+            onClick={() => onSelectDash(d.id)}
+          />
+        ))}
+      </DropdownMenu>
+    </Popover>
   )
 }

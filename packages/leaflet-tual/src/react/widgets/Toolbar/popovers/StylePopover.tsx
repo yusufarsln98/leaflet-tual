@@ -2,6 +2,7 @@
 
 import type { Controller, FontSizeName, Style } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
+import { Divider, Popover } from '../../../ui/index.js'
 import {
   ButtonGroupSection,
   ColorPaletteSection,
@@ -65,15 +66,14 @@ export function StylePopover({ controller, className }: StylePopoverProps) {
     (!selectedItem && (controller.tool === 'text' || controller.tool === 'select'))
 
   return (
-    <div
-      className={`tual-popover ${className ?? ''}`}
+    <Popover
+      className={className}
       style={{
         position: 'absolute',
         top: 'calc(100% + 6px)',
         left: 0,
         minWidth: 168,
       }}
-      onClick={(e) => e.stopPropagation()}
     >
       <ColorPaletteSection
         selectedColor={currentColor}
@@ -83,7 +83,7 @@ export function StylePopover({ controller, className }: StylePopoverProps) {
 
       {showWidth && (
         <>
-          <div className="tual-popover-divider" />
+          <Divider variant="popover" />
           <ButtonGroupSection
             title={t('strokeWidth')}
             options={['s', 'm', 'l'] as const}
@@ -143,6 +143,6 @@ export function StylePopover({ controller, className }: StylePopoverProps) {
           onSelect={(align) => controller.setStyle({ align })}
         />
       )}
-    </div>
+    </Popover>
   )
 }

@@ -4,6 +4,7 @@ import type L from 'leaflet'
 import type { ColorName, Style } from '../../../../core/index.js'
 import { resolveColor, resolveNoteColors } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
+import { ColorSwatch } from '../../../ui/index.js'
 import { ColorDropdown } from './ColorDropdown.js'
 
 export interface ColorSwatchControlsProps {
@@ -43,17 +44,12 @@ export function ColorSwatchControls({
     return (
       <>
         <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="tual-secondary-swatch-btn"
+          <ColorSwatch
+            variant="secondary-button"
+            colorHex={resolveColor(style.textColor ?? 'ink', 'light')}
             title={t('textColor')}
             onClick={() => onToggle('textColor')}
-          >
-            <div
-              className="tual-secondary-swatch-box"
-              style={{ backgroundColor: resolveColor(style.textColor ?? 'ink', 'light') }}
-            />
-          </button>
+          />
           {activePopover === 'textColor' && (
             <ColorDropdown
               map={map}
@@ -67,17 +63,12 @@ export function ColorSwatchControls({
           )}
         </div>
         <div style={{ position: 'relative' }}>
-          <button
-            type="button"
-            className="tual-secondary-swatch-btn"
+          <ColorSwatch
+            variant="secondary-button"
+            colorHex={noteColors.bg}
             title={t('backgroundColor')}
             onClick={() => onToggle('bgColor')}
-          >
-            <div
-              className="tual-secondary-swatch-box"
-              style={{ backgroundColor: noteColors.bg }}
-            />
-          </button>
+          />
           {activePopover === 'bgColor' && (
             <ColorDropdown
               map={map}
@@ -96,18 +87,13 @@ export function ColorSwatchControls({
 
   return (
     <div style={{ position: 'relative' }}>
-      <button
-        type="button"
-        className="tual-secondary-swatch-btn"
+      <ColorSwatch
+        variant="secondary-button"
+        colorHex={colorHex}
+        noFill={style.fill === 'none'}
         title={t('color')}
         onClick={() => onToggle('color')}
-      >
-        {style.fill === 'none' ? (
-          <div className="tual-secondary-swatch-box tual-no-fill-swatch" />
-        ) : (
-          <div className="tual-secondary-swatch-box" style={{ backgroundColor: colorHex }} />
-        )}
-      </button>
+      />
       {activePopover === 'color' && (
         <ColorDropdown
           map={map}

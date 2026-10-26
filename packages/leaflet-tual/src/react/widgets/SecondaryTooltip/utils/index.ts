@@ -1,4 +1,3 @@
-export * from './get-item-bounds.js'
+export { getItemBounds } from '../../../../core/index.js'
 export * from './use-tooltip-events.js'
-export * from './use-wheel-guard.js'
-
+export { useWheelGuard } from '../../../ui/index.js'

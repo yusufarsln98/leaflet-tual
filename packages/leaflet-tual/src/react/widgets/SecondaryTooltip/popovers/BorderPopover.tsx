@@ -4,9 +4,14 @@ import { useState } from 'react'
 import type { ColorName } from '../../../../core/index.js'
 import { resolveColor } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { ICONS } from '../../Toolbar/icons/index.js'
-import { SelectField } from '../../shared/select-field/index.js'
-import { useWheelGuard } from '../utils/use-wheel-guard.js'
+import {
+  ColorSwatchList,
+  ICONS,
+  PillButton,
+  SegmentedControl,
+  Select,
+  useWheelGuard,
+} from '../../../ui/index.js'
 
 export interface BorderPopoverProps {
   currentDash?: 'solid' | 'dashed' | 'dotted' | 'none'
@@ -95,39 +100,37 @@ export function BorderPopover({
     >
       <div className="tual-border-main-card">
         {/* Row 1: Segmented Dash Group */}
-        <div className="tual-border-dash-group">
-          {DASH_OPTIONS.map((opt) => {
-            const label = opt.id === 'none' ? t('noBorder') : t(opt.id)
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                className="tual-border-dash-btn"
-                data-active={currentDash === opt.id}
-                title={label}
-                onClick={() => onSelectDash(opt.id)}
-              >
-                {opt.icon}
-              </button>
-            )
-          })}
-        </div>
+        <SegmentedControl
+          variant="border-dash"
+          value={currentDash}
+          options={DASH_OPTIONS.map((opt) => ({
+            value: opt.id,
+            label: opt.icon,
+            title: opt.id === 'none' ? t('noBorder') : t(opt.id),
+          }))}
+          onChange={onSelectDash}
+        />
 
         {/* Row 2: Color Pill */}
-        <button
-          type="button"
-          className="tual-border-color-pill"
-          data-active={showPalette}
+        <PillButton
+          variant="border-color"
+          active={showPalette}
           title={t('borderColor')}
           onClick={() => setShowPalette((p) => !p)}
-        >
-          <div className="tual-border-color-pill-swatch" style={{ backgroundColor: strokeHex }} />
-          <span className="tual-border-color-pill-hex">{strokeHex.toUpperCase()}</span>
-        </button>
+          leading={
+            <div
+              className="tual-border-color-pill-swatch"
+              style={{ backgroundColor: strokeHex }}
+            />
+          }
+          label={
+            <span className="tual-border-color-pill-hex">{strokeHex.toUpperCase()}</span>
+          }
+        />
 
         {/* Row 3: Stroke Width & Corner Radius Selects */}
         <div className="tual-border-bottom-row">
-          <SelectField
+          <Select
             ariaLabel={t('strokeWidth')}
             title={t('strokeWidth')}
             value={numWidth}
@@ -139,7 +142,7 @@ export function BorderPopover({
           />
 
           {isSquareShape !== false && (
-            <SelectField
+            <Select
               ariaLabel={t('cornerRadius')}
               title={t('cornerRadius')}
               value={currentRadius}
@@ -170,27 +173,19 @@ export function BorderPopover({
             </button>
           </div>
 
-          <div className="tual-border-palette-list">
-            {PALETTE_KEYS.map((key) => {
-              const hex = resolveColor(key, 'light')
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  className="tual-border-palette-item"
-                  data-selected={activeStroke === key}
-                  title={t(key)}
-                  onClick={() => {
-                    onSelectStrokeColor(key)
-                    setShowPalette(false)
-                  }}
-                >
-                  <div className="tual-border-palette-swatch" style={{ backgroundColor: hex }} />
-                  <span className="tual-border-palette-hex">{hex.toUpperCase()}</span>
-                </button>
-              )
-            })}
-          </div>
+          <ColorSwatchList
+            variant="border-flyout"
+            items={PALETTE_KEYS.map((key) => ({
+              name: key,
+              hex: resolveColor(key, 'light'),
+              title: t(key),
+            }))}
+            selectedColor={activeStroke}
+            onSelectColor={(name) => {
+              onSelectStrokeColor(name)
+              setShowPalette(false)
+            }}
+          />
         </div>
       )}
     </div>

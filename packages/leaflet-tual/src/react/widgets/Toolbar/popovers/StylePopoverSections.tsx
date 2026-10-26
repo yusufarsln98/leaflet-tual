@@ -1,25 +1,18 @@
 'use client'
 
 import type { ColorName } from '../../../../core/index.js'
-import { DEFAULT_PALETTE } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
+import {
+  ColorPaletteGrid,
+  DEFAULT_COLOR_NAMES,
+  SegmentedControl,
+} from '../../../ui/index.js'
 
-export const COLOR_NAMES: ColorName[] = [
-  'ink',
-  'gray',
-  'taupe',
-  'red',
-  'orange',
-  'yellow',
-  'green',
-  'blue',
-  'purple',
-  'pink',
-]
+export const COLOR_NAMES: ColorName[] = DEFAULT_COLOR_NAMES
 
 export function ColorPaletteSection({
   selectedColor,
-  scheme: _scheme,
+  scheme = 'light',
   onSelectColor,
 }: {
   selectedColor?: ColorName | string
@@ -29,29 +22,14 @@ export function ColorPaletteSection({
   const { t } = useTranslation()
 
   return (
-    <>
-      <div className="tual-popover-header">{t('color')}</div>
-      <div className="tual-palette">
-        {COLOR_NAMES.map((name) => {
-          const colorHex = DEFAULT_PALETTE[name].light
-          return (
-            <button
-              key={name}
-              type="button"
-              className="tual-swatch"
-              data-selected={selectedColor === name}
-              style={{
-                backgroundColor: colorHex,
-                outline: selectedColor === name ? '2px solid var(--tual-accent)' : undefined,
-                outlineOffset: 2,
-              }}
-              title={t(name, undefined, name)}
-              onClick={() => onSelectColor(name)}
-            />
-          )
-        })}
-      </div>
-    </>
+    <ColorPaletteGrid
+      colors={COLOR_NAMES}
+      selectedColor={selectedColor}
+      scheme={scheme}
+      variant="palette"
+      header={t('color')}
+      onSelectColor={onSelectColor}
+    />
   )
 }
 
@@ -71,24 +49,16 @@ export function ButtonGroupSection<T extends string>({
   formatLabel?: (v: T) => string
 }) {
   return (
-    <>
-      <div className="tual-popover-header" style={{ marginTop }}>
-        {title}
-      </div>
-      <div style={{ display: 'flex', gap: 3 }}>
-        {options.map((opt) => (
-          <button
-            key={opt}
-            type="button"
-            className="tual-btn"
-            data-active={currentValue === opt}
-            style={{ flex: 1, height: 24, minHeight: 24, fontSize: 11 }}
-            onClick={() => onSelect(opt)}
-          >
-            {formatLabel ? formatLabel(opt) : opt}
-          </button>
-        ))}
-      </div>
-    </>
+    <SegmentedControl
+      variant="button-group"
+      title={title}
+      marginTop={marginTop}
+      value={currentValue}
+      options={options.map((opt) => ({
+        value: opt,
+        label: formatLabel ? formatLabel(opt) : opt,
+      }))}
+      onChange={onSelect}
+    />
   )
 }

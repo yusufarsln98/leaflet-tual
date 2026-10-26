@@ -2,12 +2,16 @@ import { useEffect } from 'react'
 import type { RefObject } from 'react'
 import type L from 'leaflet'
 import type { Controller, GeoPoint, Item, ScreenPoint } from '../../../../core/index.js'
-import { commitDrawnItem } from '../../../../core/shared/drawing/shape-drawing.js'
-import { translateItem, worldDelta } from '../../../../core/shared/geometry/translate.js'
+import {
+  commitDrawnItem,
+  editPenPointList,
+  resizeShape,
+  resizeShapeInWorld,
+  translateItem,
+  worldDelta,
+} from '../../../../core/index.js'
 import type { CanvasGesture } from './gesture-types.js'
-import { editPenPointList } from './use-pen-handles.js'
 import { updatePenDraftOnMove } from './use-pen-draft.js'
-import { resizeShape, resizeShapeInWorld } from './use-shape-handles.js'
 
 export function applyGestureMouseMove(
   controller: Controller,
@@ -142,6 +146,7 @@ export function useCanvasNativeListeners(
     const container = canvas?.parentElement
     if (!canvas) return
     const handleContainerDown = (e: MouseEvent) => {
+      if (e.button !== 0) return
       if (
         (e.target as Element | null)?.closest?.(
           '.tual-secondary-tooltip, .tual-toolbar, .tual-popover',

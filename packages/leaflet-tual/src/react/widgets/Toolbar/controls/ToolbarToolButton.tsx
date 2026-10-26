@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { ICONS } from '../icons/index.js'
+import { Button } from '../../../ui/index.js'
 
 export interface ToolbarToolButtonProps {
   label: string
@@ -19,16 +19,14 @@ export function ToolbarToolButton({
   onSelect,
 }: ToolbarToolButtonProps) {
   return (
-    <button
-      type="button"
-      className="tual-btn"
-      data-active={isActive}
-      data-has-variants={hasVariants || undefined}
+    <Button
+      variant="toolbar"
+      active={isActive}
+      hasVariants={hasVariants}
       title={label}
       onClick={onSelect}
     >
       {icon}
-      {hasVariants && <span className="tual-btn-chevron">{ICONS.chevronDown()}</span>}
-    </button>
+    </Button>
   )
 }

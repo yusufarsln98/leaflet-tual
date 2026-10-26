@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import type L from 'leaflet'
 import type { Controller, Item, ScreenPoint } from '../../../../core/index.js'
-import { hitTest, screenToGeo } from '../../../../core/index.js'
+import { hitTest, hitTestPenHandle, screenToGeo } from '../../../../core/index.js'
 import { updateCanvasHoverCursor } from './canvas-cursor.js'
 import {
   applyGestureMouseMove,
@@ -11,7 +11,6 @@ import {
 } from './canvas-gesture-handlers.js'
 import type { CanvasGesture } from './gesture-types.js'
 import { findResizeGestureUnderPointer } from './use-canvas-resize-handles.js'
-import { hitTestPenHandle } from './use-pen-handles.js'
 import { usePenDraft } from './use-pen-draft.js'
 
 export interface CanvasGesturesOptions {
@@ -59,7 +58,7 @@ export function useCanvasGestures({
   }, [canvasRef])
 
   const handlePointerDown = useCallback((e: React.MouseEvent) => {
-    if (controller.readOnly) return
+    if (controller.readOnly || e.button !== 0) return
     isShiftPressedRef.current = e.shiftKey
     const pt = getCanvasPoint(e)
     const geo = screenToGeo(map, pt)
@@ -76,8 +75,6 @@ export function useCanvasGestures({
       if (hitItem) {
         const isSel = controller.selection.includes(hitItem.id)
 
-        // Dragging a pen anchor/handle edits it immediately, even on the first
-        // click that selects the path.
         if (!e.shiftKey && hitItem.type === 'pen') {
           const hitHandle = hitTestPenHandle(map, hitItem, pt)
           if (hitHandle) {

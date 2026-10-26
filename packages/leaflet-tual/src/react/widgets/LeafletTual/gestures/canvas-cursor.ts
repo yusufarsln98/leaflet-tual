@@ -1,12 +1,12 @@
 import type L from 'leaflet'
 import type { Controller, ScreenPoint } from '../../../../core/index.js'
-import { hitTest } from '../../../../core/index.js'
-import { hitTestPenHandle } from './use-pen-handles.js'
 import {
+  hitTest,
   hitTestArrowHandle,
+  hitTestPenHandle,
   hitTestRulerHandle,
   hitTestShapeHandle,
-} from './use-shape-handles.js'
+} from '../../../../core/index.js'
 
 export function updateCanvasHoverCursor(
   canvas: HTMLCanvasElement,

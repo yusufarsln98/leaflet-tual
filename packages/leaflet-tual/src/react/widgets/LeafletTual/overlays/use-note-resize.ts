@@ -23,7 +23,7 @@ export function startNoteResize(
   controller: Controller,
   bounds: NoteBounds,
 ): void {
-  if (controller.readOnly) return
+  if (controller.readOnly || e.button !== 0) return
   e.stopPropagation()
   e.preventDefault()
   map.dragging?.disable()

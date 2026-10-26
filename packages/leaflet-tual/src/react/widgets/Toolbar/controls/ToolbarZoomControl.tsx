@@ -2,6 +2,7 @@
 
 import type L from 'leaflet'
 import { useTranslation } from '../../../features/i18n/index.js'
+import { Divider, PillButton } from '../../../ui/index.js'
 
 export interface ToolbarZoomControlProps {
   map?: L.Map
@@ -14,11 +15,11 @@ export function ToolbarZoomControl({ map, zoomPercent }: ToolbarZoomControlProps
 
   return (
     <>
-      <div className="tual-separator" />
-      <button
-        type="button"
-        className="tual-btn tual-zoom-pill"
+      <Divider variant="toolbar" />
+      <PillButton
+        variant="zoom"
         title={t('zoomReset')}
+        label={`${zoomPercent}%`}
         style={{
           padding: '0 8px',
           fontSize: 12,
@@ -29,9 +30,7 @@ export function ToolbarZoomControl({ map, zoomPercent }: ToolbarZoomControlProps
         onClick={() => {
           map?.setZoom(13)
         }}
-      >
-        {zoomPercent}%
-      </button>
+      />
     </>
   )
 }
