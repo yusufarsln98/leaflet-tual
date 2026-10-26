@@ -95,7 +95,7 @@ export const MARITIME_PRESET: ShowcasePreset = {
       height: 100,
       title: 'Navigation Notice',
       text: 'Vessels over 200 m require escort pilotage through the narrows.',
-      style: { color: 'yellow', size: 's', width: 's' },
+      style: { color: 'yellow', fillColor: 'yellow', size: 's', width: 's' },
       baseZoom: 15,
       createdAt: 6000,
     },
