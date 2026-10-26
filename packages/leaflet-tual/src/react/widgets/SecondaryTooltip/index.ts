@@ -1,3 +1,3 @@
 export * from './SecondaryTooltip.js'
-export * from './BorderPopover.js'
+export * from './popovers/BorderPopover.js'
 

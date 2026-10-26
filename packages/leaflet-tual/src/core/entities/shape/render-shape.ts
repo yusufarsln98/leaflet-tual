@@ -1,16 +1,16 @@
 import type L from 'leaflet'
-import type { ScreenPoint, ShapeItem, Tokens } from '../../types/index.js'
-import { geoToScreen } from '../../shared/geo.js'
+import type { GeoPoint, ScreenPoint, ShapeItem, Tokens } from '../../types/index.js'
+import { geoToScreen } from '../../shared/geometry/geo.js'
 import {
   resolveColor,
   resolveDash,
   resolveSize,
   resolveWeight,
   resolveWidth,
-} from '../../shared/theme.js'
-import { drawHandle, drawLabelPill } from '../../shared/canvas-utils.js'
-import { getShapeLabelY } from '../../shared/shape-label.js'
-import { getItemZoomScale } from '../../shared/zoom.js'
+} from '../../shared/theme/theme.js'
+import { drawHandle, drawLabelPill } from '../../shared/drawing/canvas-utils.js'
+import { getShapeLabelY } from '../../shared/drawing/shape-label.js'
+import { getItemZoomScale } from '../../shared/geometry/zoom.js'
 import { type ShapeBounds, traceShapePath } from './trace-shape.js'
 
 export function renderShapeOnCanvas(
@@ -33,18 +33,21 @@ export function renderShapeOnCanvas(
     center = geoToScreen(map, shape.at)
     rawWidth = Math.max(1, (shape.width ?? 96) * scale)
     rawHeight = Math.max(1, (shape.height ?? 96) * scale)
-  } else if ((shape as any).from && (shape as any).to) {
-    const p1 = geoToScreen(map, (shape as any).from)
-    const p2 = geoToScreen(map, (shape as any).to)
-    const minX = Math.min(p1.x, p2.x)
-    const maxX = Math.max(p1.x, p2.x)
-    const minY = Math.min(p1.y, p2.y)
-    const maxY = Math.max(p1.y, p2.y)
-    rawWidth = Math.max(1, maxX - minX)
-    rawHeight = Math.max(1, maxY - minY)
-    center = { x: minX + rawWidth / 2, y: minY + rawHeight / 2 }
   } else {
-    return
+    const legacy = shape as unknown as { from?: GeoPoint; to?: GeoPoint }
+    if (legacy.from && legacy.to) {
+      const p1 = geoToScreen(map, legacy.from)
+      const p2 = geoToScreen(map, legacy.to)
+      const minX = Math.min(p1.x, p2.x)
+      const maxX = Math.max(p1.x, p2.x)
+      const minY = Math.min(p1.y, p2.y)
+      const maxY = Math.max(p1.y, p2.y)
+      rawWidth = Math.max(1, maxX - minX)
+      rawHeight = Math.max(1, maxY - minY)
+      center = { x: minX + rawWidth / 2, y: minY + rawHeight / 2 }
+    } else {
+      return
+    }
   }
 
   const minX = center.x - rawWidth / 2

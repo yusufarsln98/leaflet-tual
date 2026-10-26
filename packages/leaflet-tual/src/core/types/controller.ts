@@ -78,15 +78,21 @@ export interface Controller {
   setReadOnly(v: boolean): void
   on(
     event: 'change' | 'select' | 'tool' | 'page' | 'state',
-    handler: (...args: any[]) => void,
+    handler: (...args: unknown[]) => void,
   ): () => void
+}
+
+export interface InternalController extends Controller {
+  _updateControlledDoc?: (nextDoc: Doc) => void
+  _setScheme?: (s: 'light' | 'dark') => void
+  _setMap?: (m: L.Map | null) => void
 }
 
 export interface ToolbarAction {
   id: string
   label: string
   title?: string
-  icon?: any
+  icon?: unknown
   onClick?: () => void
   run?: (controller: Controller) => void
   active?: boolean

@@ -3,8 +3,8 @@ import type L from 'leaflet'
 import {
   DEFAULT_SHAPE_SIZE_PX,
   resolveShapeDragBounds,
-} from '../shared/shape-drawing.js'
-import { toWorld } from '../shared/coordinates.js'
+} from '../shared/drawing/shape-drawing.js'
+import { toWorld } from '../shared/geometry/coordinates.js'
 import type { ScreenPoint } from '../types/index.js'
 
 function createProjectionMap(): L.Map {

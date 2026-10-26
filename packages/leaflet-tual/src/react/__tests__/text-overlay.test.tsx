@@ -1,9 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react'
-import { TextOverlayView } from '../widgets/LeafletTual/TextOverlayView.js'
-import { useKeyboardShortcuts } from '../widgets/LeafletTual/use-keyboard-shortcuts.js'
+import { TextOverlayView } from '../widgets/LeafletTual/overlays/index.js'
+import { useKeyboardShortcuts } from '../widgets/LeafletTual/hooks/index.js'
 import { useLeafletTual } from '../features/use-leaflet-tual.js'
-import { createController } from '../../core/features/controller.js'
+import { createController } from '../../core/features/controller/index.js'
+import type { TextItem } from '../../core/index.js'
 import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 
@@ -15,7 +16,7 @@ describe('v2 Text Overlay Component', () => {
       type: 'text',
       at: { lat: 41, lng: 28 },
       text: 'Bosphorus Strait',
-    }) as any
+    }) as TextItem
 
     render(
       <TextOverlayView
@@ -36,7 +37,7 @@ describe('v2 Text Overlay Component', () => {
       type: 'text',
       at: { lat: 41, lng: 28 },
       text: 'Editable text',
-    }) as any
+    }) as TextItem
 
     const { container } = render(
       <TextOverlayView
@@ -98,9 +99,9 @@ describe('v2 Text Overlay Component', () => {
         fontStyle: 'italic',
         underline: true,
       },
-    }) as any
+    }) as TextItem
 
-    const { container, rerender } = render(
+    const { container } = render(
       <TextOverlayView
         map={map}
         textItem={text}
@@ -122,17 +123,17 @@ describe('v2 Text Overlay Component', () => {
 
     // Toggle bold via Ctrl+B shortcut
     fireEvent.keyDown(textarea, { key: 'b', ctrlKey: true })
-    const updated1 = controller.items.find((it) => it.id === text.id) as any
-    expect(updated1.style?.weight).toBe('regular')
+    const updated1 = controller.items.find((it): it is TextItem => it.id === text.id)
+    expect(updated1?.style?.weight).toBe('regular')
 
     // Toggle italic via Ctrl+I shortcut
     fireEvent.keyDown(textarea, { key: 'i', ctrlKey: true })
-    const updated2 = controller.items.find((it) => it.id === text.id) as any
-    expect(updated2.style?.fontStyle).toBe('normal')
+    const updated2 = controller.items.find((it): it is TextItem => it.id === text.id)
+    expect(updated2?.style?.fontStyle).toBe('normal')
 
     // Toggle underline via Ctrl+U shortcut
     fireEvent.keyDown(textarea, { key: 'u', ctrlKey: true })
-    const updated3 = controller.items.find((it) => it.id === text.id) as any
-    expect(updated3.style?.underline).toBe(false)
+    const updated3 = controller.items.find((it): it is TextItem => it.id === text.id)
+    expect(updated3?.style?.underline).toBe(false)
   })
 })

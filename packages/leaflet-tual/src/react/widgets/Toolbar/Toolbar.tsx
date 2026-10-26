@@ -1,13 +1,16 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { ArrowKind, DrawKind, ShapeKind, ToolId } from '../../../core/index.js'
+import type { DrawKind, ToolId } from '../../../core/index.js'
 import type { ToolbarProps } from '../../types/index.js'
-import { ARROW_ICONS, DRAW_ICONS, ICONS, SHAPE_ICONS } from './icons.js'
-import { PageSwitcher } from './PageSwitcher.js'
-import { ToolVariantsPopover } from './ToolVariantsPopover.js'
-import { ToolbarHistoryControls } from './ToolbarHistoryControls.js'
-import { ToolbarToolButton } from './ToolbarToolButton.js'
+import { ICONS } from './icons/index.js'
+import {
+  PageSwitcher,
+  ToolbarHistoryControls,
+  ToolbarDrawGroup,
+  ToolbarItemButton,
+  ToolbarZoomControl,
+} from './controls/index.js'
 
 const ALL_TOOLS: ToolId[] = [
   'select',
@@ -51,15 +54,9 @@ export function Toolbar({
     lastDrawToolRef.current = controller.tool
   }
 
-  const availableDrawTools = DRAW_TOOLS.filter(
-    (tool) => tools.includes(tool) && (!variants?.draw || variants.draw.includes(tool)),
-  )
-
-  const effectiveZoom = currentZoom !== undefined ? currentZoom : (map ? map.getZoom() : undefined)
-  const zoomPercent =
-    effectiveZoom !== undefined
-      ? Math.round(Math.pow(2, effectiveZoom - 13) * 100)
-      : null
+  const availableDrawTools = DRAW_TOOLS.filter((t) => tools.includes(t) && (!variants?.draw || variants.draw.includes(t)))
+  const effZoom = currentZoom ?? map?.getZoom()
+  const zoomPercent = effZoom !== undefined ? Math.round(Math.pow(2, effZoom - 13) * 100) : null
 
   const toggleCollapsed = () => {
     const next = !isCollapsed
@@ -128,97 +125,33 @@ export function Toolbar({
       {/* 2. Tools list */}
       {tools.map((toolId) => {
         if (toolId === 'freedraw' || toolId === 'pen') {
-          // Both drawing tools share one Draw group. Render it once, at the
-          // position of the first drawing tool in the configured list.
           if (toolId !== availableDrawTools[0]) return null
-
-          const activeDrawTool =
-            controller.tool === 'freedraw' || controller.tool === 'pen'
-              ? controller.tool
-              : null
-          const isActive = activeDrawTool !== null
-          const hasVariants = availableDrawTools.length > 1
-          const isPopoverOpen = activePopover === 'draw'
-          const fallbackTool = availableDrawTools.includes(lastDrawToolRef.current)
-            ? lastDrawToolRef.current
-            : availableDrawTools[0]
-          const previewTool = activeDrawTool ?? fallbackTool
-          const label = `Draw (${previewTool === 'pen' ? 'P' : 'F'})`
-
           return (
-            <div key="draw" style={{ position: 'relative' }}>
-              <ToolbarToolButton
-                label={label}
-                icon={DRAW_ICONS[previewTool]()}
-                isActive={isActive}
-                hasVariants={hasVariants}
-                onSelect={() => {
-                  if (hasVariants) {
-                    const nextOpen = activePopover !== 'draw'
-                    if (!isActive) controller.setTool(fallbackTool)
-                    setActivePopover(nextOpen ? 'draw' : null)
-                  } else {
-                    controller.setTool(fallbackTool)
-                    closePopover()
-                  }
-                }}
-              />
-
-              {hasVariants && isPopoverOpen && (
-                <ToolVariantsPopover
-                  controller={controller}
-                  type="draw"
-                  allowedDrawVariants={availableDrawTools}
-                  onClose={closePopover}
-                  className={classNames?.popover}
-                />
-              )}
-            </div>
+            <ToolbarDrawGroup
+              key="draw"
+              controller={controller}
+              availableDrawTools={availableDrawTools}
+              activePopover={activePopover}
+              lastDrawTool={lastDrawToolRef.current}
+              popoverClassName={classNames?.popover}
+              onTogglePopover={(open) => setActivePopover(open ? 'draw' : null)}
+              onClosePopover={closePopover}
+            />
           )
         }
 
-        const isActive = controller.tool === toolId
-        const hasVariants = toolId === 'arrow' || toolId === 'shape'
-        const isPopoverOpen = activePopover === toolId
-        const icon =
-          toolId === 'arrow' && controller.variant
-            ? (ARROW_ICONS[controller.variant as ArrowKind]?.() ?? ICONS.arrow())
-            : toolId === 'shape' && controller.variant
-              ? (SHAPE_ICONS[controller.variant as ShapeKind]?.() ?? ICONS.shape())
-              : ICONS[toolId]()
-        const label = `${toolId.charAt(0).toUpperCase() + toolId.slice(1)} (${toolId.charAt(0).toUpperCase()})`
-
         return (
-          <div key={toolId} style={{ position: 'relative' }}>
-            <ToolbarToolButton
-              label={label}
-              icon={icon}
-              isActive={isActive}
-              hasVariants={hasVariants}
-              onSelect={() => {
-                if (hasVariants) {
-                  const nextOpen = activePopover !== toolId
-                  if (!isActive) controller.setTool(toolId)
-                  setActivePopover(nextOpen ? toolId : null)
-                } else {
-                  controller.setTool(toolId)
-                  closePopover()
-                }
-              }}
-            />
-
-            {/* Tool variants popover */}
-            {hasVariants && isPopoverOpen && (
-              <ToolVariantsPopover
-                controller={controller}
-                type={toolId as 'arrow' | 'shape'}
-                allowedArrowVariants={variants?.arrow}
-                allowedShapeVariants={variants?.shape}
-                onClose={closePopover}
-                className={classNames?.popover}
-              />
-            )}
-          </div>
+          <ToolbarItemButton
+            key={toolId}
+            toolId={toolId}
+            controller={controller}
+            isPopoverOpen={activePopover === toolId}
+            popoverClassName={classNames?.popover}
+            allowedArrowVariants={variants?.arrow}
+            allowedShapeVariants={variants?.shape}
+            onTogglePopover={(open) => setActivePopover(open ? toolId : null)}
+            onClosePopover={closePopover}
+          />
         )
       })}
 
@@ -231,30 +164,7 @@ export function Toolbar({
       )}
 
       {/* 4. Zoom percentage pill */}
-      {zoom !== false && zoomPercent !== null && (
-        <>
-          <div className="tual-separator" />
-          <button
-            type="button"
-            className="tual-btn tual-zoom-pill"
-            title="Zoom level (click to reset to 100%)"
-            style={{
-              padding: '0 8px',
-              fontSize: 12,
-              fontWeight: 500,
-              minWidth: 46,
-              fontVariantNumeric: 'tabular-nums',
-            }}
-            onClick={() => {
-              if (map) {
-                map.setZoom(13)
-              }
-            }}
-          >
-            {zoomPercent}%
-          </button>
-        </>
-      )}
+      {zoom !== false && <ToolbarZoomControl map={map} zoomPercent={zoomPercent} />}
 
       {/* 5. Custom Toolbar Actions */}
       {actions && actions.length > 0 && (

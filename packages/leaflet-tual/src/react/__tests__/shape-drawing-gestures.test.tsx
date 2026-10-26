@@ -4,10 +4,8 @@ import { LeafletTual } from '../widgets/LeafletTual/LeafletTual.js'
 import { useLeafletTual } from '../features/use-leaflet-tual.js'
 import { emptyDoc } from '../../core/index.js'
 import { createMockCanvasContext } from '../../core/__tests__/test-utils.js'
-import { resizeShapeInWorld } from '../widgets/LeafletTual/use-shape-handles.js'
+import { resizeShapeInWorld } from '../widgets/LeafletTual/gestures/index.js'
 import { createMockMap } from './test-utils.js'
-
-const SHAPE_LATLNG_UNIT = 10 // mock map: 10 screen px per degree
 
 describe('v2 shape drawing gestures', () => {
   beforeEach(() => {
@@ -236,8 +234,9 @@ describe('v2 shape drawing gestures', () => {
       const shape = controller.add({
         type: 'shape',
         kind: 'square',
-        from: { lat: 10, lng: 10 },
-        to: { lat: 20, lng: 20 },
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
       })
       shapeId = shape.id
       controller.select(shape.id)
@@ -263,8 +262,9 @@ describe('v2 shape drawing gestures', () => {
       const shape = controller.add({
         type: 'shape',
         kind: 'square',
-        from: { lat: 10, lng: 10 },
-        to: { lat: 20, lng: 20 },
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
       })
       controller.select(shape.id)
     })

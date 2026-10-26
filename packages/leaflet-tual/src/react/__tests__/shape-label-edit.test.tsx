@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react'
 import { useLeafletTual } from '../features/use-leaflet-tual.js'
-import { InlineShapeLabelEditor } from '../widgets/LeafletTual/InlineShapeLabelEditor.js'
-import { useKeyboardShortcuts } from '../widgets/LeafletTual/use-keyboard-shortcuts.js'
+import { InlineShapeLabelEditor } from '../widgets/LeafletTual/overlays/index.js'
+import { useKeyboardShortcuts } from '../widgets/LeafletTual/hooks/index.js'
 import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 
@@ -19,8 +19,9 @@ describe('v2 Shape label editing & edit(id) action', () => {
       const s = result.current.add({
         type: 'shape',
         kind: 'square',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.1, lng: 28.1 },
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
       })
       shapeId = s.id
     })
@@ -37,7 +38,8 @@ describe('v2 Shape label editing & edit(id) action', () => {
       result.current.edit(null)
     })
     expect(result.current.editingId).toBeNull()
-    expect((result.current.items[0] as any).label).toBe('Zone 1')
+    const firstItem = result.current.items[0]
+    expect(firstItem?.type === 'shape' ? firstItem.label : undefined).toBe('Zone 1')
   })
 
   it('activates shape label editing on Enter key', () => {
@@ -52,8 +54,9 @@ describe('v2 Shape label editing & edit(id) action', () => {
       const s = result.current.add({
         type: 'shape',
         kind: 'circle',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.1, lng: 28.1 },
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
       })
       shapeId = s.id
       result.current.select(shapeId)
@@ -68,6 +71,34 @@ describe('v2 Shape label editing & edit(id) action', () => {
     expect(result.current.editingId).toBe(shapeId)
   })
 
+  it('activates arrow label editing on Enter key', () => {
+    const { result } = renderHook(() => {
+      const c = useLeafletTual({ defaultValue: emptyDoc() })
+      useKeyboardShortcuts(c, () => {})
+      return c
+    })
+
+    let arrowId = ''
+    act(() => {
+      const a = result.current.add({
+        type: 'arrow',
+        kind: 'linear',
+        from: { lat: 41.05, lng: 28.05 },
+        to: { lat: 41.1, lng: 28.1 },
+      })
+      arrowId = a.id
+      result.current.select(arrowId)
+    })
+
+    expect(result.current.editingId).toBeNull()
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    })
+
+    expect(result.current.editingId).toBe(arrowId)
+  })
+
   it('renders inline shape label editor and updates shape label', () => {
     const { result } = renderHook(() =>
       useLeafletTual({
@@ -75,13 +106,14 @@ describe('v2 Shape label editing & edit(id) action', () => {
       }),
     )
 
-    let shape: any
+    let shape: ReturnType<typeof result.current.add> | undefined
     act(() => {
       shape = result.current.add({
         type: 'shape',
         kind: 'circle',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.1, lng: 28.1 },
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
         label: 'Initial Label',
       })
       result.current.select(shape.id)
@@ -91,7 +123,7 @@ describe('v2 Shape label editing & edit(id) action', () => {
     render(
       <InlineShapeLabelEditor
         map={map}
-        shape={shape}
+        shape={shape?.type === 'shape' ? shape : undefined}
         controller={result.current}
       />,
     )
@@ -100,6 +132,7 @@ describe('v2 Shape label editing & edit(id) action', () => {
     expect(input.value).toBe('Initial Label')
 
     fireEvent.change(input, { target: { value: 'Updated Label' } })
-    expect((result.current.items[0] as any).label).toBe('Updated Label')
+    const firstItem = result.current.items[0]
+    expect(firstItem?.type === 'shape' ? firstItem.label : undefined).toBe('Updated Label')
   })
 })

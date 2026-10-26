@@ -1,9 +1,9 @@
 import type L from 'leaflet'
 import type { FreedrawItem, ScreenPoint, Tokens } from '../../types/index.js'
-import { geoToScreen } from '../../shared/geo.js'
-import { resolveColor, resolveDash, resolveWidth } from '../../shared/theme.js'
-import { drawHandle } from '../../shared/canvas-utils.js'
-import { getItemZoomScale } from '../../shared/zoom.js'
+import { geoToScreen } from '../../shared/geometry/geo.js'
+import { resolveColor, resolveDash, resolveWidth } from '../../shared/theme/theme.js'
+import { drawHandle } from '../../shared/drawing/canvas-utils.js'
+import { getItemZoomScale } from '../../shared/geometry/zoom.js'
 
 export function renderFreedrawOnCanvas(
   ctx: CanvasRenderingContext2D,

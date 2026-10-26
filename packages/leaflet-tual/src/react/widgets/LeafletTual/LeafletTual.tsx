@@ -3,19 +3,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type L from 'leaflet'
 import { useMap } from 'react-leaflet'
-import type { Controller } from '../../../core/index.js'
+import type { Controller, InternalController } from '../../../core/index.js'
 import { useLeafletTual } from '../../features/use-leaflet-tual.js'
 import { useLeafletSync } from '../../features/use-leaflet-sync.js'
 import { Toolbar } from '../Toolbar/Toolbar.js'
 import { SecondaryTooltip } from '../SecondaryTooltip/SecondaryTooltip.js'
 import type { LeafletTualProps } from '../../types/index.js'
-import { InlineShapeLabelEditor } from './InlineShapeLabelEditor.js'
-import { NoteOverlayView } from './NoteOverlayView.js'
-import { TextOverlayView } from './TextOverlayView.js'
-import { drawCanvasScene, type CanvasGesture } from './use-canvas-drawing.js'
-import { useCanvasGestures } from './use-canvas-gestures.js'
-import { useKeyboardShortcuts } from './use-keyboard-shortcuts.js'
-import { useThemeResolver } from './use-theme-resolver.js'
+import {
+  InlineShapeLabelEditor,
+  NoteOverlayView,
+  TextOverlayView,
+} from './overlays/index.js'
+import {
+  drawCanvasScene,
+  type CanvasGesture,
+  useCanvasGestures,
+} from './gestures/index.js'
+import {
+  useKeyboardShortcuts,
+  useThemeResolver,
+  useMapInteractions,
+} from './hooks/index.js'
 
 function LeafletTualInner({
   map,
@@ -39,8 +47,9 @@ function LeafletTualInner({
   const resolvedScheme = useThemeResolver(props.theme)
 
   useEffect(() => {
-    ;(controller as any)._setScheme?.(resolvedScheme)
-    ;(controller as any)._setMap?.(map)
+    const internal = controller as InternalController
+    internal._setScheme?.(resolvedScheme)
+    internal._setMap?.(map)
   }, [controller, resolvedScheme, map])
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -70,52 +79,17 @@ function LeafletTualInner({
   const [, setTick] = useState(0)
 
   useEffect(() => {
-    const unsub = controller.on('state', () => {
+    return controller.on('state', () => {
       setTick((t) => t + 1)
       redraw()
     })
-    return unsub
   }, [controller, redraw])
 
   useEffect(() => {
     redraw()
   }, [redraw])
 
-  const hasSelection = controller.selection.length > 0
-
-  useEffect(() => {
-    if (!hasSelection) return
-    map.scrollWheelZoom?.disable()
-    return () => {
-      map.scrollWheelZoom?.enable()
-    }
-  }, [hasSelection, map])
-
-  useEffect(() => {
-    const isDrawingTool = controller.tool !== 'select' && !controller.readOnly
-    if (isDrawingTool) {
-      map.dragging?.disable()
-      map.doubleClickZoom?.disable()
-    } else {
-      map.dragging?.enable()
-      map.doubleClickZoom?.enable()
-    }
-
-    // Shift is used by the canvas for aspect locks, angle snapping and
-    // resizing. Leaflet's box zoom also listens to Shift+drag, so it must stay
-    // off while the annotation layer is interactive.
-    if (controller.readOnly) {
-      map.boxZoom?.enable()
-    } else {
-      map.boxZoom?.disable()
-    }
-
-    return () => {
-      map.dragging?.enable()
-      map.doubleClickZoom?.enable()
-      map.boxZoom?.enable()
-    }
-  }, [controller.tool, controller.readOnly, map])
+  useMapInteractions(map, controller)
 
   const gestures = useCanvasGestures({ canvasRef, map, controller, activeGesture, setActiveGesture, isShiftPressedRef })
 

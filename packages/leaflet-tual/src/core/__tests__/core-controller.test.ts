@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createController } from '../features/controller.js'
+import { createController } from '../features/controller/index.js'
 import type { ArrowItem } from '../types/items.js'
 
 describe('v2 Controller state machine', () => {
@@ -79,8 +79,9 @@ describe('v2 Controller state machine', () => {
     const shape = c.add({
       type: 'shape',
       kind: 'square',
-      from: { lat: 41, lng: 28 },
-      to: { lat: 41.1, lng: 28.1 },
+      at: { lat: 41.05, lng: 28.05 },
+      width: 100,
+      height: 100,
     })
     expect(shape.style?.color).toBe('blue')
     expect(shape.style?.fill).toBe('tint')

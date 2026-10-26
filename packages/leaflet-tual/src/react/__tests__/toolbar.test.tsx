@@ -3,7 +3,9 @@ import { render, screen, fireEvent, renderHook } from '@testing-library/react'
 import { Toolbar, useLeafletTual } from '../index.js'
 import { emptyDoc } from '../../core/index.js'
 
-function TestToolbar({ toolbarProps = {} }: { toolbarProps?: any }) {
+import type { ToolbarProps } from '../types/index.js'
+
+function TestToolbar({ toolbarProps = {} }: { toolbarProps?: Partial<ToolbarProps> }) {
   const controller = useLeafletTual({
     defaultValue: emptyDoc(),
   })

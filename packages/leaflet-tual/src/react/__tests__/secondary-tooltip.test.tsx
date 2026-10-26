@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react'
 import { SecondaryTooltip } from '../widgets/SecondaryTooltip/SecondaryTooltip.js'
 import { useLeafletTual } from '../features/use-leaflet-tual.js'
+import type { NoteItem, TextItem } from '../../core/index.js'
 import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 
@@ -17,8 +18,9 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       const s = result.current.add({
         type: 'shape',
         kind: 'square',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.1, lng: 28.1 },
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
         label: 'Zone A',
       })
       result.current.select(s.id)
@@ -87,7 +89,8 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(screen.getByText('Label Position')).toBeDefined()
     const topBtn = screen.getByText('Top')
     fireEvent.click(topBtn)
-    expect((result.current.selected[0] as any).labelPosition).toBe('top')
+    const sel = result.current.selected[0]
+    expect(sel?.type === 'shape' ? sel.labelPosition : undefined).toBe('top')
   })
 
   it('keeps wheel events inside the color dropdown from reaching the map container', () => {
@@ -101,8 +104,9 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       const s = result.current.add({
         type: 'shape',
         kind: 'square',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.1, lng: 28.1 },
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
       })
       result.current.select(s.id)
     })
@@ -133,8 +137,9 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       const s = result.current.add({
         type: 'shape',
         kind: 'star',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.1, lng: 28.1 },
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
       })
       result.current.select(s.id)
     })
@@ -183,8 +188,9 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     act(() => {
       const n = result.current.add({
         type: 'note',
-        from: { lat: 41.0, lng: 28.0 },
-        to: { lat: 41.01, lng: 28.01 },
+        at: { lat: 41.0, lng: 28.0 },
+        width: 180,
+        height: 180,
         text: 'Typography test',
       })
       noteId = n.id
@@ -208,8 +214,8 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       fireEvent.click(headingBtn)
     })
 
-    const updatedNote = result.current.items.find((it) => it.id === noteId) as any
-    expect(updatedNote.style?.size).toBe('xl')
+    const updatedNote = result.current.items.find((it): it is NoteItem => it.id === noteId)
+    expect(updatedNote?.style?.size).toBe('xl')
   })
 
   it('allows custom font size number input and weight select', () => {
@@ -258,9 +264,9 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       fireEvent.change(sizeInput, { target: { value: '26' } })
     })
 
-    const updatedNote = result.current.items.find((it) => it.id === noteId) as any
-    expect(updatedNote.style?.weight).toBe('semibold')
-    expect(updatedNote.style?.fontSize).toBe(26)
+    const updatedNote = result.current.items.find((it): it is NoteItem => it.id === noteId)
+    expect(updatedNote?.style?.weight).toBe('semibold')
+    expect(updatedNote?.style?.fontSize).toBe(26)
   })
 
   it('toggles bold, italic, underline, and bullets on text fields', () => {
@@ -299,15 +305,15 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     act(() => {
       fireEvent.click(boldBtn)
     })
-    let item = result.current.items.find((it) => it.id === textId) as any
-    expect(item.style?.weight).toBe('bold')
+    let item = result.current.items.find((it): it is TextItem => it.id === textId)
+    expect(item?.style?.weight).toBe('bold')
     expect(boldBtn.getAttribute('data-active')).toBe('true')
 
     act(() => {
       fireEvent.click(boldBtn)
     })
-    item = result.current.items.find((it) => it.id === textId) as any
-    expect(item.style?.weight).toBe('regular')
+    item = result.current.items.find((it): it is TextItem => it.id === textId)
+    expect(item?.style?.weight).toBe('regular')
     expect(boldBtn.getAttribute('data-active')).toBe('false')
 
     // Test Italic toggle
@@ -315,15 +321,15 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     act(() => {
       fireEvent.click(italicBtn)
     })
-    item = result.current.items.find((it) => it.id === textId) as any
-    expect(item.style?.fontStyle).toBe('italic')
+    item = result.current.items.find((it): it is TextItem => it.id === textId)
+    expect(item?.style?.fontStyle).toBe('italic')
     expect(italicBtn.getAttribute('data-active')).toBe('true')
 
     act(() => {
       fireEvent.click(italicBtn)
     })
-    item = result.current.items.find((it) => it.id === textId) as any
-    expect(item.style?.fontStyle).toBe('normal')
+    item = result.current.items.find((it): it is TextItem => it.id === textId)
+    expect(item?.style?.fontStyle).toBe('normal')
     expect(italicBtn.getAttribute('data-active')).toBe('false')
 
     // Test Underline toggle
@@ -331,17 +337,17 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     act(() => {
       fireEvent.click(underlineBtn)
     })
-    item = result.current.items.find((it) => it.id === textId) as any
-    expect(item.style?.underline).toBe(true)
-    expect(item.style?.textDecoration).toBe('underline')
+    item = result.current.items.find((it): it is TextItem => it.id === textId)
+    expect(item?.style?.underline).toBe(true)
+    expect(item?.style?.textDecoration).toBe('underline')
     expect(underlineBtn.getAttribute('data-active')).toBe('true')
 
     act(() => {
       fireEvent.click(underlineBtn)
     })
-    item = result.current.items.find((it) => it.id === textId) as any
-    expect(item.style?.underline).toBe(false)
-    expect(item.style?.textDecoration).toBe('none')
+    item = result.current.items.find((it): it is TextItem => it.id === textId)
+    expect(item?.style?.underline).toBe(false)
+    expect(item?.style?.textDecoration).toBe('none')
     expect(underlineBtn.getAttribute('data-active')).toBe('false')
 
     // Test Bullets toggle
@@ -349,15 +355,15 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     act(() => {
       fireEvent.click(bulletsBtn)
     })
-    item = result.current.items.find((it) => it.id === textId) as any
-    expect(item.text).toBe('• Hello world')
+    item = result.current.items.find((it): it is TextItem => it.id === textId)
+    expect(item?.text).toBe('• Hello world')
     expect(bulletsBtn.getAttribute('data-active')).toBe('true')
 
     act(() => {
       fireEvent.click(bulletsBtn)
     })
-    item = result.current.items.find((it) => it.id === textId) as any
-    expect(item.text).toBe('Hello world')
+    item = result.current.items.find((it): it is TextItem => it.id === textId)
+    expect(item?.text).toBe('Hello world')
     expect(bulletsBtn.getAttribute('data-active')).toBe('false')
   })
 
@@ -381,7 +387,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     })
 
     const map = createMockMap()
-    const { container } = render(<SecondaryTooltip map={map} controller={result.current} />)
+    render(<SecondaryTooltip map={map} controller={result.current} />)
 
     const bgBtn = screen.getByTitle('Background Color')
     expect(bgBtn).toBeDefined()
@@ -415,16 +421,16 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       fireEvent.change(hexInput, { target: { value: '#ff5500' } })
     })
 
-    let noteItem = result.current.items.find((it) => it.id === noteId) as any
-    expect(noteItem.style?.fillColor).toBe('#FF5500')
+    let noteItem = result.current.items.find((it): it is NoteItem => it.id === noteId)
+    expect(noteItem?.style?.fillColor).toBe('#FF5500')
 
     // Change opacity percentage to 75%
     act(() => {
       fireEvent.change(opacityInput, { target: { value: '75' } })
     })
 
-    noteItem = result.current.items.find((it) => it.id === noteId) as any
-    expect(noteItem.style?.fillColor).toBe('rgba(255, 85, 0, 0.75)')
+    noteItem = result.current.items.find((it): it is NoteItem => it.id === noteId)
+    expect(noteItem?.style?.fillColor).toBe('rgba(255, 85, 0, 0.75)')
   })
 
   it('does not render inline bold, italic, underline, or bullets buttons for shape labels in secondary tooltip', () => {

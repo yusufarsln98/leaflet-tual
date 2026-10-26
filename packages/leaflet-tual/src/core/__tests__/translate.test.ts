@@ -6,8 +6,8 @@ import type {
   PenItem,
   ShapeItem,
 } from '../types/items.js'
-import { toWorld } from '../shared/coordinates.js'
-import { translateItem, worldDelta } from '../shared/translate.js'
+import { toWorld } from '../shared/geometry/coordinates.js'
+import { translateItem, worldDelta } from '../shared/geometry/translate.js'
 
 describe('world-space item translation', () => {
   const start = { lat: 41.0082, lng: 28.9784 }
@@ -19,21 +19,18 @@ describe('world-space item translation', () => {
       id: 'shape',
       type: 'shape',
       kind: 'square',
-      from: { lat: 41.0, lng: 28.97 },
-      to: { lat: 41.02, lng: 28.99 },
+      at: { lat: 41.01, lng: 28.98 },
+      width: 100,
+      height: 100,
       createdAt: 0,
     }
 
     const patch = translateItem(shape, delta) as Partial<ShapeItem>
-    const originalFrom = toWorld(shape.from)
-    const originalTo = toWorld(shape.to)
-    const movedFrom = toWorld(patch.from!)
-    const movedTo = toWorld(patch.to!)
+    const originalAt = toWorld(shape.at)
+    const movedAt = toWorld(patch.at!)
 
-    expect(movedFrom.x - originalFrom.x).toBeCloseTo(delta.x, 6)
-    expect(movedFrom.y - originalFrom.y).toBeCloseTo(delta.y, 6)
-    expect(movedTo.x - originalTo.x).toBeCloseTo(delta.x, 6)
-    expect(movedTo.y - originalTo.y).toBeCloseTo(delta.y, 6)
+    expect(movedAt.x - originalAt.x).toBeCloseTo(delta.x, 6)
+    expect(movedAt.y - originalAt.y).toBeCloseTo(delta.y, 6)
   })
 
   it('keeps a shape size intact when the drag spans different latitudes', () => {
@@ -41,19 +38,20 @@ describe('world-space item translation', () => {
       id: 'shape',
       type: 'shape',
       kind: 'circle',
-      from: { lat: 41.0, lng: 28.97 },
-      to: { lat: 41.05, lng: 29.04 },
+      at: { lat: 41.025, lng: 29.005 },
+      width: 120,
+      height: 120,
       createdAt: 0,
     }
 
     const patch = translateItem(shape, delta) as Partial<ShapeItem>
-    const originalFrom = toWorld(shape.from)
-    const originalTo = toWorld(shape.to)
-    const movedFrom = toWorld(patch.from!)
-    const movedTo = toWorld(patch.to!)
+    const originalAt = toWorld(shape.at)
+    const movedAt = toWorld(patch.at!)
 
-    expect(movedTo.x - movedFrom.x).toBeCloseTo(originalTo.x - originalFrom.x, 6)
-    expect(movedTo.y - movedFrom.y).toBeCloseTo(originalTo.y - originalFrom.y, 6)
+    expect(movedAt.x - originalAt.x).toBeCloseTo(delta.x, 6)
+    expect(movedAt.y - originalAt.y).toBeCloseTo(delta.y, 6)
+    expect(shape.width).toBe(120)
+    expect(shape.height).toBe(120)
   })
 
   it('moves the control point of a curved arrow with the item', () => {

@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { NoteOverlayView } from '../widgets/LeafletTual/NoteOverlayView.js'
-import { createController } from '../../core/features/controller.js'
+import type { NoteItem } from '../../core/index.js'
+import { NoteOverlayView } from '../widgets/LeafletTual/overlays/index.js'
+import { createController } from '../../core/features/controller/index.js'
 import { createMockMap } from './test-utils.js'
 
 describe('v2 Note Overlay Component', () => {
@@ -15,7 +16,7 @@ describe('v2 Note Overlay Component', () => {
       height: 180,
       text: 'Meeting at 10 AM',
       style: { color: 'ink', fillColor: 'yellow' },
-    }) as any
+    }) as NoteItem
 
     const { container } = render(
       <NoteOverlayView
@@ -47,7 +48,7 @@ describe('v2 Note Overlay Component', () => {
       width: 180,
       height: 180,
       text: 'Resizable note',
-    }) as any
+    }) as NoteItem
 
     controller.select(note.id)
 
@@ -77,7 +78,7 @@ describe('v2 Note Overlay Component', () => {
       height: 180,
       text: 'Bordered note',
       style: { strokeColor: 'purple', width: 'l', dash: 'dashed' },
-    }) as any
+    }) as NoteItem
 
     const { container } = render(
       <NoteOverlayView
@@ -100,7 +101,7 @@ describe('v2 Note Overlay Component', () => {
       type: 'note',
       at: { lat: 41.0, lng: 28.0 },
       text: 'Default note without custom stroke',
-    }) as any
+    }) as NoteItem
 
     const { container } = render(
       <NoteOverlayView
@@ -123,7 +124,7 @@ describe('v2 Note Overlay Component', () => {
       at: { lat: 41.0, lng: 28.0 },
       width: 200,
       text: 'Square note',
-    }) as any
+    }) as NoteItem
 
     const { container } = render(
       <NoteOverlayView
@@ -149,7 +150,7 @@ describe('v2 Note Overlay Component', () => {
       at: { lat: 41.0, lng: 28.0 },
       width: 180,
       text: 'Long note content...',
-    }) as any
+    }) as NoteItem
 
     const { container } = render(
       <NoteOverlayView

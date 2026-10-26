@@ -1,5 +1,5 @@
 import type { Doc, Item } from '../types/items.js'
-import { createId } from './geo.js'
+import { createId } from './geometry/geo.js'
 
 export class DocError extends Error {
   constructor(message: string) {
@@ -28,19 +28,19 @@ export function emptyDoc(): Doc {
 }
 
 function isValidGeo(g: unknown): boolean {
+  if (typeof g !== 'object' || g === null) return false
+  const rec = g as Record<string, unknown>
   return (
-    typeof g === 'object' &&
-    g !== null &&
-    typeof (g as any).lat === 'number' &&
-    Number.isFinite((g as any).lat) &&
-    typeof (g as any).lng === 'number' &&
-    Number.isFinite((g as any).lng)
+    typeof rec.lat === 'number' &&
+    Number.isFinite(rec.lat) &&
+    typeof rec.lng === 'number' &&
+    Number.isFinite(rec.lng)
   )
 }
 
 function isValidPenPoint(point: unknown): boolean {
   if (typeof point !== 'object' || point === null) return false
-  const p = point as any
+  const p = point as Record<string, unknown>
   return (
     isValidGeo(p.at) &&
     (p.in === undefined || isValidGeo(p.in)) &&
@@ -54,7 +54,7 @@ function isValidPenPoint(point: unknown): boolean {
  */
 function migrateLegacyFreehand(item: unknown): unknown {
   if (typeof item !== 'object' || item === null) return item
-  const it = item as any
+  const it = item as Record<string, unknown>
   if (it.type !== 'pen' || !Array.isArray(it.points)) return item
   if (!it.points.every(isValidGeo)) return item
 
@@ -63,13 +63,14 @@ function migrateLegacyFreehand(item: unknown): unknown {
 
 function isValidItem(item: unknown): item is Item {
   if (typeof item !== 'object' || item === null) return false
-  const it = item as any
+  const it = item as Record<string, unknown>
   if (typeof it.id !== 'string' || !it.id) return false
   if (typeof it.createdAt !== 'number' || !Number.isFinite(it.createdAt)) return false
 
   switch (it.type) {
     case 'arrow':
       return (
+        typeof it.kind === 'string' &&
         ['linear', 'curved', 'elbow', 's-curve'].includes(it.kind) &&
         isValidGeo(it.from) &&
         isValidGeo(it.to) &&
@@ -77,6 +78,7 @@ function isValidItem(item: unknown): item is Item {
       )
     case 'shape':
       return (
+        typeof it.kind === 'string' &&
         [
           'square',
           'circle',
@@ -90,7 +92,7 @@ function isValidItem(item: unknown): item is Item {
         ((isValidGeo(it.at) && typeof it.width === 'number' && typeof it.height === 'number') ||
           (isValidGeo(it.from) && isValidGeo(it.to))) &&
         (it.labelPosition === undefined ||
-          ['top', 'center', 'bottom'].includes(it.labelPosition))
+          (typeof it.labelPosition === 'string' && ['top', 'center', 'bottom'].includes(it.labelPosition)))
       )
     case 'freedraw':
       return Array.isArray(it.points) && it.points.every(isValidGeo)
@@ -125,7 +127,7 @@ export function parseDoc(input: unknown): Doc {
     throw new DocError('Doc must be a valid non-null object')
   }
 
-  const d = docObj as any
+  const d = docObj as Record<string, unknown>
 
   if (d.version !== 2) {
     throw new DocError(`Invalid Doc version: expected 2, got ${d.version}`)
@@ -170,5 +172,5 @@ export function parseDoc(input: unknown): Doc {
     )
   }
 
-  return d as Doc
+  return d as unknown as Doc
 }

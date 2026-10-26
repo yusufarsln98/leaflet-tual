@@ -1,6 +1,4 @@
 export * from './Toolbar.js'
-export * from './PageSwitcher.js'
-export * from './StylePopover.js'
-export * from './ToolVariantsPopover.js'
-export * from './icons.js'
-
+export * from './controls/index.js'
+export * from './popovers/index.js'
+export * from './icons/index.js'

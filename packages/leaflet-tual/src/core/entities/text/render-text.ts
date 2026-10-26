@@ -1,13 +1,13 @@
 import type L from 'leaflet'
 import type { TextItem, Tokens } from '../../types/index.js'
-import { geoToScreen } from '../../shared/geo.js'
+import { geoToScreen } from '../../shared/geometry/geo.js'
 import {
   resolveColor,
   resolveSize,
   resolveWeight,
-} from '../../shared/theme.js'
-import { drawHandle } from '../../shared/canvas-utils.js'
-import { getItemZoomScale } from '../../shared/zoom.js'
+} from '../../shared/theme/theme.js'
+import { drawHandle } from '../../shared/drawing/canvas-utils.js'
+import { getItemZoomScale } from '../../shared/geometry/zoom.js'
 
 export function renderTextOnCanvas(
   ctx: CanvasRenderingContext2D,

@@ -1,8 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { Controller, CreateLeafletTualOptions, Doc } from '../../core/types/index.js'
-import { createController } from '../../core/features/controller.js'
+import type {
+  Controller,
+  CreateLeafletTualOptions,
+  Doc,
+  InternalController,
+} from '../../core/types/index.js'
+import { createController } from '../../core/features/controller/index.js'
 
 export function useLeafletTual(
   options: CreateLeafletTualOptions = {},
@@ -30,7 +35,7 @@ export function useLeafletTual(
   useEffect(() => {
     if (options.value !== undefined && options.value !== prevValueRef.current) {
       prevValueRef.current = options.value
-      ;(controller as any)._updateControlledDoc?.(options.value)
+      ;(controller as InternalController)._updateControlledDoc?.(options.value)
     }
   }, [options.value, controller])
 

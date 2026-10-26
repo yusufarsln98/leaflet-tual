@@ -4,14 +4,14 @@ import {
   distance,
   formatDistance,
   geoToScreen,
-} from '../../shared/geo.js'
+} from '../../shared/geometry/geo.js'
 import {
   resolveColor,
   resolveDash,
   resolveWidth,
-} from '../../shared/theme.js'
-import { drawHandle, drawLabelPill } from '../../shared/canvas-utils.js'
-import { getItemZoomScale } from '../../shared/zoom.js'
+} from '../../shared/theme/theme.js'
+import { drawHandle, drawLabelPill } from '../../shared/drawing/canvas-utils.js'
+import { getItemZoomScale } from '../../shared/geometry/zoom.js'
 
 export function renderRulerOnCanvas(
   ctx: CanvasRenderingContext2D,
