@@ -15,7 +15,7 @@ export const MARITIME_PRESET: ShowcasePreset = {
       kind: 's-curve',
       from: { lat: 41.026, lng: 28.987 },
       to: { lat: 41.012, lng: 29.006 },
-      style: { color: 'ink', strokeColor: 'ink', width: 'l', dash: 'solid' },
+      style: { color: 'blue', strokeColor: 'blue', width: 'l', dash: 'solid' },
       label: 'Cargo Lane · 12 kn',
       baseZoom: 15,
       createdAt: 1000,

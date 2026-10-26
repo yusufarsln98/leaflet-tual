@@ -28,9 +28,9 @@ export const ALPINE_PRESET: ShowcasePreset = {
       width: 170,
       height: 170,
       style: {
-        color: 'ink',
-        strokeColor: 'ink',
-        fillColor: 'ink',
+        color: 'gray',
+        strokeColor: 'gray',
+        fillColor: 'gray',
         fill: 'tint',
         width: 'm',
         dash: 'dashed',
