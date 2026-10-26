@@ -20,6 +20,7 @@ import {
   renderTextOnCanvas,
   snapAngle,
 } from '../../../core/index.js'
+import { resolveShapePlacement } from '../../../core/shared/shape-drawing.js'
 import type { PenHandleType } from './use-pen-handles.js'
 
 export type CanvasGesture =
@@ -60,8 +61,12 @@ export type CanvasGesture =
       type: 'resize-shape'
       shapeId: string
       handle: any
-      initialFrom: GeoPoint
-      initialTo: GeoPoint
+      initialAt?: GeoPoint
+      initialWidth?: number
+      initialHeight?: number
+      initialFrom?: GeoPoint
+      initialTo?: GeoPoint
+      startPt: ScreenPoint
       startGeo: GeoPoint
     }
   | {
@@ -150,7 +155,9 @@ export function drawCanvasScene(
         { tokens },
       )
     } else if (g.tool === 'shape') {
-      if (isShiftPressed) toGeo = lockAspect(g.startGeo, g.currentGeo, 1)
+      const placement = resolveShapePlacement(map, g.startPt, g.currentPt, {
+        shiftKey: isShiftPressed,
+      })
       renderShapeOnCanvas(
         ctx,
         map,
@@ -158,8 +165,9 @@ export function drawCanvasScene(
           id: 'preview',
           type: 'shape',
           kind: (g.variant as ShapeKind) ?? 'square',
-          from: g.startGeo,
-          to: toGeo,
+          at: placement.at,
+          width: placement.width,
+          height: placement.height,
           style: controller.style,
           createdAt: Date.now(),
         },

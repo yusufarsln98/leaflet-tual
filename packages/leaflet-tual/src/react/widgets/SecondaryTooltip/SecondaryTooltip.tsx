@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type L from 'leaflet'
+import L from 'leaflet'
 import type { Controller, Item, ShapeItem, Style } from '../../../core/index.js'
 import { resolveColor, resolveNoteColors } from '../../../core/index.js'
 import { ICONS, LABEL_POSITION_ICONS } from '../Toolbar/icons.js'
@@ -30,20 +30,66 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
     return unsub
   }, [controller])
 
-  // Double-clicking the tooltip or one of its dropdowns must never zoom the map.
+  // Double-clicking the tooltip or wheel scrolling inside it must never zoom the map
   useEffect(() => {
     const el = tooltipRef.current
     if (!el) return
-    const stopDoubleClick = (event: Event) => event.stopPropagation()
-    el.addEventListener('dblclick', stopDoubleClick)
-    return () => el.removeEventListener('dblclick', stopDoubleClick)
+    const stop = (event: Event) => event.stopPropagation()
+    el.addEventListener('dblclick', stop)
+    el.addEventListener('wheel', stop, { passive: true })
+    return () => {
+      el.removeEventListener('dblclick', stop)
+      el.removeEventListener('wheel', stop)
+    }
   }, [selectedItem?.id])
+
+  // Re-enable map dragging when any pointerup occurs on window
+  useEffect(() => {
+    const handleGlobalUp = () => {
+      if (controller.tool === 'select') {
+        map?.dragging?.enable()
+      }
+    }
+    window.addEventListener('pointerup', handleGlobalUp)
+    window.addEventListener('mouseup', handleGlobalUp)
+    window.addEventListener('touchend', handleGlobalUp)
+    return () => {
+      window.removeEventListener('pointerup', handleGlobalUp)
+      window.removeEventListener('mouseup', handleGlobalUp)
+      window.removeEventListener('touchend', handleGlobalUp)
+    }
+  }, [controller.tool, map])
+
+  // Keep menu open until clicking outside (lose focus) or pressing Escape
+  useEffect(() => {
+    if (!activePopover) return
+
+    const handlePointerDownOutside = (e: MouseEvent | TouchEvent | PointerEvent) => {
+      const target = e.target as Node | null
+      if (tooltipRef.current && target && !tooltipRef.current.contains(target)) {
+        setActivePopover(null)
+      }
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActivePopover(null)
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDownOutside, true)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDownOutside, true)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [activePopover])
 
   if (!selectedItem || controller.readOnly) return null
 
   const bounds = getItemBounds(map, selectedItem)
   const leftPos = Math.round(bounds.cx)
-  const topPos = Math.round(Math.max(16, bounds.minY - 48))
+  const topPos = Math.round(Math.max(16, bounds.minY - 44))
   const scheme = controller.scheme
   const style = selectedItem.style ?? {}
   const colorHex = resolveColor(style.color ?? 'ink', scheme)
@@ -170,7 +216,27 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
         transform: 'translateX(-50%)',
         zIndex: 500,
       }}
-      onMouseDown={(e) => e.stopPropagation()}
+      onMouseEnter={() => {
+        map?.dragging?.disable()
+      }}
+      onMouseLeave={() => {
+        if (!activePopover && controller.tool === 'select') {
+          map?.dragging?.enable()
+        }
+      }}
+      onPointerDown={(e) => {
+        e.stopPropagation()
+        map?.dragging?.disable()
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation()
+        map?.dragging?.disable()
+      }}
+      onTouchStart={(e) => {
+        e.stopPropagation()
+        map?.dragging?.disable()
+      }}
+      onClick={(e) => e.stopPropagation()}
     >
       {hasTypography && (
         <div style={{ position: 'relative' }}>
@@ -207,13 +273,13 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
             <button type="button" className="tual-secondary-swatch-btn" title="Text Color" onClick={() => toggle('textColor')}>
               <div className="tual-secondary-swatch-box" style={{ backgroundColor: resolveColor(style.textColor ?? 'ink', scheme) }} />
             </button>
-            {activePopover === 'textColor' && <ColorDropdown title="Text Color" mode="stroke" currentColor={style.textColor ?? 'ink'} scheme={scheme as 'light' | 'dark'} onSelectColor={(c) => { updateStyle({ textColor: c }); setActivePopover(null) }} onClose={() => setActivePopover(null)} />}
+            {activePopover === 'textColor' && <ColorDropdown map={map} title="Text Color" mode="stroke" currentColor={style.textColor ?? 'ink'} scheme={scheme as 'light' | 'dark'} onSelectColor={(c) => updateStyle({ textColor: c })} onClose={() => setActivePopover(null)} />}
           </div>
           <div style={{ position: 'relative' }}>
             <button type="button" className="tual-secondary-swatch-btn" title="Background Color" onClick={() => toggle('bgColor')}>
               <div className="tual-secondary-swatch-box" style={{ backgroundColor: resolveNoteColors(style.color ?? 'yellow', scheme, style.textColor, style.fillColor).bg }} />
             </button>
-            {activePopover === 'bgColor' && <ColorDropdown title="Background Color" mode="fill" currentColor={style.fillColor ?? style.color ?? 'yellow'} scheme={scheme as 'light' | 'dark'} onSelectColor={(c) => { updateStyle({ fillColor: c, color: c }); setActivePopover(null) }} onClose={() => setActivePopover(null)} />}
+            {activePopover === 'bgColor' && <ColorDropdown map={map} title="Background Color" mode="fill" currentColor={style.fillColor ?? style.color ?? 'yellow'} scheme={scheme as 'light' | 'dark'} onSelectColor={(c) => updateStyle({ fillColor: c, color: c })} onClose={() => setActivePopover(null)} />}
           </div>
         </>
       ) : (
@@ -223,9 +289,10 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
           </button>
           {activePopover === 'color' && (
             <ColorDropdown
+              map={map}
               title="Color" mode={isShape ? 'fill' : 'stroke'} currentColor={style.color} currentFill={style.fill} scheme={scheme as 'light' | 'dark'}
-              onSelectColor={(c) => { updateStyle(style.fill === 'none' ? { color: c, fill: 'solid' } : { color: c }); setActivePopover(null) }}
-              onSelectFillMode={(mode) => { updateStyle({ fill: mode }); setActivePopover(null) }} onClose={() => setActivePopover(null)}
+              onSelectColor={(c) => updateStyle(style.fill === 'none' ? { color: c, fill: 'solid' } : { color: c })}
+              onSelectFillMode={(mode) => updateStyle({ fill: mode })} onClose={() => setActivePopover(null)}
             />
           )}
         </div>
@@ -305,7 +372,7 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
             {ICONS.radius()}
           </button>
           {activePopover === 'radius' && (
-            <RadiusDropdown currentRadius={style.radius} onSelectRadius={(r) => { updateStyle({ radius: r }); setActivePopover(null) }} onClose={() => setActivePopover(null)} />
+            <RadiusDropdown currentRadius={style.radius} onSelectRadius={(r) => updateStyle({ radius: r })} onClose={() => setActivePopover(null)} />
           )}
         </div>
       )}
@@ -339,7 +406,7 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
             {LABEL_POSITION_ICONS.center()}
           </button>
           {activePopover === 'labelPosition' && (
-            <LabelPositionDropdown currentPosition={(selectedItem as ShapeItem).labelPosition} onSelectPosition={(p) => { controller.update(selectedItem.id, { labelPosition: p }); setActivePopover(null) }} onClose={() => setActivePopover(null)} />
+            <LabelPositionDropdown currentPosition={(selectedItem as ShapeItem).labelPosition} onSelectPosition={(p) => controller.update(selectedItem.id, { labelPosition: p })} onClose={() => setActivePopover(null)} />
           )}
         </div>
       )}

@@ -14,10 +14,12 @@ export type FontWeight =
   | number
 
 export interface Style {
-  color?: ColorName
-  fillColor?: ColorName
-  textColor?: ColorName
-  strokeColor?: ColorName
+  color?: ColorName | string
+  fillColor?: ColorName | string
+  textColor?: ColorName | string
+  strokeColor?: ColorName | string
+  opacity?: number
+  fillOpacity?: number
   width?: 's' | 'm' | 'l' | number
   dash?: 'solid' | 'dashed' | 'dotted' | 'none'
   fill?: 'none' | 'tint' | 'solid'

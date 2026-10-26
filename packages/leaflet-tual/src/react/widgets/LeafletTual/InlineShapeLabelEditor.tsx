@@ -37,16 +37,24 @@ export function InlineShapeLabelEditor({
   let midY = 0
 
   if (target.type === 'shape') {
-    const p1 = geoToScreen(map, target.from)
-    const p2 = geoToScreen(map, target.to)
-    midX = (p1.x + p2.x) / 2
-    const position = target.labelPosition ?? 'center'
-    midY = getShapeLabelY(
-      position,
-      Math.min(p1.y, p2.y),
-      Math.max(p1.y, p2.y),
-      (p1.y + p2.y) / 2,
-    )
+    if (target.at) {
+      const center = geoToScreen(map, target.at)
+      const scale = getItemZoomScale(map, target)
+      const rawH = Math.max(1, (target.height ?? 96) * scale)
+      const minY = center.y - rawH / 2
+      const maxY = center.y + rawH / 2
+      midX = center.x
+      const position = target.labelPosition ?? 'center'
+      midY = getShapeLabelY(position, minY, maxY, center.y)
+    } else if ((target as any).from && (target as any).to) {
+      const p1 = geoToScreen(map, (target as any).from)
+      const p2 = geoToScreen(map, (target as any).to)
+      const minY = Math.min(p1.y, p2.y)
+      const maxY = Math.max(p1.y, p2.y)
+      midX = (p1.x + p2.x) / 2
+      const position = target.labelPosition ?? 'center'
+      midY = getShapeLabelY(position, minY, maxY, (minY + maxY) / 2)
+    }
   } else if (target.type === 'arrow') {
     const start = geoToScreen(map, target.from)
     const end = geoToScreen(map, target.to)

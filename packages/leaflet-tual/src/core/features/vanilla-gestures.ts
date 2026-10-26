@@ -13,7 +13,7 @@ import {
   screenToGeo,
   snapAngle,
 } from '../shared/geo.js'
-import { isClickGesture, resolveShapeDragBounds } from '../shared/shape-drawing.js'
+import { isClickGesture, resolveShapePlacement } from '../shared/shape-drawing.js'
 import { translateItem, worldDelta } from '../shared/translate.js'
 import type { VanillaGesture } from './vanilla-drawing.js'
 
@@ -71,26 +71,28 @@ export function createVanillaGestures(ctx: VanillaGesturesContext) {
       }
 
       if (hitItem) {
+        const isSel = ctx.controller.selection.includes(hitItem.id)
         if ('shiftKey' in e && (e as MouseEvent).shiftKey) {
-          if (ctx.controller.selection.includes(hitItem.id)) {
+          if (isSel) {
             ctx.controller.select(ctx.controller.selection.filter((id) => id !== hitItem!.id))
           } else {
             ctx.controller.select([...ctx.controller.selection, hitItem.id])
           }
-        } else if (!ctx.controller.selection.includes(hitItem.id)) {
+        } else if (!isSel) {
           ctx.controller.select(hitItem.id)
+        } else {
+          // Already selected: start moving the selection
+          const itemIds = [...ctx.controller.selection]
+          ctx.setActiveGesture({
+            type: 'drag-item',
+            itemIds,
+            startPt: pt,
+            startGeo: geo,
+            initialItems: itemIds
+              .map((id) => ctx.controller.items.find((item) => item.id === id))
+              .filter((item): item is Item => Boolean(item)),
+          })
         }
-
-        const itemIds = [...ctx.controller.selection]
-        ctx.setActiveGesture({
-          type: 'drag-item',
-          itemIds,
-          startPt: pt,
-          startGeo: geo,
-          initialItems: itemIds
-            .map((id) => ctx.controller.items.find((item) => item.id === id))
-            .filter((item): item is Item => Boolean(item)),
-        })
       } else {
         ctx.controller.select(null)
       }
@@ -232,10 +234,16 @@ export function createVanillaGestures(ctx: VanillaGesturesContext) {
           ctx.controller.add({ type: 'arrow', kind: (g.variant as ArrowKind) ?? 'linear', from: g.startGeo, to })
         }
       } else if (g.tool === 'shape') {
-        const { from, to } = resolveShapeDragBounds(ctx.map, g.startPt, endPt, {
+        const placement = resolveShapePlacement(ctx.map, g.startPt, endPt, {
           shiftKey,
         })
-        ctx.controller.add({ type: 'shape', kind: (g.variant as ShapeKind) ?? 'square', from, to })
+        ctx.controller.add({
+          type: 'shape',
+          kind: (g.variant as ShapeKind) ?? 'square',
+          at: placement.at,
+          width: placement.width,
+          height: placement.height,
+        })
       } else if (g.tool === 'ruler') {
         if (!isClickGesture(g.startPt, endPt)) {
           ctx.controller.add({ type: 'ruler', from: g.startGeo, to: endGeo })

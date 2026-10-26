@@ -24,13 +24,22 @@ export function bounds(item: Item): Bounds {
         maxLng: Math.max(...lngs),
       }
     }
-    case 'shape':
     case 'ruler': {
       return {
         minLat: Math.min(item.from.lat, item.to.lat),
         maxLat: Math.max(item.from.lat, item.to.lat),
         minLng: Math.min(item.from.lng, item.to.lng),
         maxLng: Math.max(item.from.lng, item.to.lng),
+      }
+    }
+    case 'shape':
+    case 'note': {
+      const delta = 0.001
+      return {
+        minLat: item.at.lat - delta,
+        maxLat: item.at.lat + delta,
+        minLng: item.at.lng - delta,
+        maxLng: item.at.lng + delta,
       }
     }
     case 'freedraw': {
@@ -58,24 +67,6 @@ export function bounds(item: Item): Bounds {
         maxLat: Math.max(...lats),
         minLng: Math.min(...lngs),
         maxLng: Math.max(...lngs),
-      }
-    }
-    case 'note': {
-      if (item.from && item.to) {
-        return {
-          minLat: Math.min(item.from.lat, item.to.lat),
-          maxLat: Math.max(item.from.lat, item.to.lat),
-          minLng: Math.min(item.from.lng, item.to.lng),
-          maxLng: Math.max(item.from.lng, item.to.lng),
-        }
-      }
-      const delta = 0.0005
-      const at = item.at ?? { lat: 0, lng: 0 }
-      return {
-        minLat: at.lat - delta,
-        maxLat: at.lat + delta,
-        minLng: at.lng - delta,
-        maxLng: at.lng + delta,
       }
     }
     case 'text': {
@@ -138,19 +129,32 @@ export function hitTest(
       return distanceToSegment(pt, start, end) <= tolerance
     }
     case 'shape': {
-      const pFrom = project(item.from)
-      const pTo = project(item.to)
-      const minX = Math.min(pFrom.x, pTo.x)
-      const maxX = Math.max(pFrom.x, pTo.x)
-      const minY = Math.min(pFrom.y, pTo.y)
-      const maxY = Math.max(pFrom.y, pTo.y)
+      if (item.at) {
+        const center = project(item.at)
+        let scale = 1
+        if (map && item.baseZoom != null) {
+          scale = Math.pow(2, map.getZoom() - item.baseZoom)
+        }
+        const halfW = (item.width * scale) / 2
+        const halfH = (item.height * scale) / 2
 
-      return (
-        pt.x >= minX - tolerance &&
-        pt.x <= maxX + tolerance &&
-        pt.y >= minY - tolerance &&
-        pt.y <= maxY + tolerance
-      )
+        return (
+          pt.x >= center.x - halfW - tolerance &&
+          pt.x <= center.x + halfW + tolerance &&
+          pt.y >= center.y - halfH - tolerance &&
+          pt.y <= center.y + halfH + tolerance
+        )
+      } else if ((item as any).from && (item as any).to) {
+        const a = project((item as any).from)
+        const b = project((item as any).to)
+        return (
+          pt.x >= Math.min(a.x, b.x) - tolerance &&
+          pt.x <= Math.max(a.x, b.x) + tolerance &&
+          pt.y >= Math.min(a.y, b.y) - tolerance &&
+          pt.y <= Math.max(a.y, b.y) + tolerance
+        )
+      }
+      return false
     }
     case 'freedraw': {
       if (item.points.length === 0) return false
@@ -183,32 +187,19 @@ export function hitTest(
       return false
     }
     case 'note': {
-      if (item.from && item.to) {
-        const p1 = project(item.from)
-        const p2 = project(item.to)
-        const side = Math.max(Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y))
-        const cx = (p1.x + p2.x) / 2
-        const cy = (p1.y + p2.y) / 2
-        const half = side / 2
-        return (
-          pt.x >= cx - half - tolerance &&
-          pt.x <= cx + half + tolerance &&
-          pt.y >= cy - half - tolerance &&
-          pt.y <= cy + half + tolerance
-        )
+      const anchor = project(item.at)
+      let scale = 1
+      if (map && item.baseZoom != null) {
+        scale = Math.pow(2, map.getZoom() - item.baseZoom)
       }
-      if (item.at) {
-        const anchor = project(item.at)
-        const side = Math.max(item.width ?? 180, item.height ?? 180)
-        const half = side / 2
-        return (
-          pt.x >= anchor.x - half - tolerance &&
-          pt.x <= anchor.x + half + tolerance &&
-          pt.y >= anchor.y - half - tolerance &&
-          pt.y <= anchor.y + half + tolerance
-        )
-      }
-      return false
+      const side = Math.max(item.width ?? 180, item.height ?? 180) * scale
+      const half = side / 2
+      return (
+        pt.x >= anchor.x - half - tolerance &&
+        pt.x <= anchor.x + half + tolerance &&
+        pt.y >= anchor.y - half - tolerance &&
+        pt.y <= anchor.y + half + tolerance
+      )
     }
     case 'text': {
       const anchor = project(item.at)

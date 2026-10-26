@@ -360,4 +360,102 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(item.text).toBe('Hello world')
     expect(bulletsBtn.getAttribute('data-active')).toBe('false')
   })
+
+  it('renders Theme and Custom tabs in background color dropdown and allows custom color with opacity', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    let noteId = ''
+    act(() => {
+      const n = result.current.add({
+        type: 'note',
+        at: { lat: 41.05, lng: 28.05 },
+        text: 'Note for color test',
+        style: { color: 'yellow' },
+      })
+      noteId = n.id
+      result.current.select(n.id)
+    })
+
+    const map = createMockMap()
+    const { container } = render(<SecondaryTooltip map={map} controller={result.current} />)
+
+    const bgBtn = screen.getByTitle('Background Color')
+    expect(bgBtn).toBeDefined()
+
+    // Open Background Color popover
+    act(() => {
+      fireEvent.click(bgBtn)
+    })
+
+    // Should have Theme and Custom tabs
+    const themeTab = screen.getByRole('button', { name: 'Theme' })
+    const customTab = screen.getByRole('button', { name: 'Custom' })
+    expect(themeTab).toBeDefined()
+    expect(customTab).toBeDefined()
+    expect(themeTab.getAttribute('data-active')).toBe('true')
+
+    // Click Custom tab
+    act(() => {
+      fireEvent.click(customTab)
+    })
+    expect(customTab.getAttribute('data-active')).toBe('true')
+
+    // Should render custom color panel elements: hex field, opacity input, sliders
+    const hexInput = screen.getByLabelText('Hex color') as HTMLInputElement
+    const opacityInput = screen.getByLabelText('Opacity percentage') as HTMLInputElement
+    expect(hexInput).toBeDefined()
+    expect(opacityInput).toBeDefined()
+
+    // Change hex color
+    act(() => {
+      fireEvent.change(hexInput, { target: { value: '#ff5500' } })
+    })
+
+    let noteItem = result.current.items.find((it) => it.id === noteId) as any
+    expect(noteItem.style?.fillColor).toBe('#FF5500')
+
+    // Change opacity percentage to 75%
+    act(() => {
+      fireEvent.change(opacityInput, { target: { value: '75' } })
+    })
+
+    noteItem = result.current.items.find((it) => it.id === noteId) as any
+    expect(noteItem.style?.fillColor).toBe('rgba(255, 85, 0, 0.75)')
+  })
+
+  it('does not render inline bold, italic, underline, or bullets buttons for shape labels in secondary tooltip', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    act(() => {
+      const shape = result.current.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 41.0, lng: 28.0 },
+        width: 100,
+        height: 100,
+        label: 'Square Label',
+      })
+      result.current.select(shape.id)
+    })
+
+    const map = createMockMap()
+    render(<SecondaryTooltip map={map} controller={result.current} />)
+
+    // Secondary tooltip for shape has Typography pill button (which has Custom tab inside)
+    expect(screen.getByTitle('Text Size & Style')).toBeDefined()
+
+    // Must NOT have direct inline bold/italic/underline/bullets buttons
+    expect(screen.queryByTitle('Bold')).toBeNull()
+    expect(screen.queryByTitle('Italic')).toBeNull()
+    expect(screen.queryByTitle('Underline')).toBeNull()
+    expect(screen.queryByTitle('Bulleted List')).toBeNull()
+  })
 })

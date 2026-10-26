@@ -133,8 +133,9 @@ export interface ArrowItem extends Base {
 export interface ShapeItem extends Base {
   type: 'shape'
   kind: ShapeKind
-  from: GeoPoint                              // opposite corners of the bounding box
-  to: GeoPoint
+  at: GeoPoint                                // center anchor
+  width: number                               // width in unscaled pixels
+  height: number                              // height in unscaled pixels
   label?: string
   labelPosition?: LabelPosition               // default 'center'
 }

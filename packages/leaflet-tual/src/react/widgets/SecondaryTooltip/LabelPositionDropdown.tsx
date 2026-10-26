@@ -26,7 +26,9 @@ export function LabelPositionDropdown({
     <div
       ref={guardRef}
       className="tual-popover tual-options-popover"
+      onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="tual-popover-header">Label Position</div>
       <div className="tual-options-list">

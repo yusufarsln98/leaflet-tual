@@ -4,7 +4,7 @@ import { geoToScreen } from '../../../core/shared/geo.js'
 import { getItemZoomScale } from '../../../core/shared/zoom.js'
 
 export function getItemBounds(map: L.Map, item: Item) {
-  if (item.type === 'shape' || item.type === 'arrow' || item.type === 'ruler') {
+  if (item.type === 'arrow' || item.type === 'ruler') {
     const p1 = geoToScreen(map, item.from)
     const p2 = geoToScreen(map, item.to)
     return {
@@ -13,25 +13,43 @@ export function getItemBounds(map: L.Map, item: Item) {
       maxY: Math.max(p1.y, p2.y),
     }
   }
-  if (item.type === 'note') {
-    if (item.from && item.to) {
-      const p1 = geoToScreen(map, item.from)
-      const p2 = geoToScreen(map, item.to)
-      const side = Math.max(Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y))
-      const cy = (p1.y + p2.y) / 2
-      const half = side / 2
+  if (item.type === 'shape') {
+    if (item.at) {
+      const center = geoToScreen(map, item.at)
+      const scale = getItemZoomScale(map, item)
+      const halfH = (item.height * scale) / 2
       return {
-        cx: (p1.x + p2.x) / 2,
-        minY: cy - half,
-        maxY: cy + half,
+        cx: center.x,
+        minY: center.y - halfH,
+        maxY: center.y + halfH,
       }
     }
+    if ((item as any).from && (item as any).to) {
+      const p1 = geoToScreen(map, (item as any).from)
+      const p2 = geoToScreen(map, (item as any).to)
+      return {
+        cx: (p1.x + p2.x) / 2,
+        minY: Math.min(p1.y, p2.y),
+        maxY: Math.max(p1.y, p2.y),
+      }
+    }
+  }
+  if (item.type === 'note') {
     if (item.at) {
       const p = geoToScreen(map, item.at)
       const scale = getItemZoomScale(map, item)
       const baseSide = Math.max(item.width ?? 180, item.height ?? 180)
       const half = (baseSide * scale) / 2
       return { cx: p.x, minY: p.y - half, maxY: p.y + half }
+    }
+    if ((item as any).from && (item as any).to) {
+      const p1 = geoToScreen(map, (item as any).from)
+      const p2 = geoToScreen(map, (item as any).to)
+      return {
+        cx: (p1.x + p2.x) / 2,
+        minY: Math.min(p1.y, p2.y),
+        maxY: Math.max(p1.y, p2.y),
+      }
     }
   }
   if (item.type === 'text') {

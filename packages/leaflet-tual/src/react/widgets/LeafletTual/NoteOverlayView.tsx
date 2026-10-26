@@ -37,17 +37,18 @@ export function NoteOverlayView({
   let center: { x: number; y: number }
   let baseSide: number
 
-  if (note.from && note.to) {
-    const p1 = geoToScreen(map, note.from)
-    const p2 = geoToScreen(map, note.to)
+  if (note.at) {
+    center = geoToScreen(map, note.at)
+    baseSide = Math.max(40, note.width ?? note.height ?? 180)
+  } else if ((note as any).from && (note as any).to) {
+    const p1 = geoToScreen(map, (note as any).from)
+    const p2 = geoToScreen(map, (note as any).to)
     center = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }
     const span = Math.max(Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y))
     baseSide = Math.max(40, note.width ?? Math.round(span / (zoomScale || 1)))
-  } else if (note.at) {
-    center = geoToScreen(map, note.at)
-    baseSide = Math.max(40, note.width ?? note.height ?? 180)
   } else {
-    return null
+    center = { x: 0, y: 0 }
+    baseSide = Math.max(40, note.width ?? note.height ?? 180)
   }
 
   // Visual screen bounds for selection & resize calculations
@@ -175,7 +176,9 @@ export function NoteOverlayView({
     if (controller.readOnly) return
     if ((e.target as HTMLElement).closest('textarea, .tual-note-handle')) return
     e.stopPropagation()
+    const wasSelected = controller.selection.includes(note.id)
     controller.select(note.id)
+    if (!wasSelected) return
     isDraggingRef.current = true
     map.dragging?.disable()
 
@@ -184,15 +187,7 @@ export function NoteOverlayView({
 
     const getDragPatch = (dx: number, dy: number) => {
       const newCenterScr = { x: origCenterScr.x + dx, y: origCenterScr.y + dy }
-      if (note.at) {
-        return { at: screenToGeo(map, newCenterScr) }
-      }
-      const p1Scr = geoToScreen(map, note.from!)
-      const p2Scr = geoToScreen(map, note.to!)
-      return {
-        from: screenToGeo(map, { x: p1Scr.x + dx, y: p1Scr.y + dy }),
-        to: screenToGeo(map, { x: p2Scr.x + dx, y: p2Scr.y + dy }),
-      }
+      return { at: screenToGeo(map, newCenterScr) }
     }
 
     const onPointerMove = (ev: PointerEvent) =>
@@ -244,25 +239,8 @@ export function NoteOverlayView({
       const newCenterY = (oppScreen.y + newCornerY) / 2
       const newBaseSide = Math.max(40, Math.round(newScreenSide / (zoomScale || 1)))
 
-      if (note.at) {
-        return {
-          at: screenToGeo(map, { x: newCenterX, y: newCenterY }),
-          width: newBaseSide,
-          height: newBaseSide,
-        }
-      }
-
-      const pMin = {
-        x: Math.min(oppScreen.x, newCornerX),
-        y: Math.min(oppScreen.y, newCornerY),
-      }
-      const pMax = {
-        x: Math.max(oppScreen.x, newCornerX),
-        y: Math.max(oppScreen.y, newCornerY),
-      }
       return {
-        from: screenToGeo(map, pMin),
-        to: screenToGeo(map, pMax),
+        at: screenToGeo(map, { x: newCenterX, y: newCenterY }),
         width: newBaseSide,
         height: newBaseSide,
       }

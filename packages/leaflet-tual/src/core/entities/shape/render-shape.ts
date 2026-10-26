@@ -1,5 +1,5 @@
 import type L from 'leaflet'
-import type { ShapeItem, Tokens } from '../../types/index.js'
+import type { ScreenPoint, ShapeItem, Tokens } from '../../types/index.js'
 import { geoToScreen } from '../../shared/geo.js'
 import {
   resolveColor,
@@ -24,27 +24,42 @@ export function renderShapeOnCanvas(
     tokens?: Partial<Tokens>
   } = {},
 ) {
-  const p1 = geoToScreen(map, shape.from)
-  const p2 = geoToScreen(map, shape.to)
+  let center: ScreenPoint
+  let rawWidth: number
+  let rawHeight: number
+  const scale = getItemZoomScale(map, shape)
 
-  const minX = Math.min(p1.x, p2.x)
-  const maxX = Math.max(p1.x, p2.x)
-  const minY = Math.min(p1.y, p2.y)
-  const maxY = Math.max(p1.y, p2.y)
-  const rawWidth = maxX - minX
-  const rawHeight = maxY - minY
+  if (shape.at) {
+    center = geoToScreen(map, shape.at)
+    rawWidth = Math.max(1, (shape.width ?? 96) * scale)
+    rawHeight = Math.max(1, (shape.height ?? 96) * scale)
+  } else if ((shape as any).from && (shape as any).to) {
+    const p1 = geoToScreen(map, (shape as any).from)
+    const p2 = geoToScreen(map, (shape as any).to)
+    const minX = Math.min(p1.x, p2.x)
+    const maxX = Math.max(p1.x, p2.x)
+    const minY = Math.min(p1.y, p2.y)
+    const maxY = Math.max(p1.y, p2.y)
+    rawWidth = Math.max(1, maxX - minX)
+    rawHeight = Math.max(1, maxY - minY)
+    center = { x: minX + rawWidth / 2, y: minY + rawHeight / 2 }
+  } else {
+    return
+  }
 
-  const width = Math.max(0.1, rawWidth)
-  const height = Math.max(0.1, rawHeight)
-  const cx = minX + width / 2
-  const cy = minY + height / 2
+  const minX = center.x - rawWidth / 2
+  const maxX = center.x + rawWidth / 2
+  const minY = center.y - rawHeight / 2
+  const maxY = center.y + rawHeight / 2
+  const cx = center.x
+  const cy = center.y
+  const width = rawWidth
+  const height = rawHeight
 
   const bounds: ShapeBounds = { minX, minY, maxX, maxY, width, height, cx, cy }
 
-  const scale = getItemZoomScale(map, shape)
-
-  const strokeColor = resolveColor(shape.style?.strokeColor ?? shape.style?.color ?? 'ink', scheme, options.tokens)
-  const fillColor = resolveColor(shape.style?.fillColor ?? shape.style?.color ?? 'ink', scheme, options.tokens)
+  const strokeColor = resolveColor(shape.style?.strokeColor ?? shape.style?.color ?? 'blue', scheme, options.tokens)
+  const fillColor = resolveColor(shape.style?.fillColor ?? shape.style?.color ?? 'blue', scheme, options.tokens)
   const baseLineWidth = resolveWidth(shape.style?.width ?? 'm')
   const lineWidth = shape.style?.dash === 'none' || shape.style?.width === 0 ? 0 : Math.max(0.5, baseLineWidth * scale)
   const dash = resolveDash(shape.style?.dash ?? 'solid').map((d) => d * scale)

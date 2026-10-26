@@ -1,6 +1,7 @@
 import type L from 'leaflet'
 import type { ArrowItem, GeoPoint, RulerItem, ScreenPoint, ShapeItem } from '../../../core/index.js'
-import { defaultVia, fromWorld, geoToScreen, toWorld } from '../../../core/index.js'
+import { defaultVia, fromWorld, geoToScreen, screenToGeo, toWorld } from '../../../core/index.js'
+import { getItemZoomScale } from '../../../core/shared/zoom.js'
 
 export type ShapeHandleType = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w'
 
@@ -23,15 +24,39 @@ const HANDLE_CURSORS: Record<ShapeHandleType, string> = {
 }
 
 export function getShapeScreenHandles(map: L.Map, shape: ShapeItem): ShapeHandle[] {
-  const p1 = geoToScreen(map, shape.from)
-  const p2 = geoToScreen(map, shape.to)
+  let minX: number
+  let maxX: number
+  let minY: number
+  let maxY: number
+  let cx: number
+  let cy: number
 
-  const minX = Math.min(p1.x, p2.x)
-  const maxX = Math.max(p1.x, p2.x)
-  const minY = Math.min(p1.y, p2.y)
-  const maxY = Math.max(p1.y, p2.y)
-  const cx = (minX + maxX) / 2
-  const cy = (minY + maxY) / 2
+  if (shape.at) {
+    const center = geoToScreen(map, shape.at)
+    const scale = getItemZoomScale(map, shape)
+
+    const halfW = (shape.width * scale) / 2
+    const halfH = (shape.height * scale) / 2
+
+    minX = center.x - halfW
+    maxX = center.x + halfW
+    minY = center.y - halfH
+    maxY = center.y + halfH
+    cx = center.x
+    cy = center.y
+  } else if ((shape as any).from && (shape as any).to) {
+    const p1 = geoToScreen(map, (shape as any).from)
+    const p2 = geoToScreen(map, (shape as any).to)
+
+    minX = Math.min(p1.x, p2.x)
+    maxX = Math.max(p1.x, p2.x)
+    minY = Math.min(p1.y, p2.y)
+    maxY = Math.max(p1.y, p2.y)
+    cx = (minX + maxX) / 2
+    cy = (minY + maxY) / 2
+  } else {
+    return []
+  }
 
   return [
     { type: 'nw', x: minX, y: minY, cursor: HANDLE_CURSORS.nw },
@@ -107,8 +132,6 @@ export function resizeShapeInWorld(
 
   const curWorld = toWorld(currentGeo)
 
-  // World Y grows northwards, so north handles move wMaxY and south handles
-  // move wMinY (the inverse of screen coordinates).
   switch (handle) {
     case 'se':
       wMaxX = curWorld.x
@@ -154,7 +177,6 @@ export function resizeShapeInWorld(
     if (north) wMaxY = wMinY + size
     if (south) wMinY = wMaxY - size
 
-    // Side handles grow symmetrically on their free axis.
     if (handle === 'e' || handle === 'w') {
       wMinY = cy - size / 2
       wMaxY = cy + size / 2
@@ -170,3 +192,72 @@ export function resizeShapeInWorld(
   }
 }
 
+export function resizeShape(
+  map: L.Map,
+  shape: ShapeItem,
+  initialAt: GeoPoint,
+  initialWidth: number,
+  initialHeight: number,
+  currentPt: ScreenPoint,
+  handle: ShapeHandleType,
+  lockAspect = false,
+): { at: GeoPoint; width: number; height: number } {
+  const scale = getItemZoomScale(map, shape)
+  const center = geoToScreen(map, initialAt)
+  const w = initialWidth * scale
+  const h = initialHeight * scale
+
+  let minX = center.x - w / 2
+  let maxX = center.x + w / 2
+  let minY = center.y - h / 2
+  let maxY = center.y + h / 2
+
+  switch (handle) {
+    case 'se':
+      maxX = currentPt.x
+      maxY = currentPt.y
+      break
+    case 'nw':
+      minX = currentPt.x
+      minY = currentPt.y
+      break
+    case 'ne':
+      maxX = currentPt.x
+      minY = currentPt.y
+      break
+    case 'sw':
+      minX = currentPt.x
+      maxY = currentPt.y
+      break
+    case 'n':
+      minY = currentPt.y
+      break
+    case 's':
+      maxY = currentPt.y
+      break
+    case 'w':
+      minX = currentPt.x
+      break
+    case 'e':
+      maxX = currentPt.x
+      break
+  }
+
+  let finalW = Math.max(10, Math.abs(maxX - minX))
+  let finalH = Math.max(10, Math.abs(maxY - minY))
+
+  if (lockAspect) {
+    const size = Math.max(finalW, finalH)
+    finalW = size
+    finalH = size
+  }
+
+  const cx = (minX + maxX) / 2
+  const cy = (minY + maxY) / 2
+
+  return {
+    at: screenToGeo(map, { x: cx, y: cy }),
+    width: Math.round(finalW / scale),
+    height: Math.round(finalH / scale),
+  }
+}

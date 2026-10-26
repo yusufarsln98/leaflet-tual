@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { FontWeight, Style } from '../../../core/types/index.js'
 import { resolveSize } from '../../../core/shared/theme.js'
+import { useWheelGuard } from './use-wheel-guard.js'
 
 export interface TypographyDropdownProps {
   currentSize?: Style['size']
@@ -42,7 +43,10 @@ export function TypographyDropdown({
   currentUnderline = false,
   onUpdateStyle,
 }: TypographyDropdownProps) {
-  const [activeTab, setActiveTab] = useState<'theme' | 'custom'>('theme')
+  const guardRef = useWheelGuard<HTMLDivElement>()
+  const [activeTab, setActiveTab] = useState<'theme' | 'custom'>(
+    currentFontSize ? 'custom' : 'theme',
+  )
 
   const effectivePx = resolveSize(currentSize, currentFontSize)
 
@@ -77,8 +81,11 @@ export function TypographyDropdown({
 
   return (
     <div
+      ref={guardRef}
       className="tual-popover tual-typography-popover"
+      onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
     >
       {/* Top Tab Bar: Theme | Custom */}
       <div className="tual-typo-tabs">
@@ -140,13 +147,15 @@ export function TypographyDropdown({
       ) : (
         <div className="tual-typo-custom-panel">
           {/* Row matching mockup: Weight dropdown + px number input */}
-          <div className="tual-typo-fields-row">
+          <div className="tual-typo-fields-row" onPointerDown={(e) => e.stopPropagation()}>
             <div className="tual-typo-field tual-typo-weight-field">
               <select
                 aria-label="Font weight"
                 className="tual-typo-select"
                 value={typeof currentWeight === 'string' ? currentWeight : 'regular'}
                 onChange={(e) => handleWeightChange(e.target.value as FontWeight)}
+                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
               >
                 {WEIGHT_OPTIONS.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -181,6 +190,9 @@ export function TypographyDropdown({
                   const val = parseInt(e.target.value, 10)
                   if (!isNaN(val)) handleCustomPxChange(val)
                 }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
                 className="tual-typo-input"
               />
               <span className="tual-typo-field-unit">px</span>

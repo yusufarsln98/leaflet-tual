@@ -27,15 +27,22 @@ export function translateItem(item: Item, delta: WorldPoint): Partial<Item> {
       : { from: translate(item.from), to: translate(item.to) }
   }
 
-  if (item.type === 'shape' || item.type === 'ruler') {
+  if (item.type === 'ruler') {
     return { from: translate(item.from), to: translate(item.to) }
   }
 
-  if (item.type === 'note') {
-    if (item.from && item.to) {
-      return { from: translate(item.from), to: translate(item.to) }
+  if (item.type === 'shape') {
+    if (item.at) return { at: translate(item.at) }
+    if ((item as any).from && (item as any).to) {
+      return { from: translate((item as any).from), to: translate((item as any).to) }
     }
-    return item.at ? { at: translate(item.at) } : {}
+  }
+
+  if (item.type === 'note') {
+    if (item.at) return { at: translate(item.at) }
+    if ((item as any).from && (item as any).to) {
+      return { from: translate((item as any).from), to: translate((item as any).to) }
+    }
   }
 
   if (item.type === 'freedraw') {

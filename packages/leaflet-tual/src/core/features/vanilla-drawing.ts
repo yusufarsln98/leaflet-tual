@@ -20,6 +20,7 @@ import {
   renderTextOnCanvas,
   snapAngle,
 } from '../index.js'
+import { resolveShapePlacement } from '../shared/shape-drawing.js'
 
 export type VanillaGesture =
   | {
@@ -123,7 +124,9 @@ export function drawVanillaScene(
         { tokens },
       )
     } else if (g.tool === 'shape') {
-      if (isShiftPressed) toGeo = lockAspect(g.startGeo, g.currentGeo, 1)
+      const placement = resolveShapePlacement(map, g.startPt, g.currentPt, {
+        shiftKey: isShiftPressed,
+      })
       renderShapeOnCanvas(
         ctx,
         map,
@@ -131,8 +134,9 @@ export function drawVanillaScene(
           id: 'preview',
           type: 'shape',
           kind: (g.variant as ShapeKind) ?? 'square',
-          from: g.startGeo,
-          to: toGeo,
+          at: placement.at,
+          width: placement.width,
+          height: placement.height,
           style: controller.style,
           createdAt: Date.now(),
         },

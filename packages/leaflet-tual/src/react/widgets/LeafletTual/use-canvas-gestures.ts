@@ -18,11 +18,11 @@ import {
   screenToGeo,
   snapAngle,
 } from '../../../core/index.js'
-import { isClickGesture, resolveShapeDragBounds } from '../../../core/shared/shape-drawing.js'
+import { isClickGesture, resolveShapeDragBounds, resolveShapePlacement } from '../../../core/shared/shape-drawing.js'
 import { translateItem, worldDelta } from '../../../core/shared/translate.js'
 import type { CanvasGesture } from './use-canvas-drawing.js'
 import { editPenPointList, hitTestPenHandle } from './use-pen-handles.js'
-import { hitTestArrowHandle, hitTestRulerHandle, hitTestShapeHandle, resizeShapeInWorld } from './use-shape-handles.js'
+import { hitTestArrowHandle, hitTestRulerHandle, hitTestShapeHandle, resizeShape, resizeShapeInWorld } from './use-shape-handles.js'
 
 export interface CanvasGesturesOptions {
   canvasRef: RefObject<HTMLCanvasElement | null>; map: L.Map; controller: Controller
@@ -163,8 +163,12 @@ export function useCanvasGestures({
             type: 'resize-shape',
             shapeId: item.id,
             handle: hitHandle.type,
-            initialFrom: item.from,
-            initialTo: item.to,
+            initialAt: item.at,
+            initialWidth: item.width,
+            initialHeight: item.height,
+            initialFrom: (item as any).from,
+            initialTo: (item as any).to,
+            startPt: pt,
             startGeo: geo,
           })
           return
@@ -206,21 +210,36 @@ export function useCanvasGestures({
 
       if (hitItem) {
         const isSel = controller.selection.includes(hitItem.id)
-        const nextSel = e.shiftKey
-          ? isSel ? controller.selection.filter((id) => id !== hitItem.id) : [...controller.selection, hitItem.id]
-          : isSel ? controller.selection : [hitItem.id]
-        controller.select(nextSel)
-        e.preventDefault(); e.stopPropagation(); map.dragging?.disable()
+        if (e.shiftKey) {
+          const nextSel = isSel
+            ? controller.selection.filter((id) => id !== hitItem.id)
+            : [...controller.selection, hitItem.id]
+          controller.select(nextSel)
+          e.preventDefault()
+          e.stopPropagation()
+        } else if (!isSel) {
+          controller.select([hitItem.id])
+          e.preventDefault()
+          e.stopPropagation()
+        } else {
+          // Already selected: dragging moves the item(s)
+          e.preventDefault()
+          e.stopPropagation()
+          map.dragging?.disable()
 
-        setGesture({
-          type: 'drag-item',
-          itemIds: nextSel,
-          startPt: pt,
-          startGeo: geo,
-          initialItems: nextSel.map((id) => controller.items.find((item) => item.id === id)).filter((item): item is Item => Boolean(item)),
-        })
+          setGesture({
+            type: 'drag-item',
+            itemIds: controller.selection,
+            startPt: pt,
+            startGeo: geo,
+            initialItems: controller.selection
+              .map((id) => controller.items.find((item) => item.id === id))
+              .filter((item): item is Item => Boolean(item)),
+          })
+        }
       } else {
-        controller.select(null); controller.edit(null)
+        controller.select(null)
+        controller.edit(null)
       }
       return
     }
@@ -339,8 +358,13 @@ export function useCanvasGestures({
           const hitHandle = hitTestPenHandle(map, selected[0], pt, 8)
           if (hitHandle) { canvasRef.current.style.cursor = hitHandle.cursor; return }
         }
+        const hitSelected = controller.selected.some((i) => hitTest(i, pt, 12, map))
+        if (hitSelected) {
+          canvasRef.current.style.cursor = 'move'
+          return
+        }
         const hit = controller.items.some((i) => hitTest(i, pt, 12, map))
-        canvasRef.current.style.cursor = hit ? 'move' : 'default'
+        canvasRef.current.style.cursor = hit ? 'pointer' : 'default'
       }
       return
     }
@@ -386,8 +410,31 @@ export function useCanvasGestures({
         false,
       )
     } else if (gesture.type === 'resize-shape') {
-      const nextBounds = resizeShapeInWorld(gesture.initialFrom, gesture.initialTo, geo, gesture.handle, Boolean(isShiftPressedRef.current))
-      controller.update(gesture.shapeId, nextBounds, false)
+      const item = controller.items.find((i) => i.id === gesture.shapeId)
+      if (item && item.type === 'shape') {
+        if (gesture.initialFrom && gesture.initialTo) {
+          const next = resizeShapeInWorld(
+            gesture.initialFrom,
+            gesture.initialTo,
+            geo,
+            gesture.handle,
+            Boolean(isShiftPressedRef.current),
+          )
+          controller.update(gesture.shapeId, next as any, false)
+        } else if (gesture.initialAt) {
+          const next = resizeShape(
+            map,
+            item,
+            gesture.initialAt,
+            gesture.initialWidth ?? 96,
+            gesture.initialHeight ?? 96,
+            pt,
+            gesture.handle,
+            Boolean(isShiftPressedRef.current),
+          )
+          controller.update(gesture.shapeId, next, false)
+        }
+      }
     } else if (gesture.type === 'resize-arrow') {
       if (gesture.handle === 'start') controller.update(gesture.arrowId, { from: geo }, false)
       else if (gesture.handle === 'end') controller.update(gesture.arrowId, { to: geo }, false)
@@ -422,7 +469,13 @@ export function useCanvasGestures({
       map.dragging?.enable()
     } else if (gesture.type === 'resize-shape') {
       const item = controller.items.find((i) => i.id === gesture.shapeId)
-      if (item && item.type === 'shape') controller.update(item.id, { from: item.from, to: item.to }, true)
+      if (item && item.type === 'shape') {
+        if ((item as any).from && (item as any).to) {
+          controller.update(item.id, { from: (item as any).from, to: (item as any).to } as any, true)
+        } else {
+          controller.update(item.id, { at: item.at, width: item.width, height: item.height }, true)
+        }
+      }
       map.dragging?.enable()
     } else if (gesture.type === 'resize-arrow') {
       controller.update(gesture.arrowId, {}, true)
@@ -449,10 +502,16 @@ export function useCanvasGestures({
           controller.add({ type: 'arrow', kind: (gesture.variant as ArrowKind) ?? 'linear', from: gesture.startGeo, to })
         }
       } else if (gesture.tool === 'shape') {
-        const { from, to } = resolveShapeDragBounds(map, gesture.startPt, endPt, {
+        const placement = resolveShapePlacement(map, gesture.startPt, endPt, {
           shiftKey,
         })
-        controller.add({ type: 'shape', kind: (gesture.variant as ShapeKind) ?? 'square', from, to })
+        controller.add({
+          type: 'shape',
+          kind: (gesture.variant as ShapeKind) ?? 'square',
+          at: placement.at,
+          width: placement.width,
+          height: placement.height,
+        })
       } else if (gesture.tool === 'ruler') {
         if (!isClickGesture(gesture.startPt, endPt)) {
           controller.add({ type: 'ruler', from: gesture.startGeo, to: endGeo })

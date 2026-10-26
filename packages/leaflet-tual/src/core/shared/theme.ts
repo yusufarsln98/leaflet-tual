@@ -95,34 +95,44 @@ export const NOTE_SURFACES: Record<
 export const DEFAULT_TOOL_STYLES: Record<string, Style> = {
   freedraw: { color: 'ink', width: 'm', dash: 'solid' },
   pen: { color: 'ink', width: 'm', dash: 'solid' },
-  arrow: { color: 'blue', width: 'm', dash: 'solid' },
-  ruler: { color: 'ink', width: 'm', dash: 'solid' },
-  shape: { color: 'blue', fill: 'tint', width: 'm', dash: 'solid' },
+  arrow: { color: 'blue', strokeColor: 'blue', width: 'm', dash: 'solid' },
+  ruler: { color: 'ink', strokeColor: 'ink', width: 'm', dash: 'solid' },
+  shape: { color: 'blue', strokeColor: 'blue', fillColor: 'blue', fill: 'tint', width: 'm', dash: 'solid' },
   note: { color: 'yellow', fillColor: 'yellow', size: 'm' },
   text: { color: 'ink', size: 'm' },
 }
 
 export function resolveColor(
-  name: ColorName = 'ink',
+  name: ColorName | string = 'ink',
   scheme: 'light' | 'dark' = 'light',
   tokens?: Partial<Tokens>,
 ): string {
-  const custom = tokens?.palette?.[name]
+  if (typeof name === 'string' && (name.startsWith('#') || name.startsWith('rgb') || name.startsWith('hsl'))) {
+    return name
+  }
+  const custom = tokens?.palette?.[name as ColorName]
   if (custom) {
     return scheme === 'dark' ? custom.dark : custom.light
   }
-  const entry = DEFAULT_PALETTE[name] ?? DEFAULT_PALETTE.ink
+  const entry = DEFAULT_PALETTE[name as ColorName] ?? DEFAULT_PALETTE.ink
   return scheme === 'dark' ? entry.dark : entry.light
 }
 
 export function resolveNoteColors(
-  color: ColorName = 'yellow',
+  color: ColorName | string = 'yellow',
   scheme: 'light' | 'dark' = 'light',
-  customText?: ColorName,
-  customBg?: ColorName,
+  customText?: ColorName | string,
+  customBg?: ColorName | string,
 ): { bg: string; text: string; border: string } {
   const bgKey = customBg ?? color
-  const entry = NOTE_SURFACES[bgKey] ?? NOTE_SURFACES.yellow
+  if (typeof bgKey === 'string' && (bgKey.startsWith('#') || bgKey.startsWith('rgb') || bgKey.startsWith('hsl'))) {
+    return {
+      bg: bgKey,
+      text: customText ? resolveColor(customText, scheme) : (scheme === 'dark' ? '#ECEAE6' : '#1F2A30'),
+      border: scheme === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+    }
+  }
+  const entry = NOTE_SURFACES[bgKey as ColorName] ?? NOTE_SURFACES.yellow
   const defaultColors = scheme === 'dark' ? entry.dark : entry.light
   return {
     bg: defaultColors.bg,

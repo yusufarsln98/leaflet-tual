@@ -87,8 +87,8 @@ function isValidItem(item: unknown): item is Item {
           'hexagon',
           'marker',
         ].includes(it.kind) &&
-        isValidGeo(it.from) &&
-        isValidGeo(it.to) &&
+        ((isValidGeo(it.at) && typeof it.width === 'number' && typeof it.height === 'number') ||
+          (isValidGeo(it.from) && isValidGeo(it.to))) &&
         (it.labelPosition === undefined ||
           ['top', 'center', 'bottom'].includes(it.labelPosition))
       )
@@ -103,10 +103,7 @@ function isValidItem(item: unknown): item is Item {
     case 'ruler':
       return isValidGeo(it.from) && isValidGeo(it.to)
     case 'note':
-      return (
-        ((isValidGeo(it.from) && isValidGeo(it.to)) || isValidGeo(it.at)) &&
-        typeof it.text === 'string'
-      )
+      return isValidGeo(it.at) && typeof it.text === 'string'
     case 'text':
       return isValidGeo(it.at) && typeof it.text === 'string'
     default:

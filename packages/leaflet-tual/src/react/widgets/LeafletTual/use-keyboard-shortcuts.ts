@@ -36,12 +36,18 @@ export function useKeyboardShortcuts(
         for (const item of controller.selected) {
           const dLat = 0.001
           const dLng = 0.001
-          if (item.type === 'arrow' || item.type === 'shape' || item.type === 'ruler') {
+          if (item.type === 'arrow' || item.type === 'ruler') {
             controller.add({
               ...item,
               id: undefined,
               from: { lat: item.from.lat + dLat, lng: item.from.lng + dLng },
               to: { lat: item.to.lat + dLat, lng: item.to.lng + dLng },
+            })
+          } else if (item.type === 'shape' || item.type === 'note' || item.type === 'text') {
+            controller.add({
+              ...item,
+              id: undefined,
+              at: { lat: item.at.lat + dLat, lng: item.at.lng + dLng },
             })
           } else if (item.type === 'freedraw') {
             controller.add({
@@ -65,20 +71,6 @@ export function useKeyboardShortcuts(
                 ...(point.in ? { in: offset(point.in) } : {}),
                 ...(point.out ? { out: offset(point.out) } : {}),
               })),
-            })
-          } else if (item.type === 'note' && item.from && item.to) {
-            controller.add({
-              ...item,
-              id: undefined,
-              from: { lat: item.from.lat + dLat, lng: item.from.lng + dLng },
-              to: { lat: item.to.lat + dLat, lng: item.to.lng + dLng },
-            })
-          } else if (item.type === 'note' || item.type === 'text') {
-            const at = item.at ?? { lat: 0, lng: 0 }
-            controller.add({
-              ...item,
-              id: undefined,
-              at: { lat: at.lat + dLat, lng: at.lng + dLng },
             })
           }
         }

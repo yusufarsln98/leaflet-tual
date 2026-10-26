@@ -13,8 +13,6 @@ export function useWheelGuard<T extends HTMLElement = HTMLDivElement>() {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    // Passive listeners only stop propagation; default scrolling inside the
-    // list stays intact.
     const stop = (event: Event) => event.stopPropagation()
     el.addEventListener('wheel', stop, { passive: true })
     el.addEventListener('touchmove', stop, { passive: true })

@@ -2,8 +2,8 @@
 
 .tual {
   --tual-accent: #2563eb;
-  --tual-radius: 10px;
-  --tual-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --tual-radius: 8px;
+  --tual-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --tual-surface: #ffffff;
   --tual-surface-hover: #f4f4f5;
   --tual-border: #e4e4e7;
@@ -72,7 +72,10 @@
   box-shadow: var(--tual-shadow);
   pointer-events: auto;
   z-index: 700;
-  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .tual-toolbar[data-orientation='vertical'] {
@@ -203,7 +206,9 @@
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
   user-select: none;
   flex-shrink: 0;
 }
@@ -272,7 +277,9 @@
   background-color: var(--tual-surface);
   border: 1px solid var(--tual-border);
   border-radius: var(--tual-radius);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 20px -2px rgba(0, 0, 0, 0.12),
+    0 2px 6px -1px rgba(0, 0, 0, 0.06);
   padding: 4px;
   display: flex;
   flex-direction: column;
@@ -341,7 +348,9 @@
   border: none;
   color: var(--tual-muted);
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .tual-popover-action-btn:hover {
@@ -522,8 +531,10 @@
 .tual-note-card {
   position: absolute;
   pointer-events: auto;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
-  cursor: grab;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.12),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
   user-select: none;
   box-sizing: border-box;
   display: flex;
@@ -532,13 +543,14 @@
   transform-origin: center center;
 }
 
-.tual-note-card:active {
-  cursor: grabbing;
-}
-
-.tual-note-card[data-selected="true"] {
+.tual-note-card[data-selected='true'] {
   outline: 2px solid #3b82f6;
   outline-offset: -1px;
+  cursor: grab;
+}
+
+.tual-note-card[data-selected='true']:active {
+  cursor: grabbing;
 }
 
 .tual-note-textarea {
@@ -558,7 +570,7 @@
 }
 
 .tual-note-textarea:focus,
-.tual-note-textarea[data-focused="true"] {
+.tual-note-textarea[data-focused='true'] {
   overflow-y: auto;
 }
 
@@ -571,10 +583,26 @@
   box-sizing: border-box;
   z-index: 10;
 }
-.tual-note-handle-nw { top: -4px; left: -4px; cursor: nwse-resize; }
-.tual-note-handle-ne { top: -4px; right: -4px; cursor: nesw-resize; }
-.tual-note-handle-se { bottom: -4px; right: -4px; cursor: nwse-resize; }
-.tual-note-handle-sw { bottom: -4px; left: -4px; cursor: nesw-resize; }
+.tual-note-handle-nw {
+  top: -4px;
+  left: -4px;
+  cursor: nwse-resize;
+}
+.tual-note-handle-ne {
+  top: -4px;
+  right: -4px;
+  cursor: nesw-resize;
+}
+.tual-note-handle-se {
+  bottom: -4px;
+  right: -4px;
+  cursor: nwse-resize;
+}
+.tual-note-handle-sw {
+  bottom: -4px;
+  left: -4px;
+  cursor: nesw-resize;
+}
 
 /* Text Overlay */
 .tual-text-item {
@@ -589,13 +617,15 @@
 .tual-secondary-tooltip {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 3px 6px;
-  height: 38px;
+  gap: 2px;
+  padding: 2px 4px;
+  height: 32px;
   background-color: var(--tual-surface, #ffffff);
   border: 1px solid var(--tual-border, #e5e7eb);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  box-shadow:
+    0 4px 16px -2px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   pointer-events: auto;
   user-select: none;
   white-space: nowrap;
@@ -617,15 +647,15 @@
 .tual-secondary-pill-btn {
   display: inline-flex;
   align-items: center;
-  height: 28px;
-  padding: 0 8px;
-  border-radius: 8px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 5px;
   background-color: var(--tual-surface, #ffffff);
   color: var(--tual-text, #111827);
   border: 1px solid var(--tual-border, #e5e7eb);
   cursor: pointer;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   transition: background-color 0.12s ease;
 }
@@ -638,12 +668,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 2px;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.12s ease;
 }
@@ -653,10 +683,10 @@
 }
 
 .tual-secondary-swatch-box {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
@@ -668,17 +698,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 4px;
+  width: 24px;
+  height: 24px;
+  padding: 3px;
   background: transparent;
   color: var(--tual-text, #111827);
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   font-family: inherit;
-  font-size: 13px;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  font-size: 12px;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .tual-secondary-icon-btn:hover {
@@ -697,16 +729,16 @@
 
 .tual-secondary-separator {
   width: 1px;
-  height: 16px;
+  height: 14px;
   background-color: var(--tual-border);
-  margin: 0 2px;
+  margin: 0 1px;
   flex-shrink: 0;
 }
 
 .tual-secondary-input {
   width: 100%;
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 3px 6px;
+  font-size: 11px;
   font-family: inherit;
   border: 1px solid var(--tual-accent);
   border-radius: 4px;
@@ -716,28 +748,253 @@
 }
 
 .tual-secondary-popover {
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 6px);
   top: auto;
-  min-width: 150px;
+  min-width: 140px;
 }
 
 .tual-secondary-dropdown {
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 6px);
   top: auto;
-  min-width: 100px;
+  min-width: 95px;
 }
 
 /* Secondary Tooltip Dropdowns matching reference UI */
 .tual-color-popover {
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 6px);
   top: auto;
   left: 0;
   width: 170px;
-  padding: 8px;
-  border-radius: 14px;
+  padding: 6px 8px;
+  border-radius: 8px;
   background-color: var(--tual-surface);
   border: 1px solid var(--tual-border);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 20px -4px rgba(0, 0, 0, 0.12),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tual-color-popover-with-tabs {
+  width: 200px;
+}
+
+/* Color Dropdown Tabs (Theme | Custom) */
+.tual-color-tabs {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--tual-surface-muted, #f4f4f5);
+  padding: 2px;
+  border-radius: 6px;
+  gap: 2px;
+  width: fit-content;
+  margin-bottom: 6px;
+}
+
+.tual[data-theme='dark'] .tual-color-tabs {
+  background-color: #27272a;
+}
+
+.tual-color-tab {
+  border: none;
+  background: transparent;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tual-muted, #71717a);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.tual-color-tab:hover {
+  color: var(--tual-text, #18181b);
+}
+
+.tual-color-tab[data-active='true'] {
+  background-color: var(--tual-surface, #ffffff);
+  color: var(--tual-text, #18181b);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.tual[data-theme='dark'] .tual-color-tab[data-active='true'] {
+  background-color: #18181b;
+  color: #f4f4f5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom Color Panel */
+.tual-color-custom-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tual-color-sat-box {
+  position: relative;
+  width: 100%;
+  height: 108px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+
+.tual-color-sat-white {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
+}
+
+.tual-color-sat-black {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #000, rgba(0, 0, 0, 0));
+}
+
+.tual-color-picker-thumb {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.tual-color-slider-track {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.tual-color-hue-track {
+  background: linear-gradient(
+    to right,
+    #ff0000 0%,
+    #ffff00 17%,
+    #00ff00 33%,
+    #00ffff 50%,
+    #0000ff 67%,
+    #ff00ff 83%,
+    #ff0000 100%
+  );
+}
+
+.tual-color-alpha-track {
+  background-image:
+    linear-gradient(45deg, #d1d5db 25%, transparent 25%),
+    linear-gradient(-45deg, #d1d5db 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d1d5db 75%),
+    linear-gradient(-45deg, transparent 75%, #d1d5db 75%);
+  background-size: 8px 8px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0px;
+}
+
+.tual-color-alpha-gradient {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+}
+
+.tual-color-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Unified Hex & Opacity Inputs Bar */
+.tual-color-inputs-bar {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  background: var(--tual-surface);
+  border: 1px solid var(--tual-border);
+  border-radius: 5px;
+  overflow: hidden;
+  padding: 0 4px;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.tual-color-inputs-bar:focus-within {
+  border-color: var(--tual-accent, #3b82f6);
+}
+
+.tual-color-hex-field {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--tual-text);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  outline: none;
+  padding: 0 4px;
+}
+
+.tual-color-input-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--tual-border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.tual-color-opacity-field {
+  display: flex;
+  align-items: center;
+  width: 52px;
+  flex-shrink: 0;
+}
+
+.tual-color-opacity-num {
+  width: 32px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--tual-text);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  outline: none;
+  text-align: right;
+  padding: 0;
+  -moz-appearance: textfield;
+}
+
+.tual-color-opacity-num::-webkit-outer-spin-button,
+.tual-color-opacity-num::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.tual-color-percent-sign {
+  margin-left: 2px;
+  font-size: 11px;
+  color: var(--tual-muted, #9ca3af);
+  pointer-events: none;
 }
 
 .tual-color-list {
@@ -767,7 +1024,7 @@
   width: 100%;
   padding: 5px 6px;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   background: transparent;
   color: var(--tual-text);
   font-family: inherit;
@@ -815,28 +1072,32 @@
 }
 
 .tual-options-popover {
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 6px);
   top: auto;
   left: 0;
-  min-width: 140px;
-  padding: 6px;
-  border-radius: 12px;
+  min-width: 130px;
+  padding: 4px;
+  border-radius: 8px;
   background-color: var(--tual-surface);
   border: 1px solid var(--tual-border);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 20px -4px rgba(0, 0, 0, 0.12),
+    0 4px 6px -2px rgba(0, 0, 0, 0.08);
 }
 
 /* Typography Popover matching custom theme & controls */
 .tual-typography-popover {
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 6px);
   top: auto;
   left: 0;
-  width: 210px;
-  padding: 8px 10px 10px 10px;
+  width: 220px;
+  padding: 10px 12px 12px 12px;
   border-radius: 14px;
   background-color: var(--tual-surface, #ffffff);
   border: 1px solid var(--tual-border, #e5e7eb);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.12),
+    0 8px 10px -6px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -844,12 +1105,11 @@
 }
 
 .tual-typo-tabs {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  background-color: var(--tual-surface-muted, #f4f4f5);
-  padding: 3px;
-  border-radius: 8px;
-  gap: 2px;
+  background-color: transparent;
+  padding: 0;
+  gap: 4px;
   width: fit-content;
 }
 
@@ -857,7 +1117,7 @@
   border: none;
   background: transparent;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -871,20 +1131,15 @@
 }
 
 .tual-typo-tab[data-active='true'] {
-  background-color: var(--tual-surface, #ffffff);
+  background-color: var(--tual-surface-muted, #f1f5f9);
   color: var(--tual-text, #18181b);
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
-
-.tual[data-theme='dark'] .tual-typo-tabs {
-  background-color: #27272a;
+  box-shadow: none;
 }
 
 .tual[data-theme='dark'] .tual-typo-tab[data-active='true'] {
-  background-color: #18181b;
+  background-color: #27272a;
   color: #f4f4f5;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .tual-typo-list {
@@ -953,17 +1208,17 @@
 .tual-typo-fields-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .tual-typo-field {
   position: relative;
   display: flex;
   align-items: center;
-  height: 32px;
-  padding: 0 8px;
-  border-radius: 6px;
-  border: 1px solid var(--tual-border, #e5e7eb);
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--tual-border, #e2e8f0);
   background: var(--tual-surface, #ffffff);
   box-sizing: border-box;
   transition: border-color 0.12s ease;
@@ -996,13 +1251,13 @@
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
-  padding-right: 16px;
+  padding-right: 18px;
   outline: none;
 }
 
 .tual-typo-chevron {
   position: absolute;
-  right: 8px;
+  right: 10px;
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -1039,20 +1294,24 @@
 
 .tual-typo-styles-row {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .tual-typo-style-btn {
   flex: 1;
-  padding: 5px 8px;
+  height: 32px;
+  padding: 0 8px;
   font-size: 12px;
-  border-radius: 6px;
-  border: 1px solid var(--tual-border, #e5e7eb);
+  border-radius: 8px;
+  border: 1px solid var(--tual-border, #e2e8f0);
   background: transparent;
   color: var(--tual-text, #18181b);
   cursor: pointer;
   text-align: center;
   transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tual-typo-style-btn:hover {
@@ -1060,8 +1319,8 @@
 }
 
 .tual-typo-style-btn[data-active='true'] {
-  background: var(--tual-surface-muted, #e4e4e7);
-  border-color: var(--tual-border, #d4d4d8);
+  background: var(--tual-surface-muted, #f1f5f9);
+  border-color: var(--tual-border, #cbd5e1);
   font-weight: 600;
 }
 
@@ -1145,13 +1404,13 @@
 .tual-border-main-card {
   background: var(--tual-surface, #ffffff);
   border: 1px solid var(--tual-border, #e5e7eb);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 180px;
+  gap: 6px;
+  width: 175px;
   box-sizing: border-box;
 }
 
@@ -1160,30 +1419,32 @@
   align-items: center;
   background: var(--tual-surface-muted, #f3f4f6);
   padding: 2px;
-  border-radius: 8px;
+  border-radius: 6px;
   gap: 2px;
 }
 
 .tual-border-dash-btn {
   flex: 1;
-  height: 26px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
   background: transparent;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 13px;
   cursor: pointer;
   color: var(--tual-muted, #6b7280);
-  transition: background-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
 .tual-border-dash-btn:hover {
   color: var(--tual-text, #111827);
 }
 
-.tual-border-dash-btn[data-active="true"] {
+.tual-border-dash-btn[data-active='true'] {
   background: #ffffff;
   color: #111827;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -1192,14 +1453,16 @@
 .tual-border-color-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 32px;
-  padding: 0 8px;
-  border-radius: 8px;
+  gap: 6px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 6px;
   border: 1px solid var(--tual-border, #e5e7eb);
   background: var(--tual-surface, #ffffff);
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
   width: 100%;
   box-sizing: border-box;
 }
@@ -1208,7 +1471,7 @@
   background-color: var(--tual-surface-hover, #f9fafb);
 }
 
-.tual-border-color-pill[data-active="true"] {
+.tual-border-color-pill[data-active='true'] {
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
@@ -1247,7 +1510,10 @@
   background: var(--tual-surface, #ffffff);
   box-sizing: border-box;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .tual-select-field:hover {
@@ -1288,7 +1554,10 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
-  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .tual-select:hover:not(:disabled) {
@@ -1380,7 +1649,7 @@
   border-radius: 4px;
 }
 
-.tual-border-palette-tab[data-active="true"] {
+.tual-border-palette-tab[data-active='true'] {
   color: var(--tual-text, #111827);
   font-weight: 600;
 }
@@ -1423,7 +1692,7 @@
   background: var(--tual-surface-muted, #f3f4f6);
 }
 
-.tual-border-palette-item[data-selected="true"] {
+.tual-border-palette-item[data-selected='true'] {
   background: var(--tual-surface-muted, #e5e7eb);
   font-weight: 600;
 }

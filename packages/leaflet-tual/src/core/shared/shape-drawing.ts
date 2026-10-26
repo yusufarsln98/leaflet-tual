@@ -50,6 +50,64 @@ export function resolveShapeDragBounds(
   return { from, to, isClick: false }
 }
 
+export interface ShapePlacementResolution {
+  at: GeoPoint
+  width: number
+  height: number
+  isClick: boolean
+}
+
+/**
+ * Resolves the placement (center and size) of a shape created by a pointer gesture.
+ *
+ * A drag uses the dragged screen box. A click (no meaningful movement) creates a
+ * shape centred on the click with a screen-constant default size.
+ */
+export function resolveShapePlacement(
+  map: L.Map,
+  startPt: ScreenPoint,
+  currentPt: ScreenPoint,
+  options: {
+    shiftKey?: boolean
+    defaultSize?: number
+    clickThreshold?: number
+  } = {},
+): ShapePlacementResolution {
+  const clickThreshold = options.clickThreshold ?? CLICK_DRAG_THRESHOLD_PX
+  const defaultSize = options.defaultSize ?? DEFAULT_SHAPE_SIZE_PX
+
+  if (isClickGesture(startPt, currentPt, clickThreshold)) {
+    return {
+      at: screenToGeo(map, startPt),
+      width: defaultSize,
+      height: defaultSize,
+      isClick: true,
+    }
+  }
+
+  let dx = currentPt.x - startPt.x
+  let dy = currentPt.y - startPt.y
+
+  if (options.shiftKey) {
+    const size = Math.max(Math.abs(dx), Math.abs(dy))
+    dx = (dx < 0 ? -1 : 1) * size
+    dy = (dy < 0 ? -1 : 1) * size
+  }
+
+  const width = Math.max(1, Math.abs(dx))
+  const height = Math.max(1, Math.abs(dy))
+  const minX = Math.min(startPt.x, startPt.x + dx)
+  const minY = Math.min(startPt.y, startPt.y + dy)
+  const centerScreen = { x: minX + width / 2, y: minY + height / 2 }
+
+  return {
+    at: screenToGeo(map, centerScreen),
+    width,
+    height,
+    isClick: false,
+  }
+}
+
 export function isClickGesture(
   startPt: ScreenPoint,
   currentPt: ScreenPoint,

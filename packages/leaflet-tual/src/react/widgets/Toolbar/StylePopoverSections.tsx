@@ -21,7 +21,7 @@ export function ColorPaletteSection({
   scheme,
   onSelectColor,
 }: {
-  selectedColor: ColorName
+  selectedColor?: ColorName | string
   scheme: 'light' | 'dark'
   onSelectColor: (c: ColorName) => void
 }) {

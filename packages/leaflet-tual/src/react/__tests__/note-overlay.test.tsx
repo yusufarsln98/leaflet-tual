@@ -10,8 +10,9 @@ describe('v2 Note Overlay Component', () => {
     const controller = createController()
     const note = controller.add({
       type: 'note',
-      from: { lat: 41.0, lng: 28.0 },
-      to: { lat: 41.01, lng: 28.01 },
+      at: { lat: 41.0, lng: 28.0 },
+      width: 180,
+      height: 180,
       text: 'Meeting at 10 AM',
       style: { color: 'ink', fillColor: 'yellow' },
     }) as any
@@ -42,8 +43,9 @@ describe('v2 Note Overlay Component', () => {
     const controller = createController()
     const note = controller.add({
       type: 'note',
-      from: { lat: 41.0, lng: 28.0 },
-      to: { lat: 41.01, lng: 28.01 },
+      at: { lat: 41.0, lng: 28.0 },
+      width: 180,
+      height: 180,
       text: 'Resizable note',
     }) as any
 
@@ -70,8 +72,9 @@ describe('v2 Note Overlay Component', () => {
     const controller = createController()
     const note = controller.add({
       type: 'note',
-      from: { lat: 41.0, lng: 28.0 },
-      to: { lat: 41.01, lng: 28.01 },
+      at: { lat: 41.0, lng: 28.0 },
+      width: 180,
+      height: 180,
       text: 'Bordered note',
       style: { strokeColor: 'purple', width: 'l', dash: 'dashed' },
     }) as any

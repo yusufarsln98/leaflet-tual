@@ -4,17 +4,18 @@ import { useState } from 'react'
 import type { ColorName } from '../../../core/index.js'
 import { resolveColor } from '../../../core/index.js'
 import { ICONS } from '../Toolbar/icons.js'
+import { useWheelGuard } from './use-wheel-guard.js'
 
 export interface BorderPopoverProps {
   currentDash?: 'solid' | 'dashed' | 'dotted' | 'none'
-  currentColor?: ColorName
-  currentStrokeColor?: ColorName
+  currentColor?: ColorName | string
+  currentStrokeColor?: ColorName | string
   currentWidth?: 's' | 'm' | 'l' | number
   currentRadius?: number
   scheme: 'light' | 'dark'
   isSquareShape?: boolean
   onSelectDash: (dash: 'solid' | 'dashed' | 'dotted' | 'none') => void
-  onSelectStrokeColor: (color: ColorName) => void
+  onSelectStrokeColor: (color: ColorName | string) => void
   onSelectWidth: (width: 's' | 'm' | 'l' | number) => void
   onSelectRadius?: (radius: number) => void
   onClose: () => void
@@ -34,14 +35,21 @@ export function BorderPopover({
   currentWidth = 'm', currentRadius = 8, scheme, isSquareShape,
   onSelectDash, onSelectStrokeColor, onSelectWidth, onSelectRadius,
 }: BorderPopoverProps) {
+  const guardRef = useWheelGuard<HTMLDivElement>()
   const [showPalette, setShowPalette] = useState(false)
 
-  const activeStroke = currentStrokeColor ?? currentColor ?? 'ink'
+  const activeStroke = currentStrokeColor ?? currentColor ?? 'blue'
   const strokeHex = resolveColor(activeStroke, scheme)
   const numWidth = typeof currentWidth === 'number' ? currentWidth : currentWidth === 's' ? 1 : currentWidth === 'l' ? 4 : 2
 
   return (
-    <div className="tual-border-popover-wrapper" onMouseDown={(e) => e.stopPropagation()}>
+    <div
+      ref={guardRef}
+      className="tual-border-popover-wrapper"
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="tual-border-main-card">
         {/* Row 1: Segmented Dash Group */}
         <div className="tual-border-dash-group">

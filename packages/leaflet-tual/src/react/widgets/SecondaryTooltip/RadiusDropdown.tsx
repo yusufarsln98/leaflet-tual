@@ -1,9 +1,11 @@
 'use client'
 
+import { useWheelGuard } from './use-wheel-guard.js'
+
 export interface RadiusDropdownProps {
   currentRadius?: number
   onSelectRadius: (r: number) => void
-  onClose: () => void
+  onClose?: () => void
 }
 
 const RADII = [
@@ -13,8 +15,11 @@ const RADII = [
 ]
 
 export function RadiusDropdown({ currentRadius = 8, onSelectRadius }: RadiusDropdownProps) {
+  const guardRef = useWheelGuard<HTMLDivElement>()
+
   return (
     <div
+      ref={guardRef}
       className="tual-popover"
       style={{
         bottom: 'calc(100% + 8px)',
@@ -23,12 +28,14 @@ export function RadiusDropdown({ currentRadius = 8, onSelectRadius }: RadiusDrop
         padding: 3,
         display: 'flex',
         gap: 3,
-        borderRadius: 10,
+        borderRadius: 8,
         backgroundColor: 'var(--tual-surface)',
         border: '1px solid var(--tual-border)',
         boxShadow: '0 8px 20px -4px rgba(0,0,0,0.12)',
       }}
+      onPointerDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
     >
       {RADII.map((r) => {
         const isSelected = (currentRadius ?? 8) === r.val

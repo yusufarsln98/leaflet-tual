@@ -53,8 +53,9 @@ describe('v2 shape drawing gestures', () => {
     expect(shape.type).toBe('shape')
     if (shape.type !== 'shape') return
     expect(shape.kind).toBe('circle')
-    expect((shape.to.lat - shape.from.lat) * SHAPE_LATLNG_UNIT).toBeCloseTo(96, 6)
-    expect((shape.to.lng - shape.from.lng) * SHAPE_LATLNG_UNIT).toBeCloseTo(96, 6)
+    expect(shape.width).toBe(96)
+    expect(shape.height).toBe(96)
+    expect(shape.at).toEqual({ lat: 10, lng: 10 })
   })
 
   it('creates the dragged shape with the selected variant', () => {
@@ -68,8 +69,9 @@ describe('v2 shape drawing gestures', () => {
     expect(shape.type).toBe('shape')
     if (shape.type !== 'shape') return
     expect(shape.kind).toBe('triangle')
-    expect(shape.from).toEqual({ lat: 10, lng: 10 })
-    expect(shape.to).toEqual({ lat: 18, lng: 22 })
+    expect(shape.width).toBe(120)
+    expect(shape.height).toBe(80)
+    expect(shape.at).toEqual({ lat: 14, lng: 16 })
   })
 
   it('uses the release point when the final move event is dropped', () => {
@@ -83,8 +85,9 @@ describe('v2 shape drawing gestures', () => {
     expect(shape?.type).toBe('shape')
     if (shape?.type !== 'shape') return
     expect(shape.kind).toBe('star')
-    expect(shape.from).toEqual({ lat: 10, lng: 10 })
-    expect(shape.to).toEqual({ lat: 24, lng: 30 })
+    expect(shape.width).toBe(200)
+    expect(shape.height).toBe(140)
+    expect(shape.at).toEqual({ lat: 17, lng: 20 })
   })
 
   it('keeps Leaflet box zoom disabled so Shift can resize items', () => {
@@ -169,8 +172,9 @@ describe('v2 shape drawing gestures', () => {
       const shape = controller.add({
         type: 'shape',
         kind: 'square',
-        from: { lat: 10, lng: 10 },
-        to: { lat: 20, lng: 20 },
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
       })
       controller.select(shape.id)
     })
@@ -184,10 +188,10 @@ describe('v2 shape drawing gestures', () => {
     const shape = controller.items[0]
     expect(shape.type).toBe('shape')
     if (shape.type !== 'shape') return
-    expect(shape.from.lat).toBeCloseTo(0, 6)
-    expect(shape.from.lng).toBeCloseTo(10, 6)
-    expect(shape.to.lat).toBeCloseTo(20, 6)
-    expect(shape.to.lng).toBeCloseTo(25, 6)
+    expect(shape.width).toBe(150)
+    expect(shape.height).toBe(200)
+    expect(shape.at.lat).toBeCloseTo(10, 6)
+    expect(shape.at.lng).toBeCloseTo(17.5, 6)
   })
 
   it('prefers a selected handle over the active drawing tool', () => {
@@ -200,8 +204,9 @@ describe('v2 shape drawing gestures', () => {
       const shape = controller.add({
         type: 'shape',
         kind: 'square',
-        from: { lat: 10, lng: 10 },
-        to: { lat: 20, lng: 20 },
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
       })
       controller.setTool('shape', 'circle')
       controller.select(shape.id)
@@ -216,8 +221,8 @@ describe('v2 shape drawing gestures', () => {
     expect(shape.type).toBe('shape')
     if (shape.type !== 'shape') return
     expect(shape.kind).toBe('square')
-    expect(shape.from.lat).toBeCloseTo(0, 6)
-    expect(shape.to.lng).toBeCloseTo(25, 6)
+    expect(shape.width).toBe(150)
+    expect(shape.height).toBe(200)
   })
 
   it('edits a shape on double click without letting the event bubble to map zoom', () => {
@@ -320,5 +325,78 @@ describe('v2 shape drawing gestures', () => {
     expect(ruler.from).toEqual({ lat: 10, lng: 10 })
     expect(ruler.to.lat).toBeCloseTo(13, 6)
     expect(ruler.to.lng).toBeCloseTo(25, 6)
+  })
+
+  it('does not allow directly moving an unselected item; requires clicking first to select then moving', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+
+    let shapeId = ''
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      shapeId = shape.id
+      controller.select(null)
+    })
+
+    expect(controller.selection).toEqual([])
+
+    // 1. Dragging directly on the unselected shape (center is around 150, 150)
+    drag(canvas, [150, 150], [250, 250])
+
+    // The shape should NOT have moved, but should now be selected
+    expect(controller.selection).toEqual([shapeId])
+    let shape = controller.items[0]
+    if (shape.type !== 'shape') return
+    expect(shape.at).toEqual({ lat: 15, lng: 15 })
+
+    // 2. Now that the shape IS selected, dragging on it DOES move it
+    drag(canvas, [150, 150], [250, 250])
+
+    shape = controller.items[0]
+    if (shape.type !== 'shape') return
+    expect(shape.at).not.toEqual({ lat: 15, lng: 15 })
+  })
+
+  it('sets pointer cursor over unselected items and move cursor over selected items', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+
+    let shapeId = ''
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      shapeId = shape.id
+      controller.select(null)
+    })
+
+    // Hover over unselected shape (center 150, 150) -> cursor should be pointer
+    fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 })
+    expect(canvas.style.cursor).toBe('pointer')
+
+    // Select the shape
+    act(() => controller.select([shapeId]))
+
+    // Hover over selected shape -> cursor should be move
+    fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 })
+    expect(canvas.style.cursor).toBe('move')
+
+    // Hover outside item -> cursor should be default
+    fireEvent.mouseMove(canvas, { clientX: 500, clientY: 500 })
+    expect(canvas.style.cursor).toBe('default')
   })
 })

@@ -23,36 +23,14 @@ export function renderNoteOnCanvas(
     tokens?: Partial<Tokens>
   } = {},
 ) {
-  let x: number
-  let y: number
-  let cardW: number
-  let cardH: number
-
   const scale = getItemZoomScale(map, note)
-
-  if (note.from && note.to) {
-    const p1 = geoToScreen(map, note.from)
-    const p2 = geoToScreen(map, note.to)
-    const rawW = Math.max(1, Math.abs(p2.x - p1.x))
-    const rawH = Math.max(1, Math.abs(p2.y - p1.y))
-    const side = Math.max(rawW, rawH)
-    cardW = side
-    cardH = side
-    const cx = (p1.x + p2.x) / 2
-    const cy = (p1.y + p2.y) / 2
-    x = cx - side / 2
-    y = cy - side / 2
-  } else if (note.at) {
-    const p = geoToScreen(map, note.at)
-    const baseSide = Math.max(1, note.width ?? note.height ?? 180)
-    const side = Math.max(1, baseSide * scale)
-    cardW = side
-    cardH = side
-    x = p.x - cardW / 2
-    y = p.y - cardH / 2
-  } else {
-    return
-  }
+  const p = geoToScreen(map, note.at)
+  const baseSide = Math.max(1, note.width ?? note.height ?? 180)
+  const side = Math.max(1, baseSide * scale)
+  const cardW = side
+  const cardH = side
+  const x = p.x - cardW / 2
+  const y = p.y - cardH / 2
 
   const noteColors = resolveNoteColors(
     note.style?.color ?? 'yellow',
