@@ -10,6 +10,24 @@ export interface FreeTileLayer {
 
 export const FREE_TILE_LAYERS: FreeTileLayer[] = [
   {
+    id: 'esri-dark',
+    name: 'Dark Gray Canvas',
+    category: 'Esri Canvas',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    subdomains: '',
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    maxZoom: 16,
+  },
+  {
+    id: 'esri-light',
+    name: 'Light Gray Canvas',
+    category: 'Esri Canvas',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    subdomains: '',
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    maxZoom: 16,
+  },
+  {
     id: 'osm',
     name: 'OpenStreetMap Standard',
     category: 'Default',
@@ -18,25 +36,5 @@ export const FREE_TILE_LAYERS: FreeTileLayer[] = [
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors',
     maxZoom: 19,
-  },
-  {
-    id: 'carto-light',
-    name: 'Light Gray',
-    category: 'Positron',
-    url: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    subdomains: 'abcd',
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>',
-    maxZoom: 20,
-  },
-  {
-    id: 'carto-dark',
-    name: 'Dark Gray',
-    category: 'Dark Matter',
-    url: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-    subdomains: 'abcd',
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noreferrer">CARTO</a>',
-    maxZoom: 20,
   },
 ]

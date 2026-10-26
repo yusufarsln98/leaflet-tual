@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import type { ColorName } from '../../../../core/index.js'
 import { resolveColor } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS } from '../../Toolbar/icons/index.js'
+import { SelectField } from '../../shared/select-field/index.js'
 import { useWheelGuard } from '../utils/use-wheel-guard.js'
 
 export interface BorderPopoverProps {
@@ -21,26 +23,67 @@ export interface BorderPopoverProps {
   onClose: () => void
 }
 
-const DASH_OPTIONS: Array<{ id: 'none' | 'solid' | 'dashed' | 'dotted'; label: string; icon: string }> = [
+const DASH_OPTIONS: Array<{
+  id: 'none' | 'solid' | 'dashed' | 'dotted'
+  label: string
+  icon: string
+}> = [
   { id: 'none', label: 'No Border', icon: '⊘' },
   { id: 'solid', label: 'Solid', icon: '—' },
   { id: 'dashed', label: 'Dashed', icon: '– – –' },
   { id: 'dotted', label: 'Dotted', icon: '····' },
 ]
 
-const PALETTE_KEYS: ColorName[] = ['ink', 'gray', 'blue', 'red', 'green', 'purple', 'taupe', 'orange', 'yellow', 'pink']
+const PALETTE_KEYS: ColorName[] = [
+  'ink',
+  'gray',
+  'blue',
+  'red',
+  'green',
+  'purple',
+  'taupe',
+  'orange',
+  'yellow',
+  'pink',
+]
+
+const STROKE_WIDTH_OPTIONS = [0, 1, 2, 4].map((width) => ({
+  value: width,
+  label: String(width),
+}))
+
+const RADIUS_OPTIONS = [0, 8, 16].map((radius) => ({
+  value: radius,
+  label: String(radius),
+}))
 
 export function BorderPopover({
-  currentDash = 'solid', currentColor, currentStrokeColor,
-  currentWidth = 'm', currentRadius = 8, scheme, isSquareShape,
-  onSelectDash, onSelectStrokeColor, onSelectWidth, onSelectRadius,
+  currentDash = 'solid',
+  currentColor,
+  currentStrokeColor,
+  currentWidth = 'm',
+  currentRadius = 8,
+  scheme,
+  isSquareShape,
+  onSelectDash,
+  onSelectStrokeColor,
+  onSelectWidth,
+  onSelectRadius,
 }: BorderPopoverProps) {
+  const { t } = useTranslation()
   const guardRef = useWheelGuard<HTMLDivElement>()
   const [showPalette, setShowPalette] = useState(false)
 
   const activeStroke = currentStrokeColor ?? currentColor ?? 'blue'
   const strokeHex = resolveColor(activeStroke, scheme)
-  const numWidth = typeof currentWidth === 'number' ? currentWidth : currentWidth === 's' ? 1 : currentWidth === 'l' ? 4 : 2
+  const numWidth =
+    typeof currentWidth === 'number'
+      ? currentWidth
+      : currentWidth === 's'
+        ? 1
+        : currentWidth === 'l'
+          ? 4
+          : 2
 
   return (
     <div
@@ -53,18 +96,21 @@ export function BorderPopover({
       <div className="tual-border-main-card">
         {/* Row 1: Segmented Dash Group */}
         <div className="tual-border-dash-group">
-          {DASH_OPTIONS.map((opt) => (
-            <button
-              key={opt.id}
-              type="button"
-              className="tual-border-dash-btn"
-              data-active={currentDash === opt.id}
-              title={opt.label}
-              onClick={() => onSelectDash(opt.id)}
-            >
-              {opt.icon}
-            </button>
-          ))}
+          {DASH_OPTIONS.map((opt) => {
+            const label = opt.id === 'none' ? t('noBorder') : t(opt.id)
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                className="tual-border-dash-btn"
+                data-active={currentDash === opt.id}
+                title={label}
+                onClick={() => onSelectDash(opt.id)}
+              >
+                {opt.icon}
+              </button>
+            )
+          })}
         </div>
 
         {/* Row 2: Color Pill */}
@@ -72,7 +118,7 @@ export function BorderPopover({
           type="button"
           className="tual-border-color-pill"
           data-active={showPalette}
-          title="Border Color"
+          title={t('borderColor')}
           onClick={() => setShowPalette((p) => !p)}
         >
           <div className="tual-border-color-pill-swatch" style={{ backgroundColor: strokeHex }} />
@@ -81,49 +127,43 @@ export function BorderPopover({
 
         {/* Row 3: Stroke Width & Corner Radius Selects */}
         <div className="tual-border-bottom-row">
-          <div className="tual-select-field" title="Stroke Width">
-            <span className="tual-select-icon">{ICONS.strokeWidth()}</span>
-            <select
-              className="tual-select"
-              aria-label="Stroke Width"
-              value={numWidth}
-              onChange={(e) => onSelectWidth(Number(e.target.value))}
-            >
-              <option value={0}>0</option>
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={4}>4</option>
-            </select>
-            <span className="tual-select-unit">px</span>
-          </div>
+          <SelectField
+            ariaLabel={t('strokeWidth')}
+            title={t('strokeWidth')}
+            value={numWidth}
+            options={STROKE_WIDTH_OPTIONS}
+            onChange={onSelectWidth}
+            icon={ICONS.strokeWidth()}
+            unit="px"
+            onOpen={() => setShowPalette(false)}
+          />
 
           {isSquareShape !== false && (
-            <div className="tual-select-field" title="Corner Radius" style={{ maxWidth: 64 }}>
-              <span className="tual-select-icon">{ICONS.dash()}</span>
-              <select
-                className="tual-select"
-                aria-label="Corner Radius"
-                value={currentRadius}
-                onChange={(e) => onSelectRadius?.(Number(e.target.value))}
-              >
-                <option value={0}>0</option>
-                <option value={8}>8</option>
-                <option value={16}>16</option>
-              </select>
-            </div>
+            <SelectField
+              ariaLabel={t('cornerRadius')}
+              title={t('cornerRadius')}
+              value={currentRadius}
+              options={RADIUS_OPTIONS}
+              onChange={(radius) => onSelectRadius?.(radius)}
+              icon={ICONS.radius ? ICONS.radius() : ICONS.dash()}
+              unit="px"
+              onOpen={() => setShowPalette(false)}
+            />
           )}
         </div>
       </div>
 
-      {/* Flyout Nested Color Palette (No custom theme) */}
+      {/* Flyout Nested Color Palette */}
       {showPalette && (
         <div className="tual-border-nested-palette">
           <div className="tual-border-palette-header">
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--tual-text, #111827)' }}>Colors</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--tual-text, #111827)' }}>
+              {t('colors')}
+            </span>
             <button
               type="button"
               className="tual-border-palette-close"
-              title="Close"
+              title={t('close')}
               onClick={() => setShowPalette(false)}
             >
               ×
@@ -132,13 +172,14 @@ export function BorderPopover({
 
           <div className="tual-border-palette-list">
             {PALETTE_KEYS.map((key) => {
-              const hex = resolveColor(key, scheme)
+              const hex = resolveColor(key, 'light')
               return (
                 <button
                   key={key}
                   type="button"
                   className="tual-border-palette-item"
                   data-selected={activeStroke === key}
+                  title={t(key)}
                   onClick={() => {
                     onSelectStrokeColor(key)
                     setShowPalette(false)

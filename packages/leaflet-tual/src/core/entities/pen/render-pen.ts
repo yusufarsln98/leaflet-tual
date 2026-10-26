@@ -10,7 +10,7 @@ export function renderPenOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   pen: PenItem,
-  scheme: 'light' | 'dark',
+  _scheme?: 'light' | 'dark',
   options: {
     isSelected?: boolean
     tokens?: Partial<Tokens>
@@ -26,7 +26,7 @@ export function renderPenOnCanvas(
   }))
 
   const scale = getItemZoomScale(map, pen)
-  const color = resolveColor(pen.style?.color ?? 'ink', scheme, options.tokens)
+  const color = resolveColor(pen.style?.color ?? 'ink', 'light', options.tokens)
   const baseLineWidth = resolveWidth(pen.style?.width ?? 'm')
   const lineWidth = Math.max(0.5, baseLineWidth * scale)
   const dash = resolveDash(pen.style?.dash ?? 'solid').map((d) => d * scale)
@@ -56,7 +56,7 @@ export function renderPenOnCanvas(
   }
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', scheme, options.tokens)
+    const handleColor = resolveColor('blue', 'light', options.tokens)
     const handleSize = Math.max(4, 8 * scale)
 
     // Control handles make the curve editable-looking while selected.

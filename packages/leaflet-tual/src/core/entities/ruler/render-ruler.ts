@@ -17,7 +17,7 @@ export function renderRulerOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   ruler: RulerItem,
-  scheme: 'light' | 'dark',
+  _scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
     tokens?: Partial<Tokens>
@@ -29,7 +29,7 @@ export function renderRulerOnCanvas(
   if (dist < 1) return
 
   const scale = getItemZoomScale(map, ruler)
-  const color = resolveColor(ruler.style?.color ?? 'ink', scheme, options.tokens)
+  const color = resolveColor(ruler.style?.color ?? 'ink', 'light', options.tokens)
   const baseLineWidth = resolveWidth(ruler.style?.width ?? 'm')
   const lineWidth = Math.max(0.5, baseLineWidth * scale)
   const dash = resolveDash(ruler.style?.dash ?? 'solid').map((d) => d * scale)
@@ -74,16 +74,16 @@ export function renderRulerOnCanvas(
   const center = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
 
   drawLabelPill(ctx, center, text, {
-    textColor: scheme === 'dark' ? '#ECEAE6' : '#1D1D1B',
-    bgColor: scheme === 'dark' ? '#1E1E1E' : '#FFFFFF',
-    borderColor: scheme === 'dark' ? '#333333' : '#E3E1DD',
+    textColor: '#1D1D1B',
+    bgColor: '#FFFFFF',
+    borderColor: '#E3E1DD',
     fontSize: 10 * scale,
     paddingX: 4 * scale,
     paddingY: 2 * scale,
   })
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', scheme, options.tokens)
+    const handleColor = resolveColor('blue', 'light', options.tokens)
     const handleSize = Math.max(4, 8 * scale)
     drawHandle(ctx, start, handleColor, handleSize)
     drawHandle(ctx, end, handleColor, handleSize)

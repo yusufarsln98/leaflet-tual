@@ -1,7 +1,8 @@
 import type L from 'leaflet'
-import type { ControllerPages, Doc, Item, Page } from '../../types/index.js'
+import type { ControllerPages, Doc, Item, Page, TranslationTokens } from '../../types/index.js'
 import { createId } from '../../shared/geometry/geo.js'
 import { cloneDoc } from '../../shared/doc.js'
+import { getDefaultTranslations, translate } from '../../shared/i18n/index.js'
 
 export interface PageManagerContext {
   getDoc: () => Doc
@@ -11,6 +12,7 @@ export interface PageManagerContext {
   getMap: () => L.Map | null
   commitChange: (reason: 'page' | 'reorder', ids: string[], committed: boolean, prev: Doc) => void
   emit: (event: string, ...args: unknown[]) => void
+  getTranslations?: () => TranslationTokens
 }
 
 export function createPageManager(ctx: PageManagerContext): ControllerPages {
@@ -25,7 +27,10 @@ export function createPageManager(ctx: PageManagerContext): ControllerPages {
       const doc = ctx.getDoc()
       const prev = cloneDoc(doc)
       const id = createId('page')
-      const pageName = name ?? `Page ${doc.pages.length + 1}`
+      const tokens = ctx.getTranslations?.() ?? getDefaultTranslations()
+      const pageName =
+        name ??
+        translate(tokens, 'pageDefault', { n: doc.pages.length + 1 }, `Page ${doc.pages.length + 1}`)
       const map = ctx.getMap?.()
       const center = map && typeof map.getCenter === 'function' ? map.getCenter() : undefined
       const zoom = map && typeof map.getZoom === 'function' ? map.getZoom() : undefined
@@ -58,9 +63,10 @@ export function createPageManager(ctx: PageManagerContext): ControllerPages {
         id: createId(item.type),
         createdAt: Date.now(),
       }))
+      const tokens = ctx.getTranslations?.() ?? getDefaultTranslations()
       const newPage: Page = {
         id: newId,
-        name: `${target.name} Copy`,
+        name: translate(tokens, 'pageCopy', { name: target.name }, `${target.name} Copy`),
         items: clonedItems,
         view: target.view ? { ...target.view } : undefined,
       }

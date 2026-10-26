@@ -17,6 +17,7 @@
   --tual-handle: #2563eb;
   font-family: var(--tual-font);
   color: var(--tual-text);
+  color-scheme: light;
   box-sizing: border-box;
 }
 
@@ -38,6 +39,7 @@
   --tual-artboard-fill: #27272a;
   --tual-artboard-border: #3f3f46;
   --tual-handle: #60a5fa;
+  color-scheme: dark;
 }
 
 /* Root container */
@@ -278,9 +280,9 @@
   border: 1px solid var(--tual-border);
   border-radius: var(--tual-radius);
   box-shadow:
-    0 4px 20px -2px rgba(0, 0, 0, 0.12),
-    0 2px 6px -1px rgba(0, 0, 0, 0.06);
-  padding: 4px;
+    0 4px 16px -2px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.05);
+  padding: 3px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -290,21 +292,21 @@
 
 /* Page Popover List & Rows */
 .tual-page-popover {
-  min-width: 220px;
+  min-width: 180px;
 }
 
 .tual-page-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .tual-page-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 8px;
-  min-height: 28px;
+  padding: 3px 6px;
+  min-height: 24px;
   border-radius: calc(var(--tual-radius) - 4px);
   cursor: pointer;
   transition: background-color 0.12s ease;
@@ -317,7 +319,7 @@
 }
 
 .tual-page-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--tual-text);
   overflow: hidden;
@@ -328,7 +330,7 @@
 .tual-page-row-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   position: relative;
 }
 
@@ -341,9 +343,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
   background: transparent;
   border: none;
   color: var(--tual-muted);
@@ -367,26 +369,26 @@
   border: 1px solid var(--tual-border);
   border-radius: calc(var(--tual-radius) - 4px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  padding: 3px;
+  padding: 2px;
   display: flex;
   flex-direction: column;
   gap: 1px;
   z-index: 800;
-  min-width: 100px;
+  min-width: 90px;
 }
 
 .tual-action-menu-item {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 3px 6px;
+  font-size: 11px;
   font-family: inherit;
   font-weight: 500;
   color: var(--tual-text);
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
   transition: background-color 0.12s ease;
 }
@@ -426,15 +428,15 @@
 .tual-page-add-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
-  min-height: 28px;
+  gap: 5px;
+  padding: 3px 6px;
+  min-height: 24px;
   border-radius: calc(var(--tual-radius) - 4px);
   border: none;
   background: transparent;
   color: var(--tual-text);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.12s ease;
@@ -456,12 +458,12 @@
 .tual-palette {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
+  gap: 3px;
 }
 
 .tual-swatch {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
@@ -479,11 +481,12 @@
 
 /* Popover section header */
 .tual-popover-header {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--tual-muted);
+  padding: 1px 3px;
   margin-bottom: 2px;
 }
 
@@ -491,24 +494,25 @@
 .tual-variant-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .tual-variant-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 3px;
+  gap: 2px;
 }
 
 .tual-variant-item {
   width: 100%;
   min-width: 0;
-  height: 28px;
-  min-height: 28px;
+  height: 24px;
+  min-height: 24px;
   justify-content: flex-start;
-  gap: 6px;
-  padding: 3px 6px;
-  font-size: 11px;
+  gap: 5px;
+  padding: 2px 6px;
+  font-size: 12px;
+  border-radius: 4px;
 }
 
 .tual-variant-icon {
@@ -516,8 +520,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .tual-variant-label {
@@ -602,6 +606,26 @@
   bottom: -4px;
   left: -4px;
   cursor: nesw-resize;
+}
+.tual-note-handle-n {
+  top: -4px;
+  left: calc(50% - 4px);
+  cursor: ns-resize;
+}
+.tual-note-handle-s {
+  bottom: -4px;
+  left: calc(50% - 4px);
+  cursor: ns-resize;
+}
+.tual-note-handle-w {
+  top: calc(50% - 4px);
+  left: -4px;
+  cursor: ew-resize;
+}
+.tual-note-handle-e {
+  top: calc(50% - 4px);
+  right: -4px;
+  cursor: ew-resize;
 }
 
 /* Text Overlay */
@@ -750,13 +774,13 @@
 .tual-secondary-popover {
   bottom: calc(100% + 6px);
   top: auto;
-  min-width: 140px;
+  min-width: 120px;
 }
 
 .tual-secondary-dropdown {
   bottom: calc(100% + 6px);
   top: auto;
-  min-width: 95px;
+  min-width: 90px;
 }
 
 /* Secondary Tooltip Dropdowns matching reference UI */
@@ -764,9 +788,9 @@
   bottom: calc(100% + 6px);
   top: auto;
   left: 0;
-  width: 170px;
-  padding: 6px 8px;
-  border-radius: 8px;
+  width: 156px;
+  padding: 4px;
+  border-radius: 7px;
   background-color: var(--tual-surface);
   border: 1px solid var(--tual-border);
   box-shadow:
@@ -775,7 +799,7 @@
 }
 
 .tual-color-popover-with-tabs {
-  width: 200px;
+  width: 168px;
 }
 
 /* Color Dropdown Tabs (Theme | Custom) */
@@ -784,10 +808,10 @@
   align-items: center;
   background-color: var(--tual-surface-muted, #f4f4f5);
   padding: 2px;
-  border-radius: 6px;
+  border-radius: 5px;
   gap: 2px;
   width: fit-content;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .tual[data-theme='dark'] .tual-color-tabs {
@@ -797,11 +821,12 @@
 .tual-color-tab {
   border: none;
   background: transparent;
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 4px;
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
+  height: 22px;
   color: var(--tual-muted, #71717a);
   cursor: pointer;
   transition: all 0.12s ease;
@@ -828,7 +853,7 @@
 .tual-color-custom-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -836,8 +861,8 @@
 .tual-color-sat-box {
   position: relative;
   width: 100%;
-  height: 108px;
-  border-radius: 6px;
+  height: 80px;
+  border-radius: 5px;
   overflow: hidden;
   cursor: crosshair;
   touch-action: none;
@@ -858,8 +883,8 @@
 
 .tual-color-picker-thumb {
   position: absolute;
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border: 2px solid #ffffff;
   border-radius: 50%;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
@@ -870,8 +895,8 @@
 .tual-color-slider-track {
   position: relative;
   width: 100%;
-  height: 12px;
-  border-radius: 6px;
+  height: 10px;
+  border-radius: 5px;
   cursor: pointer;
   touch-action: none;
   user-select: none;
@@ -907,14 +932,14 @@
 .tual-color-alpha-gradient {
   position: absolute;
   inset: 0;
-  border-radius: 6px;
+  border-radius: 5px;
 }
 
 .tual-color-slider-thumb {
   position: absolute;
   top: 50%;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border: 2px solid #ffffff;
   border-radius: 50%;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
@@ -926,14 +951,14 @@
 .tual-color-inputs-bar {
   display: flex;
   align-items: center;
-  height: 26px;
+  height: 24px;
   background: var(--tual-surface);
   border: 1px solid var(--tual-border);
-  border-radius: 5px;
+  border-radius: 4px;
   overflow: hidden;
-  padding: 0 4px;
+  padding: 0 5px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .tual-color-inputs-bar:focus-within {
@@ -948,10 +973,10 @@
   background: transparent;
   color: var(--tual-text);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   outline: none;
-  padding: 0 4px;
+  padding: 0 2px;
 }
 
 .tual-color-input-divider {
@@ -965,18 +990,18 @@
 .tual-color-opacity-field {
   display: flex;
   align-items: center;
-  width: 52px;
+  width: 48px;
   flex-shrink: 0;
 }
 
 .tual-color-opacity-num {
-  width: 32px;
+  width: 28px;
   height: 100%;
   border: none;
   background: transparent;
   color: var(--tual-text);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   outline: none;
   text-align: right;
@@ -991,7 +1016,7 @@
 }
 
 .tual-color-percent-sign {
-  margin-left: 2px;
+  margin-left: 1px;
   font-size: 11px;
   color: var(--tual-muted, #9ca3af);
   pointer-events: none;
@@ -1000,8 +1025,8 @@
 .tual-color-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 220px;
+  gap: 1px;
+  max-height: 155px;
   overflow-y: auto;
   padding-right: 2px;
   scrollbar-width: thin;
@@ -1020,11 +1045,12 @@
 .tual-color-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   width: 100%;
-  padding: 5px 6px;
+  padding: 3px 6px;
+  min-height: 24px;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   background: transparent;
   color: var(--tual-text);
   font-family: inherit;
@@ -1043,24 +1069,24 @@
 }
 
 .tual-color-swatch-box {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
 }
 
 .tual-no-fill-swatch {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
   border: 1.5px dashed var(--tual-border);
   flex-shrink: 0;
 }
 
 .tual-color-label {
   flex: 1;
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   opacity: 0.9;
 }
@@ -1075,9 +1101,9 @@
   bottom: calc(100% + 6px);
   top: auto;
   left: 0;
-  min-width: 130px;
-  padding: 4px;
-  border-radius: 8px;
+  min-width: 110px;
+  padding: 3px;
+  border-radius: 7px;
   background-color: var(--tual-surface);
   border: 1px solid var(--tual-border);
   box-shadow:
@@ -1085,41 +1111,101 @@
     0 4px 6px -2px rgba(0, 0, 0, 0.08);
 }
 
+.tual-radius-popover {
+  bottom: calc(100% + 6px);
+  top: auto;
+  left: 0;
+  padding: 2px;
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  border-radius: 7px;
+  background-color: var(--tual-surface);
+  border: 1px solid var(--tual-border);
+  box-shadow:
+    0 8px 20px -4px rgba(0, 0, 0, 0.12),
+    0 4px 6px -2px rgba(0, 0, 0, 0.08);
+}
+
+.tual-radius-btn {
+  height: 22px;
+  min-height: 22px;
+  width: auto;
+  min-width: 32px;
+  padding: 0 7px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.tual-border-color-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  padding: 2px 0;
+}
+
+.tual-border-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+
+.tual-border-swatch:hover {
+  transform: scale(1.15);
+}
+
+.tual-border-swatch[data-active='true'] {
+  outline: 2px solid var(--tual-accent, #2563eb);
+  outline-offset: 1px;
+}
+
 /* Typography Popover matching custom theme & controls */
 .tual-typography-popover {
   bottom: calc(100% + 6px);
   top: auto;
   left: 0;
-  width: 220px;
-  padding: 10px 12px 12px 12px;
-  border-radius: 14px;
+  width: 172px;
+  padding: 4px 5px;
+  border-radius: 8px;
   background-color: var(--tual-surface, #ffffff);
   border: 1px solid var(--tual-border, #e5e7eb);
   box-shadow:
-    0 10px 25px -5px rgba(0, 0, 0, 0.12),
-    0 8px 10px -6px rgba(0, 0, 0, 0.08);
+    0 8px 20px -4px rgba(0, 0, 0, 0.12),
+    0 4px 6px -2px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   box-sizing: border-box;
 }
 
 .tual-typo-tabs {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  background-color: transparent;
-  padding: 0;
-  gap: 4px;
+  background-color: var(--tual-surface-muted, #f4f4f5);
+  padding: 2px;
+  border-radius: 5px;
+  gap: 2px;
   width: fit-content;
+  margin-bottom: 2px;
+}
+
+.tual[data-theme='dark'] .tual-typo-tabs {
+  background-color: #27272a;
 }
 
 .tual-typo-tab {
   border: none;
   background: transparent;
-  padding: 4px 10px;
-  border-radius: 8px;
+  padding: 2px 8px;
+  height: 22px;
+  border-radius: 4px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--tual-muted, #71717a);
   cursor: pointer;
@@ -1131,21 +1217,22 @@
 }
 
 .tual-typo-tab[data-active='true'] {
-  background-color: var(--tual-surface-muted, #f1f5f9);
+  background-color: var(--tual-surface, #ffffff);
   color: var(--tual-text, #18181b);
   font-weight: 600;
-  box-shadow: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .tual[data-theme='dark'] .tual-typo-tab[data-active='true'] {
-  background-color: #27272a;
+  background-color: #18181b;
   color: #f4f4f5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .tual-typo-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .tual-typo-row {
@@ -1153,9 +1240,10 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 6px 8px;
+  padding: 3px 6px;
+  min-height: 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   background: transparent;
   cursor: pointer;
   text-align: left;
@@ -1168,6 +1256,7 @@
 
 .tual-typo-row[data-selected='true'] {
   background-color: var(--tual-surface-hover, #f4f4f5);
+  font-weight: 500;
 }
 
 .tual[data-theme='dark'] .tual-typo-row:hover,
@@ -1178,17 +1267,17 @@
 .tual-typo-row-label {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tual-typo-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--tual-text, #18181b);
 }
 
 .tual-typo-px {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--tual-muted, #71717a);
   font-weight: 400;
 }
@@ -1197,27 +1286,28 @@
   color: var(--tual-accent, #2563eb);
   display: flex;
   align-items: center;
+  font-size: 12px;
 }
 
 .tual-typo-custom-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .tual-typo-fields-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .tual-typo-field {
   position: relative;
   display: flex;
   align-items: center;
-  height: 36px;
-  padding: 0 10px;
-  border-radius: 8px;
+  height: 24px;
+  padding: 0 5px;
+  border-radius: 5px;
   border: 1px solid var(--tual-border, #e2e8f0);
   background: var(--tual-surface, #ffffff);
   box-sizing: border-box;
@@ -1225,43 +1315,14 @@
 }
 
 .tual-typo-field:focus-within {
-  border-color: #3b82f6;
-}
-
-.tual-typo-weight-field {
-  flex: 1 1 55%;
-  min-width: 0;
+  border-color: var(--tual-accent, #3b82f6);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-accent, #3b82f6) 20%, transparent);
 }
 
 .tual-typo-size-field {
-  flex: 1 1 45%;
+  flex: 1 1 44%;
   min-width: 0;
   justify-content: space-between;
-}
-
-.tual-typo-select {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: transparent;
-  color: var(--tual-text, #18181b);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-  padding-right: 18px;
-  outline: none;
-}
-
-.tual-typo-chevron {
-  position: absolute;
-  right: 10px;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  color: var(--tual-muted, #71717a);
 }
 
 .tual-typo-input {
@@ -1271,7 +1332,7 @@
   background: transparent;
   color: var(--tual-text, #18181b);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   outline: none;
   padding: 0;
@@ -1285,24 +1346,25 @@
 }
 
 .tual-typo-field-unit {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--tual-muted, #71717a);
-  font-weight: 400;
-  margin-left: 4px;
+  font-weight: 500;
+  margin-left: 2px;
   pointer-events: none;
+  opacity: 0.7;
 }
 
 .tual-typo-styles-row {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
 .tual-typo-style-btn {
   flex: 1;
-  height: 32px;
-  padding: 0 8px;
+  height: 22px;
+  padding: 0 4px;
   font-size: 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid var(--tual-border, #e2e8f0);
   background: transparent;
   color: var(--tual-text, #18181b);
@@ -1329,13 +1391,7 @@
   border-color: var(--tual-border, #3f3f46);
 }
 
-.tual[data-theme='dark'] .tual-typo-select,
 .tual[data-theme='dark'] .tual-typo-input {
-  color: #f4f4f5;
-}
-
-.tual[data-theme='dark'] .tual-typo-select option {
-  background: #18181b;
   color: #f4f4f5;
 }
 
@@ -1347,17 +1403,18 @@
 .tual-options-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .tual-option-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 3px 6px;
+  min-height: 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   background: transparent;
   color: var(--tual-text);
   font-family: inherit;
@@ -1373,7 +1430,7 @@
 
 .tual-option-row[data-active='true'] {
   background-color: var(--tual-surface-hover);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .tual-option-danger {
@@ -1387,16 +1444,15 @@
 .tual-popover-divider {
   height: 1px;
   background-color: var(--tual-border);
-  margin: 4px 0;
+  margin: 2px 0;
 }
 
 /* Border Popover & Nested Color Palette */
 .tual-border-popover-wrapper {
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  width: 180px;
   z-index: 600;
   pointer-events: auto;
 }
@@ -1404,13 +1460,15 @@
 .tual-border-main-card {
   background: var(--tual-surface, #ffffff);
   border: 1px solid var(--tual-border, #e5e7eb);
-  border-radius: 8px;
-  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.08);
-  padding: 6px 8px;
+  border-radius: 7px;
+  box-shadow:
+    0 8px 20px -4px rgba(0, 0, 0, 0.12),
+    0 4px 6px -2px rgba(0, 0, 0, 0.08);
+  padding: 4px 5px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  width: 175px;
+  gap: 4px;
+  width: 156px;
   box-sizing: border-box;
 }
 
@@ -1419,20 +1477,24 @@
   align-items: center;
   background: var(--tual-surface-muted, #f3f4f6);
   padding: 2px;
-  border-radius: 6px;
+  border-radius: 5px;
   gap: 2px;
+}
+
+.tual[data-theme='dark'] .tual-border-dash-group {
+  background: #27272a;
 }
 
 .tual-border-dash-btn {
   flex: 1;
-  height: 24px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
   background: transparent;
-  border-radius: 4px;
-  font-size: 13px;
+  border-radius: 3px;
+  font-size: 12px;
   cursor: pointer;
   color: var(--tual-muted, #6b7280);
   transition:
@@ -1445,18 +1507,25 @@
 }
 
 .tual-border-dash-btn[data-active='true'] {
-  background: #ffffff;
-  color: #111827;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--tual-surface, #ffffff);
+  color: var(--tual-text, #111827);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+}
+
+.tual[data-theme='dark'] .tual-border-dash-btn[data-active='true'] {
+  background: #18181b;
+  color: #f4f4f5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .tual-border-color-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 6px;
-  border-radius: 6px;
+  gap: 5px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 4px;
   border: 1px solid var(--tual-border, #e5e7eb);
   background: var(--tual-surface, #ffffff);
   cursor: pointer;
@@ -1472,20 +1541,24 @@
 }
 
 .tual-border-color-pill[data-active='true'] {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: var(--tual-accent, #3b82f6);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--tual-accent, #3b82f6) 20%, transparent);
 }
 
 .tual-border-color-pill-swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
+.tual[data-theme='dark'] .tual-border-color-pill-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .tual-border-color-pill-hex {
-  font-size: 12px;
+  font-size: 11px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 500;
   color: var(--tual-text, #111827);
@@ -1494,56 +1567,183 @@
 .tual-border-bottom-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  width: 100%;
 }
 
 /* Unified select control */
 .tual-select-field {
   flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 30px;
-  padding: 0 6px 0 8px;
-  border-radius: calc(var(--tual-radius, 10px) - 2px);
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 5px;
   border: 1px solid var(--tual-border, #e4e4e7);
   background: var(--tual-surface, #ffffff);
   box-sizing: border-box;
   cursor: pointer;
+  position: relative;
+  outline: none;
+  user-select: none;
+  color-scheme: inherit;
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+    background-color 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
 }
 
-.tual-select-field:hover {
-  border-color: color-mix(in srgb, var(--tual-border, #e4e4e7) 55%, var(--tual-muted, #71717a));
+.tual-select-field:hover:not([data-disabled='true']) {
+  border-color: color-mix(in srgb, var(--tual-border, #e4e4e7) 50%, var(--tual-muted, #71717a));
   background: var(--tual-surface-hover, #f4f4f5);
 }
 
-.tual-select-field:focus-within {
+.tual-select-field:focus-within,
+.tual-select-field[data-open='true'] {
   border-color: var(--tual-accent, #2563eb);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-accent, #2563eb) 20%, transparent);
+}
+
+.tual-select-field[data-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tual-select-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tual-text, #18181b);
+  user-select: none;
+  line-height: 1;
+}
+
+.tual-select-field--start .tual-select-value {
+  text-align: left;
+}
+
+.tual-select-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tual-muted, #71717a);
+  opacity: 0.7;
+  flex-shrink: 0;
+  user-select: none;
+  transition: transform 0.12s ease;
+}
+
+.tual-select-field[data-open='true'] .tual-select-chevron {
+  transform: rotate(180deg);
+}
+
+/* Typography weight field keeps the wider share of its row. */
+.tual-select-field.tual-typo-weight-field {
+  flex: 1 1 56%;
 }
 
 .tual-select-icon {
   display: inline-flex;
   align-items: center;
-  opacity: 0.65;
+  justify-content: center;
+  opacity: 0.75;
   color: var(--tual-text, #18181b);
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 
+.tual-select-icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Custom themed dropdown menu attached to .tual-select-field */
+.tual-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  background: var(--tual-surface, #ffffff);
+  border: 1px solid var(--tual-border, #e4e4e7);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 1000;
+}
+
+.tual[data-theme='dark'] .tual-select-menu {
+  background: #18181b;
+  border-color: #2e2e33;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.tual-select-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 3px 8px;
+  min-height: 24px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--tual-text, #18181b);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.1s ease;
+  white-space: nowrap;
+}
+
+.tual-select-menu-item:hover {
+  background: var(--tual-surface-hover, #f4f4f5);
+}
+
+.tual[data-theme='dark'] .tual-select-menu-item {
+  color: #f4f4f5;
+}
+
+.tual[data-theme='dark'] .tual-select-menu-item:hover {
+  background: #27272a;
+}
+
+.tual-select-menu-item[data-active='true'] {
+  background: color-mix(in srgb, var(--tual-surface-hover, #f4f4f5) 80%, var(--tual-border, #e4e4e7));
+  color: var(--tual-text, #18181b);
+  font-weight: 600;
+}
+
+.tual[data-theme='dark'] .tual-select-menu-item[data-active='true'] {
+  background: #2e2e33;
+  color: #f4f4f5;
+}
+
+/* Standalone and field-nested .tual-select */
 .tual-select {
   min-width: 0;
-  height: 30px;
-  padding: 0 26px 0 10px;
+  height: 24px;
+  padding: 0 18px 0 8px;
   border: 1px solid var(--tual-border, #e4e4e7);
-  border-radius: calc(var(--tual-radius, 10px) - 2px);
+  border-radius: 5px;
   background-color: var(--tual-surface, #ffffff);
   font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--tual-text, #18181b);
   outline: none;
   cursor: pointer;
@@ -1553,15 +1753,16 @@
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px center;
+  background-position: right 6px center;
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+    background-color 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+  color-scheme: inherit;
 }
 
 .tual-select:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--tual-border, #e4e4e7) 55%, var(--tual-muted, #71717a));
+  border-color: color-mix(in srgb, var(--tual-border, #e4e4e7) 50%, var(--tual-muted, #71717a));
   background-color: var(--tual-surface-hover, #f4f4f5);
 }
 
@@ -1570,15 +1771,20 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-accent, #2563eb) 20%, transparent);
 }
 
+/* Inside .tual-select-field */
 .tual-select-field .tual-select {
   flex: 1;
-  height: auto;
-  padding: 0 14px 0 2px;
+  width: 100%;
+  height: 100%;
+  padding: 0;
   border: none;
   border-radius: 0;
   background-color: transparent;
-  text-align: center;
-  background-position: right 1px center;
+  background-image: none;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
 }
 
 .tual-select-field .tual-select:hover:not(:disabled) {
@@ -1588,6 +1794,7 @@
 
 .tual-select-field .tual-select:focus-visible {
   box-shadow: none;
+  outline: none;
 }
 
 .tual[data-theme='dark'] .tual-select {
@@ -1595,47 +1802,58 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
+/* Option styling for all selects */
+select option,
 .tual-select option {
   background-color: var(--tual-surface, #ffffff);
   color: var(--tual-text, #18181b);
   font-size: 12px;
   font-weight: 500;
-  padding: 6px 10px;
+  padding: 4px 8px;
+}
+
+.tual[data-theme='dark'] select option,
+.tual[data-theme='dark'] .tual-select option {
+  background-color: #18181b;
+  color: #f4f4f5;
 }
 
 .tual-select-unit {
   font-size: 11px;
   font-weight: 500;
-  opacity: 0.55;
+  opacity: 0.65;
   color: var(--tual-text, #18181b);
   flex-shrink: 0;
+  user-select: none;
+  line-height: 1;
 }
 
 .tual-border-nested-palette {
   position: absolute;
   top: 0;
-  left: calc(100% + 8px);
+  left: calc(100% + 6px);
   background: var(--tual-surface, #ffffff);
   border: 1px solid var(--tual-border, #e5e7eb);
-  border-radius: 12px;
+  border-radius: 7px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  width: 160px;
-  padding: 8px;
+  width: 136px;
+  padding: 4px 5px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .tual-border-palette-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 2px;
 }
 
 .tual-border-palette-tabs {
   display: flex;
-  gap: 4px;
+  gap: 3px;
 }
 
 .tual-border-palette-tab {
@@ -1645,8 +1863,8 @@
   font-weight: 500;
   color: var(--tual-muted, #6b7280);
   cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 4px;
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 
 .tual-border-palette-tab[data-active='true'] {
@@ -1660,6 +1878,8 @@
   font-size: 14px;
   cursor: pointer;
   color: var(--tual-muted, #9ca3af);
+  padding: 0;
+  line-height: 1;
 }
 
 .tual-border-palette-close:hover {
@@ -1669,38 +1889,40 @@
 .tual-border-palette-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 220px;
+  gap: 1px;
+  max-height: 160px;
   overflow-y: auto;
 }
 
 .tual-border-palette-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 8px;
-  border-radius: 6px;
+  gap: 6px;
+  padding: 2px 5px;
+  min-height: 24px;
+  border-radius: 4px;
   border: none;
   background: transparent;
   cursor: pointer;
   width: 100%;
   text-align: left;
+  font-size: 12px;
   transition: background-color 0.12s;
 }
 
 .tual-border-palette-item:hover {
-  background: var(--tual-surface-muted, #f3f4f6);
+  background: var(--tual-surface-hover, #f3f4f6);
 }
 
 .tual-border-palette-item[data-selected='true'] {
-  background: var(--tual-surface-muted, #e5e7eb);
+  background: var(--tual-surface-hover, #e5e7eb);
   font-weight: 600;
 }
 
 .tual-border-palette-swatch {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
@@ -1712,15 +1934,15 @@
 }
 
 .tual-border-custom-panel {
-  padding: 4px 0;
+  padding: 3px 0;
 }
 
 .tual-border-custom-input {
   flex: 1;
   font-size: 12px;
   border: 1px solid var(--tual-border, #e5e7eb);
-  border-radius: 6px;
-  padding: 4px 6px;
+  border-radius: 4px;
+  padding: 3px 6px;
   outline: none;
 }
 
@@ -1730,7 +1952,7 @@
   color: #ffffff;
   font-size: 11px;
   font-weight: 600;
-  padding: 0 8px;
-  border-radius: 6px;
+  padding: 0 7px;
+  border-radius: 4px;
   cursor: pointer;
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import type { Controller, Item, ShapeItem, Style } from '../../../core/index.js'
 import { resolveColor } from '../../../core/index.js'
+import { useTranslation } from '../../features/i18n/index.js'
 import { getItemBounds, useTooltipEvents } from './utils/index.js'
 import {
   TypographyDropdown,
@@ -20,6 +21,7 @@ export interface SecondaryTooltipProps {
 }
 
 export function SecondaryTooltip({ map, controller, className }: SecondaryTooltipProps) {
+  const { t } = useTranslation(controller)
   const [activePopover, setActivePopover] = useState<string | null>(null)
   const [, setTick] = useState(0)
   const tooltipRef = useRef<HTMLDivElement>(null)
@@ -45,9 +47,10 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
   const topPos = Math.round(Math.max(16, bounds.minY - 44))
   const scheme = controller.scheme
   const style = selectedItem.style ?? {}
-  const colorHex = resolveColor(style.color ?? 'ink', scheme)
+  const colorHex = resolveColor(style.color ?? 'ink', 'light')
 
-  const updateStyle = (patch: Partial<Style>) => controller.update(selectedItem.id, { style: { ...style, ...patch } })
+  const updateStyle = (patch: Partial<Style>) =>
+    controller.update(selectedItem.id, { style: { ...style, ...patch } })
   const toggle = (name: string) => setActivePopover((p) => (p === name ? null : name))
 
   const isShape = selectedItem.type === 'shape'
@@ -66,9 +69,9 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
 
   const currentText =
     selectedItem.type === 'note' || selectedItem.type === 'text'
-      ? selectedItem.text ?? ''
+      ? (selectedItem.text ?? '')
       : selectedItem.type === 'shape' || selectedItem.type === 'arrow'
-        ? selectedItem.label ?? ''
+        ? (selectedItem.label ?? '')
         : ''
 
   const handleUpdateText = (newText: string, newStyle: Partial<Style>) => {
@@ -79,7 +82,7 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
     }
   }
 
-  const typographyLabel = resolveTypographyLabel(style)
+  const typographyLabel = resolveTypographyLabel(style, t)
 
   return (
     <div
@@ -115,10 +118,20 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
           <button
             type="button"
             className="tual-secondary-pill-btn"
-            title="Text Size & Style"
+            title={t('textSizeAndStyle')}
             onClick={() => toggle('typography')}
           >
-            <span style={{ opacity: 0.7, fontWeight: 700, fontSize: 11, marginRight: 3, letterSpacing: -0.5 }}>TT</span>
+            <span
+              style={{
+                opacity: 0.7,
+                fontWeight: 700,
+                fontSize: 11,
+                marginRight: 3,
+                letterSpacing: -0.5,
+              }}
+            >
+              TT
+            </span>
             <span style={{ fontWeight: 500, margin: '0 4px' }}>{typographyLabel}</span>
             <span style={{ fontSize: 9, opacity: 0.6 }}>⌄</span>
           </button>

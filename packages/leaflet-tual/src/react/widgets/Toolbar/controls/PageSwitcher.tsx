@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type { Controller } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS } from '../icons/index.js'
 
 export interface PageSwitcherProps {
@@ -19,10 +20,11 @@ export function PageSwitcher({
   onClose,
   className,
 }: PageSwitcherProps) {
+  const { t } = useTranslation(controller)
   const activePage = controller.pages.list.find(
     (p) => p.id === controller.pages.active,
   )
-  const pageName = activePage?.name ?? 'Page 1'
+  const pageName = activePage?.name ?? t('pageDefault', { n: 1 })
   const pageCount = controller.pages.list.length
 
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -61,7 +63,7 @@ export function PageSwitcher({
         type="button"
         className="tual-page-pill"
         onClick={onToggle}
-        title="Page Switcher"
+        title={t('pageSwitcher')}
       >
         <span className="tual-page-badge">{pageCount}</span>
         <span className="tual-page-name">{pageName}</span>
@@ -129,7 +131,7 @@ export function PageSwitcher({
                     <button
                       type="button"
                       className="tual-popover-action-btn"
-                      title="Page options"
+                      title={t('pageOptions')}
                       onClick={() =>
                         setActionMenuId((prev) => (prev === page.id ? null : page.id))
                       }
@@ -148,7 +150,7 @@ export function PageSwitcher({
                             setActionMenuId(null)
                           }}
                         >
-                          Rename
+                          {t('rename')}
                         </button>
                         <button
                           type="button"
@@ -158,7 +160,7 @@ export function PageSwitcher({
                             setActionMenuId(null)
                           }}
                         >
-                          Duplicate
+                          {t('duplicate')}
                         </button>
                         {controller.pages.list.length > 1 && (
                           <button
@@ -169,7 +171,7 @@ export function PageSwitcher({
                               setActionMenuId(null)
                             }}
                           >
-                            Delete
+                            {t('delete')}
                           </button>
                         )}
                       </div>
@@ -190,7 +192,7 @@ export function PageSwitcher({
             }}
           >
             <span className="tual-page-add-icon">{ICONS.plus()}</span>
-            <span>New page</span>
+            <span>{t('newPage')}</span>
           </button>
         </div>
       )}

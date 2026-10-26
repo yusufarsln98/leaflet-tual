@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS } from '../../Toolbar/icons/index.js'
 import { useWheelGuard } from '../utils/use-wheel-guard.js'
 
@@ -15,6 +16,7 @@ export function MoreOptionsDropdown({
   onDelete,
   onFitInView,
 }: MoreOptionsDropdownProps) {
+  const { t } = useTranslation()
   const guardRef = useWheelGuard<HTMLDivElement>()
 
   return (
@@ -28,13 +30,13 @@ export function MoreOptionsDropdown({
       <div className="tual-options-list">
         <button type="button" className="tual-option-row" onClick={onDuplicate}>
           {ICONS.copy ? ICONS.copy() : <span>⧉</span>}
-          <span className="tual-option-label">Duplicate</span>
+          <span className="tual-option-label">{t('duplicate')}</span>
         </button>
 
         {onFitInView && (
           <button type="button" className="tual-option-row" onClick={onFitInView}>
             <span>⛶</span>
-            <span className="tual-option-label">Fit in View</span>
+            <span className="tual-option-label">{t('fitInView')}</span>
           </button>
         )}
 
@@ -46,7 +48,7 @@ export function MoreOptionsDropdown({
           onClick={onDelete}
         >
           {ICONS.trash ? ICONS.trash() : <span>🗑</span>}
-          <span className="tual-option-label">Delete</span>
+          <span className="tual-option-label">{t('delete')}</span>
         </button>
       </div>
     </div>

@@ -1,10 +1,5 @@
 import type L from 'leaflet'
-import type {
-  ArrowKind,
-  Controller,
-  ShapeKind,
-  Tokens,
-} from '../../../../core/index.js'
+import type { ArrowKind, Controller, ShapeKind, Tokens } from '../../../../core/index.js'
 import {
   renderArrowOnCanvas,
   renderFreedrawOnCanvas,
@@ -13,7 +8,10 @@ import {
   renderShapeOnCanvas,
   snapAngle,
 } from '../../../../core/index.js'
-import { resolveShapePlacement } from '../../../../core/shared/drawing/shape-drawing.js'
+import {
+  isClickGesture,
+  resolveShapePlacement,
+} from '../../../../core/shared/drawing/shape-drawing.js'
 import type { CanvasGesture } from './gesture-types.js'
 
 export type { CanvasGesture } from './gesture-types.js'
@@ -22,7 +20,7 @@ export function drawCanvasScene(
   canvas: HTMLCanvasElement,
   map: L.Map,
   controller: Controller,
-  resolvedScheme: 'light' | 'dark',
+  _resolvedScheme: 'light' | 'dark',
   activeGesture: CanvasGesture | null,
   isShiftPressed: boolean,
   tokens?: Partial<Tokens>,
@@ -51,19 +49,19 @@ export function drawCanvasScene(
 
     switch (item.type) {
       case 'arrow':
-        renderArrowOnCanvas(ctx, map, item, resolvedScheme, renderOpts)
+        renderArrowOnCanvas(ctx, map, item, 'light', renderOpts)
         break
       case 'shape':
-        renderShapeOnCanvas(ctx, map, item, resolvedScheme, renderOpts)
+        renderShapeOnCanvas(ctx, map, item, 'light', renderOpts)
         break
       case 'freedraw':
-        renderFreedrawOnCanvas(ctx, map, item, resolvedScheme, renderOpts)
+        renderFreedrawOnCanvas(ctx, map, item, 'light', renderOpts)
         break
       case 'pen':
-        renderPenOnCanvas(ctx, map, item, resolvedScheme, renderOpts)
+        renderPenOnCanvas(ctx, map, item, 'light', renderOpts)
         break
       case 'ruler':
-        renderRulerOnCanvas(ctx, map, item, resolvedScheme, renderOpts)
+        renderRulerOnCanvas(ctx, map, item, 'light', renderOpts)
         break
     }
   }
@@ -87,29 +85,32 @@ export function drawCanvasScene(
           style: controller.style,
           createdAt: Date.now(),
         },
-        resolvedScheme,
+        'light',
         { tokens },
       )
     } else if (g.tool === 'shape') {
-      const placement = resolveShapePlacement(map, g.startPt, g.currentPt, {
-        shiftKey: isShiftPressed,
-      })
-      renderShapeOnCanvas(
-        ctx,
-        map,
-        {
-          id: 'preview',
-          type: 'shape',
-          kind: (g.variant as ShapeKind) ?? 'square',
-          at: placement.at,
-          width: placement.width,
-          height: placement.height,
-          style: controller.style,
-          createdAt: Date.now(),
-        },
-        resolvedScheme,
-        { tokens },
-      )
+      if (!isClickGesture(g.startPt, g.currentPt)) {
+        const placement = resolveShapePlacement(map, g.startPt, g.currentPt, {
+          shiftKey: isShiftPressed,
+          isCompleted: false,
+        })
+        renderShapeOnCanvas(
+          ctx,
+          map,
+          {
+            id: 'preview',
+            type: 'shape',
+            kind: (g.variant as ShapeKind) ?? 'square',
+            at: placement.at,
+            width: placement.width,
+            height: placement.height,
+            style: controller.style,
+            createdAt: Date.now(),
+          },
+          'light',
+          { tokens },
+        )
+      }
     } else if (g.tool === 'ruler') {
       renderRulerOnCanvas(
         ctx,
@@ -122,7 +123,7 @@ export function drawCanvasScene(
           style: controller.style,
           createdAt: Date.now(),
         },
-        resolvedScheme,
+        'light',
         { tokens },
       )
     } else if (g.tool === 'freedraw' && g.freedrawPoints && g.freedrawPoints.length > 1) {
@@ -136,7 +137,7 @@ export function drawCanvasScene(
           style: controller.style,
           createdAt: Date.now(),
         },
-        resolvedScheme,
+        'light',
         { tokens },
       )
     }
@@ -157,9 +158,8 @@ export function drawCanvasScene(
         style: controller.style,
         createdAt: Date.now(),
       },
-      resolvedScheme,
+      'light',
       { isSelected: true, tokens },
     )
   }
 }
-

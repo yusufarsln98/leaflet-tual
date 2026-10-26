@@ -1,37 +1,20 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import { useMap } from 'react-leaflet'
 import type { Controller, InternalController } from '../../../core/index.js'
 import { useLeafletTual } from '../../features/use-leaflet-tual.js'
 import { useLeafletSync } from '../../features/use-leaflet-sync.js'
+import { TranslationProvider } from '../../features/i18n/index.js'
 import { Toolbar } from '../Toolbar/Toolbar.js'
 import { SecondaryTooltip } from '../SecondaryTooltip/SecondaryTooltip.js'
 import type { LeafletTualProps } from '../../types/index.js'
-import {
-  InlineShapeLabelEditor,
-  NoteOverlayView,
-  TextOverlayView,
-} from './overlays/index.js'
-import {
-  drawCanvasScene,
-  type CanvasGesture,
-  useCanvasGestures,
-} from './gestures/index.js'
-import {
-  useKeyboardShortcuts,
-  useThemeResolver,
-  useMapInteractions,
-} from './hooks/index.js'
+import { InlineShapeLabelEditor, NoteOverlayView, TextOverlayView } from './overlays/index.js'
+import { drawCanvasScene, type CanvasGesture, useCanvasGestures } from './gestures/index.js'
+import { useKeyboardShortcuts, useThemeResolver, useMapInteractions } from './hooks/index.js'
 
-function LeafletTualInner({
-  map,
-  props,
-}: {
-  map: L.Map
-  props: LeafletTualProps
-}) {
+function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps }) {
   const internalController = useLeafletTual({
     defaultValue: props.defaultValue,
     value: props.value,
@@ -40,11 +23,11 @@ function LeafletTualInner({
     onToolChange: props.onToolChange,
     readOnly: props.readOnly,
     theme: props.theme,
-    tokens: props.tokens,
+    translations: props.translations,
   })
 
   const controller: Controller = props.controller ?? internalController
-  const resolvedScheme = useThemeResolver(props.theme)
+  const resolvedScheme = useThemeResolver(props.theme ?? controller.theme)
 
   useEffect(() => {
     const internal = controller as InternalController
@@ -67,9 +50,8 @@ function LeafletTualInner({
       resolvedScheme,
       activeGesture,
       isShiftPressedRef.current,
-      props.tokens,
     )
-  }, [activeGesture, controller, map, props.tokens, resolvedScheme])
+  }, [activeGesture, controller, map, resolvedScheme])
 
   useLeafletSync(map, () => {
     setCurrentZoom(map.getZoom())
@@ -91,7 +73,14 @@ function LeafletTualInner({
 
   useMapInteractions(map, controller)
 
-  const gestures = useCanvasGestures({ canvasRef, map, controller, activeGesture, setActiveGesture, isShiftPressedRef })
+  const gestures = useCanvasGestures({
+    canvasRef,
+    map,
+    controller,
+    activeGesture,
+    setActiveGesture,
+    isShiftPressedRef,
+  })
 
   useEffect(() => {
     window.addEventListener('mousemove', gestures.handleMouseMove)
@@ -104,81 +93,72 @@ function LeafletTualInner({
 
   useKeyboardShortcuts(controller, gestures.cancelGesture, gestures.finishPen)
 
-  const cssVariables = useMemo(() => {
-    const vars: Record<string, string | number> = {}
-    if (props.tokens?.accent) vars['--tual-accent'] = props.tokens.accent
-    if (props.tokens?.radius !== undefined) vars['--tual-radius'] = `${props.tokens.radius}px`
-    if (props.tokens?.font) vars['--tual-font'] = props.tokens.font
-    return vars as React.CSSProperties
-  }, [props.tokens])
-
   const showToolbar = props.toolbar !== false && (!props.readOnly || props.toolbar !== undefined)
 
   return (
-    <div
-      className={`tual tual-container ${props.className ?? ''}`}
-      data-theme={resolvedScheme}
-      style={{ zIndex: props.zIndex ?? 650, ...cssVariables, ...props.style }}
-    >
-      <canvas
-        ref={canvasRef}
-        className="tual-canvas"
-        style={{ cursor: controller.tool !== 'select' ? 'crosshair' : 'default' }}
-        onMouseDown={gestures.handlePointerDown}
-      />
-
-      {/* Inline Shape & Arrow Label Editors */}
-      {controller.items.map((item) =>
-        (item.type === 'shape' || item.type === 'arrow') && controller.editingId === item.id ? (
-          <InlineShapeLabelEditor key={item.id} map={map} item={item} controller={controller} />
-        ) : null,
-      )}
-
-      {/* Floating Contextual Secondary Tooltip above selected shape / item */}
-      {controller.selected.length > 0 && !controller.readOnly && (
-        <SecondaryTooltip map={map} controller={controller} />
-      )}
-
-      {/* Note overlays */}
-      {controller.items.map((item) =>
-        item.type === 'note' ? (
-          <NoteOverlayView
-            key={item.id}
-            map={map}
-            note={item}
-            controller={controller}
-            currentZoom={currentZoom}
-            className={props.classNames?.note}
-          />
-        ) : null,
-      )}
-
-      {/* Text overlays */}
-      {controller.items.map((item) =>
-        item.type === 'text' ? (
-          <TextOverlayView
-            key={item.id}
-            map={map}
-            textItem={item}
-            controller={controller}
-            currentZoom={currentZoom}
-            collapseThreshold={props.collapseBelowZoom?.text}
-            className={props.classNames?.text}
-          />
-        ) : null,
-      )}
-
-      {/* Floating Toolbar */}
-      {showToolbar && (
-        <Toolbar
-          controller={controller}
-          map={map}
-          currentZoom={currentZoom}
-          {...(typeof props.toolbar === 'object' ? props.toolbar : {})}
-          classNames={props.classNames}
+    <TranslationProvider translations={props.translations}>
+      <div
+        className="tual tual-container"
+        data-theme={resolvedScheme}
+        style={{ zIndex: props.zIndex ?? 650 }}
+      >
+        <canvas
+          ref={canvasRef}
+          className="tual-canvas"
+          style={{ cursor: controller.tool !== 'select' ? 'crosshair' : 'default' }}
+          onMouseDown={gestures.handlePointerDown}
         />
-      )}
-    </div>
+
+        {/* Inline Shape & Arrow Label Editors */}
+        {controller.items.map((item) =>
+          (item.type === 'shape' || item.type === 'arrow') && controller.editingId === item.id ? (
+            <InlineShapeLabelEditor key={item.id} map={map} item={item} controller={controller} />
+          ) : null,
+        )}
+
+        {/* Floating Contextual Secondary Tooltip above selected shape / item */}
+        {controller.selected.length > 0 && !controller.readOnly && (
+          <SecondaryTooltip map={map} controller={controller} />
+        )}
+
+        {/* Note overlays */}
+        {controller.items.map((item) =>
+          item.type === 'note' ? (
+            <NoteOverlayView
+              key={item.id}
+              map={map}
+              note={item}
+              controller={controller}
+              currentZoom={currentZoom}
+            />
+          ) : null,
+        )}
+
+        {/* Text overlays */}
+        {controller.items.map((item) =>
+          item.type === 'text' ? (
+            <TextOverlayView
+              key={item.id}
+              map={map}
+              textItem={item}
+              controller={controller}
+              currentZoom={currentZoom}
+              collapseThreshold={props.collapseBelowZoom?.text}
+            />
+          ) : null,
+        )}
+
+        {/* Floating Toolbar */}
+        {showToolbar && (
+          <Toolbar
+            controller={controller}
+            map={map}
+            currentZoom={currentZoom}
+            {...(typeof props.toolbar === 'object' ? props.toolbar : {})}
+          />
+        )}
+      </div>
+    </TranslationProvider>
   )
 }
 
@@ -187,5 +167,9 @@ function MapFromContext({ props }: { props: LeafletTualProps }) {
 }
 
 export function LeafletTual(props: LeafletTualProps) {
-  return props.map ? <LeafletTualInner map={props.map} props={props} /> : <MapFromContext props={props} />
+  return props.map ? (
+    <LeafletTualInner map={props.map} props={props} />
+  ) : (
+    <MapFromContext props={props} />
+  )
 }

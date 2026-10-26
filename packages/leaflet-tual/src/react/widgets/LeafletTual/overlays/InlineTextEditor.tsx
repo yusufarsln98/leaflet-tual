@@ -5,6 +5,7 @@ import type L from 'leaflet'
 import type { Controller, TextItem } from '../../../../core/index.js'
 import { geoToScreen, resolveColor, resolveSize, resolveWeight } from '../../../../core/index.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 
 export interface InlineTextEditorProps {
   map: L.Map
@@ -19,12 +20,13 @@ export function InlineTextEditor({
   controller,
   className,
 }: InlineTextEditorProps) {
+  const { t } = useTranslation(controller)
   const [value, setValue] = useState(item.text ?? '')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const pt = geoToScreen(map, item.at)
   const scale = getItemZoomScale(map, item)
-  const color = resolveColor(item.style?.color ?? 'ink', controller.scheme)
+  const color = resolveColor(item.style?.color ?? 'ink', 'light')
   const baseFontSize = resolveSize(item.style?.size ?? 'm', item.style?.fontSize)
   const fontSize = Math.max(10, Math.round(baseFontSize * scale))
   const weight = resolveWeight(item.style?.weight)
@@ -162,6 +164,7 @@ export function InlineTextEditor({
       <textarea
         ref={textareaRef}
         value={value}
+        placeholder={t('placeholderText')}
         onChange={(e) => {
           const val = e.target.value.replace(/(^|\n)([-*])\s/g, '$1• ')
           setValue(val)

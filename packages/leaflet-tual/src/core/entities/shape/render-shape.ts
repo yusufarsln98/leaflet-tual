@@ -17,7 +17,7 @@ export function renderShapeOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   shape: ShapeItem,
-  scheme: 'light' | 'dark',
+  _scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
     isEditing?: boolean
@@ -61,8 +61,8 @@ export function renderShapeOnCanvas(
 
   const bounds: ShapeBounds = { minX, minY, maxX, maxY, width, height, cx, cy }
 
-  const strokeColor = resolveColor(shape.style?.strokeColor ?? shape.style?.color ?? 'blue', scheme, options.tokens)
-  const fillColor = resolveColor(shape.style?.fillColor ?? shape.style?.color ?? 'blue', scheme, options.tokens)
+  const strokeColor = resolveColor(shape.style?.strokeColor ?? shape.style?.color ?? 'blue', 'light', options.tokens)
+  const fillColor = resolveColor(shape.style?.fillColor ?? shape.style?.color ?? 'blue', 'light', options.tokens)
   const baseLineWidth = resolveWidth(shape.style?.width ?? 'm')
   const lineWidth = shape.style?.dash === 'none' || shape.style?.width === 0 ? 0 : Math.max(0.5, baseLineWidth * scale)
   const dash = resolveDash(shape.style?.dash ?? 'solid').map((d) => d * scale)
@@ -99,9 +99,9 @@ export function renderShapeOnCanvas(
     const labelY = getShapeLabelY(position, minY, maxY, cy)
     const baseFontSize = shape.style?.fontSize ?? (shape.style?.size ? resolveSize(shape.style.size) : 12)
     drawLabelPill(ctx, { x: cx, y: labelY }, shape.label, {
-      textColor: scheme === 'dark' ? '#ECEAE6' : '#1D1D1B',
-      bgColor: scheme === 'dark' ? '#1E1E1E' : '#FFFFFF',
-      borderColor: scheme === 'dark' ? '#333333' : '#E3E1DD',
+      textColor: '#1D1D1B',
+      bgColor: '#FFFFFF',
+      borderColor: '#E3E1DD',
       fontSize: baseFontSize * scale,
       fontWeight: resolveWeight(shape.style?.weight),
       fontStyle: shape.style?.fontStyle,
@@ -112,7 +112,7 @@ export function renderShapeOnCanvas(
   }
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', scheme, options.tokens)
+    const handleColor = resolveColor('blue', 'light', options.tokens)
 
     // Selection frame between the resize handles.
     ctx.save()

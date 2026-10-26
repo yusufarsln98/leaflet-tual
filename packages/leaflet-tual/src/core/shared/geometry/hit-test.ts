@@ -123,13 +123,13 @@ export function hitTest(
       if (map && item.baseZoom != null) {
         scale = Math.pow(2, map.getZoom() - item.baseZoom)
       }
-      const side = Math.max(item.width ?? 180, item.height ?? 180) * scale
-      const half = side / 2
+      const halfW = ((item.width ?? item.height ?? 180) * scale) / 2
+      const halfH = ((item.height ?? item.width ?? 180) * scale) / 2
       return (
-        pt.x >= anchor.x - half - tolerance &&
-        pt.x <= anchor.x + half + tolerance &&
-        pt.y >= anchor.y - half - tolerance &&
-        pt.y <= anchor.y + half + tolerance
+        pt.x >= anchor.x - halfW - tolerance &&
+        pt.x <= anchor.x + halfW + tolerance &&
+        pt.y >= anchor.y - halfH - tolerance &&
+        pt.y <= anchor.y + halfH + tolerance
       )
     }
     case 'text': {

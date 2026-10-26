@@ -34,7 +34,7 @@ export function updateCanvasHoverCursor(
       return
     }
   } else if (selected.length === 1 && selected[0].type === 'pen') {
-    const hitHandle = hitTestPenHandle(map, selected[0], pt, 8)
+    const hitHandle = hitTestPenHandle(map, selected[0], pt)
     if (hitHandle) {
       canvas.style.cursor = hitHandle.cursor
       return

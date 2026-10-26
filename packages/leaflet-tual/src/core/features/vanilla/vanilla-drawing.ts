@@ -19,7 +19,7 @@ import {
   renderTextOnCanvas,
   snapAngle,
 } from '../../index.js'
-import { resolveShapePlacement } from '../../shared/drawing/shape-drawing.js'
+import { isClickGesture, resolveShapePlacement } from '../../shared/drawing/shape-drawing.js'
 
 export type VanillaGesture =
   | {
@@ -39,6 +39,14 @@ export type VanillaGesture =
       dragging: boolean
       currentPt: ScreenPoint
       currentGeo: GeoPoint
+    }
+  | {
+      type: 'edit-pen'
+      penId: string
+      pointIndex: number
+      handle: 'anchor' | 'in' | 'out'
+      startGeo: GeoPoint
+      initialPoints: PenPoint[]
     }
   | {
       type: 'drag-item'
@@ -123,25 +131,28 @@ export function drawVanillaScene(
         { tokens },
       )
     } else if (g.tool === 'shape') {
-      const placement = resolveShapePlacement(map, g.startPt, g.currentPt, {
-        shiftKey: isShiftPressed,
-      })
-      renderShapeOnCanvas(
-        ctx,
-        map,
-        {
-          id: 'preview',
-          type: 'shape',
-          kind: (g.variant as ShapeKind) ?? 'square',
-          at: placement.at,
-          width: placement.width,
-          height: placement.height,
-          style: controller.style,
-          createdAt: Date.now(),
-        },
-        resolvedScheme,
-        { tokens },
-      )
+      if (!isClickGesture(g.startPt, g.currentPt)) {
+        const placement = resolveShapePlacement(map, g.startPt, g.currentPt, {
+          shiftKey: isShiftPressed,
+          isCompleted: false,
+        })
+        renderShapeOnCanvas(
+          ctx,
+          map,
+          {
+            id: 'preview',
+            type: 'shape',
+            kind: (g.variant as ShapeKind) ?? 'square',
+            at: placement.at,
+            width: placement.width,
+            height: placement.height,
+            style: controller.style,
+            createdAt: Date.now(),
+          },
+          resolvedScheme,
+          { tokens },
+        )
+      }
     } else if (g.tool === 'ruler') {
       renderRulerOnCanvas(
         ctx,

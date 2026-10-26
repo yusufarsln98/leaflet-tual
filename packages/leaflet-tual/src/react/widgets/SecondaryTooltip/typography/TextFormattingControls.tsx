@@ -1,6 +1,7 @@
 'use client'
 
 import type { Style } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS } from '../../Toolbar/icons/index.js'
 import {
   isItemBold,
@@ -23,6 +24,7 @@ export function TextFormattingControls({
   onUpdateStyle,
   onUpdateText,
 }: TextFormattingControlsProps) {
+  const { t } = useTranslation()
   const isBold = isItemBold(style)
   const isItalic = isItemItalic(style)
   const isUnderline = isItemUnderline(style)
@@ -66,8 +68,8 @@ export function TextFormattingControls({
       <button
         type="button"
         className="tual-secondary-icon-btn"
-        title="Bold"
-        aria-label="Bold"
+        title={t('bold')}
+        aria-label={t('bold')}
         data-active={isBold}
         onClick={toggleBold}
       >
@@ -76,8 +78,8 @@ export function TextFormattingControls({
       <button
         type="button"
         className="tual-secondary-icon-btn"
-        title="Italic"
-        aria-label="Italic"
+        title={t('italic')}
+        aria-label={t('italic')}
         data-active={isItalic}
         onClick={toggleItalic}
       >
@@ -86,8 +88,8 @@ export function TextFormattingControls({
       <button
         type="button"
         className="tual-secondary-icon-btn"
-        title="Underline"
-        aria-label="Underline"
+        title={t('underline')}
+        aria-label={t('underline')}
         data-active={isUnderline}
         onClick={toggleUnderline}
       >
@@ -97,8 +99,8 @@ export function TextFormattingControls({
       <button
         type="button"
         className="tual-secondary-icon-btn"
-        title="Bulleted List"
-        aria-label="Bulleted List"
+        title={t('bulletedList')}
+        aria-label={t('bulletedList')}
         data-active={isBulleted}
         onClick={toggleBullets}
       >
@@ -107,8 +109,8 @@ export function TextFormattingControls({
       <button
         type="button"
         className="tual-secondary-icon-btn"
-        title="Text Alignment"
-        aria-label="Text Alignment"
+        title={t('textAlignment')}
+        aria-label={t('textAlignment')}
         onClick={toggleAlign}
       >
         {style.align === 'center'

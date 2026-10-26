@@ -3,10 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import type { ArrowItem, Controller, ShapeItem } from '../../../../core/index.js'
-import {
-  resolveSize,
-  resolveWeight,
-} from '../../../../core/index.js'
+import { resolveSize, resolveWeight } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { getLabelAnchor } from '../../../../core/shared/drawing/shape-label.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
 
@@ -25,6 +23,7 @@ export function InlineShapeLabelEditor({
   controller,
   className,
 }: InlineShapeLabelEditorProps) {
+  const { t } = useTranslation(controller)
   const target = item ?? shape!
   const [value, setValue] = useState(target.label ?? '')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -143,7 +142,7 @@ export function InlineShapeLabelEditor({
         ref={inputRef}
         type="text"
         value={value}
-        placeholder="Add label..."
+        placeholder={t('addLabel')}
         className="tual-label-input"
         readOnly={!isEditing}
         style={{

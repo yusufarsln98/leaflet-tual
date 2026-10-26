@@ -15,7 +15,7 @@ export {
 
 export function resolveColor(
   name: ColorName | string = 'ink',
-  scheme: 'light' | 'dark' = 'light',
+  _scheme: 'light' | 'dark' = 'light',
   tokens?: Partial<Tokens>,
 ): string {
   if (typeof name === 'string' && (name.startsWith('#') || name.startsWith('rgb') || name.startsWith('hsl'))) {
@@ -23,15 +23,15 @@ export function resolveColor(
   }
   const custom = tokens?.palette?.[name as ColorName]
   if (custom) {
-    return scheme === 'dark' ? custom.dark : custom.light
+    return custom.light
   }
   const entry = DEFAULT_PALETTE[name as ColorName] ?? DEFAULT_PALETTE.ink
-  return scheme === 'dark' ? entry.dark : entry.light
+  return entry.light
 }
 
 export function resolveNoteColors(
   color: ColorName | string = 'yellow',
-  scheme: 'light' | 'dark' = 'light',
+  _scheme: 'light' | 'dark' = 'light',
   customText?: ColorName | string,
   customBg?: ColorName | string,
 ): { bg: string; text: string; border: string } {
@@ -39,15 +39,15 @@ export function resolveNoteColors(
   if (typeof bgKey === 'string' && (bgKey.startsWith('#') || bgKey.startsWith('rgb') || bgKey.startsWith('hsl'))) {
     return {
       bg: bgKey,
-      text: customText ? resolveColor(customText, scheme) : (scheme === 'dark' ? '#ECEAE6' : '#1F2A30'),
-      border: scheme === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)',
+      text: customText ? resolveColor(customText, 'light') : '#1F2A30',
+      border: 'rgba(0, 0, 0, 0.12)',
     }
   }
   const entry = NOTE_SURFACES[bgKey as ColorName] ?? NOTE_SURFACES.yellow
-  const defaultColors = scheme === 'dark' ? entry.dark : entry.light
+  const defaultColors = entry.light
   return {
     bg: defaultColors.bg,
-    text: customText ? resolveColor(customText, scheme) : defaultColors.text,
+    text: customText ? resolveColor(customText, 'light') : defaultColors.text,
     border: defaultColors.border,
   }
 }

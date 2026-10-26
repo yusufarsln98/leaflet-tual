@@ -124,5 +124,88 @@ describe('v2 bezier pen tool gestures', () => {
 
     const pen = controller.items[0]
     expect(pen.type).toBe('pen')
+    if (pen.type !== 'pen') return
+    expect(pen.points[0].at.lat).toBeCloseTo(10, 6)
+    expect(pen.points[0].at.lng).toBeCloseTo(15, 6)
+    expect(pen.points[1].at).toEqual({ lat: 20, lng: 20 })
+  })
+
+  it('selects a pen by clicking its stroke, then edits its anchors', () => {
+    const { canvas, controller } = setup()
+
+    act(() => {
+      controller.add({
+        type: 'pen',
+        points: [
+          { at: { lat: 10, lng: 10 } },
+          { at: { lat: 20, lng: 20 } },
+        ],
+      })
+    })
+
+    click(canvas, 150, 150)
+    expect(controller.selection).toHaveLength(1)
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    fireEvent.mouseMove(window, { clientX: 150, clientY: 100 })
+    fireEvent.mouseUp(window, { clientX: 150, clientY: 100 })
+
+    const pen = controller.items[0]
+    expect(pen.type).toBe('pen')
+    if (pen.type !== 'pen') return
+    expect(pen.points[0].at.lng).toBeCloseTo(15, 6)
+  })
+
+  it('selects and edits a pen in a single anchor drag', () => {
+    const { canvas, controller } = setup()
+
+    act(() => {
+      controller.add({
+        type: 'pen',
+        points: [
+          { at: { lat: 10, lng: 10 } },
+          { at: { lat: 20, lng: 20 } },
+        ],
+      })
+    })
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    fireEvent.mouseMove(window, { clientX: 140, clientY: 100 })
+    fireEvent.mouseUp(window, { clientX: 140, clientY: 100 })
+
+    expect(controller.selection).toHaveLength(1)
+    const pen = controller.items[0]
+    expect(pen.type).toBe('pen')
+    if (pen.type !== 'pen') return
+    expect(pen.points[0].at.lng).toBeCloseTo(14, 6)
+  })
+
+  it('edits a bezier control handle and mirrors the opposite handle', () => {
+    const { canvas, controller } = setup()
+
+    act(() => {
+      const pen = controller.add({
+        type: 'pen',
+        points: [
+          {
+            at: { lat: 10, lng: 10 },
+            in: { lat: 10, lng: 6 },
+            out: { lat: 10, lng: 14 },
+          },
+          { at: { lat: 20, lng: 20 } },
+        ],
+      })
+      controller.select(pen.id)
+    })
+
+    fireEvent.mouseDown(canvas, { clientX: 140, clientY: 100 })
+    fireEvent.mouseMove(window, { clientX: 140, clientY: 140 })
+    fireEvent.mouseUp(window, { clientX: 140, clientY: 140 })
+
+    const pen = controller.items[0]
+    expect(pen.type).toBe('pen')
+    if (pen.type !== 'pen') return
+    expect(pen.points[0].out).toEqual({ lat: 14, lng: 14 })
+    expect(pen.points[0].in).not.toEqual({ lat: 10, lng: 6 })
   })
 })

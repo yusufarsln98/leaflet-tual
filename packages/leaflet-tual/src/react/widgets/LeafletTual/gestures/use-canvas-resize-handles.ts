@@ -43,7 +43,7 @@ export function findResizeGestureUnderPointer(
         return { type: 'resize-ruler', rulerId: item.id, handle: hitHandle, startGeo: geo }
       }
     } else if (item.type === 'pen') {
-      const hitHandle = hitTestPenHandle(map, item, pt, 8)
+      const hitHandle = hitTestPenHandle(map, item, pt)
       if (hitHandle) {
         return {
           type: 'edit-pen',

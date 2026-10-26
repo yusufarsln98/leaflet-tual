@@ -5,6 +5,7 @@ import type L from 'leaflet'
 import type { Controller, NoteItem } from '../../../../core/index.js'
 import { geoToScreen, resolveNoteColors, resolveSize, resolveWeight } from '../../../../core/index.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { handleNoteKeyDown } from './use-note-editor-keys.js'
 
 export interface InlineNoteEditorProps {
@@ -20,6 +21,7 @@ export function InlineNoteEditor({
   controller,
   className,
 }: InlineNoteEditorProps) {
+  const { t } = useTranslation(controller)
   const [value, setValue] = useState(item.text ?? '')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -32,7 +34,7 @@ export function InlineNoteEditor({
 
   const noteColors = resolveNoteColors(
     item.style?.color ?? 'yellow',
-    controller.scheme,
+    'light',
     item.style?.textColor,
     item.style?.fillColor,
   )
@@ -102,6 +104,7 @@ export function InlineNoteEditor({
       <textarea
         ref={textareaRef}
         value={value}
+        placeholder={t('placeholderNote')}
         onChange={handleChange}
         onBlur={handleBlur}
         onKeyDown={(e) => handleNoteKeyDown(e, item, controller, value, () => setValue(item.text))}

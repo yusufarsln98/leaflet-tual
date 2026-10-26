@@ -1,6 +1,7 @@
 'use client'
 
 import type { Controller, Item, ShapeItem, Style } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS, LABEL_POSITION_ICONS } from '../../Toolbar/icons/index.js'
 import { BorderPopover } from './BorderPopover.js'
 import { LabelPositionDropdown } from './LabelPositionDropdown.js'
@@ -36,6 +37,8 @@ export function SecondaryTooltipExtras({
   onClose,
   onUpdateStyle,
 }: SecondaryTooltipExtrasProps) {
+  const { t } = useTranslation()
+
   return (
     <>
       {isNote && (
@@ -43,7 +46,7 @@ export function SecondaryTooltipExtras({
           <button
             type="button"
             className="tual-secondary-icon-btn"
-            title="Corner Radius"
+            title={t('cornerRadius')}
             data-active={activePopover === 'radius'}
             onClick={() => onToggle('radius')}
           >
@@ -64,7 +67,7 @@ export function SecondaryTooltipExtras({
           <button
             type="button"
             className="tual-secondary-icon-btn"
-            title="Border & Stroke"
+            title={t('borderAndStroke')}
             data-active={activePopover === 'border'}
             onClick={() => onToggle('border')}
           >
@@ -94,7 +97,7 @@ export function SecondaryTooltipExtras({
           <button
             type="button"
             className="tual-secondary-icon-btn"
-            title="Label Position"
+            title={t('labelPosition')}
             data-active={activePopover === 'labelPosition'}
             onClick={() => onToggle('labelPosition')}
           >
@@ -116,7 +119,7 @@ export function SecondaryTooltipExtras({
         <button
           type="button"
           className="tual-secondary-icon-btn"
-          title="More Options"
+          title={t('moreOptions')}
           data-active={activePopover === 'more'}
           onClick={() => onToggle('more')}
         >

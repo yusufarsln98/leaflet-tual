@@ -1,6 +1,7 @@
 'use client'
 
 import type { LabelPosition } from '../../../../core/types/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { LABEL_POSITION_ICONS } from '../../Toolbar/icons/index.js'
 import { useWheelGuard } from '../utils/use-wheel-guard.js'
 
@@ -20,6 +21,7 @@ export function LabelPositionDropdown({
   currentPosition = 'center',
   onSelectPosition,
 }: LabelPositionDropdownProps) {
+  const { t } = useTranslation()
   const guardRef = useWheelGuard<HTMLDivElement>()
 
   return (
@@ -30,7 +32,7 @@ export function LabelPositionDropdown({
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="tual-popover-header">Label Position</div>
+      <div className="tual-popover-header">{t('labelPosition')}</div>
       <div className="tual-options-list">
         {POSITIONS.map((p) => {
           const isSelected = currentPosition === p.id
@@ -43,7 +45,7 @@ export function LabelPositionDropdown({
               onClick={() => onSelectPosition(p.id)}
             >
               {LABEL_POSITION_ICONS[p.id]()}
-              <span className="tual-option-label">{p.label}</span>
+              <span className="tual-option-label">{t(p.id, undefined, p.label)}</span>
               {isSelected && <span className="tual-check">✓</span>}
             </button>
           )

@@ -277,4 +277,27 @@ describe('v2 Canvas annotation rendering', () => {
     expect(ctx.stroke).toHaveBeenCalled()
     expect(ctx.fillText).toHaveBeenCalled()
   })
+
+  it('always uses light theme colors for shapes and items even when scheme is dark', () => {
+    const ctxLight = createMockCtx()
+    const ctxDark = createMockCtx()
+    const map = createMockMap()
+    const shapeItem = {
+      id: 'shape-1',
+      type: 'shape' as const,
+      kind: 'square' as const,
+      at: { lat: 41, lng: 28 },
+      width: 100,
+      height: 100,
+      style: { color: 'ink' as const, fill: 'solid' as const },
+      createdAt: Date.now(),
+    }
+
+    renderShapeOnCanvas(ctxLight, map, shapeItem, 'light')
+    renderShapeOnCanvas(ctxDark, map, shapeItem, 'dark')
+
+    // Both light and dark scheme calls render the shape with light ink color (#1D1D1B)
+    expect(ctxLight.strokeStyle).toBe('#1D1D1B')
+    expect(ctxDark.strokeStyle).toBe('#1D1D1B')
+  })
 })

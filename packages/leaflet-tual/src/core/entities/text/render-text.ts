@@ -13,7 +13,7 @@ export function renderTextOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   textItem: TextItem,
-  scheme: 'light' | 'dark',
+  _scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
     isEditing?: boolean
@@ -24,7 +24,7 @@ export function renderTextOnCanvas(
 
   const p = geoToScreen(map, textItem.at)
   const scale = getItemZoomScale(map, textItem)
-  const color = resolveColor(textItem.style?.color ?? 'ink', scheme, options.tokens)
+  const color = resolveColor(textItem.style?.color ?? 'ink', 'light', options.tokens)
   const baseFontSize = resolveSize(textItem.style?.size ?? 'm', textItem.style?.fontSize)
   const fontSize = Math.max(1, baseFontSize * scale)
   const weight = resolveWeight(textItem.style?.weight)
@@ -64,7 +64,7 @@ export function renderTextOnCanvas(
   }
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', scheme, options.tokens)
+    const handleColor = resolveColor('blue', 'light', options.tokens)
     drawHandle(ctx, p, handleColor, Math.max(4, 8 * scale))
   }
 

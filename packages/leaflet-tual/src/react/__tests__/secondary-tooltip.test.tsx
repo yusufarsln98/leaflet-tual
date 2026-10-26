@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, renderHook, act } from '@testing-library/react'
+import { render, screen, fireEvent, renderHook, act, within } from '@testing-library/react'
 import { SecondaryTooltip } from '../widgets/SecondaryTooltip/SecondaryTooltip.js'
 import { useLeafletTual } from '../features/use-leaflet-tual.js'
 import type { NoteItem, TextItem } from '../../core/index.js'
@@ -250,9 +250,14 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       fireEvent.click(customTab)
     })
 
-    // Weight select
+    // Weight select uses the shared select field classes and custom menu
     const weightSelect = screen.getByLabelText('Font weight') as HTMLSelectElement
     expect(weightSelect).toBeDefined()
+    const weightField = screen.getByTitle('Font weight')
+    expect(weightField.className).toContain('tual-select-field')
+    fireEvent.click(weightField)
+    const weightMenu = screen.getByRole('listbox', { name: 'Font weight' })
+    expect(within(weightMenu).getByText('Semibold')).toBeDefined()
     act(() => {
       fireEvent.change(weightSelect, { target: { value: 'semibold' } })
     })

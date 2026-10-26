@@ -1,6 +1,7 @@
 'use client'
 
 import type { Style } from '../../../../core/types/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 
 export interface DashDropdownProps {
   currentDash?: Style['dash']
@@ -15,9 +16,11 @@ const DASH_STYLES: { id: NonNullable<Style['dash']>; label: string; dasharray?: 
 ]
 
 export function DashDropdown({ currentDash = 'solid', onSelectDash }: DashDropdownProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="tual-popover tual-options-popover" onMouseDown={(e) => e.stopPropagation()}>
-      <div className="tual-popover-header">Border Style</div>
+      <div className="tual-popover-header">{t('borderStyle')}</div>
       <div className="tual-options-list">
         {DASH_STYLES.map((d) => {
           const isSelected = currentDash === d.id
@@ -40,7 +43,7 @@ export function DashDropdown({ currentDash = 'solid', onSelectDash }: DashDropdo
                   strokeDasharray={d.dasharray}
                 />
               </svg>
-              <span className="tual-option-label">{d.label}</span>
+              <span className="tual-option-label">{t(d.id, undefined, d.label)}</span>
               {isSelected && <span className="tual-check">✓</span>}
             </button>
           )

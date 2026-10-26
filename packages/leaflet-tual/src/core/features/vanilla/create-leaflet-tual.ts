@@ -1,9 +1,5 @@
 import type L from 'leaflet'
-import type {
-  Controller,
-  CreateLeafletTualOptions,
-  InternalController,
-} from '../../types/index.js'
+import type { Controller, CreateLeafletTualOptions, InternalController } from '../../types/index.js'
 import { createController } from '../controller/index.js'
 import { drawVanillaScene, type VanillaGesture } from './vanilla-drawing.js'
 import { createVanillaGestures } from './vanilla-gestures.js'
@@ -40,17 +36,22 @@ export function createLeafletTual(
   }
 
   function resolveCurrentScheme(): 'light' | 'dark' {
-    if (options.theme === 'dark') return 'dark'
-    if (options.theme === 'light') return 'light'
+    if (controller.theme === 'dark') return 'dark'
+    if (controller.theme === 'light') return 'light'
     return systemDark ? 'dark' : 'light'
   }
 
   let resolvedScheme = resolveCurrentScheme()
 
   function updateTheme() {
-    resolvedScheme = resolveCurrentScheme()
+    const next = resolveCurrentScheme()
+    const currentAttr = container.getAttribute('data-theme')
+    if (resolvedScheme === next && currentAttr === next) return
+    resolvedScheme = next
     container.setAttribute('data-theme', resolvedScheme)
-    ;(controller as InternalController)._setScheme?.(resolvedScheme)
+    if (controller.scheme !== resolvedScheme) {
+      ;(controller as InternalController)._setScheme?.(resolvedScheme)
+    }
     redraw()
   }
 
@@ -76,15 +77,7 @@ export function createLeafletTual(
   let isShiftPressed = false
 
   function redraw() {
-    drawVanillaScene(
-      canvas,
-      map,
-      controller,
-      resolvedScheme,
-      activeGesture,
-      isShiftPressed,
-      options.tokens,
-    )
+    drawVanillaScene(canvas, map, controller, resolvedScheme, activeGesture, isShiftPressed)
   }
 
   const gestures = createVanillaGestures({
@@ -92,9 +85,13 @@ export function createLeafletTual(
     map,
     controller,
     getActiveGesture: () => activeGesture,
-    setActiveGesture: (g) => { activeGesture = g },
+    setActiveGesture: (g) => {
+      activeGesture = g
+    },
     getShift: () => isShiftPressed,
-    setShift: (s) => { isShiftPressed = s },
+    setShift: (s) => {
+      isShiftPressed = s
+    },
     redraw,
   })
 
@@ -141,14 +138,30 @@ export function createLeafletTual(
     }
 
     switch (key) {
-      case 'V': controller.setTool('select'); break
-      case 'T': controller.setTool('text'); break
-      case 'N': controller.setTool('note'); break
-      case 'F': controller.setTool('freedraw'); break
-      case 'P': controller.setTool('pen'); break
-      case 'L': controller.setTool('arrow'); break
-      case 'S': controller.setTool('shape'); break
-      case 'R': controller.setTool('ruler'); break
+      case 'V':
+        controller.setTool('select')
+        break
+      case 'T':
+        controller.setTool('text')
+        break
+      case 'N':
+        controller.setTool('note')
+        break
+      case 'F':
+        controller.setTool('freedraw')
+        break
+      case 'P':
+        controller.setTool('pen')
+        break
+      case 'L':
+        controller.setTool('arrow')
+        break
+      case 'S':
+        controller.setTool('shape')
+        break
+      case 'R':
+        controller.setTool('ruler')
+        break
     }
   }
 
@@ -168,6 +181,7 @@ export function createLeafletTual(
   window.addEventListener('keydown', onKeyDown)
 
   const unlistenState = controller.on('state', () => {
+    updateTheme()
     updateMapInteractions()
     redraw()
   })

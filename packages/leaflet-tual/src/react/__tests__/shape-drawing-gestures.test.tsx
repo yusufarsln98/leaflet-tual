@@ -56,6 +56,28 @@ describe('v2 shape drawing gestures', () => {
     expect(shape.at).toEqual({ lat: 10, lng: 10 })
   })
 
+  it('does not create or flicker a default-sized shape immediately on mousedown before click completes', () => {
+    const { canvas, controller } = setup()
+    act(() => controller.setTool('shape', 'square'))
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    // While mouse is held down, no shape should be committed to controller
+    expect(controller.items).toHaveLength(0)
+
+    // User moves mouse to resize shape (dragging)
+    fireEvent.mouseMove(window, { clientX: 180, clientY: 150 })
+    expect(controller.items).toHaveLength(0)
+
+    // On mouseup, the resized shape is committed without having flickered default size
+    fireEvent.mouseUp(window, { clientX: 180, clientY: 150 })
+    expect(controller.items).toHaveLength(1)
+    const shape = controller.items[0]
+    expect(shape.type).toBe('shape')
+    if (shape.type !== 'shape') return
+    expect(shape.width).toBe(80)
+    expect(shape.height).toBe(50)
+  })
+
   it('creates the dragged shape with the selected variant', () => {
     const { canvas, controller } = setup()
     act(() => controller.setTool('shape', 'triangle'))

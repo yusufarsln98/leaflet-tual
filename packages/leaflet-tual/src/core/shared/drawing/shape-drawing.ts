@@ -29,12 +29,14 @@ export function resolveShapeDragBounds(
     shiftKey?: boolean
     defaultSize?: number
     clickThreshold?: number
+    isCompleted?: boolean
   } = {},
 ): ShapeDragResolution {
   const clickThreshold = options.clickThreshold ?? CLICK_DRAG_THRESHOLD_PX
   const defaultSize = options.defaultSize ?? DEFAULT_SHAPE_SIZE_PX
+  const isClick = isClickGesture(startPt, currentPt, clickThreshold)
 
-  if (isClickGesture(startPt, currentPt, clickThreshold)) {
+  if (isClick && options.isCompleted !== false) {
     const half = defaultSize / 2
     return {
       from: screenToGeo(map, { x: startPt.x - half, y: startPt.y - half }),
@@ -47,7 +49,7 @@ export function resolveShapeDragBounds(
   let to = screenToGeo(map, currentPt)
   if (options.shiftKey) to = lockAspect(from, to, 1)
 
-  return { from, to, isClick: false }
+  return { from, to, isClick }
 }
 
 export interface ShapePlacementResolution {
@@ -61,7 +63,7 @@ export interface ShapePlacementResolution {
  * Resolves the placement (center and size) of a shape created by a pointer gesture.
  *
  * A drag uses the dragged screen box. A click (no meaningful movement) creates a
- * shape centred on the click with a screen-constant default size.
+ * shape centred on the click with a screen-constant default size when the click is completed.
  */
 export function resolveShapePlacement(
   map: L.Map,
@@ -71,12 +73,14 @@ export function resolveShapePlacement(
     shiftKey?: boolean
     defaultSize?: number
     clickThreshold?: number
+    isCompleted?: boolean
   } = {},
 ): ShapePlacementResolution {
   const clickThreshold = options.clickThreshold ?? CLICK_DRAG_THRESHOLD_PX
   const defaultSize = options.defaultSize ?? DEFAULT_SHAPE_SIZE_PX
+  const isClick = isClickGesture(startPt, currentPt, clickThreshold)
 
-  if (isClickGesture(startPt, currentPt, clickThreshold)) {
+  if (isClick && options.isCompleted !== false) {
     return {
       at: screenToGeo(map, startPt),
       width: defaultSize,
@@ -104,7 +108,7 @@ export function resolveShapePlacement(
     at: screenToGeo(map, centerScreen),
     width,
     height,
-    isClick: false,
+    isClick,
   }
 }
 
@@ -139,7 +143,10 @@ export function commitDrawnItem(
       })
     }
   } else if (tool === 'shape') {
-    const placement = resolveShapePlacement(map, startPt, endPt, { shiftKey })
+    const placement = resolveShapePlacement(map, startPt, endPt, {
+      shiftKey,
+      isCompleted: true,
+    })
     controller.add({
       type: 'shape',
       kind: (variant as ShapeKind) ?? 'square',

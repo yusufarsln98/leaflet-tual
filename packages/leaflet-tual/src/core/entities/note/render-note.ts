@@ -16,7 +16,7 @@ export function renderNoteOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   note: NoteItem,
-  scheme: 'light' | 'dark',
+  _scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
     isEditing?: boolean
@@ -25,16 +25,16 @@ export function renderNoteOnCanvas(
 ) {
   const scale = getItemZoomScale(map, note)
   const p = geoToScreen(map, note.at)
-  const baseSide = Math.max(1, note.width ?? note.height ?? 180)
-  const side = Math.max(1, baseSide * scale)
-  const cardW = side
-  const cardH = side
+  const baseW = Math.max(1, note.width ?? note.height ?? 180)
+  const baseH = Math.max(1, note.height ?? note.width ?? 180)
+  const cardW = Math.max(1, baseW * scale)
+  const cardH = Math.max(1, baseH * scale)
   const x = p.x - cardW / 2
   const y = p.y - cardH / 2
 
   const noteColors = resolveNoteColors(
     note.style?.color ?? 'yellow',
-    scheme,
+    'light',
     note.style?.textColor,
     note.style?.fillColor,
   )
@@ -47,7 +47,7 @@ export function renderNoteOnCanvas(
   const borderWidth =
     borderDash === 'none' ? 0 : Math.max(0.5, resolveWidth(note.style?.width ?? 's') * scale)
   const borderColor = note.style?.strokeColor
-    ? resolveColor(note.style.strokeColor, scheme, options.tokens)
+    ? resolveColor(note.style.strokeColor, 'light', options.tokens)
     : noteColors.border
 
   ctx.save()
@@ -155,17 +155,23 @@ export function renderNoteOnCanvas(
   }
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', scheme, options.tokens)
+    const handleColor = resolveColor('blue', 'light', options.tokens)
     ctx.strokeStyle = handleColor
     ctx.lineWidth = Math.max(0.5, 1 * scale)
     ctx.setLineDash([4 * scale, 4 * scale])
     ctx.strokeRect(x, y, cardW, cardH)
 
     const handleSize = Math.max(4, 8 * scale)
+    const cx = x + cardW / 2
+    const cy = y + cardH / 2
     drawHandle(ctx, { x, y }, handleColor, handleSize)
     drawHandle(ctx, { x: x + cardW, y }, handleColor, handleSize)
-    drawHandle(ctx, { x: x + cardW, y: y + cardH }, handleColor)
-    drawHandle(ctx, { x, y: y + cardH }, handleColor)
+    drawHandle(ctx, { x: x + cardW, y: y + cardH }, handleColor, handleSize)
+    drawHandle(ctx, { x, y: y + cardH }, handleColor, handleSize)
+    drawHandle(ctx, { x: cx, y }, handleColor, handleSize)
+    drawHandle(ctx, { x: cx, y: y + cardH }, handleColor, handleSize)
+    drawHandle(ctx, { x, y: cy }, handleColor, handleSize)
+    drawHandle(ctx, { x: x + cardW, y: cy }, handleColor, handleSize)
   }
 
   ctx.restore()

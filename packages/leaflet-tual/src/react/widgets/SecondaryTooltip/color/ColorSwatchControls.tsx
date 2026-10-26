@@ -3,6 +3,7 @@
 import type L from 'leaflet'
 import type { ColorName, Style } from '../../../../core/index.js'
 import { resolveColor, resolveNoteColors } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { ColorDropdown } from './ColorDropdown.js'
 
 export interface ColorSwatchControlsProps {
@@ -30,10 +31,12 @@ export function ColorSwatchControls({
   onClose,
   onUpdateStyle,
 }: ColorSwatchControlsProps) {
+  const { t } = useTranslation()
+
   if (isNote) {
     const noteColors = resolveNoteColors(
       style.color ?? 'yellow',
-      scheme,
+      'light',
       style.textColor,
       style.fillColor,
     )
@@ -43,18 +46,18 @@ export function ColorSwatchControls({
           <button
             type="button"
             className="tual-secondary-swatch-btn"
-            title="Text Color"
+            title={t('textColor')}
             onClick={() => onToggle('textColor')}
           >
             <div
               className="tual-secondary-swatch-box"
-              style={{ backgroundColor: resolveColor(style.textColor ?? 'ink', scheme) }}
+              style={{ backgroundColor: resolveColor(style.textColor ?? 'ink', 'light') }}
             />
           </button>
           {activePopover === 'textColor' && (
             <ColorDropdown
               map={map}
-              title="Text Color"
+              title={t('textColor')}
               mode="stroke"
               currentColor={style.textColor ?? 'ink'}
               scheme={scheme}
@@ -67,7 +70,7 @@ export function ColorSwatchControls({
           <button
             type="button"
             className="tual-secondary-swatch-btn"
-            title="Background Color"
+            title={t('backgroundColor')}
             onClick={() => onToggle('bgColor')}
           >
             <div
@@ -78,7 +81,7 @@ export function ColorSwatchControls({
           {activePopover === 'bgColor' && (
             <ColorDropdown
               map={map}
-              title="Background Color"
+              title={t('backgroundColor')}
               mode="fill"
               currentColor={style.fillColor ?? style.color ?? 'yellow'}
               scheme={scheme}
@@ -96,7 +99,7 @@ export function ColorSwatchControls({
       <button
         type="button"
         className="tual-secondary-swatch-btn"
-        title="Color"
+        title={t('color')}
         onClick={() => onToggle('color')}
       >
         {style.fill === 'none' ? (
@@ -108,7 +111,7 @@ export function ColorSwatchControls({
       {activePopover === 'color' && (
         <ColorDropdown
           map={map}
-          title="Color"
+          title={t('color')}
           mode={isShape ? 'fill' : 'stroke'}
           currentColor={style.color}
           currentFill={style.fill}

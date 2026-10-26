@@ -2,6 +2,7 @@
 
 import type { ColorName } from '../../../../core/index.js'
 import { DEFAULT_PALETTE } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 
 export const COLOR_NAMES: ColorName[] = [
   'ink',
@@ -18,20 +19,21 @@ export const COLOR_NAMES: ColorName[] = [
 
 export function ColorPaletteSection({
   selectedColor,
-  scheme,
+  scheme: _scheme,
   onSelectColor,
 }: {
   selectedColor?: ColorName | string
-  scheme: 'light' | 'dark'
+  scheme?: 'light' | 'dark'
   onSelectColor: (c: ColorName) => void
 }) {
+  const { t } = useTranslation()
+
   return (
     <>
-      <div className="tual-popover-header">Color</div>
+      <div className="tual-popover-header">{t('color')}</div>
       <div className="tual-palette">
         {COLOR_NAMES.map((name) => {
-          const colorHex =
-            scheme === 'dark' ? DEFAULT_PALETTE[name].dark : DEFAULT_PALETTE[name].light
+          const colorHex = DEFAULT_PALETTE[name].light
           return (
             <button
               key={name}
@@ -43,7 +45,7 @@ export function ColorPaletteSection({
                 outline: selectedColor === name ? '2px solid var(--tual-accent)' : undefined,
                 outlineOffset: 2,
               }}
-              title={name}
+              title={t(name, undefined, name)}
               onClick={() => onSelectColor(name)}
             />
           )
@@ -70,7 +72,9 @@ export function ButtonGroupSection<T extends string>({
 }) {
   return (
     <>
-      <div className="tual-popover-header" style={{ marginTop }}>{title}</div>
+      <div className="tual-popover-header" style={{ marginTop }}>
+        {title}
+      </div>
       <div style={{ display: 'flex', gap: 3 }}>
         {options.map((opt) => (
           <button
@@ -88,4 +92,3 @@ export function ButtonGroupSection<T extends string>({
     </>
   )
 }
-

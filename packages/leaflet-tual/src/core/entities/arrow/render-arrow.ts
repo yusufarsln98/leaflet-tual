@@ -21,7 +21,7 @@ export function renderArrowOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   arrow: ArrowItem,
-  scheme: 'light' | 'dark',
+  _scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
     isEditing?: boolean
@@ -34,7 +34,7 @@ export function renderArrowOnCanvas(
   if (dist < 1) return
 
   const scale = getItemZoomScale(map, arrow)
-  const color = resolveColor(arrow.style?.strokeColor ?? arrow.style?.color ?? 'ink', scheme, options.tokens)
+  const color = resolveColor(arrow.style?.strokeColor ?? arrow.style?.color ?? 'ink', 'light', options.tokens)
   const baseLineWidth = resolveWidth(arrow.style?.width ?? 'm')
   const lineWidth = Math.max(0.5, baseLineWidth * scale)
   const dash = resolveDash(arrow.style?.dash ?? 'solid').map((d) => d * scale)
@@ -149,9 +149,9 @@ export function renderArrowOnCanvas(
   if (arrow.label && !options.isEditing) {
     const baseFontSize = arrow.style?.fontSize ?? (arrow.style?.size ? resolveSize(arrow.style.size) : 12)
     drawLabelPill(ctx, labelCenter, arrow.label, {
-      textColor: scheme === 'dark' ? '#ECEAE6' : '#1D1D1B',
-      bgColor: scheme === 'dark' ? '#1E1E1E' : '#FFFFFF',
-      borderColor: scheme === 'dark' ? '#333333' : '#E3E1DD',
+      textColor: '#1D1D1B',
+      bgColor: '#FFFFFF',
+      borderColor: '#E3E1DD',
       fontSize: baseFontSize * scale,
       fontWeight: resolveWeight(arrow.style?.weight),
       fontStyle: arrow.style?.fontStyle,
@@ -163,7 +163,7 @@ export function renderArrowOnCanvas(
 
   // Draw selection handles
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', scheme, options.tokens)
+    const handleColor = resolveColor('blue', 'light', options.tokens)
     const handleSize = Math.max(4, 8 * scale)
 
     // Curved arrows get a dashed guide from start → control point → end.

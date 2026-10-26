@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import type { FontWeight, Style } from '../../../../core/types/index.js'
 import { resolveSize } from '../../../../core/shared/theme/theme.js'
+import { useTranslation } from '../../../features/i18n/index.js'
+import { SelectField } from '../../shared/select-field/index.js'
 import { useWheelGuard } from '../utils/use-wheel-guard.js'
 import { THEME_PRESETS, WEIGHT_OPTIONS } from './typography-constants.js'
 
@@ -27,6 +29,7 @@ export function TypographyDropdown({
   currentUnderline = false,
   onUpdateStyle,
 }: TypographyDropdownProps) {
+  const { t } = useTranslation()
   const guardRef = useWheelGuard<HTMLDivElement>()
   const [activeTab, setActiveTab] = useState<'theme' | 'custom'>(
     currentFontSize ? 'custom' : 'theme',
@@ -56,7 +59,7 @@ export function TypographyDropdown({
           data-active={activeTab === 'theme'}
           onClick={() => setActiveTab('theme')}
         >
-          Theme
+          {t('theme')}
         </button>
         <button
           type="button"
@@ -64,7 +67,7 @@ export function TypographyDropdown({
           data-active={activeTab === 'custom'}
           onClick={() => setActiveTab('custom')}
         >
-          Custom
+          {t('custom')}
         </button>
       </div>
 
@@ -73,6 +76,9 @@ export function TypographyDropdown({
           {THEME_PRESETS.map((p) => {
             const isSelected =
               !currentFontSize && (currentSize === p.id || (p.id === 'm' && !currentSize))
+            const labelKey =
+              p.id === 'xl' ? 'heading1' : p.id === 'l' ? 'heading2' : p.id === 's' ? 'caption' : 'body'
+            const presetLabel = t(labelKey, undefined, p.label)
             return (
               <button
                 key={p.id}
@@ -82,7 +88,7 @@ export function TypographyDropdown({
                 onClick={() => handleSelectPreset(p.id)}
               >
                 <div className="tual-typo-row-label">
-                  <span className="tual-typo-name">{p.label}</span>
+                  <span className="tual-typo-name">{presetLabel}</span>
                   <span className="tual-typo-px">{p.px}px</span>
                 </div>
                 {isSelected && (
@@ -109,41 +115,23 @@ export function TypographyDropdown({
         <div className="tual-typo-custom-panel">
           {/* Row matching mockup: Weight dropdown + px number input */}
           <div className="tual-typo-fields-row" onPointerDown={(e) => e.stopPropagation()}>
-            <div className="tual-typo-field tual-typo-weight-field">
-              <select
-                aria-label="Font weight"
-                className="tual-typo-select"
-                value={typeof currentWeight === 'string' ? currentWeight : 'regular'}
-                onChange={(e) => handleWeightChange(e.target.value as FontWeight)}
-                onPointerDown={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                {WEIGHT_OPTIONS.map((w) => (
-                  <option key={w.id} value={w.id}>
-                    {w.label}
-                  </option>
-                ))}
-              </select>
-              <span className="tual-typo-chevron" aria-hidden="true">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </span>
-            </div>
+            <SelectField
+              ariaLabel={t('fontWeight')}
+              title={t('fontWeight')}
+              value={typeof currentWeight === 'string' ? currentWeight : 'regular'}
+              options={WEIGHT_OPTIONS.map((weight) => ({
+                value: weight.id,
+                label: t(weight.id, undefined, weight.label),
+              }))}
+              onChange={(weight) => handleWeightChange(weight as FontWeight)}
+              align="start"
+              className="tual-typo-weight-field"
+            />
 
             <div className="tual-typo-field tual-typo-size-field">
               <input
                 type="number"
-                aria-label="Font size in pixels"
+                aria-label={t('fontSizePx')}
                 min="8"
                 max="144"
                 value={effectivePx}
@@ -168,7 +156,7 @@ export function TypographyDropdown({
               data-active={!currentFontStyle || currentFontStyle === 'normal'}
               onClick={() => handleFontStyleChange('normal')}
             >
-              Normal
+              {t('normal')}
             </button>
             <button
               type="button"
@@ -177,7 +165,7 @@ export function TypographyDropdown({
               style={{ fontStyle: 'italic' }}
               onClick={() => handleFontStyleChange('italic')}
             >
-              Italic
+              {t('italic')}
             </button>
             <button
               type="button"
@@ -186,7 +174,7 @@ export function TypographyDropdown({
               style={{ textDecoration: 'underline' }}
               onClick={handleUnderlineToggle}
             >
-              Underline
+              {t('underline')}
             </button>
           </div>
         </div>

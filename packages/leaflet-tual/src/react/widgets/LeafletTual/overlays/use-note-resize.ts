@@ -4,7 +4,8 @@ import type L from 'leaflet'
 import type { Controller, NoteItem } from '../../../../core/index.js'
 import { screenToGeo } from '../../../../core/index.js'
 
-export type Corner = 'nw' | 'ne' | 'se' | 'sw'
+export type NoteResizeHandle = 'nw' | 'ne' | 'se' | 'sw' | 'n' | 's' | 'e' | 'w'
+export type Corner = NoteResizeHandle
 
 export interface NoteBounds {
   minX: number
@@ -15,7 +16,7 @@ export interface NoteBounds {
 }
 
 export function startNoteResize(
-  corner: Corner,
+  handle: NoteResizeHandle,
   e: React.PointerEvent,
   note: NoteItem,
   map: L.Map,
@@ -28,28 +29,38 @@ export function startNoteResize(
   map.dragging?.disable()
 
   const containerRect = map.getContainer().getBoundingClientRect()
-  const oppScreen = {
-    x: corner === 'nw' || corner === 'sw' ? bounds.maxX : bounds.minX,
-    y: corner === 'nw' || corner === 'ne' ? bounds.maxY : bounds.minY,
-  }
+  const scale = bounds.zoomScale || 1
+  const minScreenW = 40 * scale
+  const minScreenH = 40 * scale
 
   const getResizePatch = (cur: { x: number; y: number }) => {
-    const dx = Math.abs(cur.x - oppScreen.x)
-    const dy = Math.abs(cur.y - oppScreen.y)
-    const newScreenSide = Math.max(40, Math.max(dx, dy))
-    const signX = corner === 'nw' || corner === 'sw' ? -1 : 1
-    const signY = corner === 'nw' || corner === 'ne' ? -1 : 1
-    const newCornerX = oppScreen.x + signX * newScreenSide
-    const newCornerY = oppScreen.y + signY * newScreenSide
+    let left = bounds.minX
+    let right = bounds.maxX
+    let top = bounds.minY
+    let bottom = bounds.maxY
 
-    const newCenterX = (oppScreen.x + newCornerX) / 2
-    const newCenterY = (oppScreen.y + newCornerY) / 2
-    const newBaseSide = Math.max(40, Math.round(newScreenSide / (bounds.zoomScale || 1)))
+    if (handle === 'nw' || handle === 'w' || handle === 'sw') {
+      left = Math.min(cur.x, bounds.maxX - minScreenW)
+    }
+    if (handle === 'ne' || handle === 'e' || handle === 'se') {
+      right = Math.max(cur.x, bounds.minX + minScreenW)
+    }
+    if (handle === 'nw' || handle === 'n' || handle === 'ne') {
+      top = Math.min(cur.y, bounds.maxY - minScreenH)
+    }
+    if (handle === 'sw' || handle === 's' || handle === 'se') {
+      bottom = Math.max(cur.y, bounds.minY + minScreenH)
+    }
+
+    const newCenterX = (left + right) / 2
+    const newCenterY = (top + bottom) / 2
+    const newBaseWidth = Math.max(40, Math.round((right - left) / scale))
+    const newBaseHeight = Math.max(40, Math.round((bottom - top) / scale))
 
     return {
       at: screenToGeo(map, { x: newCenterX, y: newCenterY }),
-      width: newBaseSide,
-      height: newBaseSide,
+      width: newBaseWidth,
+      height: newBaseHeight,
     }
   }
 
@@ -74,3 +85,4 @@ export function startNoteResize(
   window.addEventListener('pointermove', onPointerMove)
   window.addEventListener('pointerup', onPointerUp)
 }
+

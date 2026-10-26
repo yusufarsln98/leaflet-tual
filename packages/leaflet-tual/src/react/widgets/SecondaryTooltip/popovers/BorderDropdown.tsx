@@ -2,6 +2,7 @@
 
 import type { ColorName, Style } from '../../../../core/types/index.js'
 import { resolveColor } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { useWheelGuard } from '../utils/use-wheel-guard.js'
 
 export interface BorderDropdownProps {
@@ -40,6 +41,7 @@ export function BorderDropdown({
   onSelectDash,
   onSelectColor,
 }: BorderDropdownProps) {
+  const { t } = useTranslation()
   const guardRef = useWheelGuard<HTMLDivElement>()
 
   return (
@@ -48,7 +50,7 @@ export function BorderDropdown({
       className="tual-popover tual-options-popover tual-border-popover"
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className="tual-popover-header">Border Color</div>
+      <div className="tual-popover-header">{t('borderColor')}</div>
       <div className="tual-border-color-row">
         {BORDER_COLORS.map((c) => {
           const hex = resolveColor(c, scheme)
@@ -60,8 +62,8 @@ export function BorderDropdown({
               className="tual-border-swatch"
               data-active={isSelected || undefined}
               style={{ backgroundColor: hex }}
-              title={c.charAt(0).toUpperCase() + c.slice(1)}
-              aria-label={c}
+              title={t(c, undefined, c.charAt(0).toUpperCase() + c.slice(1))}
+              aria-label={t(c, undefined, c)}
               onClick={() => onSelectColor(c)}
             />
           )
@@ -70,7 +72,7 @@ export function BorderDropdown({
 
       <div className="tual-popover-divider" />
 
-      <div className="tual-popover-header">Border Style</div>
+      <div className="tual-popover-header">{t('borderStyle')}</div>
       <div className="tual-options-list">
         {DASH_STYLES.map((d) => {
           const isSelected = currentDash === d.id
@@ -93,7 +95,7 @@ export function BorderDropdown({
                   strokeDasharray={d.dasharray}
                 />
               </svg>
-              <span className="tual-option-label">{d.label}</span>
+              <span className="tual-option-label">{t(d.id, undefined, d.label)}</span>
               {isSelected && <span className="tual-check">✓</span>}
             </button>
           )

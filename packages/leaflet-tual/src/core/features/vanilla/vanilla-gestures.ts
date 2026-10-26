@@ -12,6 +12,7 @@ import {
 } from '../../shared/geometry/geo.js'
 import { commitDrawnItem } from '../../shared/drawing/shape-drawing.js'
 import { translateItem, worldDelta } from '../../shared/geometry/translate.js'
+import { editPenPointList, hitTestPenHandle } from '../../entities/pen/pen-handles.js'
 import type { VanillaGesture } from './vanilla-drawing.js'
 
 export interface VanillaGesturesContext {
@@ -69,10 +70,46 @@ export function createVanillaGestures(ctx: VanillaGesturesContext) {
   }
 
   function handleSelectPointerDown(pt: ScreenPoint, geo: { lat: number; lng: number }, shift: boolean) {
+    if (!shift) {
+      for (const item of ctx.controller.selected) {
+        if (item.type !== 'pen') continue
+        const handle = hitTestPenHandle(ctx.map, item, pt)
+        if (!handle) continue
+        ctx.setActiveGesture({
+          type: 'edit-pen',
+          penId: item.id,
+          pointIndex: handle.pointIndex,
+          handle: handle.type,
+          startGeo: geo,
+          initialPoints: item.points,
+        })
+        return
+      }
+    }
+
     const hitItem = [...ctx.controller.items].reverse().find((item) => hitTest(item, pt, 12, ctx.map))
     if (!hitItem) { ctx.controller.select(null); return }
 
     const isSel = ctx.controller.selection.includes(hitItem.id)
+
+    // Dragging a pen anchor/handle edits it immediately, even on the click
+    // that first selects the path.
+    if (!shift && hitItem.type === 'pen') {
+      const handle = hitTestPenHandle(ctx.map, hitItem, pt)
+      if (handle) {
+        if (!isSel) ctx.controller.select(hitItem.id)
+        ctx.setActiveGesture({
+          type: 'edit-pen',
+          penId: hitItem.id,
+          pointIndex: handle.pointIndex,
+          handle: handle.type,
+          startGeo: geo,
+          initialPoints: hitItem.points,
+        })
+        return
+      }
+    }
+
     if (shift) {
       ctx.controller.select(isSel ? ctx.controller.selection.filter((id) => id !== hitItem.id) : [...ctx.controller.selection, hitItem.id])
     } else if (!isSel) {
@@ -152,6 +189,20 @@ export function createVanillaGestures(ctx: VanillaGesturesContext) {
       if (activeGesture.tool === 'freedraw' && activeGesture.freedrawPoints) {
         activeGesture.freedrawPoints.push(geo)
       }
+    } else if (activeGesture.type === 'edit-pen') {
+      ctx.controller.update(
+        activeGesture.penId,
+        {
+          points: editPenPointList(
+            activeGesture.initialPoints,
+            activeGesture.pointIndex,
+            activeGesture.handle,
+            activeGesture.startGeo,
+            geo,
+          ),
+        },
+        false,
+      )
     } else if (activeGesture.type === 'drag-item') {
       const delta = worldDelta(activeGesture.startGeo, geo)
       for (const item of activeGesture.initialItems) {
@@ -168,6 +219,13 @@ export function createVanillaGestures(ctx: VanillaGesturesContext) {
     if (activeGesture.type === 'pen-draft') {
       activeGesture.dragging = false
       activeGesture.activeIndex = null
+      ctx.redraw()
+      return
+    }
+
+    if (activeGesture.type === 'edit-pen') {
+      ctx.controller.update(activeGesture.penId, {})
+      ctx.setActiveGesture(null)
       ctx.redraw()
       return
     }

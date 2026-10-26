@@ -1,6 +1,7 @@
 'use client'
 
 import type L from 'leaflet'
+import { useTranslation } from '../../../features/i18n/index.js'
 
 export interface ToolbarZoomControlProps {
   map?: L.Map
@@ -8,6 +9,7 @@ export interface ToolbarZoomControlProps {
 }
 
 export function ToolbarZoomControl({ map, zoomPercent }: ToolbarZoomControlProps) {
+  const { t } = useTranslation()
   if (zoomPercent === null) return null
 
   return (
@@ -16,7 +18,7 @@ export function ToolbarZoomControl({ map, zoomPercent }: ToolbarZoomControlProps
       <button
         type="button"
         className="tual-btn tual-zoom-pill"
-        title="Zoom level (click to reset to 100%)"
+        title={t('zoomReset')}
         style={{
           padding: '0 8px',
           fontSize: 12,

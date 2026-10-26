@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { DrawKind, ToolId } from '../../../core/index.js'
 import type { ToolbarProps } from '../../types/index.js'
+import { useTranslation } from '../../features/i18n/index.js'
 import { ICONS } from './icons/index.js'
 import {
   PageSwitcher,
@@ -12,16 +13,7 @@ import {
   ToolbarZoomControl,
 } from './controls/index.js'
 
-const ALL_TOOLS: ToolId[] = [
-  'select',
-  'text',
-  'note',
-  'freedraw',
-  'pen',
-  'arrow',
-  'shape',
-  'ruler',
-]
+const ALL_TOOLS: ToolId[] = ['select', 'text', 'note', 'freedraw', 'pen', 'arrow', 'shape', 'ruler']
 
 const DRAW_TOOLS: DrawKind[] = ['freedraw', 'pen']
 
@@ -40,10 +32,16 @@ export function Toolbar({
   collapsed,
   onCollapsedChange,
   actions,
-  className,
-  style,
-  classNames,
 }: ToolbarProps) {
+  const { t } = useTranslation(controller)
+  const [, setTick] = useState(0)
+
+  useEffect(() => {
+    return controller.on('state', () => {
+      setTick((n) => n + 1)
+    })
+  }, [controller])
+
   const [internalCollapsed, setInternalCollapsed] = useState(false)
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed
   const [activePopover, setActivePopover] = useState<'pages' | 'draw' | ToolId | null>(null)
@@ -54,7 +52,9 @@ export function Toolbar({
     lastDrawToolRef.current = controller.tool
   }
 
-  const availableDrawTools = DRAW_TOOLS.filter((t) => tools.includes(t) && (!variants?.draw || variants.draw.includes(t)))
+  const availableDrawTools = DRAW_TOOLS.filter(
+    (t) => tools.includes(t) && (!variants?.draw || variants.draw.includes(t)),
+  )
   const effZoom = currentZoom ?? map?.getZoom()
   const zoomPercent = effZoom !== undefined ? Math.round(Math.pow(2, effZoom - 13) * 100) : null
 
@@ -63,6 +63,26 @@ export function Toolbar({
     setInternalCollapsed(next)
     onCollapsedChange?.(next)
   }
+
+  const isVertical = orientation === 'vertical'
+  const isRightAnchored = position.includes('right')
+  const isBottomAnchored = position.startsWith('bottom')
+
+  const collapseIcon = isVertical
+    ? isBottomAnchored
+      ? ICONS.chevronsDown()
+      : ICONS.chevronsUp()
+    : isRightAnchored
+      ? ICONS.chevronsRight()
+      : ICONS.chevronsLeft()
+
+  const expandIcon = isVertical
+    ? isBottomAnchored
+      ? ICONS.chevronsUp()
+      : ICONS.chevronsDown()
+    : isRightAnchored
+      ? ICONS.chevronsLeft()
+      : ICONS.chevronsRight()
 
   const closePopover = () => setActivePopover(null)
 
@@ -82,16 +102,16 @@ export function Toolbar({
         ref={toolbarRef}
         data-position={position}
         data-orientation={orientation}
-        className={`tual-toolbar ${className ?? ''} ${classNames?.toolbar ?? ''}`}
-        style={style}
+        className="tual-toolbar"
       >
         <button
           type="button"
           className="tual-btn"
-          title="Expand toolbar"
+          title={t('expandToolbar')}
+          aria-label={t('expandToolbar')}
           onClick={toggleCollapsed}
         >
-          {ICONS.more()}
+          {expandIcon}
         </button>
       </div>
     )
@@ -102,8 +122,7 @@ export function Toolbar({
       ref={toolbarRef}
       data-position={position}
       data-orientation={orientation}
-      className={`tual-toolbar ${className ?? ''} ${classNames?.toolbar ?? ''}`}
-      style={style}
+      className="tual-toolbar"
       onClick={(e) => {
         if (e.target === e.currentTarget) closePopover()
       }}
@@ -116,7 +135,6 @@ export function Toolbar({
             isOpen={activePopover === 'pages'}
             onToggle={() => setActivePopover((p) => (p === 'pages' ? null : 'pages'))}
             onClose={closePopover}
-            className={classNames?.popover}
           />
           <div className="tual-separator" />
         </>
@@ -133,7 +151,6 @@ export function Toolbar({
               availableDrawTools={availableDrawTools}
               activePopover={activePopover}
               lastDrawTool={lastDrawToolRef.current}
-              popoverClassName={classNames?.popover}
               onTogglePopover={(open) => setActivePopover(open ? 'draw' : null)}
               onClosePopover={closePopover}
             />
@@ -146,7 +163,6 @@ export function Toolbar({
             toolId={toolId}
             controller={controller}
             isPopoverOpen={activePopover === toolId}
-            popoverClassName={classNames?.popover}
             allowedArrowVariants={variants?.arrow}
             allowedShapeVariants={variants?.shape}
             onTogglePopover={(open) => setActivePopover(open ? toolId : null)}
@@ -191,8 +207,14 @@ export function Toolbar({
       {collapsible && (
         <>
           <div className="tual-separator" />
-          <button type="button" className="tual-btn" title="Collapse toolbar" onClick={toggleCollapsed}>
-            {ICONS.more()}
+          <button
+            type="button"
+            className="tual-btn"
+            title={t('collapseToolbar')}
+            aria-label={t('collapseToolbar')}
+            onClick={toggleCollapsed}
+          >
+            {collapseIcon}
           </button>
         </>
       )}

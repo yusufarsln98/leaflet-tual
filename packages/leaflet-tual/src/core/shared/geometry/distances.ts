@@ -1,4 +1,6 @@
 import type { GeoPoint, ScreenPoint } from '../../types/index.js'
+import type { TranslationTokens } from '../i18n/types.js'
+import { getDefaultTranslations } from '../i18n/translations.js'
 
 const DEG_TO_RAD = Math.PI / 180
 
@@ -29,16 +31,20 @@ export function pathDistance(points: GeoPoint[]): number {
 export function formatDistance(
   meters: number,
   unit: 'metric' | 'imperial' = 'metric',
+  tokens?: Partial<TranslationTokens>,
 ): string {
+  const currentTokens = { ...getDefaultTranslations(), ...tokens }
   if (unit === 'imperial') {
     const feet = meters * 3.28084
-    if (feet < 1000) return `${Math.round(feet)} ft`
+    if (feet < 1000) return `${Math.round(feet)} ${currentTokens.ft}`
     const miles = feet / 5280
-    return `${miles >= 10 ? miles.toFixed(1) : miles.toFixed(2)} mi`
+    const val = miles >= 10 ? miles.toFixed(1) : parseFloat(miles.toFixed(2))
+    return `${val} ${currentTokens.mi}`
   }
-  if (meters < 1000) return `${Math.round(meters)} m`
+  if (meters < 1000) return `${Math.round(meters)} ${currentTokens.m}`
   const km = meters / 1000
-  return `${km >= 10 ? km.toFixed(1) : km.toFixed(2)} km`
+  const val = km >= 10 ? km.toFixed(1) : parseFloat(km.toFixed(2))
+  return `${val} ${currentTokens.km}`
 }
 
 export function distanceToSegment(

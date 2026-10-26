@@ -30,6 +30,14 @@ import {
   renderRulerOnCanvas,
   renderNoteOnCanvas,
   renderTextOnCanvas,
+  DEFAULT_TRANSLATION_TOKENS,
+  resolveTranslations,
+  createTranslator,
+  getDefaultTranslations,
+  setDefaultTranslations,
+  resetDefaultTranslations,
+  useTranslation,
+  TranslationProvider,
 } from '../../react.js'
 
 import pkg from '../../../package.json'
@@ -79,5 +87,17 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(renderRulerOnCanvas).toBeDefined()
     expect(renderNoteOnCanvas).toBeDefined()
     expect(renderTextOnCanvas).toBeDefined()
+  })
+
+  it('exports translation and internationalization utilities', () => {
+    expect(DEFAULT_TRANSLATION_TOKENS).toBeDefined()
+    expect(typeof DEFAULT_TRANSLATION_TOKENS).toBe('object')
+    expect(resolveTranslations).toBeDefined()
+    expect(createTranslator).toBeDefined()
+    expect(getDefaultTranslations).toBeDefined()
+    expect(setDefaultTranslations).toBeDefined()
+    expect(resetDefaultTranslations).toBeDefined()
+    expect(useTranslation).toBeDefined()
+    expect(TranslationProvider).toBeDefined()
   })
 })

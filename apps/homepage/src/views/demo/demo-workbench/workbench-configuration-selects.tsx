@@ -12,8 +12,6 @@ interface WorkbenchConfigurationSelectsProps {
   onTileLayerChange: (id: string) => void
   activePreset: ShowcasePreset
   onSelectPreset: (id: string) => void
-  canvasTheme: 'default' | 'homepage'
-  onCanvasThemeChange: (theme: 'default' | 'homepage') => void
   toolbarPosition: WorkbenchToolbarPosition
   onToolbarPositionChange: (pos: WorkbenchToolbarPosition) => void
 }
@@ -23,8 +21,6 @@ export function WorkbenchConfigurationSelects({
   onTileLayerChange,
   activePreset,
   onSelectPreset,
-  canvasTheme,
-  onCanvasThemeChange,
   toolbarPosition,
   onToolbarPositionChange,
 }: WorkbenchConfigurationSelectsProps) {
@@ -75,28 +71,6 @@ export function WorkbenchConfigurationSelects({
                 {p.name} ({p.region})
               </option>
             ))}
-          </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
-        </div>
-      </div>
-
-      {/* Canvas Theme Selector */}
-      <div>
-        <label
-          htmlFor="workbench-theme-select"
-          className="block text-[11px] font-mono font-bold uppercase tracking-wider text-text-secondary mb-1.5"
-        >
-          Canvas Theme
-        </label>
-        <div className="relative">
-          <select
-            id="workbench-theme-select"
-            value={canvasTheme}
-            onChange={(e) => onCanvasThemeChange(e.target.value as 'default' | 'homepage')}
-            className="w-full pl-3 pr-8 py-2 rounded-lg bg-bg-pane border border-border-primary text-text-primary text-xs font-mono focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer transition-colors shadow-2xs appearance-none"
-          >
-            <option value="default">Default Theme</option>
-            <option value="homepage">Custom Brand Theme</option>
           </select>
           <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
         </div>

@@ -9,10 +9,12 @@ import type {
   Item,
   NewItem,
   Style,
+  Theme,
   ToolId,
 } from '../../types/index.js'
 import { cloneDoc, emptyDoc, parseDoc } from '../../shared/doc.js'
 import { DEFAULT_TOOL_STYLES } from '../../shared/theme/theme.js'
+import { resolveTranslations, type TranslationTokens } from '../../shared/i18n/index.js'
 import { fitItemsToBounds } from './fit.js'
 import { createPageManager } from './page-manager.js'
 import { createHistoryManager } from './history-manager.js'
@@ -38,8 +40,19 @@ export function createController(
   let selection: string[] = []
   let editingId: string | null = null
   let readOnlyState = Boolean(options.readOnly)
-  let currentScheme: 'light' | 'dark' =
-    options.theme === 'dark' ? 'dark' : 'light'
+  let activeTheme: Theme = options.theme ?? 'system'
+
+  function resolveSchemeFromTheme(theme: Theme): 'light' | 'dark' {
+    if (theme === 'light') return 'light'
+    if (theme === 'dark') return 'dark'
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    return 'light'
+  }
+
+  let currentScheme: 'light' | 'dark' = resolveSchemeFromTheme(activeTheme)
+  let translations = resolveTranslations(options.translations)
 
   const maxHistory = options.maxHistory ?? 100
   const listeners: Record<string, Set<Listener>> = {}
@@ -75,6 +88,7 @@ export function createController(
     getMap,
     commitChange,
     emit,
+    getTranslations: () => translations,
   })
 
   const itemOps = createItemOperations({
@@ -100,11 +114,43 @@ export function createController(
       return getActivePage().items.filter((i) => set.has(i.id))
     },
     get scheme(): 'light' | 'dark' { return currentScheme },
+    get theme(): Theme { return activeTheme },
     get readOnly(): boolean { return readOnlyState },
     get canUndo(): boolean { return history.canUndo },
     get canRedo(): boolean { return history.canRedo },
     get editingId(): string | null { return editingId },
+    get translations(): TranslationTokens { return translations },
     get pages() { return pageManager },
+
+    getTranslations(): TranslationTokens {
+      return translations
+    },
+
+    setTranslations(patch: Partial<TranslationTokens>) {
+      let hasChange = false
+      for (const [k, v] of Object.entries(patch)) {
+        if (v !== undefined && (translations as unknown as Record<string, unknown>)[k] !== v) {
+          hasChange = true
+          break
+        }
+      }
+      if (!hasChange) return
+      translations = { ...translations, ...patch } as TranslationTokens
+      emit('translations', translations)
+      emit('state')
+    },
+
+    subscribe(fn: (doc: Doc) => void) {
+      return this.on('change', fn as (...args: unknown[]) => void)
+    },
+
+    setTheme(nextTheme: Theme) {
+      if (activeTheme === nextTheme) return
+      activeTheme = nextTheme
+      currentScheme = resolveSchemeFromTheme(nextTheme)
+      emit('theme', activeTheme)
+      emit('state')
+    },
 
     setTool(tool: ToolId, variant?: string | null) {
       activeTool = tool
@@ -183,14 +229,25 @@ export function createController(
       emit('state')
     },
 
-    on(event: 'change' | 'select' | 'tool' | 'page' | 'state', handler: Listener) {
+    on(
+      event: 'change' | 'select' | 'tool' | 'page' | 'state' | 'translations' | 'theme',
+      handler: Listener,
+    ) {
       if (!listeners[event]) listeners[event] = new Set()
       listeners[event].add(handler)
       return () => { listeners[event]?.delete(handler) }
     },
 
     _updateControlledDoc: (nextDoc: Doc) => { doc = nextDoc; emit('state') },
-    _setScheme: (s: 'light' | 'dark') => { currentScheme = s; emit('state') },
+    _setScheme: (s: 'light' | 'dark') => {
+      if (currentScheme !== s) {
+        currentScheme = s
+        emit('state')
+      }
+    },
+    _setTheme(t: Theme) {
+      this.setTheme(t)
+    },
     _setMap: (m: L.Map | null) => { boundMap = m },
   }
 

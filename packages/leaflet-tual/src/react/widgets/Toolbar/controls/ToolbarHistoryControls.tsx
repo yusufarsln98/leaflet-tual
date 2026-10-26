@@ -1,6 +1,7 @@
 'use client'
 
 import type { Controller } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS } from '../icons/index.js'
 
 export interface ToolbarHistoryControlsProps {
@@ -8,13 +9,15 @@ export interface ToolbarHistoryControlsProps {
 }
 
 export function ToolbarHistoryControls({ controller }: ToolbarHistoryControlsProps) {
+  const { t } = useTranslation(controller)
+
   return (
     <>
       <button
         type="button"
         className="tual-btn"
         disabled={!controller.canUndo}
-        title="Undo (Ctrl+Z)"
+        title={`${t('undo')} (Ctrl+Z)`}
         onClick={() => controller.undo()}
       >
         {ICONS.undo()}
@@ -23,7 +26,7 @@ export function ToolbarHistoryControls({ controller }: ToolbarHistoryControlsPro
         type="button"
         className="tual-btn"
         disabled={!controller.canRedo}
-        title="Redo (Ctrl+Y)"
+        title={`${t('redo')} (Ctrl+Y)`}
         onClick={() => controller.redo()}
       >
         {ICONS.redo()}
@@ -31,4 +34,3 @@ export function ToolbarHistoryControls({ controller }: ToolbarHistoryControlsPro
     </>
   )
 }
-

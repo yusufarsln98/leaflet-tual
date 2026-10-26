@@ -41,7 +41,7 @@ export function MapView() {
   return (
     <MapContainer center={[41.01, 28.97]} zoom={13} style={{ height: '100vh' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <LeafletTual theme="system" onChange={(doc, { committed }) => committed && save(doc)} />
+      <LeafletTual onChange={(doc, { committed }) => committed && save(doc)} />
     </MapContainer>
   )
 }
@@ -56,7 +56,7 @@ That gives you the finished product: toolbar, style popovers, pages, undo/redo, 
 1. **Store geography, never pixels.** Every persisted coordinate is a `GeoPoint` (`{ lat, lng }`). Never put screen `{ x, y }` in an item.
 2. **Do geometry in world space.** Aspect locks, 45° snapping, circle radii, curve offsets, hit tests and resizing run in a zoom-independent plane (`toWorld` / `fromWorld`), never in current-zoom pixels. Squares stay square and curves keep their shape at every zoom level and latitude.
 3. **Use the built-in style values.** Colors are palette names, widths are `'s' | 'm' | 'l'`, text sizes are `'s' | 'm' | 'l' | 'xl'`. Do not store hex colors or pixel sizes in items.
-4. **Change the look through `theme` and `tokens`** (section 5), not by overriding library internals with CSS selectors.
+4. **Change the look through `tokens`** (section 5), not by overriding library internals with CSS selectors.
 5. **Change the toolbar through the `toolbar` prop** (section 6).
 6. **One document, one change callback.** State is a plain JSON `Doc`. Save from `onChange` only when `info.committed` is `true`.
 7. **Controlled or uncontrolled, never both.** Pass `value` or `defaultValue`. Undo and redo work in both modes and report through `onChange`.
@@ -206,91 +206,34 @@ Items inside an artboard move with it.
 
 ---
 
-## 5. Theming
+## 5. Theming & Internationalization
 
 ### Color scheme
 
-```tsx
-<LeafletTual theme="dark" />    // 'light' | 'dark' | 'system'  (default 'system')
-```
+Leaflet-tual supports `'light'`, `'dark'`, and `'system'` (default) theme modes via the `theme` prop (`<LeafletTual theme="dark" />`), options (`useLeafletTual({ theme })`, `createLeafletTual(map, { theme })`), or dynamically via `tual.setTheme(theme)`. When set to `'system'`, it automatically adapts to `prefers-color-scheme: dark` live. Only the theme of the tooltips, menus, popovers, and toolbar changes; changing the theme of shapes and items is disabled so drawn annotations always maintain their fixed palette and appearance.
 
-`'system'` follows `prefers-color-scheme` and updates live. The scheme applies to everything: toolbar, popovers, artboards, notes, text, handles, and the colors of drawn items.
+### Internationalization (i18n)
 
-### Tokens
-
-Tune the design with one `tokens` object. Everything is optional and deep-merged over the defaults.
+Every label, tooltip, placeholder, and unit is managed through clean translation tokens with English defaults.
 
 ```tsx
 <LeafletTual
-  tokens={{
-    accent: '#2563eb',
-    radius: 12,
-    font: 'Inter, system-ui, sans-serif',
-    dark: { surface: '#16181d' },
-    palette: { blue: { light: '#1D4ED8', dark: '#60A5FA' } },
-    defaults: { pen: { color: 'blue', width: 'l' } },
+  translations={{
+    select: 'Seç',
+    freedraw: 'Serbest Çizim',
+    pen: 'Kalem',
+    arrow: 'Ok',
+    shape: 'Şekil',
+    note: 'Not',
+    text: 'Metin',
+    undo: 'Geri Al',
+    redo: 'Yinele',
+    pageDefault: 'Sayfa {n}',
   }}
 />
 ```
 
-```ts
-interface Tokens {
-  accent: string          // active tool, selection, handles
-  radius: number          // chrome corner radius in px (default 12)
-  font: string
-  light: Partial<Scheme>
-  dark: Partial<Scheme>
-  palette: Partial<Record<ColorName, { light: string; dark: string }>>   // retune the built-in colors
-  defaults: Partial<Record<'freedraw' | 'pen' | 'arrow' | 'shape' | 'ruler' | 'note' | 'text', Style>>
-}
-
-interface Scheme {
-  surface: string         // toolbar and popovers
-  surfaceHover: string
-  border: string
-  text: string
-  muted: string
-  activeBg: string        // active tool background
-  activeFg: string
-  shadow: string
-  artboardFill: string
-  artboardBorder: string
-  handle: string          // selection handles
-}
-```
-
-The palette is a fixed set of names. `tokens.palette` changes what each name looks like. It does not add new names.
-
-Default scheme values (seeded from the design reference; refine as needed):
-
-| Token            | Light      | Dark       |
-| ---------------- | ---------- | ---------- |
-| `surface`        | `#FFFFFF`  | `#1E1E1E`  |
-| `surfaceHover`   | `#F1F0EE`  | `#2A2A2A`  |
-| `border`         | `#E3E1DD`  | `#333333`  |
-| `text`           | `#1D1D1B`  | `#ECEAE6`  |
-| `muted`          | `#6B6760`  | `#9A958C`  |
-| `activeBg`       | `#DCEBFF`  | `#1F3A5F`  |
-| `activeFg`       | `#1D6BF3`  | `#6AA5FF`  |
-| `artboardFill`   | `#FFFFFF`  | `#2A2A2A`  |
-| `artboardBorder` | `#D8D6D2`  | `#3A3A3A`  |
-
-### CSS variables
-
-Every token is also a CSS variable on the `.tual` root, so you can theme without props, or scope a theme to part of your app:
-
-```css
-.tual {
-  --tual-accent: #2563eb;
-  --tual-radius: 12px;
-  --tual-font: Inter, system-ui, sans-serif;
-  --tual-surface: #fff;
-  --tual-border: #e3e1dd;
-}
-.tual[data-theme='dark'] { --tual-surface: #16181d; }
-```
-
-For structural tweaks, `classNames` takes a class per part (`toolbar`, `popover`, `note`, `text`, `artboard`, `handle`).
+Configure globally via `setDefaultTranslations(tokens)` or dynamically via `tual.setTranslations(patch)`.
 
 ### Palette
 
@@ -324,7 +267,7 @@ Default layout, one floating row:
 
 `[Page ▾] │ Select · Text · Note · Draw ▾ · Arrow ▾ · Shapes ▾ · Ruler │ Undo · Redo`
 
-The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors, drag from an anchor to shape its curve). Both tools live in one toolbar group; its icon shows the last-used drawing tool. **Pen** supports clicking to add anchors, dragging to pull mirrored control handles, clicking the first anchor to close, `Enter` or a double-click to finish an open path, and `Escape` to cancel.
+The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors, drag from an anchor to shape its curve). Both tools live in one toolbar group; its icon shows the last-used drawing tool. **Pen** supports clicking to add anchors, dragging to pull mirrored control handles, clicking the first anchor to close, `Enter` or a double-click to finish an open path, and `Escape` to cancel. After drawing, use the Select tool to drag anchors or control handles and reshape the path; dragging one control handle mirrors the opposite one.
 
 Buttons with a chevron open an options popover. A plain click activates the tool with its last-used variant, and the icon updates to match.
 
@@ -403,15 +346,12 @@ All props are optional.
 | `onSelect`          | `(items: Item[]) => void`               | Selection changed.                                                                    |
 | `onToolChange`      | `(tool, variant) => void`               | Active tool changed.                                                                  |
 | `theme`             | `'light' \| 'dark' \| 'system'`          | Color scheme. Default `'system'`.                                                     |
-| `tokens`            | `Partial<Tokens>`                       | Design tuning (section 5).                                                            |
 | `toolbar`           | `false \| ToolbarOptions`               | Toolbar configuration (section 6).                                                    |
 | `readOnly`          | `boolean`                               | No drawing, editing or selection. Hides the toolbar unless `toolbar` is set.          |
-| `labels`            | `Partial<Labels>`                       | Localize every tooltip, placeholder and menu string.                                  |
+| `translations`      | `Partial<TranslationTokens>`            | Localize every tooltip, placeholder and menu string.                                  |
 | `collapseBelowZoom` | `{ notes?: number; text?: number }`     | Auto-collapse overlays when zoomed out below these levels.                            |
 | `map`               | `L.Map`                                 | Only needed outside `<MapContainer>`.                                                 |
 | `zIndex`            | `number`                                | Default `650`.                                                                        |
-| `className` / `style` | `string` / `CSSProperties`            | Root container.                                                                       |
-| `classNames`        | `Partial<Record<Part, string>>`         | Parts: `toolbar`, `popover`, `note`, `text`, `artboard`, `handle`.                    |
 
 ```ts
 type ChangeInfo = {
@@ -448,14 +388,16 @@ State (values that re-render your component):
 | `style`               | `Style`               | Current drawing defaults.                    |
 | `selection`           | `string[]`            | Selected item ids.                           |
 | `selected`            | `Item[]`              | Selected items.                              |
-| `scheme`              | `'light' \| 'dark'`   | Resolved color scheme.                       |
-| `readOnly`            | `boolean`             |                                              |
-| `canUndo` / `canRedo` | `boolean`             |                                              |
+| `scheme`              | `'light' \| 'dark'`   | Resolved color scheme (auto system preference). |
+| `readOnly`            | `boolean`             |                                                 |
+| `canUndo` / `canRedo` | `boolean`             |                                                 |
+| `translations`        | `TranslationTokens`   | Current resolved translation tokens.            |
 
 Actions:
 
 | Method                         | Description                                                                                         |
 | ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `setTranslations(patch)`       | Update translation tokens dynamically.                                                              |
 | `setTool(tool, variant?)`      | Activate a tool. `setTool('shape', 'star')`, `setTool('arrow', 'curved')`.                          |
 | `setStyle(patch)`              | **Selection-aware.** Changes the selected items, or the drawing defaults when nothing is selected.  |
 | `add(item)`                    | Add a `NewItem` to the active page. Returns the created `Item`.                                      |
@@ -518,11 +460,10 @@ tual.add({
 tual.add({ type: 'note', at: { lat: 41.015, lng: 28.97 }, text: 'Meet here', style: { color: 'yellow' } })
 ```
 
-### Dark mode that follows your app
+### Custom translation tokens
 
 ```tsx
-const { resolvedTheme } = useTheme()   // your app's theme hook
-<LeafletTual theme={resolvedTheme === 'dark' ? 'dark' : 'light'} />
+<LeafletTual translations={{ select: 'Seç', note: 'Not', text: 'Metin' }} />
 ```
 
 ### Minimal toolbar for end users
@@ -551,7 +492,7 @@ download(png, 'artboard.png')
 ### Read-only viewer
 
 ```tsx
-<LeafletTual readOnly theme="light" defaultValue={doc} />
+<LeafletTual readOnly defaultValue={doc} />
 ```
 
 ### Vanilla JS (no React)
@@ -564,7 +505,6 @@ import 'leaflet-tual/styles.css'
 const map = L.map('map').setView([41.01, 28.97], 13)
 const tual = createLeafletTual(map, {
   defaultValue: emptyDoc(),
-  theme: 'system',
   toolbar: { position: 'top-left' },
   onChange: (doc, info) => info.committed && save(doc),
 })

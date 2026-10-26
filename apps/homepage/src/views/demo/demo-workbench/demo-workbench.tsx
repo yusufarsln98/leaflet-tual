@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { PanelLeftOpen } from 'lucide-react'
 import { useLeafletTual } from 'leaflet-tual/react'
+import { useTheme } from '../../../components/theme-provider'
 import { SHOWCASE_PRESETS, type ShowcasePreset } from '../../../data/presets'
 import { FREE_TILE_LAYERS, type FreeTileLayer } from '../../../data/tiles'
 import type { DemoWorkbenchProps } from './types'
@@ -12,9 +13,9 @@ import { WorkbenchMapView } from './workbench-map-view'
 import type { WorkbenchToolbarPosition } from './workbench-configuration-selects'
 
 export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWorkbenchProps) {
+  const { theme: siteTheme } = useTheme()
   const [activePreset, setActivePreset] = useState<ShowcasePreset>(SHOWCASE_PRESETS[0])
-  const [tileLayerId, setTileLayerId] = useState<string>('osm')
-  const [canvasTheme, setCanvasTheme] = useState<'default' | 'homepage'>('homepage')
+  const [customTileId, setCustomTileId] = useState<string | null>(null)
   const [toolbarPosition, setToolbarPosition] = useState<WorkbenchToolbarPosition>('top')
   const [readOnly, setReadOnly] = useState<boolean>(false)
   const [collapsible, setCollapsible] = useState<boolean>(true)
@@ -23,6 +24,10 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
     initialDrawerOpen !== undefined ? initialDrawerOpen : mode === 'fullscreen',
   )
   const drawerRef = useRef<HTMLElement>(null)
+
+  // By default, match dark/light tile layer according to theme (not OSM default)
+  const defaultTileId = siteTheme === 'dark' ? 'esri-dark' : 'esri-light'
+  const activeTileId = customTileId ?? defaultTileId
 
   // Prevent scroll & mouse event propagation from drawer to Leaflet map
   useEffect(() => {
@@ -44,7 +49,7 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
   }, [])
 
   const activeTile: FreeTileLayer =
-    FREE_TILE_LAYERS.find((t) => t.id === tileLayerId) ?? FREE_TILE_LAYERS[0]
+    FREE_TILE_LAYERS.find((t) => t.id === activeTileId) ?? FREE_TILE_LAYERS[0]
 
   const controller = useLeafletTual({
     defaultValue: {
@@ -121,14 +126,12 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
           drawerRef={drawerRef}
           isDrawerOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
-          tileLayerId={tileLayerId}
-          onTileLayerChange={setTileLayerId}
+          tileLayerId={activeTileId}
+          onTileLayerChange={setCustomTileId}
           activePreset={activePreset}
           onSelectPreset={handleSelectPreset}
           controller={controller}
           onResetScenario={handleResetScenario}
-          canvasTheme={canvasTheme}
-          onCanvasThemeChange={setCanvasTheme}
           toolbarPosition={toolbarPosition}
           onToolbarPositionChange={setToolbarPosition}
           readOnly={readOnly}
@@ -144,7 +147,6 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
           activePreset={activePreset}
           activeTile={activeTile}
           controller={controller}
-          canvasTheme={canvasTheme}
           readOnly={readOnly}
           collapsible={collapsible}
           toolbarPosition={toolbarPosition}

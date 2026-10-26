@@ -1,9 +1,21 @@
 'use client'
 
 import type { ArrowKind, Controller, ShapeKind, ToolId } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { ARROW_ICONS, ICONS, SHAPE_ICONS } from '../icons/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
 import { ToolVariantsPopover } from '../popovers/index.js'
+
+const TOOL_SHORTCUTS: Record<ToolId, string> = {
+  select: 'V',
+  text: 'T',
+  note: 'N',
+  arrow: 'L',
+  shape: 'S',
+  ruler: 'R',
+  freedraw: 'F',
+  pen: 'P',
+}
 
 export interface ToolbarItemButtonProps {
   toolId: ToolId
@@ -26,6 +38,7 @@ export function ToolbarItemButton({
   onTogglePopover,
   onClosePopover,
 }: ToolbarItemButtonProps) {
+  const { t } = useTranslation(controller)
   const isActive = controller.tool === toolId
   const hasVariants = toolId === 'arrow' || toolId === 'shape'
   const icon =
@@ -34,7 +47,9 @@ export function ToolbarItemButton({
       : toolId === 'shape' && controller.variant
         ? (SHAPE_ICONS[controller.variant as ShapeKind]?.() ?? ICONS.shape())
         : ICONS[toolId]()
-  const label = `${toolId.charAt(0).toUpperCase() + toolId.slice(1)} (${toolId.charAt(0).toUpperCase()})`
+  const shortcut = TOOL_SHORTCUTS[toolId] ?? toolId.charAt(0).toUpperCase()
+  const toolName = t(toolId, undefined, toolId.charAt(0).toUpperCase() + toolId.slice(1))
+  const label = `${toolName} (${shortcut})`
 
   return (
     <div style={{ position: 'relative' }}>

@@ -13,8 +13,9 @@ import {
   resolveWidth,
 } from '../../../../core/index.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { handleNoteKeyDown } from './use-note-editor-keys.js'
-import { startNoteResize, type Corner } from './use-note-resize.js'
+import { startNoteResize, type NoteResizeHandle } from './use-note-resize.js'
 
 export interface NoteOverlayViewProps {
   map: L.Map
@@ -30,6 +31,7 @@ export function NoteOverlayView({
   controller,
   className,
 }: NoteOverlayViewProps) {
+  const { t } = useTranslation(controller)
   const cardRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -45,19 +47,21 @@ export function NoteOverlayView({
           y: (geoToScreen(map, legacy.from).y + geoToScreen(map, legacy.to).y) / 2,
         }
       : { x: 0, y: 0 }
-  const baseSide = Math.max(40, note.width ?? note.height ?? 180)
+  const baseWidth = Math.max(40, note.width ?? note.height ?? 180)
+  const baseHeight = Math.max(40, note.height ?? note.width ?? 180)
 
   // Visual screen bounds for selection & resize calculations
-  const screenSide = baseSide * zoomScale
-  const minX = center.x - screenSide / 2
-  const maxX = center.x + screenSide / 2
-  const minY = center.y - screenSide / 2
-  const maxY = center.y + screenSide / 2
+  const screenWidth = baseWidth * zoomScale
+  const screenHeight = baseHeight * zoomScale
+  const minX = center.x - screenWidth / 2
+  const maxX = center.x + screenWidth / 2
+  const minY = center.y - screenHeight / 2
+  const maxY = center.y + screenHeight / 2
 
   const isSelected = controller.selection.includes(note.id)
   const colors = resolveNoteColors(
     note.style?.color ?? 'yellow',
-    controller.scheme,
+    'light',
     note.style?.textColor,
     note.style?.fillColor,
   )
@@ -73,7 +77,7 @@ export function NoteOverlayView({
   const borderWidth =
     borderDash === 'none' ? 0 : resolveWidth(note.style?.width ?? 's')
   const borderColor = note.style?.strokeColor
-    ? resolveColor(note.style.strokeColor, controller.scheme)
+    ? resolveColor(note.style.strokeColor, 'light')
     : colors.border
 
   const handleFocus = () => {
@@ -134,8 +138,8 @@ export function NoteOverlayView({
     window.addEventListener('pointerup', onPointerUp)
   }
 
-  const handleResizePointerDown = (corner: Corner, e: React.PointerEvent) => {
-    startNoteResize(corner, e, note, map, controller, { minX, maxX, minY, maxY, zoomScale })
+  const handleResizePointerDown = (handle: NoteResizeHandle, e: React.PointerEvent) => {
+    startNoteResize(handle, e, note, map, controller, { minX, maxX, minY, maxY, zoomScale })
   }
 
   return (
@@ -147,9 +151,8 @@ export function NoteOverlayView({
         position: 'absolute',
         left: center.x,
         top: center.y,
-        width: baseSide,
-        height: baseSide,
-        aspectRatio: '1 / 1',
+        width: baseWidth,
+        height: baseHeight,
         transform: `translate(-50%, -50%) scale(${zoomScale})`,
         transformOrigin: 'center center',
         backgroundColor: colors.bg,
@@ -163,7 +166,7 @@ export function NoteOverlayView({
         className="tual-note-textarea"
         data-focused={isFocused}
         value={note.text}
-        placeholder="Note text..."
+        placeholder={t('placeholderNote')}
         readOnly={controller.readOnly}
         style={{
           fontSize: baseFontSize,
@@ -192,6 +195,10 @@ export function NoteOverlayView({
           <div className="tual-note-handle tual-note-handle-ne" onPointerDown={(e) => handleResizePointerDown('ne', e)} />
           <div className="tual-note-handle tual-note-handle-se" onPointerDown={(e) => handleResizePointerDown('se', e)} />
           <div className="tual-note-handle tual-note-handle-sw" onPointerDown={(e) => handleResizePointerDown('sw', e)} />
+          <div className="tual-note-handle tual-note-handle-n" onPointerDown={(e) => handleResizePointerDown('n', e)} />
+          <div className="tual-note-handle tual-note-handle-s" onPointerDown={(e) => handleResizePointerDown('s', e)} />
+          <div className="tual-note-handle tual-note-handle-w" onPointerDown={(e) => handleResizePointerDown('w', e)} />
+          <div className="tual-note-handle tual-note-handle-e" onPointerDown={(e) => handleResizePointerDown('e', e)} />
         </>
       )}
     </div>

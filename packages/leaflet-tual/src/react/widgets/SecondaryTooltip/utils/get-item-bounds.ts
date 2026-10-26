@@ -39,8 +39,8 @@ export function getItemBounds(map: L.Map, item: Item) {
     if (item.at) {
       const p = geoToScreen(map, item.at)
       const scale = getItemZoomScale(map, item)
-      const baseSide = Math.max(item.width ?? 180, item.height ?? 180)
-      const half = (baseSide * scale) / 2
+      const baseHeight = item.height ?? item.width ?? 180
+      const half = (baseHeight * scale) / 2
       return { cx: p.x, minY: p.y - half, maxY: p.y + half }
     }
     const legacy = item as unknown as { from?: GeoPoint; to?: GeoPoint }

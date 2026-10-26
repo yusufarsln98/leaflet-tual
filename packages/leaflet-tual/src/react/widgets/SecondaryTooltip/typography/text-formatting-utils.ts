@@ -48,10 +48,13 @@ export function toggleBulletList(text: string, isCurrentlyBulleted: boolean): st
     .join('\n')
 }
 
-export function resolveTypographyLabel(style: Style): string {
+export function resolveTypographyLabel(
+  style: Style,
+  t?: (token: string, params?: any, fallback?: string) => string,
+): string {
   if (style.fontSize) return `${style.fontSize}px`
-  if (style.size === 'xl') return 'Heading 1'
-  if (style.size === 'l') return 'Heading 2'
-  if (style.size === 's') return 'Caption'
-  return 'Body'
+  if (style.size === 'xl') return t ? t('heading1', undefined, 'Heading 1') : 'Heading 1'
+  if (style.size === 'l') return t ? t('heading2', undefined, 'Heading 2') : 'Heading 2'
+  if (style.size === 's') return t ? t('caption', undefined, 'Caption') : 'Caption'
+  return t ? t('body', undefined, 'Body') : 'Body'
 }

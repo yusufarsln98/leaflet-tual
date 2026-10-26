@@ -3,6 +3,7 @@
 import type L from 'leaflet'
 import { useState } from 'react'
 import type { ColorName } from '../../../../core/types/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { useWheelGuard } from '../utils/use-wheel-guard.js'
 import { PRESET_COLORS } from './color-utils.js'
 import { CustomColorPicker } from './CustomColorPicker.js'
@@ -32,6 +33,7 @@ export function ColorDropdown({
   onSelectColor,
   onSelectFillMode,
 }: ColorDropdownProps) {
+  const { t } = useTranslation()
   const guardRef = useWheelGuard<HTMLDivElement>()
   const [activeTab, setActiveTab] = useState<'theme' | 'custom'>('theme')
 
@@ -57,7 +59,7 @@ export function ColorDropdown({
             data-active={activeTab === 'theme'}
             onClick={() => setActiveTab('theme')}
           >
-            Theme
+            {t('theme')}
           </button>
           <button
             type="button"
@@ -65,7 +67,7 @@ export function ColorDropdown({
             data-active={activeTab === 'custom'}
             onClick={() => setActiveTab('custom')}
           >
-            Custom
+            {t('custom')}
           </button>
         </div>
       )}
@@ -82,19 +84,20 @@ export function ColorDropdown({
               }}
             >
               <div className="tual-no-fill-swatch" />
-              <span className="tual-color-label">No fill</span>
+              <span className="tual-color-label">{t('noFill')}</span>
               {currentFill === 'none' && <span className="tual-check">✓</span>}
             </button>
           )}
 
           {PRESET_COLORS.map((c) => {
-            const hex = scheme === 'dark' ? c.dark : c.light
+            const hex = c.light
             const isSelected = currentColor === c.name || currentColor === hex
             return (
               <button
                 key={c.name}
                 type="button"
                 className="tual-color-row"
+                title={t(c.name, undefined, c.name)}
                 data-active={isSelected && (mode !== 'fill' || currentFill !== 'none')}
                 onClick={() => {
                   if (mode === 'fill' && onSelectFillMode && currentFill === 'none') {

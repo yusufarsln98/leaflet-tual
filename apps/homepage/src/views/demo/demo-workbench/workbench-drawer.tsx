@@ -23,8 +23,6 @@ interface WorkbenchDrawerProps {
   onSelectPreset: (id: string) => void
   controller: Controller
   onResetScenario: () => void
-  canvasTheme: 'default' | 'homepage'
-  onCanvasThemeChange: (theme: 'default' | 'homepage') => void
   toolbarPosition: WorkbenchToolbarPosition
   onToolbarPositionChange: (pos: WorkbenchToolbarPosition) => void
   readOnly: boolean
@@ -45,8 +43,6 @@ export function WorkbenchDrawer({
   onSelectPreset,
   controller,
   onResetScenario,
-  canvasTheme,
-  onCanvasThemeChange,
   toolbarPosition,
   onToolbarPositionChange,
   readOnly,
@@ -88,14 +84,12 @@ export function WorkbenchDrawer({
 
       {/* Scrollable Drawer Content */}
       <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-3.5 scrollbar-thin">
-        {/* Basemap, Scenario, Theme, Toolbar Selects */}
+        {/* Basemap, Scenario, Toolbar Selects */}
         <WorkbenchConfigurationSelects
           tileLayerId={tileLayerId}
           onTileLayerChange={onTileLayerChange}
           activePreset={activePreset}
           onSelectPreset={onSelectPreset}
-          canvasTheme={canvasTheme}
-          onCanvasThemeChange={onCanvasThemeChange}
           toolbarPosition={toolbarPosition}
           onToolbarPositionChange={onToolbarPositionChange}
         />

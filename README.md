@@ -39,7 +39,6 @@ export function MapView() {
     <MapContainer center={[41.01, 28.97]} zoom={13} style={{ height: '100vh' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <LeafletTual
-        theme="system"
         onChange={(doc, { committed }) => committed && saveToServer(doc)}
       />
     </MapContainer>
@@ -54,15 +53,16 @@ export function MapView() {
 1. **Store geography, never pixels.** Every persisted coordinate is a `GeoPoint` (`{ lat, lng }`). Never put screen `{ x, y }` in an item.
 2. **Do geometry in world space.** Aspect locks, 45° snapping, circle radii, curve offsets, hit tests and resizing run in a zoom-independent plane (`toWorld` / `fromWorld`), never in current-zoom pixels. Squares stay square and curves keep their shape at every zoom level and latitude.
 3. **Use the built-in style values.** Colors are palette names, widths are `'s' | 'm' | 'l'`, text sizes are `'s' | 'm' | 'l' | 'xl'`. Do not store hex colors or pixel sizes in items.
-4. **Change the look through `theme` and `tokens`**, not by overriding library internals with CSS selectors.
-5. **Change the toolbar through the `toolbar` prop.**
-6. **One document, one change callback.** State is a plain JSON `Doc`. Save from `onChange` only when `info.committed` is `true`.
-7. **Controlled or uncontrolled, never both.** Pass `value` or `defaultValue`. Undo and redo work in both modes and report through `onChange`.
-8. **Mutate through the controller** (`add`, `update`, `remove`). Never edit `doc` or `items` in place.
-9. **Modifiers are built in.** `Shift` locks aspect (1:1) and snaps angles to 45°. `Alt` resizes from the center.
-10. **Validate untrusted JSON** with `parseDoc(input)` before `load`.
-11. **Map context.** Inside `<MapContainer>`, `<LeafletTual>` finds the map itself. Outside it, pass `map={mapInstance}`.
-12. **Items inside an artboard move with it.**
+4. **Change the look through tokens**, not by overriding library internals with CSS selectors.
+5. **Every UI word is a translation token.** Provide `translations` or configure default tokens via `setDefaultTranslations`.
+6. **Change the toolbar through the `toolbar` prop.**
+7. **One document, one change callback.** State is a plain JSON `Doc`. Save from `onChange` only when `info.committed` is `true`.
+8. **Controlled or uncontrolled, never both.** Pass `value` or `defaultValue`. Undo and redo work in both modes and report through `onChange`.
+9. **Mutate through the controller** (`add`, `update`, `remove`). Never edit `doc` or `items` in place.
+10. **Modifiers are built in.** `Shift` locks aspect (1:1) and snaps angles to 45°. `Alt` resizes from the center.
+11. **Validate untrusted JSON** with `parseDoc(input)` before `load`.
+12. **Map context.** Inside `<MapContainer>`, `<LeafletTual>` finds the map itself. Outside it, pass `map={mapInstance}`.
+13. **Items inside an artboard move with it.**
 
 ---
 
@@ -212,7 +212,7 @@ Default layout, one floating row:
 
 `[Page ▾] │ Select · Text · Note · Draw ▾ · Arrow ▾ · Shapes ▾ · Ruler │ Undo · Redo`
 
-The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors with draggable curve handles).
+The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors with draggable curve handles). With the Select tool, drag a pen's anchors or curve handles to reshape it; dragging one curve handle mirrors the opposite handle.
 
 ```tsx
 <LeafletTual
@@ -247,13 +247,16 @@ const tual = useLeafletTual({
 - `style`: Current drawing defaults.
 - `selection`: Selected item ids.
 - `selected`: Selected items.
-- `scheme`: Resolved color scheme (`'light' | 'dark'`).
+- `scheme`: Resolved color scheme (`'light' | 'dark'`, adapts to `theme` or system preference).
+- `theme`: Active theme setting (`'light' | 'dark' | 'system'`).
 - `readOnly`: Boolean.
 - `canUndo` / `canRedo`: History status.
+- `translations`: Current resolved `TranslationTokens`.
 
 ### Actions
 - `setTool(tool, variant?)`
 - `setStyle(patch)` (selection-aware)
+- `setTheme(theme)` (`'light' | 'dark' | 'system'`)
 - `add(item)`
 - `update(id, patch)`
 - `remove(ids?)`
@@ -262,14 +265,52 @@ const tual = useLeafletTual({
 - `edit(id)`
 - `undo()` / `redo()`
 - `fit(target)` ('all', 'selection', artboardId)
-- `exportPNG(artboardId, opts?)`
 - `load(doc)`
 - `setReadOnly(boolean)`
+- `setTranslations(patch)`
 - `pages`: `list`, `active`, `add(name?)`, `rename(id, name)`, `duplicate(id)`, `remove(id)`, `move(id, toIndex)`, `select(id)`
 
 ---
 
-## 7. Vanilla JS (No React)
+## 7. Internationalization (i18n)
+
+Every user-facing label, tooltip, placeholder, and unit is driven by clean translation tokens with English defaults.
+
+```tsx
+<LeafletTual
+  translations={{
+    select: 'Seç',
+    freedraw: 'Serbest Çizim',
+    pen: 'Kalem',
+    arrow: 'Ok',
+    shape: 'Şekil',
+    note: 'Not',
+    text: 'Metin',
+    undo: 'Geri Al',
+    redo: 'Yinele',
+    pageDefault: 'Sayfa {n}',
+  }}
+/>
+```
+
+You can also configure default tokens globally or update them dynamically:
+
+```ts
+import { setDefaultTranslations } from 'leaflet-tual'
+
+// Configure globally for your entire app
+setDefaultTranslations({
+  select: 'Choisir',
+  delete: 'Supprimer',
+})
+
+// Or dynamically on any controller instance
+controller.setTranslations({ select: 'Auswählen' })
+```
+
+---
+
+## 8. Vanilla JS (No React)
 
 ```ts
 import L from 'leaflet'
@@ -279,7 +320,6 @@ import 'leaflet-tual/styles.css'
 const map = L.map('map').setView([41.01, 28.97], 13)
 const tual = createLeafletTual(map, {
   defaultValue: emptyDoc(),
-  theme: 'system',
   toolbar: { position: 'top-left' },
   onChange: (doc, info) => info.committed && save(doc),
 })
@@ -293,6 +333,6 @@ tual.destroy()
 
 ---
 
-## 8. License
+## 9. License
 
 MIT &copy; Yusuf Arslan

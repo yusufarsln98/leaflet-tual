@@ -98,11 +98,19 @@ describe('v2 Toolbar Component', () => {
     expect(handleSnapshot).toHaveBeenCalled()
   })
 
-  it('supports collapsible toolbar', () => {
+  it('supports collapsible toolbar with chevron icons', () => {
     render(<TestToolbar toolbarProps={{ collapsible: true }} />)
     const collapseBtn = screen.getByTitle(/Collapse toolbar/i)
+    // Verify collapse button renders chevrons instead of ellipsis circles
+    expect(collapseBtn.querySelector('circle')).toBeNull()
+    expect(collapseBtn.querySelector('path')).not.toBeNull()
+
     fireEvent.click(collapseBtn)
-    expect(screen.getByTitle(/Expand toolbar/i)).toBeDefined()
+    const expandBtn = screen.getByTitle(/Expand toolbar/i)
+    expect(expandBtn).toBeDefined()
+    // Verify expand button renders chevrons instead of ellipsis circles
+    expect(expandBtn.querySelector('circle')).toBeNull()
+    expect(expandBtn.querySelector('path')).not.toBeNull()
   })
 
   it('opens shape variants on first click and applies the selected kind', () => {

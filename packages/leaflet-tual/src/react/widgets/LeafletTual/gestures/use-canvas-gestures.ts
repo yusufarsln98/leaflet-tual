@@ -11,6 +11,7 @@ import {
 } from './canvas-gesture-handlers.js'
 import type { CanvasGesture } from './gesture-types.js'
 import { findResizeGestureUnderPointer } from './use-canvas-resize-handles.js'
+import { hitTestPenHandle } from './use-pen-handles.js'
 import { usePenDraft } from './use-pen-draft.js'
 
 export interface CanvasGesturesOptions {
@@ -74,6 +75,26 @@ export function useCanvasGestures({
       const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 12, map))
       if (hitItem) {
         const isSel = controller.selection.includes(hitItem.id)
+
+        // Dragging a pen anchor/handle edits it immediately, even on the first
+        // click that selects the path.
+        if (!e.shiftKey && hitItem.type === 'pen') {
+          const hitHandle = hitTestPenHandle(map, hitItem, pt)
+          if (hitHandle) {
+            if (!isSel) controller.select([hitItem.id])
+            e.preventDefault(); e.stopPropagation(); map.dragging?.disable()
+            setGesture({
+              type: 'edit-pen',
+              penId: hitItem.id,
+              pointIndex: hitHandle.pointIndex,
+              handle: hitHandle.type,
+              startGeo: geo,
+              initialPoints: hitItem.points,
+            })
+            return
+          }
+        }
+
         if (e.shiftKey) {
           controller.select(isSel ? controller.selection.filter((id) => id !== hitItem.id) : [...controller.selection, hitItem.id])
         } else if (!isSel) {

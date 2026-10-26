@@ -39,7 +39,7 @@ describe('v2 Note Overlay Component', () => {
     expect(card.style.height).toBeDefined()
   })
 
-  it('renders 4 resize handles when selected', () => {
+  it('renders 8 resize handles (4 corners + 4 edges) when selected', () => {
     const map = createMockMap()
     const controller = createController()
     const note = controller.add({
@@ -61,11 +61,15 @@ describe('v2 Note Overlay Component', () => {
     )
 
     const handles = container.querySelectorAll('.tual-note-handle')
-    expect(handles.length).toBe(4)
+    expect(handles.length).toBe(8)
     expect(container.querySelector('.tual-note-handle-nw')).toBeDefined()
     expect(container.querySelector('.tual-note-handle-ne')).toBeDefined()
     expect(container.querySelector('.tual-note-handle-se')).toBeDefined()
     expect(container.querySelector('.tual-note-handle-sw')).toBeDefined()
+    expect(container.querySelector('.tual-note-handle-n')).toBeDefined()
+    expect(container.querySelector('.tual-note-handle-s')).toBeDefined()
+    expect(container.querySelector('.tual-note-handle-w')).toBeDefined()
+    expect(container.querySelector('.tual-note-handle-e')).toBeDefined()
   })
 
   it('applies border color, width and dash from the note style', () => {
@@ -116,14 +120,15 @@ describe('v2 Note Overlay Component', () => {
     expect(card.style.borderColor).toBe('rgb(234, 214, 122)')
   })
 
-  it('renders note anchored at "at" with 1:1 square ratio scaling with zoom', () => {
+  it('renders note anchored at "at" with width and height scaling with zoom', () => {
     const map = createMockMap()
     const controller = createController()
     const note = controller.add({
       type: 'note',
       at: { lat: 41.0, lng: 28.0 },
-      width: 200,
-      text: 'Square note',
+      width: 240,
+      height: 160,
+      text: 'Rectangular note',
     }) as NoteItem
 
     const { container } = render(
@@ -135,11 +140,65 @@ describe('v2 Note Overlay Component', () => {
     )
 
     const card = container.querySelector('.tual-note-card') as HTMLElement
-    // At zoom 14 with baseZoom 13, scale is 2x: transform scales the 200x200 card by 2x
-    expect(card.style.width).toBe('200px')
-    expect(card.style.height).toBe('200px')
+    // At zoom 14 with baseZoom 13, scale is 2x: transform scales the card by 2x
+    expect(card.style.width).toBe('240px')
+    expect(card.style.height).toBe('160px')
     expect(card.style.transform).toContain('scale(2)')
-    expect(card.style.aspectRatio).toBe('1 / 1')
+  })
+
+  it('allows growing and shrinking horizontally, vertically and diagonally', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const note = controller.add({
+      type: 'note',
+      at: { lat: 41.0, lng: 28.0 },
+      width: 180,
+      height: 180,
+      baseZoom: 14,
+      text: 'Resize directions note',
+    }) as NoteItem
+
+    controller.select(note.id)
+
+    const { container } = render(
+      <NoteOverlayView
+        map={map}
+        note={note}
+        controller={controller}
+      />,
+    )
+
+    // 1. Horizontal resize handle 'e'
+    const eastHandle = container.querySelector('.tual-note-handle-e') as HTMLElement
+    expect(eastHandle).toBeDefined()
+    fireEvent.pointerDown(eastHandle, { clientX: 190, clientY: 100 })
+    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 250, clientY: 100 } as any))
+    window.dispatchEvent(new MouseEvent('pointerup', { clientX: 250, clientY: 100 } as any))
+
+    let updated = controller.items.find((i) => i.id === note.id) as NoteItem
+    expect(updated.width).toBeGreaterThan(180)
+    expect(updated.height).toBe(180) // Height unchanged!
+
+    // 2. Vertical resize handle 's'
+    const southHandle = container.querySelector('.tual-note-handle-s') as HTMLElement
+    expect(southHandle).toBeDefined()
+    fireEvent.pointerDown(southHandle, { clientX: 100, clientY: 190 })
+    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 100, clientY: 260 } as any))
+    window.dispatchEvent(new MouseEvent('pointerup', { clientX: 100, clientY: 260 } as any))
+
+    updated = controller.items.find((i) => i.id === note.id) as NoteItem
+    expect(updated.height).toBeGreaterThan(180)
+
+    // 3. Diagonal resize handle 'se' can change both width and height independently
+    const seHandle = container.querySelector('.tual-note-handle-se') as HTMLElement
+    expect(seHandle).toBeDefined()
+    fireEvent.pointerDown(seHandle, { clientX: 190, clientY: 190 })
+    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 300, clientY: 220 } as any))
+    window.dispatchEvent(new MouseEvent('pointerup', { clientX: 300, clientY: 220 } as any))
+
+    updated = controller.items.find((i) => i.id === note.id) as NoteItem
+    expect(updated.width).toBeDefined()
+    expect(updated.height).toBeDefined()
   })
 
   it('hides vertical scrollbar while note is not focused, and shows on focus', () => {

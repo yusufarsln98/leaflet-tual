@@ -3,6 +3,7 @@ import type L from 'leaflet'
 import {
   DEFAULT_SHAPE_SIZE_PX,
   resolveShapeDragBounds,
+  resolveShapePlacement,
 } from '../shared/drawing/shape-drawing.js'
 import { toWorld } from '../shared/geometry/coordinates.js'
 import type { ScreenPoint } from '../types/index.js'
@@ -72,5 +73,21 @@ describe('shape drag bounds', () => {
     const span = result.to.lat - result.from.lat
 
     expect(span * 20).toBeCloseTo(DEFAULT_SHAPE_SIZE_PX, 6)
+  })
+
+  it('only creates default-sized shape when click is completed (isCompleted !== false)', () => {
+    const start: ScreenPoint = { x: 100, y: 100 }
+
+    // When click is completed (default or isCompleted: true)
+    const completedResult = resolveShapePlacement(map, start, start, { isCompleted: true })
+    expect(completedResult.isClick).toBe(true)
+    expect(completedResult.width).toBe(DEFAULT_SHAPE_SIZE_PX)
+    expect(completedResult.height).toBe(DEFAULT_SHAPE_SIZE_PX)
+
+    // When click is NOT completed (e.g. mousedown / user may resize)
+    const inProgressResult = resolveShapePlacement(map, start, start, { isCompleted: false })
+    expect(inProgressResult.isClick).toBe(true)
+    expect(inProgressResult.width).toBe(1)
+    expect(inProgressResult.height).toBe(1)
   })
 })

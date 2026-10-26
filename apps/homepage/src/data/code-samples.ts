@@ -23,7 +23,6 @@ export function MapCanvasView() {
     <MapContainer center={[41.01, 28.97]} zoom={13} style={{ height: '100vh' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <LeafletTual
-        theme="system"
         onChange={(doc, { committed }) => {
           if (committed) saveToServer(doc)
         }}
@@ -49,7 +48,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
 // Mount framework-agnostic whiteboard
 const tual = createLeafletTual(map, {
   defaultValue: emptyDoc(),
-  theme: 'system',
   toolbar: { position: 'top-left' },
   onChange: (doc, info) => {
     if (info.committed) console.log('Saved doc:', doc)
@@ -140,7 +138,7 @@ export function DashboardMapView({ initialDoc }: { initialDoc: Doc }) {
     <div className="dashboard-card rounded-xl overflow-hidden border border-slate-800">
       <MapContainer center={[41.018, 28.988]} zoom={13} style={{ height: '480px' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <LeafletTual readOnly theme="light" defaultValue={initialDoc} />
+        <LeafletTual readOnly defaultValue={initialDoc} />
       </MapContainer>
     </div>
   )

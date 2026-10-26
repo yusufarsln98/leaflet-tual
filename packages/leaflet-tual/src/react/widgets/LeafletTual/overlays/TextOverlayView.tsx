@@ -11,6 +11,7 @@ import {
   resolveWeight,
 } from '../../../../core/index.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { handleTextEditorKeyDown } from './use-note-editor-keys.js'
 
 export interface TextOverlayViewProps {
@@ -30,6 +31,7 @@ export function TextOverlayView({
   collapseThreshold,
   className,
 }: TextOverlayViewProps) {
+  const { t } = useTranslation(controller)
   const containerRef = useRef<HTMLDivElement>(null)
   const [isEditing, setIsEditing] = useState(controller.editingId === textItem.id)
   const dragStartRef = useRef<{ clientX: number; clientY: number } | null>(null)
@@ -59,7 +61,7 @@ export function TextOverlayView({
     return null
   }
 
-  const color = resolveColor(textItem.style?.color ?? 'ink', controller.scheme)
+  const color = resolveColor(textItem.style?.color ?? 'ink', 'light')
   const baseFontSize = resolveSize(textItem.style?.size ?? 'm', textItem.style?.fontSize)
   const scale = getItemZoomScale(map, textItem)
   const fontSize = Math.max(8, Math.round(baseFontSize * scale))
@@ -138,6 +140,7 @@ export function TextOverlayView({
         <textarea
           autoFocus
           value={textItem.text}
+          placeholder={t('placeholderText')}
           rows={Math.max(1, textItem.text.split('\n').length)}
           style={{
             background: 'transparent',

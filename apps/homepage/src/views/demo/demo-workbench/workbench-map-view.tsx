@@ -14,7 +14,6 @@ interface WorkbenchMapViewProps {
   activePreset: ShowcasePreset
   activeTile: FreeTileLayer
   controller: Controller
-  canvasTheme: 'default' | 'homepage'
   readOnly: boolean
   collapsible: boolean
   toolbarPosition: WorkbenchToolbarPosition
@@ -24,13 +23,12 @@ export function WorkbenchMapView({
   activePreset,
   activeTile,
   controller,
-  canvasTheme,
   readOnly,
   collapsible,
   toolbarPosition,
 }: WorkbenchMapViewProps) {
   return (
-    <div className="w-full h-full relative bg-bg-app" data-canvas-theme={canvasTheme}>
+    <div className="w-full h-full relative bg-bg-app">
       <MapContainer
         center={activePreset.center}
         zoom={activePreset.zoom}

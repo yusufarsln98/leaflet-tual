@@ -1,6 +1,7 @@
 'use client'
 
 import type { Controller, DrawKind } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
 import { DRAW_ICONS } from '../icons/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
 import { ToolVariantsPopover } from '../popovers/index.js'
@@ -24,6 +25,7 @@ export function ToolbarDrawGroup({
   onTogglePopover,
   onClosePopover,
 }: ToolbarDrawGroupProps) {
+  const { t } = useTranslation(controller)
   const activeDrawTool =
     controller.tool === 'freedraw' || controller.tool === 'pen'
       ? controller.tool
@@ -35,7 +37,8 @@ export function ToolbarDrawGroup({
     ? lastDrawTool
     : availableDrawTools[0]
   const previewTool = activeDrawTool ?? fallbackTool
-  const label = `Draw (${previewTool === 'pen' ? 'P' : 'F'})`
+  const shortcut = previewTool === 'pen' ? 'P' : 'F'
+  const label = `${t('draw')} (${shortcut})`
 
   return (
     <div style={{ position: 'relative' }}>
