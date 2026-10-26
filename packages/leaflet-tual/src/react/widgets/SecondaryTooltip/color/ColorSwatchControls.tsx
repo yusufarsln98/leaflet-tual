@@ -11,6 +11,7 @@ export interface ColorSwatchControlsProps {
   map?: L.Map
   isNote: boolean
   isShape: boolean
+  isArrow?: boolean
   style: Style
   scheme: 'light' | 'dark'
   colorHex: string
@@ -24,6 +25,7 @@ export function ColorSwatchControls({
   map,
   isNote,
   isShape,
+  isArrow,
   style,
   scheme,
   colorHex,
@@ -102,9 +104,22 @@ export function ColorSwatchControls({
           currentColor={style.color}
           currentFill={style.fill}
           scheme={scheme}
-          onSelectColor={(c) =>
-            onUpdateStyle(style.fill === 'none' ? { color: c, fill: 'solid' } : { color: c })
-          }
+          onSelectColor={(c) => {
+            const nextStyle: Partial<Style> = { color: c }
+            // Shapes paint both fill and stroke from their primary color, while
+            // arrows only have a stroke. Mirror the color into those dedicated
+            // fields so their defaults cannot override the user's selection.
+            if (isShape) {
+              nextStyle.fillColor = c
+              nextStyle.strokeColor = c
+            } else if (isArrow) {
+              nextStyle.strokeColor = c
+            }
+            if (style.fill === 'none') {
+              nextStyle.fill = 'solid'
+            }
+            onUpdateStyle(nextStyle)
+          }}
           onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
           onClose={onClose}
         />

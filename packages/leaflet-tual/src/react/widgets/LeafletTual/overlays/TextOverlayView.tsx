@@ -74,7 +74,7 @@ export function TextOverlayView({
   const align = textItem.style?.align ?? 'left'
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (controller.readOnly || isEditing) return
+    if (controller.readOnly || isEditing || e.button !== 0) return
     e.stopPropagation()
     controller.select(textItem.id)
     map.dragging?.disable()

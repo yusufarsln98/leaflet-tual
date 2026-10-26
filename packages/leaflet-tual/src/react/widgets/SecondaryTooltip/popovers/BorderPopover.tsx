@@ -21,6 +21,7 @@ export interface BorderPopoverProps {
   currentRadius?: number
   scheme: 'light' | 'dark'
   isSquareShape?: boolean
+  showRadius?: boolean
   onSelectDash: (dash: 'solid' | 'dashed' | 'dotted' | 'none') => void
   onSelectStrokeColor: (color: ColorName | string) => void
   onSelectWidth: (width: 's' | 'm' | 'l' | number) => void
@@ -70,6 +71,7 @@ export function BorderPopover({
   currentRadius = 8,
   scheme,
   isSquareShape,
+  showRadius,
   onSelectDash,
   onSelectStrokeColor,
   onSelectWidth,
@@ -81,6 +83,7 @@ export function BorderPopover({
 
   const activeStroke = currentStrokeColor ?? currentColor ?? 'blue'
   const strokeHex = resolveColor(activeStroke, scheme)
+  const radiusVisible = showRadius ?? isSquareShape !== false
   const numWidth =
     typeof currentWidth === 'number'
       ? currentWidth
@@ -141,7 +144,7 @@ export function BorderPopover({
             onOpen={() => setShowPalette(false)}
           />
 
-          {isSquareShape !== false && (
+          {radiusVisible && (
             <Select
               ariaLabel={t('cornerRadius')}
               title={t('cornerRadius')}

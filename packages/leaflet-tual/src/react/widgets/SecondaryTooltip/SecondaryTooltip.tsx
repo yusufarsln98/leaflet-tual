@@ -154,6 +154,7 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
         map={map}
         isNote={isNote}
         isShape={isShape}
+        isArrow={isArrow}
         style={style}
         scheme={scheme as 'light' | 'dark'}
         colorHex={colorHex}

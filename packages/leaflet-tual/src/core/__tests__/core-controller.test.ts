@@ -113,6 +113,56 @@ describe('v2 Controller state machine', () => {
     expect(c.items[0].style?.width).toBe('l')
   })
 
+  it('honors the initial shape color without pinning fill and stroke overrides', () => {
+    const c = createController({ style: { color: 'green' } })
+    const shape = c.add({
+      type: 'shape',
+      kind: 'square',
+      at: { lat: 41.05, lng: 28.05 },
+      width: 100,
+      height: 100,
+    })
+
+    expect(shape.style?.color).toBe('green')
+    expect(shape.style?.fillColor).toBeUndefined()
+    expect(shape.style?.strokeColor).toBeUndefined()
+  })
+
+  it('propagates a shape\'s primary color to its fill and stroke', () => {
+    const c = createController()
+    const shape = c.add({
+      type: 'shape',
+      kind: 'square',
+      at: { lat: 41.05, lng: 28.05 },
+      width: 100,
+      height: 100,
+    })
+
+    c.select(shape.id)
+    c.setStyle({ color: 'red' })
+
+    expect(c.selected[0].style).toMatchObject({
+      color: 'red',
+      fillColor: 'red',
+      strokeColor: 'red',
+    })
+
+    // The next shape drawn inherits the updated primary color too.
+    c.select(null)
+    const nextShape = c.add({
+      type: 'shape',
+      kind: 'circle',
+      at: { lat: 41, lng: 28 },
+      width: 100,
+      height: 100,
+    })
+    expect(nextShape.style).toMatchObject({
+      color: 'red',
+      fillColor: 'red',
+      strokeColor: 'red',
+    })
+  })
+
   it('remembers the last-used variant for shape and arrow tools', () => {
     const c = createController()
 

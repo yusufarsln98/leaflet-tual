@@ -93,6 +93,37 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(sel?.type === 'shape' ? sel.labelPosition : undefined).toBe('top')
   })
 
+  it('applies the selected color to a shape fill and stroke', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    act(() => {
+      const s = result.current.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
+      })
+      result.current.select(s.id)
+    })
+
+    const map = createMockMap()
+    render(<SecondaryTooltip map={map} controller={result.current} />)
+
+    fireEvent.click(screen.getByTitle('Color'))
+    fireEvent.click(screen.getByTitle('Red'))
+
+    expect(result.current.selected[0].style).toMatchObject({
+      color: 'red',
+      fillColor: 'red',
+      strokeColor: 'red',
+    })
+  })
+
   it('keeps wheel events inside the color dropdown from reaching the map container', () => {
     const { result } = renderHook(() =>
       useLeafletTual({
@@ -174,7 +205,14 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(screen.getByTitle('Text Color')).toBeDefined()
     expect(screen.getByTitle('Background Color')).toBeDefined()
     expect(screen.getByTitle('Text Alignment')).toBeDefined()
-    expect(screen.getByTitle('Corner Radius')).toBeDefined()
+
+    // Corner radius belongs to the border & stroke menu for notes, not a
+    // standalone toolbar button.
+    expect(screen.queryByTitle('Corner Radius')).toBeNull()
+    fireEvent.click(screen.getByTitle('Border & Stroke'))
+    const radiusSelect = screen.getByRole('combobox', { name: 'Corner Radius' })
+    fireEvent.change(radiusSelect, { target: { value: '16' } })
+    expect(result.current.selected[0].style?.radius).toBe(16)
   })
 
   it('updates typography size and custom font size on note and shape', () => {

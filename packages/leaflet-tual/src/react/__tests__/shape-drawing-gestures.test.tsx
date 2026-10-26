@@ -94,6 +94,37 @@ describe('v2 shape drawing gestures', () => {
     expect(shape.at).toEqual({ lat: 14, lng: 16 })
   })
 
+  it('keeps the exact same shape geometry and size between live drag preview and drop at non-default zoom levels', () => {
+    const ctx = createMockCanvasContext()
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as never)
+    const { canvas, controller } = setup({
+      getZoom: () => 15,
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+    act(() => controller.setTool('shape', 'circle'))
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    vi.mocked(ctx.ellipse).mockClear()
+    fireEvent.mouseMove(window, { clientX: 220, clientY: 180 })
+
+    // Live preview during drag at zoom 15 must render at 1x dragged box (rx=60, ry=40), not scaled by 2^(15-13)=4x
+    expect(ctx.ellipse).toHaveBeenCalledWith(160, 140, 60, 40, 0, 0, Math.PI * 2)
+
+    vi.mocked(ctx.ellipse).mockClear()
+    fireEvent.mouseUp(window, { clientX: 220, clientY: 180 })
+
+    // Dropped shape must render with the exact same center and radii as the drag preview
+    expect(ctx.ellipse).toHaveBeenCalledWith(160, 140, 60, 40, 0, 0, Math.PI * 2)
+    const shape = controller.items[0]
+    expect(shape?.type).toBe('shape')
+    if (shape?.type !== 'shape') return
+    expect(shape.kind).toBe('circle')
+    expect(shape.width).toBe(120)
+    expect(shape.height).toBe(80)
+    expect(shape.baseZoom).toBe(15)
+  })
+
   it('uses the release point when the final move event is dropped', () => {
     const { canvas, controller } = setup()
     act(() => controller.setTool('shape', 'star'))
@@ -349,7 +380,7 @@ describe('v2 shape drawing gestures', () => {
     expect(ruler.to.lng).toBeCloseTo(25, 6)
   })
 
-  it('does not allow directly moving an unselected item; requires clicking first to select then moving', () => {
+  it('only selects on left-click release and ignores pan gestures or non-primary mouse buttons', () => {
     const { canvas, controller } = setup({
       latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
       containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
@@ -370,21 +401,41 @@ describe('v2 shape drawing gestures', () => {
 
     expect(controller.selection).toEqual([])
 
-    // 1. Dragging directly on the unselected shape (center is around 150, 150)
-    drag(canvas, [150, 150], [250, 250])
+    // 1. Middle (wheel) and right mouse clicks must not select items.
+    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 1 })
+    fireEvent.mouseUp(window, { clientX: 150, clientY: 150, button: 1 })
+    expect(controller.selection).toEqual([])
+    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 2 })
+    fireEvent.mouseUp(window, { clientX: 150, clientY: 150, button: 2 })
+    expect(controller.selection).toEqual([])
 
-    // The shape should NOT have moved, but should now be selected
-    expect(controller.selection).toEqual([shapeId])
+    // 2. Panning (dragging) across an unselected shape must neither select nor move it.
+    drag(canvas, [150, 150], [250, 250])
+    expect(controller.selection).toEqual([])
     let shape = controller.items[0]
     if (shape.type !== 'shape') return
     expect(shape.at).toEqual({ lat: 15, lng: 15 })
 
-    // 2. Now that the shape IS selected, dragging on it DOES move it
-    drag(canvas, [150, 150], [250, 250])
+    // 3. Left-clicking and releasing without dragging selects the shape on release.
+    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 0 })
+    expect(controller.selection).toEqual([])
+    fireEvent.mouseUp(window, { clientX: 150, clientY: 150, button: 0 })
+    expect(controller.selection).toEqual([shapeId])
 
+    // 4. Panning on empty canvas keeps the current selection; clicking empty canvas clears it.
+    drag(canvas, [500, 500], [600, 600])
+    expect(controller.selection).toEqual([shapeId])
+
+    // 5. Dragging the selected shape moves it.
+    drag(canvas, [150, 150], [250, 250])
     shape = controller.items[0]
     if (shape.type !== 'shape') return
     expect(shape.at).not.toEqual({ lat: 15, lng: 15 })
+
+    // 6. Left-clicking and releasing on empty canvas clears selection.
+    fireEvent.mouseDown(canvas, { clientX: 500, clientY: 500, button: 0 })
+    fireEvent.mouseUp(window, { clientX: 500, clientY: 500, button: 0 })
+    expect(controller.selection).toEqual([])
   })
 
   it('sets pointer cursor over unselected items and move cursor over selected items', () => {

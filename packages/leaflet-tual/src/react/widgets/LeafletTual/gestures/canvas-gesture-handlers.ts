@@ -10,8 +10,29 @@ import {
   translateItem,
   worldDelta,
 } from '../../../../core/index.js'
-import type { CanvasGesture } from './gesture-types.js'
+import type { CanvasGesture, PendingClickSelection } from './gesture-types.js'
 import { updatePenDraftOnMove } from './use-pen-draft.js'
+
+export function commitPendingClickSelection(
+  controller: Controller,
+  pending: PendingClickSelection,
+): void {
+  if (pending.itemId !== null) {
+    const isSel = controller.selection.includes(pending.itemId)
+    if (pending.shiftKey) {
+      controller.select(
+        isSel
+          ? controller.selection.filter((id) => id !== pending.itemId)
+          : [...controller.selection, pending.itemId],
+      )
+    } else {
+      controller.select([pending.itemId])
+    }
+  } else {
+    controller.select(null)
+    controller.edit(null)
+  }
+}
 
 export function applyGestureMouseMove(
   controller: Controller,
@@ -146,6 +167,7 @@ export function useCanvasNativeListeners(
     const container = canvas?.parentElement
     if (!canvas) return
     const handleContainerDown = (e: MouseEvent) => {
+      if (e.button !== 0) return
       if (
         (e.target as Element | null)?.closest?.(
           '.tual-secondary-tooltip, .tual-toolbar, .tual-popover',

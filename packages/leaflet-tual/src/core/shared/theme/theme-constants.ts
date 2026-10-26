@@ -95,9 +95,9 @@ export const NOTE_SURFACES: Record<
 export const DEFAULT_TOOL_STYLES: Record<string, Style> = {
   freedraw: { color: 'ink', width: 'm', dash: 'solid' },
   pen: { color: 'ink', width: 'm', dash: 'solid' },
-  arrow: { color: 'blue', strokeColor: 'blue', width: 'm', dash: 'solid' },
-  ruler: { color: 'ink', strokeColor: 'ink', width: 'm', dash: 'solid' },
-  shape: { color: 'blue', strokeColor: 'blue', fillColor: 'blue', fill: 'tint', width: 'm', dash: 'solid' },
+  arrow: { color: 'blue', width: 'm', dash: 'solid' },
+  ruler: { color: 'ink', width: 'm', dash: 'solid' },
+  shape: { color: 'blue', fill: 'tint', width: 'm', dash: 'solid' },
   note: { color: 'yellow', fillColor: 'yellow', size: 'm' },
   text: { color: 'ink', size: 'm' },
 }

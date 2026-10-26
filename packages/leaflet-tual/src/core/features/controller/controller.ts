@@ -174,12 +174,32 @@ export function createController(
 
     setStyle(patch: Partial<Style>) {
       const prev = cloneDoc(doc)
-      currentStyle = { ...currentStyle, ...patch }
+      // `color` is the single primary paint for shapes (fill + stroke) and
+      // arrows (stroke). Keep their dedicated override fields in sync when the
+      // primary color changes, otherwise the defaults would win at render time.
+      const applyPatch = (style: Style, type: Item['type'] | ToolId | undefined): Style => {
+        const next = { ...style, ...patch }
+        if (patch.color !== undefined && patch.fillColor === undefined && patch.strokeColor === undefined) {
+          if (type === 'shape') {
+            next.fillColor = patch.color
+            next.strokeColor = patch.color
+          } else if (type === 'arrow') {
+            next.strokeColor = patch.color
+          }
+        }
+        return next
+      }
+
+      const selectedType = selection[0]
+        ? getActivePage().items.find((item) => item.id === selection[0])?.type
+        : undefined
+      currentStyle = applyPatch(currentStyle, selectedType ?? activeTool)
+
       if (selection.length > 0) {
         const set = new Set(selection)
         let updated = false
         for (const item of getActivePage().items) {
-          if (set.has(item.id)) { item.style = { ...item.style, ...patch }; updated = true }
+          if (set.has(item.id)) { item.style = applyPatch(item.style ?? {}, item.type); updated = true }
         }
         if (updated) commitChange('update', [...selection], true, prev)
       } else {

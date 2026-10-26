@@ -2,14 +2,15 @@ import { useCallback, useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import type L from 'leaflet'
 import type { Controller, Item, ScreenPoint } from '../../../../core/index.js'
-import { hitTest, hitTestPenHandle, screenToGeo } from '../../../../core/index.js'
+import { hitTest, hitTestPenHandle, isClickGesture, screenToGeo } from '../../../../core/index.js'
 import { updateCanvasHoverCursor } from './canvas-cursor.js'
 import {
   applyGestureMouseMove,
   commitGestureMouseUp,
+  commitPendingClickSelection,
   useCanvasNativeListeners,
 } from './canvas-gesture-handlers.js'
-import type { CanvasGesture } from './gesture-types.js'
+import type { CanvasGesture, PendingClickSelection } from './gesture-types.js'
 import { findResizeGestureUnderPointer } from './use-canvas-resize-handles.js'
 import { usePenDraft } from './use-pen-draft.js'
 
@@ -34,6 +35,7 @@ export function useCanvasGestures({
 }: CanvasGesturesOptions) {
   const activeGestureRef = useRef<CanvasGesture | null>(activeGesture)
   const lastUiMouseDownRef = useRef(0)
+  const pendingClickRef = useRef<PendingClickSelection | null>(null)
 
   useEffect(() => {
     activeGestureRef.current = activeGesture
@@ -58,7 +60,8 @@ export function useCanvasGestures({
   }, [canvasRef])
 
   const handlePointerDown = useCallback((e: React.MouseEvent) => {
-    if (controller.readOnly) return
+    if (controller.readOnly || e.button !== 0) return
+    pendingClickRef.current = null
     isShiftPressedRef.current = e.shiftKey
     const pt = getCanvasPoint(e)
     const geo = screenToGeo(map, pt)
@@ -92,23 +95,31 @@ export function useCanvasGestures({
           }
         }
 
-        if (e.shiftKey) {
-          controller.select(isSel ? controller.selection.filter((id) => id !== hitItem.id) : [...controller.selection, hitItem.id])
-        } else if (!isSel) {
-          controller.select([hitItem.id])
-        } else {
-          map.dragging?.disable()
-          setGesture({
-            type: 'drag-item',
-            itemIds: controller.selection,
-            startPt: pt,
-            startGeo: geo,
-            initialItems: controller.selection.map((id) => controller.items.find((i) => i.id === id)).filter((i): i is Item => Boolean(i)),
-          })
+        if (!isSel || e.shiftKey) {
+          pendingClickRef.current = {
+            itemId: hitItem.id,
+            shiftKey: e.shiftKey,
+            startPt: { x: e.clientX, y: e.clientY },
+          }
+          if (e.shiftKey) e.preventDefault()
+          return
         }
+
+        map.dragging?.disable()
+        setGesture({
+          type: 'drag-item',
+          itemIds: controller.selection,
+          startPt: pt,
+          startGeo: geo,
+          initialItems: controller.selection.map((id) => controller.items.find((i) => i.id === id)).filter((i): i is Item => Boolean(i)),
+        })
         e.preventDefault(); e.stopPropagation()
-      } else {
-        controller.select(null); controller.edit(null)
+      } else if (controller.selection.length > 0 || controller.editingId) {
+        pendingClickRef.current = {
+          itemId: null,
+          shiftKey: false,
+          startPt: { x: e.clientX, y: e.clientY },
+        }
       }
       return
     }
@@ -162,6 +173,10 @@ export function useCanvasGestures({
   useCanvasNativeListeners(canvasRef, handleDoubleClick, lastUiMouseDownRef)
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
+    const pending = pendingClickRef.current
+    if (pending && !isClickGesture(pending.startPt, { x: e.clientX, y: e.clientY })) {
+      pendingClickRef.current = null
+    }
     const gesture = activeGestureRef.current
     if (!gesture) {
       if (controller.tool === 'select' && canvasRef.current && e.target === canvasRef.current) {
@@ -177,6 +192,12 @@ export function useCanvasGestures({
   }, [canvasRef, controller, getCanvasPoint, isShiftPressedRef, map, setGesture])
 
   const handleMouseUp = useCallback((e?: MouseEvent) => {
+    if (e && e.button !== 0) return
+    const pending = pendingClickRef.current
+    pendingClickRef.current = null
+    if (pending && (!e || isClickGesture(pending.startPt, { x: e.clientX, y: e.clientY }))) {
+      commitPendingClickSelection(controller, pending)
+    }
     const gesture = activeGestureRef.current
     if (!gesture) return
     if (gesture.type === 'pen-draft') {
@@ -193,6 +214,7 @@ export function useCanvasGestures({
 
   const cancelGesture = useCallback(() => {
     cancelPenDraft()
+    pendingClickRef.current = null
     setGesture(null)
   }, [cancelPenDraft, setGesture])
 

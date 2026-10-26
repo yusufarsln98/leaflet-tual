@@ -132,6 +132,7 @@ export function commitDrawnItem(
   shiftKey: boolean,
   freedrawPoints?: GeoPoint[],
 ): void {
+  const baseZoom = typeof map.getZoom === 'function' ? map.getZoom() : undefined
   if (tool === 'arrow') {
     if (!isClickGesture(startPt, endPt)) {
       const to = shiftKey ? snapAngle(startGeo, endGeo, 45) : endGeo
@@ -140,6 +141,7 @@ export function commitDrawnItem(
         kind: (variant as ArrowKind) ?? 'linear',
         from: startGeo,
         to,
+        baseZoom,
       })
     }
   } else if (tool === 'shape') {
@@ -153,12 +155,13 @@ export function commitDrawnItem(
       at: placement.at,
       width: placement.width,
       height: placement.height,
+      baseZoom,
     })
   } else if (tool === 'ruler') {
     if (!isClickGesture(startPt, endPt)) {
-      controller.add({ type: 'ruler', from: startGeo, to: endGeo })
+      controller.add({ type: 'ruler', from: startGeo, to: endGeo, baseZoom })
     }
   } else if (tool === 'freedraw' && freedrawPoints && freedrawPoints.length > 1) {
-    controller.add({ type: 'freedraw', points: freedrawPoints })
+    controller.add({ type: 'freedraw', points: freedrawPoints, baseZoom })
   }
 }

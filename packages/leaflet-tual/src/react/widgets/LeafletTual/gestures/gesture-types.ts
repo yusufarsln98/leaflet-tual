@@ -65,3 +65,9 @@ export type CanvasGesture =
       handle: 'start' | 'end'
       startGeo: GeoPoint
     }
+
+export interface PendingClickSelection {
+  itemId: string | null
+  shiftKey: boolean
+  startPt: ScreenPoint
+}

@@ -6,7 +6,6 @@ import { Divider, IconButton, ICONS, LABEL_POSITION_ICONS } from '../../../ui/in
 import { BorderPopover } from './BorderPopover.js'
 import { LabelPositionDropdown } from './LabelPositionDropdown.js'
 import { MoreOptionsDropdown } from './MoreOptionsDropdown.js'
-import { RadiusDropdown } from './RadiusDropdown.js'
 
 export interface SecondaryTooltipExtrasProps {
   isNote: boolean
@@ -41,25 +40,6 @@ export function SecondaryTooltipExtras({
 
   return (
     <>
-      {isNote && (
-        <div style={{ position: 'relative' }}>
-          <IconButton
-            variant="secondary-icon"
-            label={t('cornerRadius')}
-            active={activePopover === 'radius'}
-            icon={ICONS.radius()}
-            onClick={() => onToggle('radius')}
-          />
-          {activePopover === 'radius' && (
-            <RadiusDropdown
-              currentRadius={style.radius}
-              onSelectRadius={(r) => onUpdateStyle({ radius: r })}
-              onClose={onClose}
-            />
-          )}
-        </div>
-      )}
-
       {hasBorder && (
         <div style={{ position: 'relative' }}>
           <IconButton
@@ -78,6 +58,7 @@ export function SecondaryTooltipExtras({
               currentRadius={style.radius}
               scheme={scheme}
               isSquareShape={isSquareShape}
+              showRadius={isNote || isSquareShape}
               onSelectDash={(d) => onUpdateStyle({ dash: d })}
               onSelectStrokeColor={(c) => onUpdateStyle({ strokeColor: c })}
               onSelectWidth={(w) => onUpdateStyle({ width: w })}

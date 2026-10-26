@@ -1,6 +1,7 @@
 import type L from 'leaflet'
 import type { ArrowKind, Controller, ShapeKind, Tokens } from '../../../../core/index.js'
 import {
+  DEFAULT_TOOL_STYLES,
   renderArrowOnCanvas,
   renderFreedrawOnCanvas,
   renderPenOnCanvas,
@@ -66,10 +67,13 @@ export function drawCanvasScene(
     }
   }
 
+  const currentZoom = typeof map.getZoom === 'function' ? map.getZoom() : 13
+
   // Active live preview while drawing
   if (activeGesture && activeGesture.type === 'draw') {
     const g = activeGesture
     let toGeo = g.currentGeo
+    const previewStyle = { ...DEFAULT_TOOL_STYLES[g.tool], ...controller.style }
 
     if (g.tool === 'arrow') {
       if (isShiftPressed) toGeo = snapAngle(g.startGeo, g.currentGeo, 45)
@@ -82,7 +86,8 @@ export function drawCanvasScene(
           kind: (g.variant as ArrowKind) ?? 'linear',
           from: g.startGeo,
           to: toGeo,
-          style: controller.style,
+          baseZoom: currentZoom,
+          style: previewStyle,
           createdAt: Date.now(),
         },
         'light',
@@ -104,7 +109,8 @@ export function drawCanvasScene(
             at: placement.at,
             width: placement.width,
             height: placement.height,
-            style: controller.style,
+            baseZoom: currentZoom,
+            style: previewStyle,
             createdAt: Date.now(),
           },
           'light',
@@ -120,7 +126,8 @@ export function drawCanvasScene(
           type: 'ruler',
           from: g.startGeo,
           to: g.currentGeo,
-          style: controller.style,
+          baseZoom: currentZoom,
+          style: previewStyle,
           createdAt: Date.now(),
         },
         'light',
@@ -134,7 +141,8 @@ export function drawCanvasScene(
           id: 'preview',
           type: 'freedraw',
           points: g.freedrawPoints,
-          style: controller.style,
+          baseZoom: currentZoom,
+          style: previewStyle,
           createdAt: Date.now(),
         },
         'light',
@@ -155,7 +163,8 @@ export function drawCanvasScene(
         id: 'preview',
         type: 'pen',
         points: previewPoints,
-        style: controller.style,
+        baseZoom: currentZoom,
+        style: { ...DEFAULT_TOOL_STYLES.pen, ...controller.style },
         createdAt: Date.now(),
       },
       'light',
