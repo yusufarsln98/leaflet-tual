@@ -234,6 +234,34 @@ export const ICONS: Record<string, () => ReactNode> = {
       <line x1="21" x2="7" y1="18" y2="18" />
     </svg>
   ),
+  bold: () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 12h9a4 4 0 0 1 0 8H6v-8Zm0 0V4h8a4 4 0 0 1 0 8H6Z" />
+    </svg>
+  ),
+  italic: () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="19" x2="10" y1="4" y2="4" />
+      <line x1="14" x2="5" y1="20" y2="20" />
+      <line x1="15" x2="9" y1="4" y2="20" />
+    </svg>
+  ),
+  underline: () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" />
+      <line x1="4" x2="20" y1="21" y2="21" />
+    </svg>
+  ),
+  bullets: () => (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="9" x2="21" y1="6" y2="6" />
+      <line x1="9" x2="21" y1="12" y2="12" />
+      <line x1="9" x2="21" y1="18" y2="18" />
+      <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  ),
   moreVertical: () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="5" r="1.5" />

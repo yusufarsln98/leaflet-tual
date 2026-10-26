@@ -54,6 +54,11 @@ export interface Style {
   fill?: 'none' | 'tint' | 'solid'
   size?: 's' | 'm' | 'l' | 'xl'
   weight?: 'regular' | 'bold'
+  fontStyle?: 'normal' | 'italic'
+  textDecoration?: 'none' | 'underline'
+  underline?: boolean
+  list?: 'none' | 'bullet'
+  bullets?: boolean
   align?: 'left' | 'center' | 'right'
 }
 

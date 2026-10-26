@@ -85,4 +85,54 @@ describe('v2 Text Overlay Component', () => {
 
     expect(result.current.editingId).toBe(textId)
   })
+
+  it('renders underline text decoration and supports shortcuts and bullets in textarea', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const text = controller.add({
+      type: 'text',
+      at: { lat: 41, lng: 28 },
+      text: '• First line',
+      style: {
+        weight: 'bold',
+        fontStyle: 'italic',
+        underline: true,
+      },
+    }) as any
+
+    const { container, rerender } = render(
+      <TextOverlayView
+        map={map}
+        textItem={text}
+        controller={controller}
+        currentZoom={14}
+      />,
+    )
+
+    const textEl = screen.getByText('• First line')
+    expect(textEl.style.textDecoration).toBe('underline')
+    expect(textEl.style.fontWeight).toBe('700')
+    expect(textEl.style.fontStyle).toBe('italic')
+
+    // Double click to open editor
+    fireEvent.doubleClick(textEl)
+    const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+    expect(textarea).toBeDefined()
+    expect(textarea.style.textDecoration).toBe('underline')
+
+    // Toggle bold via Ctrl+B shortcut
+    fireEvent.keyDown(textarea, { key: 'b', ctrlKey: true })
+    const updated1 = controller.items.find((it) => it.id === text.id) as any
+    expect(updated1.style?.weight).toBe('regular')
+
+    // Toggle italic via Ctrl+I shortcut
+    fireEvent.keyDown(textarea, { key: 'i', ctrlKey: true })
+    const updated2 = controller.items.find((it) => it.id === text.id) as any
+    expect(updated2.style?.fontStyle).toBe('normal')
+
+    // Toggle underline via Ctrl+U shortcut
+    fireEvent.keyDown(textarea, { key: 'u', ctrlKey: true })
+    const updated3 = controller.items.find((it) => it.id === text.id) as any
+    expect(updated3.style?.underline).toBe(false)
+  })
 })

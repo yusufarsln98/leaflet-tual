@@ -96,10 +96,46 @@ export function InlineShapeLabelEditor({
       e.preventDefault()
       handleCommit(value)
       inputRef.current?.blur()
-    } else if (e.key === 'Escape') {
+      return
+    }
+    if (e.key === 'Escape') {
       e.preventDefault()
       setValue(target.label ?? '')
       inputRef.current?.blur()
+      return
+    }
+
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault()
+      const isBold = target.style?.weight === 'bold' || target.style?.weight === 700
+      controller.update(target.id, {
+        style: { ...target.style, weight: isBold ? 'regular' : 'bold' },
+      })
+      return
+    }
+
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'i') {
+      e.preventDefault()
+      const isItalic = target.style?.fontStyle === 'italic'
+      controller.update(target.id, {
+        style: { ...target.style, fontStyle: isItalic ? 'normal' : 'italic' },
+      })
+      return
+    }
+
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'u') {
+      e.preventDefault()
+      const isUnderline = Boolean(
+        target.style?.underline || target.style?.textDecoration === 'underline',
+      )
+      controller.update(target.id, {
+        style: {
+          ...target.style,
+          underline: !isUnderline,
+          textDecoration: !isUnderline ? 'underline' : 'none',
+        },
+      })
+      return
     }
   }
 
@@ -109,6 +145,10 @@ export function InlineShapeLabelEditor({
   const fontSize = Math.max(9, Math.round(baseFontSize * scale))
   const weight = resolveWeight(target.style?.weight)
   const fontStyle = target.style?.fontStyle === 'italic' ? 'italic' : 'normal'
+  const isUnderline = Boolean(
+    target.style?.underline || target.style?.textDecoration === 'underline',
+  )
+  const textDecoration = isUnderline ? 'underline' : 'none'
 
   return (
     <div
@@ -140,6 +180,7 @@ export function InlineShapeLabelEditor({
           fontSize: `${fontSize}px`,
           fontWeight: weight,
           fontStyle,
+          textDecoration,
         }}
         onFocus={handleFocus}
         onChange={(e) => {

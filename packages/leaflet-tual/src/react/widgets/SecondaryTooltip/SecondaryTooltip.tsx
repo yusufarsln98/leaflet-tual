@@ -19,8 +19,16 @@ export interface SecondaryTooltipProps {
 
 export function SecondaryTooltip({ map, controller, className }: SecondaryTooltipProps) {
   const [activePopover, setActivePopover] = useState<string | null>(null)
+  const [, setTick] = useState(0)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const selectedItem = controller.selected[0] as Item | undefined
+
+  useEffect(() => {
+    const unsub = controller.on('state', () => {
+      setTick((t) => t + 1)
+    })
+    return unsub
+  }, [controller])
 
   // Double-clicking the tooltip or one of its dropdowns must never zoom the map.
   useEffect(() => {
@@ -57,6 +65,89 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
     selectedItem.type === 'freedraw' ||
     selectedItem.type === 'pen'
 
+  const isBold =
+    style.weight === 'bold' ||
+    style.weight === 700 ||
+    style.weight === 'semibold' ||
+    style.weight === 'black' ||
+    style.weight === 600 ||
+    style.weight === 800
+
+  const isItalic = style.fontStyle === 'italic'
+  const isUnderline = Boolean(style.underline || style.textDecoration === 'underline')
+
+  const toggleBold = () => {
+    updateStyle({ weight: isBold ? 'regular' : 'bold' })
+  }
+
+  const toggleItalic = () => {
+    updateStyle({ fontStyle: isItalic ? 'normal' : 'italic' })
+  }
+
+  const toggleUnderline = () => {
+    updateStyle({
+      underline: !isUnderline,
+      textDecoration: !isUnderline ? 'underline' : 'none',
+    })
+  }
+
+  const getItemText = (): string => {
+    if (isTextOrNote) {
+      return (selectedItem as any).text ?? ''
+    }
+    if (isShape || isArrow) {
+      return (selectedItem as any).label ?? ''
+    }
+    return ''
+  }
+
+  const currentText = getItemText()
+  const textLines = currentText.split('\n')
+  const hasContent = textLines.some((l) => l.trim().length > 0)
+  const isBulleted =
+    style.list === 'bullet' ||
+    style.bullets === true ||
+    (hasContent &&
+      textLines
+        .filter((l) => l.trim().length > 0)
+        .every((l) => /^\s*([•\-\*])\s+/.test(l) || /^\s*•/.test(l)))
+
+  const toggleBullets = () => {
+    const willBeBulleted = !isBulleted
+    let newText = ''
+    if (willBeBulleted) {
+      if (!currentText) {
+        newText = '• '
+      } else {
+        newText = textLines
+          .map((l) => {
+            if (!l.trim()) return l
+            if (/^\s*([•\-\*])\s+/.test(l) || /^\s*•/.test(l)) return l
+            return `• ${l}`
+          })
+          .join('\n')
+      }
+    } else {
+      newText = textLines
+        .map((l) => l.replace(/^(\s*)([•\-\*]\s*)/, '$1'))
+        .join('\n')
+    }
+
+    const patch: any = {
+      style: {
+        ...style,
+        list: willBeBulleted ? 'bullet' : 'none',
+        bullets: willBeBulleted,
+      },
+    }
+    if (isTextOrNote) {
+      patch.text = newText
+    } else if (isShape || isArrow) {
+      patch.label = newText
+    }
+    controller.update(selectedItem.id, patch)
+  }
+
   let typographyLabel = 'Body'
   if (style.fontSize) {
     typographyLabel = `${style.fontSize}px`
@@ -89,7 +180,7 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
             title="Text Size & Style"
             onClick={() => toggle('typography')}
           >
-            <span style={{ opacity: 0.6, fontWeight: 700, fontSize: 13, marginRight: 2 }}>rT</span>
+            <span style={{ opacity: 0.7, fontWeight: 700, fontSize: 11, marginRight: 3, letterSpacing: -0.5 }}>TT</span>
             <span style={{ fontWeight: 500, margin: '0 4px' }}>{typographyLabel}</span>
             <span style={{ fontSize: 9, opacity: 0.6 }}>⌄</span>
           </button>
@@ -99,6 +190,7 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
               currentFontSize={style.fontSize}
               currentWeight={style.weight}
               currentFontStyle={style.fontStyle}
+              currentUnderline={isUnderline}
               currentAlign={style.align}
               onUpdateStyle={(patch) => {
                 updateStyle(patch)
@@ -140,9 +232,71 @@ export function SecondaryTooltip({ map, controller, className }: SecondaryToolti
       )}
 
       {isTextOrNote && (
-        <button type="button" className="tual-secondary-icon-btn" title="Text Alignment" onClick={() => updateStyle({ align: style.align === 'center' ? 'right' : style.align === 'right' ? 'left' : 'center' })}>
-          {style.align === 'center' ? ICONS.alignCenter() : style.align === 'right' ? ICONS.alignRight() : ICONS.alignLeft()}
-        </button>
+        <>
+          <button
+            type="button"
+            className="tual-secondary-icon-btn"
+            title="Bold"
+            aria-label="Bold"
+            data-active={isBold}
+            onClick={toggleBold}
+          >
+            {ICONS.bold()}
+          </button>
+          <button
+            type="button"
+            className="tual-secondary-icon-btn"
+            title="Italic"
+            aria-label="Italic"
+            data-active={isItalic}
+            onClick={toggleItalic}
+          >
+            {ICONS.italic()}
+          </button>
+          <button
+            type="button"
+            className="tual-secondary-icon-btn"
+            title="Underline"
+            aria-label="Underline"
+            data-active={isUnderline}
+            onClick={toggleUnderline}
+          >
+            {ICONS.underline()}
+          </button>
+          <div className="tual-secondary-separator" />
+          <button
+            type="button"
+            className="tual-secondary-icon-btn"
+            title="Bulleted List"
+            aria-label="Bulleted List"
+            data-active={isBulleted}
+            onClick={toggleBullets}
+          >
+            {ICONS.bullets()}
+          </button>
+          <button
+            type="button"
+            className="tual-secondary-icon-btn"
+            title="Text Alignment"
+            aria-label="Text Alignment"
+            onClick={() =>
+              updateStyle({
+                align:
+                  style.align === 'center'
+                    ? 'right'
+                    : style.align === 'right'
+                      ? 'left'
+                      : 'center',
+              })
+            }
+          >
+            {style.align === 'center'
+              ? ICONS.alignCenter()
+              : style.align === 'right'
+                ? ICONS.alignRight()
+                : ICONS.alignLeft()}
+          </button>
+        </>
       )}
 
       {isNote && (

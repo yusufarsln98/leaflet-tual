@@ -28,6 +28,7 @@ export function drawLabelPill(
     fontSize?: number
     fontWeight?: string | number
     fontStyle?: 'normal' | 'italic'
+    underline?: boolean
     paddingX?: number
     paddingY?: number
   } = {},
@@ -68,6 +69,16 @@ export function drawLabelPill(
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.fillText(text, center.x, center.y)
+
+  if (options.underline) {
+    const underlineY = center.y + fontSize * 0.5 + 1
+    ctx.beginPath()
+    ctx.moveTo(center.x - textWidth / 2, underlineY)
+    ctx.lineTo(center.x + textWidth / 2, underlineY)
+    ctx.strokeStyle = options.textColor ?? '#1D1D1B'
+    ctx.lineWidth = Math.max(1, fontSize * 0.08)
+    ctx.stroke()
+  }
   ctx.restore()
 }
 

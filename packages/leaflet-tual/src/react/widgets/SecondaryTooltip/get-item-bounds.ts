@@ -1,6 +1,7 @@
 import type L from 'leaflet'
 import type { Item } from '../../../core/types/index.js'
 import { geoToScreen } from '../../../core/shared/geo.js'
+import { getItemZoomScale } from '../../../core/shared/zoom.js'
 
 export function getItemBounds(map: L.Map, item: Item) {
   if (item.type === 'shape' || item.type === 'arrow' || item.type === 'ruler') {
@@ -16,16 +17,21 @@ export function getItemBounds(map: L.Map, item: Item) {
     if (item.from && item.to) {
       const p1 = geoToScreen(map, item.from)
       const p2 = geoToScreen(map, item.to)
+      const side = Math.max(Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y))
+      const cy = (p1.y + p2.y) / 2
+      const half = side / 2
       return {
         cx: (p1.x + p2.x) / 2,
-        minY: Math.min(p1.y, p2.y),
-        maxY: Math.max(p1.y, p2.y),
+        minY: cy - half,
+        maxY: cy + half,
       }
     }
     if (item.at) {
       const p = geoToScreen(map, item.at)
-      const hh = (item.height ?? 120) / 2
-      return { cx: p.x, minY: p.y - hh, maxY: p.y + hh }
+      const scale = getItemZoomScale(map, item)
+      const baseSide = Math.max(item.width ?? 180, item.height ?? 180)
+      const half = (baseSide * scale) / 2
+      return { cx: p.x, minY: p.y - half, maxY: p.y + half }
     }
   }
   if (item.type === 'text') {

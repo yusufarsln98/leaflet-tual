@@ -9,6 +9,7 @@ export interface TypographyDropdownProps {
   currentFontSize?: number
   currentWeight?: Style['weight']
   currentFontStyle?: Style['fontStyle']
+  currentUnderline?: boolean
   currentAlign?: Style['align']
   onUpdateStyle: (patch: Partial<Style>) => void
   onClose: () => void
@@ -33,13 +34,12 @@ export const WEIGHT_OPTIONS: { id: FontWeight; label: string; num: number }[] = 
   { id: 'black', label: 'Black', num: 800 },
 ]
 
-const QUICK_SIZES = [10, 12, 14, 16, 18, 20, 24, 28, 32, 40]
-
 export function TypographyDropdown({
   currentSize = 'm',
   currentFontSize,
   currentWeight = 'regular',
   currentFontStyle = 'normal',
+  currentUnderline = false,
   onUpdateStyle,
 }: TypographyDropdownProps) {
   const [activeTab, setActiveTab] = useState<'theme' | 'custom'>('theme')
@@ -66,6 +66,13 @@ export function TypographyDropdown({
 
   const handleFontStyleChange = (fs: 'normal' | 'italic') => {
     onUpdateStyle({ fontStyle: fs })
+  }
+
+  const handleUnderlineToggle = () => {
+    onUpdateStyle({
+      underline: !currentUnderline,
+      textDecoration: !currentUnderline ? 'underline' : 'none',
+    })
   }
 
   return (
@@ -112,7 +119,16 @@ export function TypographyDropdown({
                 </div>
                 {isSelected && (
                   <span className="tual-typo-check">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   </span>
@@ -123,103 +139,82 @@ export function TypographyDropdown({
         </div>
       ) : (
         <div className="tual-typo-custom-panel">
-          {/* Manual px size */}
-          <div className="tual-typo-section">
-            <div className="tual-typo-section-header">
-              <span className="tual-typo-section-title">Font Size</span>
-              <div className="tual-typo-input-group">
-                <button
-                  type="button"
-                  className="tual-typo-step-btn"
-                  onClick={() => handleCustomPxChange(effectivePx - 1)}
-                  title="Decrease"
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  min="8"
-                  max="144"
-                  value={effectivePx}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10)
-                    if (!isNaN(val)) handleCustomPxChange(val)
-                  }}
-                  className="tual-typo-number-input"
-                />
-                <span className="tual-typo-unit">px</span>
-                <button
-                  type="button"
-                  className="tual-typo-step-btn"
-                  onClick={() => handleCustomPxChange(effectivePx + 1)}
-                  title="Increase"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            {/* Quick sizes */}
-            <div className="tual-typo-chips-row">
-              {QUICK_SIZES.map((px) => (
-                <button
-                  key={px}
-                  type="button"
-                  className="tual-typo-chip"
-                  data-active={effectivePx === px}
-                  onClick={() => handleCustomPxChange(px)}
-                >
-                  {px}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Boldness / Weight options */}
-          <div className="tual-typo-section">
-            <span className="tual-typo-section-title">Weight</span>
-            <div className="tual-typo-weights-grid">
-              {WEIGHT_OPTIONS.map((w) => {
-                const isSelected =
-                  currentWeight === w.id ||
-                  (w.id === 'regular' && (!currentWeight || currentWeight === 'regular'))
-                return (
-                  <button
-                    key={w.id}
-                    type="button"
-                    className="tual-typo-weight-btn"
-                    data-active={isSelected}
-                    style={{ fontWeight: w.num }}
-                    onClick={() => handleWeightChange(w.id)}
-                  >
+          {/* Row matching mockup: Weight dropdown + px number input */}
+          <div className="tual-typo-fields-row">
+            <div className="tual-typo-field tual-typo-weight-field">
+              <select
+                aria-label="Font weight"
+                className="tual-typo-select"
+                value={typeof currentWeight === 'string' ? currentWeight : 'regular'}
+                onChange={(e) => handleWeightChange(e.target.value as FontWeight)}
+              >
+                {WEIGHT_OPTIONS.map((w) => (
+                  <option key={w.id} value={w.id}>
                     {w.label}
-                  </button>
-                )
-              })}
+                  </option>
+                ))}
+              </select>
+              <span className="tual-typo-chevron" aria-hidden="true">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+            </div>
+
+            <div className="tual-typo-field tual-typo-size-field">
+              <input
+                type="number"
+                aria-label="Font size in pixels"
+                min="8"
+                max="144"
+                value={effectivePx}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10)
+                  if (!isNaN(val)) handleCustomPxChange(val)
+                }}
+                className="tual-typo-input"
+              />
+              <span className="tual-typo-field-unit">px</span>
             </div>
           </div>
 
-          {/* Text Style */}
-          <div className="tual-typo-section">
-            <span className="tual-typo-section-title">Style</span>
-            <div className="tual-typo-styles-row">
-              <button
-                type="button"
-                className="tual-typo-style-btn"
-                data-active={!currentFontStyle || currentFontStyle === 'normal'}
-                onClick={() => handleFontStyleChange('normal')}
-              >
-                Normal
-              </button>
-              <button
-                type="button"
-                className="tual-typo-style-btn"
-                data-active={currentFontStyle === 'italic'}
-                style={{ fontStyle: 'italic' }}
-                onClick={() => handleFontStyleChange('italic')}
-              >
-                Italic
-              </button>
-            </div>
+          {/* Text Style: Normal | Italic | Underline */}
+          <div className="tual-typo-styles-row">
+            <button
+              type="button"
+              className="tual-typo-style-btn"
+              data-active={!currentFontStyle || currentFontStyle === 'normal'}
+              onClick={() => handleFontStyleChange('normal')}
+            >
+              Normal
+            </button>
+            <button
+              type="button"
+              className="tual-typo-style-btn"
+              data-active={currentFontStyle === 'italic'}
+              style={{ fontStyle: 'italic' }}
+              onClick={() => handleFontStyleChange('italic')}
+            >
+              Italic
+            </button>
+            <button
+              type="button"
+              className="tual-typo-style-btn"
+              data-active={currentUnderline}
+              style={{ textDecoration: 'underline' }}
+              onClick={handleUnderlineToggle}
+            >
+              Underline
+            </button>
           </div>
         </div>
       )}

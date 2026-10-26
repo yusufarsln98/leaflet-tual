@@ -207,6 +207,7 @@ export function renderArrowOnCanvas(
       fontSize: baseFontSize * scale,
       fontWeight: resolveWeight(arrow.style?.weight),
       fontStyle: arrow.style?.fontStyle,
+      underline: Boolean(arrow.style?.underline || arrow.style?.textDecoration === 'underline'),
       paddingX: Math.max(3, 4 * scale),
       paddingY: Math.max(1.5, 2 * scale),
     })

@@ -96,6 +96,11 @@ export interface Style {
   fill?: 'none' | 'tint' | 'solid'            // fill uses the same color
   size?: 's' | 'm' | 'l' | 'xl'               // text and note font size
   weight?: 'regular' | 'bold'
+  fontStyle?: 'normal' | 'italic'
+  textDecoration?: 'none' | 'underline'
+  underline?: boolean
+  list?: 'none' | 'bullet'
+  bullets?: boolean
   align?: 'left' | 'center' | 'right'
   radius?: number                             // corner radius in px (default 8)
 }

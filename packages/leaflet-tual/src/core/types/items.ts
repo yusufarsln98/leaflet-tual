@@ -25,6 +25,10 @@ export interface Style {
   fontSize?: number
   weight?: FontWeight
   fontStyle?: 'normal' | 'italic'
+  textDecoration?: 'none' | 'underline'
+  underline?: boolean
+  list?: 'none' | 'bullet'
+  bullets?: boolean
   align?: 'left' | 'center' | 'right'
   radius?: number
 }
@@ -57,8 +61,9 @@ export interface ArrowItem extends Base {
 export interface ShapeItem extends Base {
   type: 'shape'
   kind: ShapeKind
-  from: GeoPoint
-  to: GeoPoint
+  at: GeoPoint
+  width: number
+  height: number
   label?: string
   labelPosition?: LabelPosition
 }
@@ -106,29 +111,14 @@ export interface RulerItem extends Base {
   label?: string
 }
 
-export interface ScaledNoteItem extends Base {
-  type: 'note'
-  from: GeoPoint
-  to: GeoPoint
-  at?: GeoPoint
-  width?: number
-  height?: number
-  text: string
-  title?: string
-}
-
-export interface PinnedNoteItem extends Base {
+export interface NoteItem extends Base {
   type: 'note'
   at: GeoPoint
   width?: number
   height?: number
-  from?: GeoPoint
-  to?: GeoPoint
   text: string
   title?: string
 }
-
-export type NoteItem = ScaledNoteItem | PinnedNoteItem
 
 export interface TextItem extends Base {
   type: 'text'

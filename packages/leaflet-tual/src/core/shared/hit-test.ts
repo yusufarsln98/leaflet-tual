@@ -186,26 +186,26 @@ export function hitTest(
       if (item.from && item.to) {
         const p1 = project(item.from)
         const p2 = project(item.to)
-        const minX = Math.min(p1.x, p2.x)
-        const maxX = Math.max(p1.x, p2.x)
-        const minY = Math.min(p1.y, p2.y)
-        const maxY = Math.max(p1.y, p2.y)
+        const side = Math.max(Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y))
+        const cx = (p1.x + p2.x) / 2
+        const cy = (p1.y + p2.y) / 2
+        const half = side / 2
         return (
-          pt.x >= minX - tolerance &&
-          pt.x <= maxX + tolerance &&
-          pt.y >= minY - tolerance &&
-          pt.y <= maxY + tolerance
+          pt.x >= cx - half - tolerance &&
+          pt.x <= cx + half + tolerance &&
+          pt.y >= cy - half - tolerance &&
+          pt.y <= cy + half + tolerance
         )
       }
       if (item.at) {
         const anchor = project(item.at)
-        const hw = (item.width ?? 180) / 2
-        const hh = (item.height ?? 120) / 2
+        const side = Math.max(item.width ?? 180, item.height ?? 180)
+        const half = side / 2
         return (
-          pt.x >= anchor.x - hw - tolerance &&
-          pt.x <= anchor.x + hw + tolerance &&
-          pt.y >= anchor.y - hh - tolerance &&
-          pt.y <= anchor.y + hh + tolerance
+          pt.x >= anchor.x - half - tolerance &&
+          pt.x <= anchor.x + half + tolerance &&
+          pt.y >= anchor.y - half - tolerance &&
+          pt.y <= anchor.y + half + tolerance
         )
       }
       return false

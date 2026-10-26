@@ -87,6 +87,7 @@ export function renderShapeOnCanvas(
       fontSize: baseFontSize * scale,
       fontWeight: resolveWeight(shape.style?.weight),
       fontStyle: shape.style?.fontStyle,
+      underline: Boolean(shape.style?.underline || shape.style?.textDecoration === 'underline'),
       paddingX: Math.max(3, 4 * scale),
       paddingY: Math.max(1.5, 2 * scale),
     })

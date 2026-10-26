@@ -72,9 +72,9 @@ describe('v2 Controller state machine', () => {
     expect(c.pages.list.length).toBe(1)
   })
 
-  it('uses the ink (black) color for newly created items by default', () => {
+  it('uses proper initial default colors for newly created shapes and notes', () => {
     const c = createController()
-    expect(c.style.color).toBe('ink')
+    expect(c.style.color).toBe('blue')
 
     const shape = c.add({
       type: 'shape',
@@ -82,7 +82,16 @@ describe('v2 Controller state machine', () => {
       from: { lat: 41, lng: 28 },
       to: { lat: 41.1, lng: 28.1 },
     })
-    expect(shape.style?.color).toBe('ink')
+    expect(shape.style?.color).toBe('blue')
+    expect(shape.style?.fill).toBe('tint')
+
+    const note = c.add({
+      type: 'note',
+      at: { lat: 41, lng: 28 },
+      text: 'Default note',
+    })
+    expect(note.style?.color).toBe('yellow')
+    expect(note.style?.fillColor).toBe('yellow')
   })
 
   it('selection-aware setStyle modifies selected items', () => {

@@ -2,6 +2,7 @@ import type L from 'leaflet'
 import type { Doc, Item, NewItem, Page, Style } from '../types/index.js'
 import { createId } from '../shared/geo.js'
 import { cloneDoc } from '../shared/doc.js'
+import { DEFAULT_TOOL_STYLES } from '../shared/theme.js'
 
 export interface ItemCrudContext {
   getDoc: () => Doc
@@ -22,12 +23,17 @@ export function createItemOperations(ctx: ItemCrudContext) {
       const map = ctx.getMap?.()
       const currentZoom = map && typeof map.getZoom === 'function' ? map.getZoom() : (activePage.view?.zoom ?? 13)
       const baseZoom = newItem.baseZoom ?? currentZoom
+      const typeDefault = DEFAULT_TOOL_STYLES[newItem.type] ?? {}
+      const itemStyle =
+        newItem.type === 'note' || newItem.type === 'text'
+          ? { ...typeDefault, ...newItem.style }
+          : { ...typeDefault, ...ctx.getCurrentStyle(), ...newItem.style }
       const item = {
         ...newItem,
         id: newItem.id ?? createId(newItem.type),
         baseZoom,
         createdAt: Date.now(),
-        style: { ...ctx.getCurrentStyle(), ...newItem.style },
+        style: itemStyle,
       } as Item
       activePage.items.push(item)
       ctx.commitChange('create', [item.id], true, prev)

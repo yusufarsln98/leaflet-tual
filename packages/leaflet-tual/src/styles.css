@@ -522,12 +522,14 @@
 .tual-note-card {
   position: absolute;
   pointer-events: auto;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
   cursor: grab;
   user-select: none;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  aspect-ratio: 1 / 1;
+  transform-origin: center center;
 }
 
 .tual-note-card:active {
@@ -549,9 +551,15 @@
   outline: none;
   color: inherit;
   box-sizing: border-box;
-  padding: 8px 10px;
-  line-height: 1.35;
+  padding: 12px 14px;
+  line-height: 1.4;
   cursor: text;
+  overflow-y: hidden;
+}
+
+.tual-note-textarea:focus,
+.tual-note-textarea[data-focused="true"] {
+  overflow-y: auto;
 }
 
 .tual-note-handle {
@@ -678,8 +686,13 @@
 }
 
 .tual-secondary-icon-btn[data-active='true'] {
-  background-color: var(--tual-surface-muted, #f3f4f6);
-  color: var(--tual-text, #111827);
+  background-color: var(--tual-accent-subtle, rgba(37, 99, 235, 0.12));
+  color: var(--tual-accent, #2563eb);
+}
+
+.tual[data-theme='dark'] .tual-secondary-icon-btn[data-active='true'] {
+  background-color: rgba(96, 165, 250, 0.2);
+  color: #60a5fa;
 }
 
 .tual-secondary-separator {
@@ -831,16 +844,20 @@
 }
 
 .tual-typo-tabs {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  background-color: var(--tual-surface-muted, #f4f4f5);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+  width: fit-content;
 }
 
 .tual-typo-tab {
   border: none;
   background: transparent;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -854,14 +871,20 @@
 }
 
 .tual-typo-tab[data-active='true'] {
-  background-color: var(--tual-surface-muted, #f4f4f5);
+  background-color: var(--tual-surface, #ffffff);
   color: var(--tual-text, #18181b);
   font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.tual[data-theme='dark'] .tual-typo-tabs {
+  background-color: #27272a;
 }
 
 .tual[data-theme='dark'] .tual-typo-tab[data-active='true'] {
-  background-color: var(--tual-surface-muted, #27272a);
+  background-color: #18181b;
   color: #f4f4f5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .tual-typo-list {
@@ -924,141 +947,94 @@
 .tual-typo-custom-panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.tual-typo-section {
+.tual-typo-fields-row {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 6px;
 }
 
-.tual-typo-section-header {
+.tual-typo-field {
+  position: relative;
   display: flex;
   align-items: center;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid var(--tual-border, #e5e7eb);
+  background: var(--tual-surface, #ffffff);
+  box-sizing: border-box;
+  transition: border-color 0.12s ease;
+}
+
+.tual-typo-field:focus-within {
+  border-color: #3b82f6;
+}
+
+.tual-typo-weight-field {
+  flex: 1 1 55%;
+  min-width: 0;
+}
+
+.tual-typo-size-field {
+  flex: 1 1 45%;
+  min-width: 0;
   justify-content: space-between;
 }
 
-.tual-typo-section-title {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.tual-typo-select {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--tual-text, #18181b);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 16px;
+  outline: none;
+}
+
+.tual-typo-chevron {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
   color: var(--tual-muted, #71717a);
 }
 
-.tual-typo-input-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tual-typo-step-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
-  border: 1px solid var(--tual-border, #e5e7eb);
-  background: var(--tual-surface, #ffffff);
+.tual-typo-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
   color: var(--tual-text, #18181b);
-  cursor: pointer;
+  font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
-}
-
-.tual-typo-step-btn:hover {
-  background: var(--tual-surface-hover, #f4f4f5);
-}
-
-.tual-typo-number-input {
-  width: 44px;
-  height: 22px;
-  border-radius: 4px;
-  border: 1px solid var(--tual-border, #e5e7eb);
-  background: var(--tual-surface, #ffffff);
-  color: var(--tual-text, #18181b);
-  font-size: 12px;
   font-weight: 500;
-  text-align: center;
   outline: none;
-  padding: 0 2px;
+  padding: 0;
   -moz-appearance: textfield;
 }
 
-.tual-typo-number-input::-webkit-outer-spin-button,
-.tual-typo-number-input::-webkit-inner-spin-button {
+.tual-typo-input::-webkit-outer-spin-button,
+.tual-typo-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-.tual-typo-unit {
-  font-size: 11px;
+.tual-typo-field-unit {
+  font-size: 12px;
   color: var(--tual-muted, #71717a);
-  font-weight: 500;
-}
-
-.tual-typo-chips-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.tual-typo-chip {
-  padding: 2px 6px;
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 4px;
-  border: 1px solid var(--tual-border, #e5e7eb);
-  background: transparent;
-  color: var(--tual-text, #18181b);
-  cursor: pointer;
-  transition: all 0.1s ease;
-}
-
-.tual-typo-chip:hover {
-  background: var(--tual-surface-hover, #f4f4f5);
-}
-
-.tual-typo-chip[data-active='true'] {
-  background: var(--tual-accent, #2563eb);
-  border-color: var(--tual-accent, #2563eb);
-  color: #ffffff;
-}
-
-.tual-typo-weights-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.tual-typo-weight-btn {
-  flex: 1 1 30%;
-  padding: 4px 6px;
-  font-size: 11px;
-  border-radius: 6px;
-  border: 1px solid var(--tual-border, #e5e7eb);
-  background: transparent;
-  color: var(--tual-text, #18181b);
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.1s ease;
-}
-
-.tual-typo-weight-btn:hover {
-  background: var(--tual-surface-hover, #f4f4f5);
-}
-
-.tual-typo-weight-btn[data-active='true'] {
-  background: var(--tual-surface-muted, #e4e4e7);
-  border-color: var(--tual-border, #d4d4d8);
-  font-weight: 600;
-}
-
-.tual[data-theme='dark'] .tual-typo-weight-btn[data-active='true'] {
-  background: var(--tual-surface-muted, #3f3f46);
-  border-color: #52525b;
+  font-weight: 400;
+  margin-left: 4px;
+  pointer-events: none;
 }
 
 .tual-typo-styles-row {
@@ -1068,7 +1044,7 @@
 
 .tual-typo-style-btn {
   flex: 1;
-  padding: 4px 8px;
+  padding: 5px 8px;
   font-size: 12px;
   border-radius: 6px;
   border: 1px solid var(--tual-border, #e5e7eb);
@@ -1087,6 +1063,21 @@
   background: var(--tual-surface-muted, #e4e4e7);
   border-color: var(--tual-border, #d4d4d8);
   font-weight: 600;
+}
+
+.tual[data-theme='dark'] .tual-typo-field {
+  background: var(--tual-surface, #18181b);
+  border-color: var(--tual-border, #3f3f46);
+}
+
+.tual[data-theme='dark'] .tual-typo-select,
+.tual[data-theme='dark'] .tual-typo-input {
+  color: #f4f4f5;
+}
+
+.tual[data-theme='dark'] .tual-typo-select option {
+  background: #18181b;
+  color: #f4f4f5;
 }
 
 .tual[data-theme='dark'] .tual-typo-style-btn[data-active='true'] {

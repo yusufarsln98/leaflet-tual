@@ -226,11 +226,15 @@ export function useCanvasGestures({
     }
 
     if (controller.tool === 'note') {
-      const from = screenToGeo(map, { x: pt.x - 90, y: pt.y - 60 })
-      const to = screenToGeo(map, { x: pt.x + 90, y: pt.y + 60 })
+      const zoom = map.getZoom()
       const note = controller.add({
-        type: 'note', from, to, text: 'New note',
-        style: { color: 'ink', fillColor: 'yellow', size: 'm' },
+        type: 'note',
+        at: geo,
+        width: 180,
+        height: 180,
+        baseZoom: zoom,
+        text: 'New note',
+        style: { color: 'yellow', fillColor: 'yellow', size: 'm' },
       })
       controller.select(note.id); controller.setTool('select')
       return

@@ -98,12 +98,13 @@ export function createVanillaGestures(ctx: VanillaGesturesContext) {
     }
 
     if (ctx.controller.tool === 'note') {
-      const from = screenToGeo(ctx.map, { x: pt.x - 90, y: pt.y - 60 })
-      const to = screenToGeo(ctx.map, { x: pt.x + 90, y: pt.y + 60 })
+      const zoom = ctx.map.getZoom()
       const note = ctx.controller.add({
         type: 'note',
-        from,
-        to,
+        at: geo,
+        width: 180,
+        height: 180,
+        baseZoom: zoom,
         text: 'New note',
       })
       ctx.controller.select(note.id)

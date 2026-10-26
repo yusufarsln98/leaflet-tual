@@ -28,24 +28,31 @@ export function renderNoteOnCanvas(
   let cardW: number
   let cardH: number
 
+  const scale = getItemZoomScale(map, note)
+
   if (note.from && note.to) {
     const p1 = geoToScreen(map, note.from)
     const p2 = geoToScreen(map, note.to)
-    x = Math.min(p1.x, p2.x)
-    y = Math.min(p1.y, p2.y)
-    cardW = Math.max(1, Math.abs(p2.x - p1.x))
-    cardH = Math.max(1, Math.abs(p2.y - p1.y))
+    const rawW = Math.max(1, Math.abs(p2.x - p1.x))
+    const rawH = Math.max(1, Math.abs(p2.y - p1.y))
+    const side = Math.max(rawW, rawH)
+    cardW = side
+    cardH = side
+    const cx = (p1.x + p2.x) / 2
+    const cy = (p1.y + p2.y) / 2
+    x = cx - side / 2
+    y = cy - side / 2
   } else if (note.at) {
     const p = geoToScreen(map, note.at)
-    cardW = note.width ?? 180
-    cardH = note.height ?? 120
+    const baseSide = Math.max(1, note.width ?? note.height ?? 180)
+    const side = Math.max(1, baseSide * scale)
+    cardW = side
+    cardH = side
     x = p.x - cardW / 2
     y = p.y - cardH / 2
   } else {
     return
   }
-
-  const scale = getItemZoomScale(map, note)
 
   const noteColors = resolveNoteColors(
     note.style?.color ?? 'yellow',
@@ -61,11 +68,9 @@ export function renderNoteOnCanvas(
   const borderDash = note.style?.dash ?? 'solid'
   const borderWidth =
     borderDash === 'none' ? 0 : Math.max(0.5, resolveWidth(note.style?.width ?? 's') * scale)
-  const borderColor = resolveColor(
-    note.style?.strokeColor ?? note.style?.color ?? 'ink',
-    scheme,
-    options.tokens,
-  )
+  const borderColor = note.style?.strokeColor
+    ? resolveColor(note.style.strokeColor, scheme, options.tokens)
+    : noteColors.border
 
   ctx.save()
 
@@ -120,21 +125,54 @@ export function renderNoteOnCanvas(
       ctx.font = `${italic}${weight} ${fontSize}px system-ui, sans-serif`
     }
 
-    const words = note.text.split(' ')
-    let line = ''
-    for (const word of words) {
-      const testLine = line ? `${line} ${word}` : word
-      if (ctx.measureText(testLine).width > maxWidth && line !== '') {
-        ctx.fillText(line, textX, textY)
-        line = word
-        textY += lineHeight
-        if (textY > y + cardH - pad - lineHeight) break
-      } else {
-        line = testLine
+    const isUnderline = Boolean(
+      note.style?.underline || note.style?.textDecoration === 'underline',
+    )
+
+    const paragraphs = note.text.split('\n')
+    for (const paragraph of paragraphs) {
+      const words = paragraph.split(' ')
+      let line = ''
+      for (const word of words) {
+        const testLine = line ? `${line} ${word}` : word
+        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+          ctx.fillText(line, textX, textY)
+          if (isUnderline && line.trim()) {
+            const w = ctx.measureText(line).width
+            let startX = textX
+            if (note.style?.align === 'center') startX = textX - w / 2
+            else if (note.style?.align === 'right') startX = textX - w
+            ctx.beginPath()
+            ctx.moveTo(startX, textY + fontSize + 1)
+            ctx.lineTo(startX + w, textY + fontSize + 1)
+            ctx.strokeStyle = noteColors.text
+            ctx.lineWidth = Math.max(1, fontSize * 0.08)
+            ctx.stroke()
+          }
+          line = word
+          textY += lineHeight
+          if (textY > y + cardH - pad - lineHeight) break
+        } else {
+          line = testLine
+        }
       }
-    }
-    if (line && textY <= y + cardH - pad) {
-      ctx.fillText(line, textX, textY)
+      if (line && textY <= y + cardH - pad) {
+        ctx.fillText(line, textX, textY)
+        if (isUnderline && line.trim()) {
+          const w = ctx.measureText(line).width
+          let startX = textX
+          if (note.style?.align === 'center') startX = textX - w / 2
+          else if (note.style?.align === 'right') startX = textX - w
+          ctx.beginPath()
+          ctx.moveTo(startX, textY + fontSize + 1)
+          ctx.lineTo(startX + w, textY + fontSize + 1)
+          ctx.strokeStyle = noteColors.text
+          ctx.lineWidth = Math.max(1, fontSize * 0.08)
+          ctx.stroke()
+        }
+        textY += lineHeight
+      }
+      if (textY > y + cardH - pad - lineHeight) break
     }
   }
 
