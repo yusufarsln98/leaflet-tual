@@ -1363,6 +1363,44 @@
   opacity: 0.75;
 }
 
+.tual-number-stepper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin-left: 2px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.tual-number-step-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  width: 14px;
+  height: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--tual-muted, #71717a);
+  border-radius: 2px;
+  line-height: 1;
+  transition: opacity 0.12s ease, color 0.12s ease, background-color 0.12s ease;
+}
+
+.tual-number-step-btn:hover:not(:disabled) {
+  color: var(--tual-text, #18181b);
+  background-color: var(--tual-surface-hover, #f4f4f5);
+}
+
+.tual-number-step-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
 .tual-typo-styles-row {
   display: flex;
   gap: 5px;

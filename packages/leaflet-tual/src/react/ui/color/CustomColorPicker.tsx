@@ -201,6 +201,8 @@ export function CustomColorPicker({
         <NumberField
           min={0}
           max={100}
+          step={1}
+          stepIcons={false}
           wrapperClassName="tual-color-opacity-field"
           className="tual-color-opacity-num"
           unitClassName="tual-color-percent-sign"

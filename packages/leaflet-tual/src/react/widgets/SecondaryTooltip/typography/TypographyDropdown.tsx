@@ -113,6 +113,7 @@ export function TypographyDropdown({
               aria-label={t('fontSizePx')}
               min={8}
               max={144}
+              step={1}
               value={effectivePx}
               unit="px"
               onChange={handleCustomPxChange}

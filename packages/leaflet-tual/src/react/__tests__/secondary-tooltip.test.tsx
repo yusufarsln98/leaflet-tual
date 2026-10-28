@@ -203,7 +203,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
 
     expect(screen.getByTitle('Text Size & Style')).toBeDefined()
     expect(screen.getByTitle('Text Color')).toBeDefined()
-    expect(screen.getByTitle('Background Color')).toBeDefined()
+    expect(screen.getByTitle('Color')).toBeDefined()
     expect(screen.getByTitle('Text Alignment')).toBeDefined()
 
     // Corner radius belongs to the border & stroke menu for notes, not a
@@ -432,10 +432,10 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     const map = createMockMap()
     render(<SecondaryTooltip map={map} controller={result.current} />)
 
-    const bgBtn = screen.getByTitle('Background Color')
+    const bgBtn = screen.getByTitle('Color')
     expect(bgBtn).toBeDefined()
 
-    // Open Background Color popover
+    // Open Color popover
     act(() => {
       fireEvent.click(bgBtn)
     })

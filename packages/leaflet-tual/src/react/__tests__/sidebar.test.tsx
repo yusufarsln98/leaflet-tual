@@ -225,10 +225,12 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
 
     // Edit Thickness & Opacity inside sidebar
     const thicknessInput = screen.getByLabelText('Stroke Width') as HTMLInputElement
+    expect(thicknessInput.step).toBe('1')
     fireEvent.change(thicknessInput, { target: { value: '3' } })
     expect(result.current.items[0].style?.width).toBe(3)
 
     const opacityInput = screen.getByLabelText('Opacity') as HTMLInputElement
+    expect(opacityInput.step).toBe('0.1')
     fireEvent.change(opacityInput, { target: { value: '0.5' } })
     expect(result.current.items[0].style?.opacity).toBe(0.5)
 

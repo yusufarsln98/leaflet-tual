@@ -70,13 +70,13 @@ export function ColorSwatchControls({
             variant="secondary-button"
             colorHex={backgroundColor}
             noFill={style.fill === 'none'}
-            title={t('backgroundColor')}
-            onClick={() => onToggle('bgColor')}
+            title={t('color')}
+            onClick={() => onToggle('color')}
           />
-          {activePopover === 'bgColor' && (
+          {activePopover === 'color' && (
             <ColorDropdown
               map={map}
-              title={t('backgroundColor')}
+              title={t('color')}
               mode="fill"
               currentColor={style.fillColor ?? style.color ?? 'yellow'}
               currentFill={style.fill}

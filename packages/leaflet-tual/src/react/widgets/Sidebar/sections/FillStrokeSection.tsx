@@ -152,6 +152,7 @@ export function FillStrokeSection({
               aria-label={t('strokeWidth')}
               min={0}
               max={32}
+              step={1}
               value={numWidth}
               wrapperClassName="tual-sidebar-input-field"
               className="tual-sidebar-number-input"
@@ -161,12 +162,12 @@ export function FillStrokeSection({
         </div>
       )}
 
-      {/* Fill / Background color */}
+      {/* Fill color */}
       {isBoxItem && (
         <ColorFieldRow
           map={map}
-          label={isNote ? t('backgroundColor') : t('fill')}
-          title={isNote ? t('backgroundColor') : t('color')}
+          label={t('fill')}
+          title={t('fill')}
           mode="fill"
           currentColor={fillColorKey}
           currentFill={fillMode}
@@ -220,26 +221,18 @@ export function FillStrokeSection({
       <div className="tual-sidebar-prop-row">
         <span className="tual-sidebar-prop-label">{t('opacity')}</span>
         <div className="tual-sidebar-prop-control">
-          <div className="tual-sidebar-input-field">
-            <input
-              type="number"
-              aria-label={t('opacity')}
-              min={0}
-              max={1}
-              step={0.1}
-              value={opacity}
-              className="tual-sidebar-number-input"
-              onChange={(event) => {
-                const parsed = parseFloat(event.target.value)
-                if (!Number.isNaN(parsed)) {
-                  onUpdateStyle({ opacity: Math.max(0, Math.min(1, parsed)) })
-                }
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-              onMouseDown={(event) => event.stopPropagation()}
-              onKeyDown={(event) => event.stopPropagation()}
-            />
-          </div>
+          <NumberField
+            aria-label={t('opacity')}
+            min={0}
+            max={1}
+            step={0.1}
+            value={opacity}
+            wrapperClassName="tual-sidebar-input-field"
+            className="tual-sidebar-number-input"
+            onChange={(val) => {
+              onUpdateStyle({ opacity: Math.max(0, Math.min(1, Math.round(val * 100) / 100)) })
+            }}
+          />
         </div>
       </div>
     </Collapsible>

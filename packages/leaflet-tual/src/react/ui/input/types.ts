@@ -4,6 +4,8 @@ export interface NumberFieldProps extends Omit<InputHTMLAttributes<HTMLInputElem
   value: number
   onChange: (value: number) => void
   unit?: string
+  step?: number | string
+  stepIcons?: boolean
   wrapperClassName?: string
   unitClassName?: string
 }

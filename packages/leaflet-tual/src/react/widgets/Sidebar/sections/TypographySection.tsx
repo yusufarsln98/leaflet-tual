@@ -67,6 +67,7 @@ export function TypographySection({
             aria-label={t('fontSizePx')}
             min={8}
             max={144}
+            step={1}
             value={effectivePx}
             unit="px"
             wrapperClassName="tual-sidebar-input-field"
