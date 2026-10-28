@@ -3,15 +3,7 @@
 import { useRef, useState } from 'react'
 import type L from 'leaflet'
 import type { Controller, GeoPoint, NoteItem } from '../../../../core/index.js'
-import {
-  geoToScreen,
-  screenToGeo,
-  resolveColor,
-  resolveNoteColors,
-  resolveSize,
-  resolveWeight,
-  resolveWidth,
-} from '../../../../core/index.js'
+import { geoToScreen, resolveItemStyle, screenToGeo } from '../../../../core/index.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { handleNoteKeyDown } from './use-note-editor-keys.js'
@@ -59,26 +51,7 @@ export function NoteOverlayView({
   const maxY = center.y + screenHeight / 2
 
   const isSelected = controller.selection.includes(note.id)
-  const colors = resolveNoteColors(
-    note.style?.color ?? 'yellow',
-    'light',
-    note.style?.textColor,
-    note.style?.fillColor,
-  )
-  const baseFontSize = resolveSize(note.style?.size ?? 'm', note.style?.fontSize)
-  const weight = resolveWeight(note.style?.weight)
-  const fontStyle = note.style?.fontStyle === 'italic' ? 'italic' : 'normal'
-  const isUnderline = Boolean(
-    note.style?.underline || note.style?.textDecoration === 'underline',
-  )
-  const textDecoration = isUnderline ? 'underline' : 'none'
-  const radius = note.style?.radius ?? 8
-  const borderDash = note.style?.dash ?? 'solid'
-  const borderWidth =
-    borderDash === 'none' ? 0 : resolveWidth(note.style?.width ?? 's')
-  const borderColor = note.style?.strokeColor
-    ? resolveColor(note.style.strokeColor, 'light')
-    : colors.border
+  const visual = resolveItemStyle(note, 'light')
 
   const handleFocus = () => {
     setIsFocused(true)
@@ -155,11 +128,14 @@ export function NoteOverlayView({
         height: baseHeight,
         transform: `translate(-50%, -50%) scale(${zoomScale})`,
         transformOrigin: 'center center',
-        backgroundColor: colors.bg,
-        color: colors.text,
-        border: borderWidth > 0 ? `${borderWidth}px ${borderDash} ${borderColor}` : 'none',
-        borderRadius: radius,
-        opacity: note.style?.opacity ?? 1,
+        backgroundColor: visual.backgroundColor,
+        color: visual.text.color,
+        border:
+          visual.strokeWidth > 0
+            ? `${visual.strokeWidth}px ${visual.dash} ${visual.strokeColor}`
+            : 'none',
+        borderRadius: visual.radius,
+        opacity: visual.opacity,
       }}
       onPointerDown={handlePointerDown}
     >
@@ -170,12 +146,12 @@ export function NoteOverlayView({
         placeholder={t('placeholderNote')}
         readOnly={controller.readOnly}
         style={{
-          fontSize: baseFontSize,
-          color: colors.text,
-          textAlign: note.style?.align ?? 'left',
-          fontWeight: weight,
-          fontStyle,
-          textDecoration,
+          fontSize: visual.text.fontSize,
+          color: visual.text.color,
+          textAlign: visual.text.align,
+          fontWeight: visual.text.fontWeight,
+          fontStyle: visual.text.fontStyle,
+          textDecoration: visual.text.textDecoration,
           overflowY: isFocused ? 'auto' : 'hidden',
           whiteSpace: 'pre-wrap',
         }}

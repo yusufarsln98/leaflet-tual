@@ -1,6 +1,13 @@
 'use client'
 
-import type { Controller, FontWeight, Item, LabelPosition, ShapeItem, Style } from '../../../../core/index.js'
+import type {
+  Controller,
+  FontWeight,
+  Item,
+  LabelPosition,
+  ShapeItem,
+  Style,
+} from '../../../../core/index.js'
 import { resolveSize, WEIGHT_OPTIONS } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { Collapsible, NumberField, Select } from '../../../ui/index.js'
@@ -32,10 +39,10 @@ export function TypographySection({
 
   const currentText =
     selectedItem.type === 'note' || selectedItem.type === 'text'
-      ? (selectedItem.text ?? '')
+      ? selectedItem.text ?? ''
       : selectedItem.type === 'shape' || selectedItem.type === 'arrow'
-        ? (selectedItem.label ?? '')
-        : ''
+      ? selectedItem.label ?? ''
+      : ''
 
   const handleUpdateText = (newText: string, newStyle: Partial<Style>) => {
     if (selectedItem.type === 'note' || selectedItem.type === 'text') {
@@ -122,4 +129,3 @@ export function TypographySection({
     </Collapsible>
   )
 }
-

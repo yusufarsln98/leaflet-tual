@@ -33,8 +33,13 @@ export function StylePopover({ controller, className }: StylePopoverProps) {
     currentStyle.weight === 'bold' ? 'bold' : 'regular'
   const currentAlign = currentStyle.align ?? 'left'
 
-  const showWidth =
+  const isBox =
     targetType === 'shape' ||
+    targetType === 'note' ||
+    (!selectedItem && (controller.tool === 'shape' || controller.tool === 'note'))
+
+  const showWidth =
+    isBox ||
     targetType === 'arrow' ||
     targetType === 'freedraw' ||
     targetType === 'pen' ||
@@ -42,20 +47,20 @@ export function StylePopover({ controller, className }: StylePopoverProps) {
     (!selectedItem && (controller.tool === 'select' || controller.tool === 'freedraw' || controller.tool === 'pen'))
 
   const showDash =
-    targetType === 'shape' ||
+    isBox ||
     targetType === 'arrow' ||
     targetType === 'freedraw' ||
     targetType === 'pen' ||
     (!selectedItem && (controller.tool === 'select' || controller.tool === 'freedraw' || controller.tool === 'pen'))
 
   const showFill =
-    targetType === 'shape' ||
-    (!selectedItem && (controller.tool === 'shape' || controller.tool === 'select'))
+    isBox ||
+    (!selectedItem && controller.tool === 'select')
 
   const showSize =
-    targetType === 'note' ||
+    isBox ||
     targetType === 'text' ||
-    (!selectedItem && (controller.tool === 'note' || controller.tool === 'text' || controller.tool === 'select'))
+    (!selectedItem && (controller.tool === 'text' || controller.tool === 'select'))
 
   const showWeight =
     targetType === 'text' ||

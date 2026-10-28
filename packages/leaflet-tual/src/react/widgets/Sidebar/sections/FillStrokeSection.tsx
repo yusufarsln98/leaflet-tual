@@ -1,18 +1,19 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import type { ColorName, Item, ShapeItem, Style } from '../../../../core/index.js'
-import { resolveColor, resolveNoteColors, resolveWidth } from '../../../../core/index.js'
+import { resolveColor, resolveItemStyle, resolveWidth } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { Collapsible, NumberField, Select } from '../../../ui/index.js'
-import { ColorDropdown } from '../../SecondaryTooltip/color/ColorDropdown.js'
+import { ColorFieldRow } from './ColorFieldRow.js'
 
 export interface FillStrokeSectionProps {
   map?: L.Map
   selectedItem: Item
   style: Style
   scheme: 'light' | 'dark'
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
   onUpdateStyle: (patch: Partial<Style>) => void
 }
 
@@ -21,178 +22,128 @@ const RADIUS_OPTIONS = [0, 8, 16].map((radius) => ({
   label: String(radius),
 }))
 
+const DASH_KEYS = ['solid', 'dashed', 'dotted', 'none'] as const
+
 export function FillStrokeSection({
   map,
   selectedItem,
   style,
   scheme,
+  open,
+  onOpenChange,
   onUpdateStyle,
 }: FillStrokeSectionProps) {
   const { t } = useTranslation()
-  const [openColorPicker, setOpenColorPicker] = useState<'stroke' | 'fill' | 'text' | null>(null)
-  const strokeControlRef = useRef<HTMLDivElement>(null)
-  const textControlRef = useRef<HTMLDivElement>(null)
-  const fillControlRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!openColorPicker) return
-
-    const activeRef =
-      openColorPicker === 'stroke'
-        ? strokeControlRef
-        : openColorPicker === 'text'
-          ? textControlRef
-          : fillControlRef
-
-    const handlePointerDownOutside = (e: MouseEvent | PointerEvent) => {
-      const target = e.target as Node | null
-      if (activeRef.current && target && !activeRef.current.contains(target)) {
-        setOpenColorPicker(null)
-      }
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpenColorPicker(null)
-      }
-    }
-
-    document.addEventListener('pointerdown', handlePointerDownOutside, true)
-    document.addEventListener('mousedown', handlePointerDownOutside, true)
-    document.addEventListener('keydown', handleKeyDown, true)
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDownOutside, true)
-      document.removeEventListener('mousedown', handlePointerDownOutside, true)
-      document.removeEventListener('keydown', handleKeyDown, true)
-    }
-  }, [openColorPicker])
-
   const isShape = selectedItem.type === 'shape'
   const isArrow = selectedItem.type === 'arrow'
   const isNote = selectedItem.type === 'note'
   const isText = selectedItem.type === 'text'
   const isSquareShape = isShape && (selectedItem as ShapeItem).kind === 'square'
+  const isBoxItem = isShape || isNote
   const hasBorder =
-    isShape ||
-    isNote ||
+    isBoxItem ||
     isArrow ||
     selectedItem.type === 'ruler' ||
     selectedItem.type === 'freedraw' ||
     selectedItem.type === 'pen'
 
-  const strokeColorKey = isText || isNote
-    ? (style.textColor ?? (isText ? style.color : undefined) ?? 'ink')
-    : (style.strokeColor ?? style.color ?? (isShape || isArrow ? 'blue' : 'ink'))
-  const strokeHex = resolveColor(strokeColorKey, 'light')
+  const boxItem = isBoxItem ? selectedItem : null
+  const visual = boxItem ? resolveItemStyle(boxItem, 'light') : null
 
-  const fillColorKey = isNote
-    ? (style.fillColor ?? style.color ?? 'yellow')
-    : (style.fillColor ?? style.color ?? 'blue')
-  const fillHex = isNote
-    ? resolveNoteColors(style.color ?? 'yellow', 'light', style.textColor, style.fillColor).bg
-    : resolveColor(fillColorKey, 'light')
+  const strokeColorKey =
+    isText || (isNote && !style.strokeColor)
+      ? style.textColor ?? style.color ?? (isNote ? 'yellow' : 'ink')
+      : style.strokeColor ??
+        style.color ??
+        (isShape || isArrow ? 'blue' : 'ink')
+  const strokeHex = isText
+    ? resolveColor(style.textColor ?? style.color ?? 'ink', 'light')
+    : visual?.strokeColor ?? resolveColor(strokeColorKey, 'light')
 
-  const numWidth = resolveWidth(isNote ? (style.width ?? 's') : (style.width ?? 'm'))
-  const dashOptions: Array<{ value: 'solid' | 'dashed' | 'dotted' | 'none'; label: string }> = [
-    { value: 'solid', label: t('solid') },
-    { value: 'dashed', label: t('dashed') },
-    { value: 'dotted', label: t('dotted') },
-    { value: 'none', label: t('noBorder') },
-  ]
+  const textColorKey = style.textColor ?? 'ink'
+  const textHex = visual?.text.color ?? resolveColor(textColorKey, 'light')
 
-  const togglePicker = (which: 'stroke' | 'fill' | 'text') => {
-    setOpenColorPicker((prev) => (prev === which ? null : which))
+  const fillColorKey =
+    style.fillColor ?? style.color ?? (isNote ? 'yellow' : 'blue')
+  const fillHex = visual?.fillColor ?? resolveColor(fillColorKey, 'light')
+  const fillMode = style.fill ?? 'solid'
+  const hasNoFill = isBoxItem && fillMode === 'none'
+
+  const numWidth = visual?.strokeWidth ?? resolveWidth(style.width ?? 'm')
+  const opacity = visual?.opacity ?? style.opacity ?? 1
+
+  const dashOptions = DASH_KEYS.map((value) => ({
+    value,
+    label: value === 'none' ? t('noBorder') : t(value),
+  }))
+
+  const handleStrokeColor = (color: ColorName | string) => {
+    if (isShape) {
+      onUpdateStyle({
+        strokeColor: color,
+        ...(style.color ? {} : { color }),
+      })
+    } else if (isNote) {
+      onUpdateStyle({ strokeColor: color })
+    } else if (isArrow) {
+      onUpdateStyle({ color, strokeColor: color })
+    } else {
+      onUpdateStyle({ color })
+    }
+  }
+
+  const handleFillColor = (color: ColorName | string) => {
+    if (isNote) {
+      onUpdateStyle({
+        color,
+        fillColor: color,
+        ...(fillMode === 'none' ? { fill: 'solid' as const } : {}),
+      })
+      return
+    }
+
+    onUpdateStyle({
+      color,
+      fillColor: color,
+      strokeColor: style.strokeColor ?? color,
+      ...(fillMode === 'none' ? { fill: 'solid' as const } : {}),
+    })
   }
 
   return (
-    <Collapsible title={t('fillAndStroke')} className="tual-sidebar-section">
-      {/* Primary Stroke / Text Color Row */}
-      {!isNote && (
-        <div className="tual-sidebar-prop-row">
-          <span className="tual-sidebar-prop-label">
-            {isText ? t('textColor') : t('stroke')}
-          </span>
-          <div
-            ref={strokeControlRef}
-            className="tual-sidebar-prop-control"
-            style={{ position: 'relative' }}
-          >
-            <button
-              type="button"
-              className="tual-sidebar-color-field"
-              title={isText ? t('textColor') : t('stroke')}
-              onClick={() => togglePicker('stroke')}
-            >
-              <span
-                className="tual-sidebar-color-swatch"
-                style={{ backgroundColor: strokeHex }}
-              />
-              <span className="tual-sidebar-color-hex">{strokeHex.toUpperCase()}</span>
-            </button>
-            {openColorPicker === 'stroke' && (
-              <div className="tual-sidebar-popover-anchor">
-                <ColorDropdown
-                  map={map}
-                  title={isText ? t('textColor') : t('stroke')}
-                  mode="stroke"
-                  currentColor={strokeColorKey}
-                  scheme={scheme}
-                  onSelectColor={(c: ColorName | string) => {
-                    if (isShape) {
-                      onUpdateStyle({ strokeColor: c, ...(style.color ? {} : { color: c }) })
-                    } else if (isArrow) {
-                      onUpdateStyle({ color: c, strokeColor: c })
-                    } else {
-                      onUpdateStyle({ color: c })
-                    }
-                  }}
-                  onClose={() => setOpenColorPicker(null)}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+    <Collapsible
+      title={t('fillAndStroke')}
+      className="tual-sidebar-section"
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      {/* Stroke / Text color */}
+      <ColorFieldRow
+        map={map}
+        label={isText ? t('textColor') : t('stroke')}
+        title={isText ? t('textColor') : t('stroke')}
+        mode="stroke"
+        currentColor={strokeColorKey}
+        scheme={scheme}
+        colorHex={strokeHex}
+        onSelectColor={handleStrokeColor}
+      />
+
+      {/* Text color — notes use it for the body, shapes for their label. */}
+      {isBoxItem && (
+        <ColorFieldRow
+          map={map}
+          label={t('textColor')}
+          title={t('textColor')}
+          mode="stroke"
+          currentColor={textColorKey}
+          scheme={scheme}
+          colorHex={textHex}
+          onSelectColor={(color) => onUpdateStyle({ textColor: color })}
+        />
       )}
 
-      {/* Note Text Color Row */}
-      {isNote && (
-        <div className="tual-sidebar-prop-row">
-          <span className="tual-sidebar-prop-label">{t('textColor')}</span>
-          <div
-            ref={textControlRef}
-            className="tual-sidebar-prop-control"
-            style={{ position: 'relative' }}
-          >
-            <button
-              type="button"
-              className="tual-sidebar-color-field"
-              title={t('textColor')}
-              onClick={() => togglePicker('text')}
-            >
-              <span
-                className="tual-sidebar-color-swatch"
-                style={{ backgroundColor: strokeHex }}
-              />
-              <span className="tual-sidebar-color-hex">{strokeHex.toUpperCase()}</span>
-            </button>
-            {openColorPicker === 'text' && (
-              <div className="tual-sidebar-popover-anchor">
-                <ColorDropdown
-                  map={map}
-                  title={t('textColor')}
-                  mode="stroke"
-                  currentColor={style.textColor ?? 'ink'}
-                  scheme={scheme}
-                  onSelectColor={(c: ColorName | string) => onUpdateStyle({ textColor: c })}
-                  onClose={() => setOpenColorPicker(null)}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Thickness Row */}
+      {/* Thickness */}
       {hasBorder && (
         <div className="tual-sidebar-prop-row">
           <span className="tual-sidebar-prop-label">{t('thickness')}</span>
@@ -204,81 +155,31 @@ export function FillStrokeSection({
               value={numWidth}
               wrapperClassName="tual-sidebar-input-field"
               className="tual-sidebar-number-input"
-              onChange={(w) => onUpdateStyle({ width: Math.max(0, w) })}
+              onChange={(width) => onUpdateStyle({ width: Math.max(0, width) })}
             />
           </div>
         </div>
       )}
 
-      {/* Fill / Background Color Row */}
-      {(isShape || isNote) && (
-        <div className="tual-sidebar-prop-row">
-          <span className="tual-sidebar-prop-label">
-            {isNote ? t('backgroundColor') : t('fill')}
-          </span>
-          <div
-            ref={fillControlRef}
-            className="tual-sidebar-prop-control"
-            style={{ position: 'relative' }}
-          >
-            <button
-              type="button"
-              className="tual-sidebar-color-field"
-              title={isNote ? t('backgroundColor') : t('color')}
-              onClick={() => togglePicker('fill')}
-            >
-              <span
-                className={
-                  isShape && style.fill === 'none'
-                    ? 'tual-no-fill-swatch'
-                    : 'tual-sidebar-color-swatch'
-                }
-                style={
-                  isShape && style.fill === 'none'
-                    ? undefined
-                    : { backgroundColor: fillHex }
-                }
-              />
-              <span className="tual-sidebar-color-hex">
-                {isShape && style.fill === 'none' ? t('noFill') : fillHex.toUpperCase()}
-              </span>
-            </button>
-            {openColorPicker === 'fill' && (
-              <div className="tual-sidebar-popover-anchor">
-                <ColorDropdown
-                  map={map}
-                  title={isNote ? t('backgroundColor') : t('color')}
-                  mode="fill"
-                  currentColor={fillColorKey}
-                  currentFill={style.fill}
-                  scheme={scheme}
-                  onSelectColor={(c: ColorName | string) => {
-                    if (isNote) {
-                      onUpdateStyle({ fillColor: c, color: c })
-                    } else {
-                      const nextStyle: Partial<Style> = {
-                        color: c,
-                        fillColor: c,
-                        strokeColor: style.strokeColor ?? c,
-                      }
-                      if (style.fill === 'none') {
-                        nextStyle.fill = 'solid'
-                      }
-                      onUpdateStyle(nextStyle)
-                    }
-                  }}
-                  onSelectFillMode={
-                    isShape ? (mode) => onUpdateStyle({ fill: mode }) : undefined
-                  }
-                  onClose={() => setOpenColorPicker(null)}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Fill / Background color */}
+      {isBoxItem && (
+        <ColorFieldRow
+          map={map}
+          label={isNote ? t('backgroundColor') : t('fill')}
+          title={isNote ? t('backgroundColor') : t('color')}
+          mode="fill"
+          currentColor={fillColorKey}
+          currentFill={fillMode}
+          scheme={scheme}
+          colorHex={fillHex}
+          value={hasNoFill ? t('noFill') : undefined}
+          noFill={hasNoFill}
+          onSelectColor={handleFillColor}
+          onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
+        />
       )}
 
-      {/* Dash / Border Style Row */}
+      {/* Border style */}
       {hasBorder && (
         <div className="tual-sidebar-prop-row">
           <span className="tual-sidebar-prop-label">{t('borderStyle')}</span>
@@ -290,14 +191,14 @@ export function FillStrokeSection({
               options={dashOptions}
               align="start"
               className="tual-sidebar-select-field"
-              onChange={(d) => onUpdateStyle({ dash: d })}
+              onChange={(dash) => onUpdateStyle({ dash })}
             />
           </div>
         </div>
       )}
 
-      {/* Corner Radius Row */}
-      {(isSquareShape || isNote) && (
+      {/* Corner radius */}
+      {(isNote || isSquareShape) && (
         <div className="tual-sidebar-prop-row">
           <span className="tual-sidebar-prop-label">{t('cornerRadius')}</span>
           <div className="tual-sidebar-prop-control">
@@ -309,12 +210,38 @@ export function FillStrokeSection({
               unit="px"
               align="start"
               className="tual-sidebar-select-field"
-              onChange={(r) => onUpdateStyle({ radius: r })}
+              onChange={(radius) => onUpdateStyle({ radius })}
             />
           </div>
         </div>
       )}
+
+      {/* Opacity */}
+      <div className="tual-sidebar-prop-row">
+        <span className="tual-sidebar-prop-label">{t('opacity')}</span>
+        <div className="tual-sidebar-prop-control">
+          <div className="tual-sidebar-input-field">
+            <input
+              type="number"
+              aria-label={t('opacity')}
+              min={0}
+              max={1}
+              step={0.1}
+              value={opacity}
+              className="tual-sidebar-number-input"
+              onChange={(event) => {
+                const parsed = parseFloat(event.target.value)
+                if (!Number.isNaN(parsed)) {
+                  onUpdateStyle({ opacity: Math.max(0, Math.min(1, parsed)) })
+                }
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              onMouseDown={(event) => event.stopPropagation()}
+              onKeyDown={(event) => event.stopPropagation()}
+            />
+          </div>
+        </div>
+      </div>
     </Collapsible>
   )
 }
-

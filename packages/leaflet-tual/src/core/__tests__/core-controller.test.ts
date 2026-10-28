@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { createController } from '../features/controller/index.js'
-import type { ArrowItem } from '../types/items.js'
+import { resolveItemStyle } from '../shared/theme/item-style.js'
+import type { ArrowItem, NoteItem, ShapeItem, Style } from '../types/items.js'
 
 describe('v2 Controller state machine', () => {
   it('initializes with default doc, selection and tool', () => {
@@ -92,7 +93,7 @@ describe('v2 Controller state machine', () => {
       text: 'Default note',
     })
     expect(note.style?.color).toBe('yellow')
-    expect(note.style?.fillColor).toBe('yellow')
+    expect(note.style?.fill).toBe('solid')
   })
 
   it('selection-aware setStyle modifies selected items', () => {
@@ -181,5 +182,67 @@ describe('v2 Controller state machine', () => {
     // Other tools never carry a variant.
     c.setTool('pen')
     expect(c.variant).toBeNull()
+  })
+
+  it('unifies the style schema for shapes and notes across contexts', () => {
+    const c = createController()
+
+    const sharedStyle: Style = {
+      color: 'blue',
+      fill: 'solid',
+      strokeColor: 'red',
+      width: 'l',
+      dash: 'dashed',
+      radius: 12,
+      opacity: 0.8,
+      size: 'l',
+      weight: 'bold',
+      fontStyle: 'italic',
+      align: 'center',
+    }
+
+    const shape = c.add({
+      type: 'shape',
+      kind: 'square',
+      at: { lat: 41, lng: 28 },
+      width: 100,
+      height: 100,
+      style: sharedStyle,
+    }) as ShapeItem
+
+    const note = c.add({
+      type: 'note',
+      at: { lat: 41, lng: 28 },
+      text: 'Unified note',
+      style: sharedStyle,
+    }) as NoteItem
+
+    const shapeVisual = resolveItemStyle(shape, 'light')
+    const noteVisual = resolveItemStyle(note, 'light')
+
+    // Both interpret the schema consistently:
+    expect(shapeVisual.fill).toBe('solid')
+    expect(noteVisual.fill).toBe('solid')
+    expect(shapeVisual.strokeColor).toBe('#E5484D') // red
+    expect(noteVisual.strokeColor).toBe('#E5484D') // red
+    expect(shapeVisual.strokeWidth).toBe(4) // 'l'
+    expect(noteVisual.strokeWidth).toBe(4) // 'l'
+    expect(shapeVisual.dash).toBe('dashed')
+    expect(noteVisual.dash).toBe('dashed')
+    expect(shapeVisual.radius).toBe(12)
+    expect(noteVisual.radius).toBe(12)
+    expect(shapeVisual.opacity).toBe(0.8)
+    expect(noteVisual.opacity).toBe(0.8)
+    expect(shapeVisual.text.fontWeight).toBe('700')
+    expect(noteVisual.text.fontWeight).toBe('700')
+    expect(shapeVisual.text.fontStyle).toBe('italic')
+    expect(noteVisual.text.fontStyle).toBe('italic')
+    expect(shapeVisual.text.align).toBe('center')
+    expect(noteVisual.text.align).toBe('center')
+
+    // Context differences: shape uses standard drawing palette, note uses surface palette
+    expect(shapeVisual.fillColor).toBe('#2F6FEB') // standard blue
+    expect(noteVisual.fillColor).toBe('#DBEAFE') // soft note blue surface
+    expect(noteVisual.text.color).toBe('#1E3A8A') // dark blue note text
   })
 })

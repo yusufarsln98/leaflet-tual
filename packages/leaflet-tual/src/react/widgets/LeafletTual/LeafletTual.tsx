@@ -188,15 +188,18 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           />
         )}
 
-        {/* Right Properties & Layers Sidebar */}
-        {isSidebarOpen && !controller.readOnly && (
+      </div>
+
+      {/* Right Properties & Layers Sidebar — own overlay layer so it sits above Leaflet controls (e.g. attribution) */}
+      {isSidebarOpen && !controller.readOnly && (
+        <div className="tual tual-sidebar-layer" data-theme={resolvedScheme}>
           <Sidebar
             controller={controller}
             map={map}
             onClose={() => handleSidebarChange(false)}
           />
-        )}
-      </div>
+        </div>
+      )}
     </TranslationProvider>
   )
 }

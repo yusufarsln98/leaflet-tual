@@ -5,8 +5,6 @@ import type { Controller, Item, Style } from '../../../core/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
 import { FillStrokeSection } from './sections/FillStrokeSection.js'
 import { TypographySection } from './sections/TypographySection.js'
-import { AppearanceSection } from './sections/AppearanceSection.js'
-import { PreviewSection } from './sections/PreviewSection.js'
 
 export interface SidebarPropertiesProps {
   controller: Controller
@@ -46,18 +44,6 @@ export function SidebarProperties({ controller, map }: SidebarPropertiesProps) {
         controller={controller}
         onUpdateStyle={updateStyle}
       />
-      <AppearanceSection
-        selectedItem={selectedItem}
-        style={style}
-        controller={controller}
-        onUpdateStyle={updateStyle}
-      />
-      <PreviewSection
-        selectedItem={selectedItem}
-        style={style}
-        controller={controller}
-      />
     </div>
   )
 }
-

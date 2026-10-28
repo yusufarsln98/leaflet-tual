@@ -99,7 +99,7 @@ export const ALPINE_PRESET: ShowcasePreset = {
       height: 100,
       title: 'Helipad Station',
       text: 'Crosswinds < 15 kt · Extraction standby.',
-      style: { color: 'yellow', fillColor: 'yellow', size: 's', width: 's' },
+      style: { color: 'yellow', fill: 'solid', size: 's', width: 's' },
       baseZoom: 12,
       createdAt: 6000,
     },

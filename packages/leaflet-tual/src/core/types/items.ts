@@ -29,10 +29,10 @@ export interface Style {
   fontStyle?: 'normal' | 'italic'
   textDecoration?: 'none' | 'underline'
   underline?: boolean
-  list?: 'none' | 'bullet'
-  bullets?: boolean
   align?: 'left' | 'center' | 'right'
   radius?: number
+  list?: 'none' | 'bullet'
+  bullets?: boolean
 }
 
 export interface Base {

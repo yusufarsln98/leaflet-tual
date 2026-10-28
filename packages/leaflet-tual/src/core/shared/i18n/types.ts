@@ -27,10 +27,8 @@ export interface TranslationTokens {
   fillAndStroke: string
   stroke: string
   thickness: string
-  appearance: string
   opacity: string
   typography: string
-  preview: string
   confirmDelete: string
   cancel: string
 

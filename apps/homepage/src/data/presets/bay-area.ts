@@ -95,7 +95,7 @@ export const BAY_AREA_PRESET: ShowcasePreset = {
       height: 115,
       title: 'Port Operations',
       text: 'Terminal 35 dredged to 40 ft MLLW. Tug assistance required for outbound container vessels.',
-      style: { color: 'blue', fillColor: 'blue', size: 's', width: 's' },
+      style: { color: 'blue', fill: 'solid', size: 's', width: 's' },
       baseZoom: 14,
       createdAt: 5000,
     },

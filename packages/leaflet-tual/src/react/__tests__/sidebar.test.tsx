@@ -115,6 +115,36 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
     expect(result.current.items).toHaveLength(0)
   })
 
+  it('preserves section order when sections are collapsed', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+
+    act(() => {
+      const shape = result.current.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
+      })
+      result.current.select(shape.id)
+    })
+
+    const { container } = render(
+      <Sidebar controller={result.current} map={createMockMap()} onClose={vi.fn()} />,
+    )
+
+    fireEvent.click(screen.getByText('Fill & stroke').closest('button') as HTMLButtonElement)
+    fireEvent.click(screen.getByText('Typography').closest('button') as HTMLButtonElement)
+
+    const properties = container.querySelector('.tual-sidebar-properties') as HTMLElement
+    const titles = Array.from(properties.querySelectorAll('.tual-collapsible-title')).map(
+      (node) => node.textContent,
+    )
+
+    expect(titles).toEqual(['Fill & stroke', 'Typography'])
+    expect(properties.querySelector('.tual-sidebar-collapsed-stack')).toBeNull()
+  })
+
   it('shows empty state when sidebar is open and nothing is selected', () => {
     const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
     const map = createMockMap()
@@ -174,17 +204,17 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
     expect(result.current.selection).toEqual([shapeId])
     expect(map.fitBounds).toHaveBeenCalledTimes(1)
 
-    // Properties sections are shown in sidebar (including Preview) and are collapsible
+    // Properties sections are shown in sidebar; opacity lives in Fill & stroke
     expect(screen.getByText('Fill & stroke')).toBeDefined()
-    expect(screen.getByText('Appearance')).toBeDefined()
-    expect(screen.getByText('Preview')).toBeDefined()
-    expect(container.querySelector('.tual-sidebar-preview-box')).not.toBeNull()
+    expect(screen.queryByText('Appearance')).toBeNull()
+    expect(screen.queryByText('Preview')).toBeNull()
 
-    // Collapsing and expanding a section via Collapsible header
-    const appearanceHeader = screen.getByText('Appearance').closest('button') as HTMLButtonElement
-    fireEvent.click(appearanceHeader)
+    // Collapsing a section keeps it in place; expanding restores its content
+    const fillHeader = screen.getByText('Fill & stroke').closest('button') as HTMLButtonElement
+    fireEvent.click(fillHeader)
     expect(screen.queryByLabelText('Opacity')).toBeNull()
-    fireEvent.click(appearanceHeader)
+
+    fireEvent.click(fillHeader)
     expect(screen.getByLabelText('Opacity')).toBeDefined()
 
     // Opening a color menu in the sidebar and clicking outside closes the menu

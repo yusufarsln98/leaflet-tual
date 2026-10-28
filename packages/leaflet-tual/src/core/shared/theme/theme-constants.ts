@@ -97,8 +97,8 @@ export const DEFAULT_TOOL_STYLES: Record<string, Style> = {
   pen: { color: 'ink', width: 'm', dash: 'solid' },
   arrow: { color: 'blue', width: 'm', dash: 'solid' },
   ruler: { color: 'ink', width: 'm', dash: 'solid' },
-  shape: { color: 'blue', fill: 'tint', width: 'm', dash: 'solid' },
-  note: { color: 'yellow', fillColor: 'yellow', size: 'm' },
+  shape: { color: 'blue', fill: 'tint', width: 'm', dash: 'solid', size: 's', radius: 8 },
+  note: { color: 'yellow', fill: 'solid', width: 's', dash: 'solid', size: 'm', radius: 8 },
   text: { color: 'ink', size: 'm' },
 }
 

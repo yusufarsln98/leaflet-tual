@@ -1,8 +1,8 @@
 'use client'
 
 import type L from 'leaflet'
-import type { ColorName, Style } from '../../../../core/index.js'
-import { resolveColor, resolveNoteColors } from '../../../../core/index.js'
+import type { ColorName, ResolvedItemStyle, Style } from '../../../../core/index.js'
+import { resolveColor } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { ColorSwatch } from '../../../ui/index.js'
 import { ColorDropdown } from './ColorDropdown.js'
@@ -15,6 +15,7 @@ export interface ColorSwatchControlsProps {
   style: Style
   scheme: 'light' | 'dark'
   colorHex: string
+  resolvedStyle?: ResolvedItemStyle
   activePopover: string | null
   onToggle: (popoverName: string) => void
   onClose: () => void
@@ -29,6 +30,7 @@ export function ColorSwatchControls({
   style,
   scheme,
   colorHex,
+  resolvedStyle,
   activePopover,
   onToggle,
   onClose,
@@ -37,18 +39,17 @@ export function ColorSwatchControls({
   const { t } = useTranslation()
 
   if (isNote) {
-    const noteColors = resolveNoteColors(
-      style.color ?? 'yellow',
-      'light',
-      style.textColor,
-      style.fillColor,
-    )
+    const textColor = resolvedStyle?.text.color ?? resolveColor(style.textColor ?? 'ink', 'light')
+    const backgroundColor =
+      resolvedStyle?.fillColor ??
+      resolveColor(style.fillColor ?? style.color ?? 'yellow', 'light')
+
     return (
       <>
         <div style={{ position: 'relative' }}>
           <ColorSwatch
             variant="secondary-button"
-            colorHex={resolveColor(style.textColor ?? 'ink', 'light')}
+            colorHex={textColor}
             title={t('textColor')}
             onClick={() => onToggle('textColor')}
           />
@@ -67,7 +68,8 @@ export function ColorSwatchControls({
         <div style={{ position: 'relative' }}>
           <ColorSwatch
             variant="secondary-button"
-            colorHex={noteColors.bg}
+            colorHex={backgroundColor}
+            noFill={style.fill === 'none'}
             title={t('backgroundColor')}
             onClick={() => onToggle('bgColor')}
           />
@@ -77,8 +79,10 @@ export function ColorSwatchControls({
               title={t('backgroundColor')}
               mode="fill"
               currentColor={style.fillColor ?? style.color ?? 'yellow'}
+              currentFill={style.fill}
               scheme={scheme}
-              onSelectColor={(c: ColorName | string) => onUpdateStyle({ fillColor: c, color: c })}
+              onSelectColor={(c: ColorName | string) => onUpdateStyle({ color: c, fillColor: c })}
+              onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
               onClose={onClose}
             />
           )}

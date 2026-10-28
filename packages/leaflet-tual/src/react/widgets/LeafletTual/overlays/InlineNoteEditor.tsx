@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import type { Controller, NoteItem } from '../../../../core/index.js'
-import { geoToScreen, resolveNoteColors, resolveSize, resolveWeight } from '../../../../core/index.js'
+import { geoToScreen, resolveItemStyle } from '../../../../core/index.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { handleNoteKeyDown } from './use-note-editor-keys.js'
@@ -32,18 +32,8 @@ export function InlineNoteEditor({
   const minX = center.x - cardW / 2
   const minY = center.y - cardH / 2
 
-  const noteColors = resolveNoteColors(
-    item.style?.color ?? 'yellow',
-    'light',
-    item.style?.textColor,
-    item.style?.fillColor,
-  )
-  const baseFontSize = resolveSize(item.style?.size ?? 'm', item.style?.fontSize)
-  const fontSize = Math.max(10, Math.round(baseFontSize * scale))
-  const weight = resolveWeight(item.style?.weight)
-  const fontStyle = item.style?.fontStyle === 'italic' ? 'italic' : 'normal'
-  const isUnderline = Boolean(item.style?.underline || item.style?.textDecoration === 'underline')
-  const textDecoration = isUnderline ? 'underline' : 'none'
+  const visual = resolveItemStyle(item, 'light')
+  const fontSize = Math.max(10, Math.round(visual.text.fontSize * scale))
   const pad = Math.max(4, Math.round(10 * scale))
 
   useEffect(() => {
@@ -84,9 +74,13 @@ export function InlineNoteEditor({
         width: cardW,
         height: cardH,
         zIndex: 1000,
-        backgroundColor: noteColors.bg,
-        border: `1px solid ${noteColors.border}`,
-        borderRadius: item.style?.radius ?? 8,
+        backgroundColor: visual.backgroundColor,
+        border:
+          visual.strokeWidth > 0
+            ? `${visual.strokeWidth}px ${visual.dash} ${visual.strokeColor}`
+            : 'none',
+        borderRadius: visual.radius,
+        opacity: visual.opacity,
         boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
         display: 'flex',
         flexDirection: 'column',
@@ -115,11 +109,12 @@ export function InlineNoteEditor({
           border: 'none',
           outline: 'none',
           background: 'transparent',
-          color: noteColors.text,
+          color: visual.text.color,
           fontSize,
-          fontWeight: weight,
-          fontStyle,
-          textDecoration,
+          fontWeight: visual.text.fontWeight,
+          fontStyle: visual.text.fontStyle,
+          textDecoration: visual.text.textDecoration,
+          textAlign: visual.text.align,
           padding: pad,
           fontFamily: 'inherit',
           lineHeight: 1.4,

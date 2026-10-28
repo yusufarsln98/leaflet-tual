@@ -1,13 +1,7 @@
 import type L from 'leaflet'
 import type { GeoPoint, ScreenPoint, ShapeItem, Tokens } from '../../types/index.js'
 import { geoToScreen } from '../../shared/geometry/geo.js'
-import {
-  resolveColor,
-  resolveDash,
-  resolveSize,
-  resolveWeight,
-  resolveWidth,
-} from '../../shared/theme/theme.js'
+import { resolveColor, resolveItemStyle } from '../../shared/theme/index.js'
 import { drawHandle, drawLabelPill } from '../../shared/drawing/canvas-utils.js'
 import { getShapeLabelY } from '../../shared/drawing/shape-label.js'
 import { getItemZoomScale } from '../../shared/geometry/zoom.js'
@@ -61,18 +55,14 @@ export function renderShapeOnCanvas(
 
   const bounds: ShapeBounds = { minX, minY, maxX, maxY, width, height, cx, cy }
 
-  const strokeColor = resolveColor(shape.style?.strokeColor ?? shape.style?.color ?? 'blue', 'light', options.tokens)
-  const fillColor = resolveColor(shape.style?.fillColor ?? shape.style?.color ?? 'blue', 'light', options.tokens)
-  const baseLineWidth = resolveWidth(shape.style?.width ?? 'm')
-  const lineWidth = shape.style?.dash === 'none' || shape.style?.width === 0 ? 0 : Math.max(0.5, baseLineWidth * scale)
-  const dash = resolveDash(shape.style?.dash ?? 'solid').map((d) => d * scale)
-  const fill = shape.style?.fill ?? 'solid'
-  const radius = (shape.style?.radius ?? 8) * scale
-  const itemOpacity = shape.style?.opacity ?? 1
+  const visual = resolveItemStyle(shape, 'light', options.tokens)
+  const lineWidth = visual.strokeWidth > 0 ? Math.max(0.5, visual.strokeWidth * scale) : 0
+  const dash = visual.dashArray.map((d) => d * scale)
+  const radius = visual.radius * scale
 
   ctx.save()
-  ctx.globalAlpha = itemOpacity
-  ctx.strokeStyle = strokeColor
+  ctx.globalAlpha = visual.opacity
+  ctx.strokeStyle = visual.strokeColor
   ctx.lineWidth = lineWidth
   ctx.setLineDash(dash)
   ctx.lineCap = 'round'
@@ -81,33 +71,32 @@ export function renderShapeOnCanvas(
   ctx.beginPath()
   traceShapePath(ctx, shape.kind, bounds, radius)
 
-  if (fill === 'solid') {
-    ctx.fillStyle = fillColor
+  if (visual.fill === 'solid') {
+    ctx.fillStyle = visual.fillColor
     ctx.fill()
-  } else if (fill === 'tint') {
+  } else if (visual.fill === 'tint') {
     ctx.save()
-    ctx.globalAlpha = itemOpacity * 0.25
-    ctx.fillStyle = fillColor
+    ctx.globalAlpha = visual.opacity * 0.25
+    ctx.fillStyle = visual.fillColor
     ctx.fill()
     ctx.restore()
   }
 
-  if (shape.style?.dash !== 'none' && lineWidth > 0) {
+  if (lineWidth > 0) {
     ctx.stroke()
   }
 
   if (shape.label && !options.isEditing) {
     const position = shape.labelPosition ?? 'center'
     const labelY = getShapeLabelY(position, minY, maxY, cy)
-    const baseFontSize = shape.style?.fontSize ?? (shape.style?.size ? resolveSize(shape.style.size) : 12)
     drawLabelPill(ctx, { x: cx, y: labelY }, shape.label, {
-      textColor: '#1D1D1B',
+      textColor: visual.text.color,
       bgColor: '#FFFFFF',
       borderColor: '#E3E1DD',
-      fontSize: baseFontSize * scale,
-      fontWeight: resolveWeight(shape.style?.weight),
-      fontStyle: shape.style?.fontStyle,
-      underline: Boolean(shape.style?.underline || shape.style?.textDecoration === 'underline'),
+      fontSize: visual.text.fontSize * scale,
+      fontWeight: visual.text.fontWeight,
+      fontStyle: visual.text.fontStyle,
+      underline: visual.text.textDecoration === 'underline',
       paddingX: Math.max(3, 4 * scale),
       paddingY: Math.max(1.5, 2 * scale),
     })

@@ -29,10 +29,8 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   fillAndStroke: 'Fill & stroke',
   stroke: 'Stroke',
   thickness: 'Thickness',
-  appearance: 'Appearance',
   opacity: 'Opacity',
   typography: 'Typography',
-  preview: 'Preview',
   confirmDelete: 'Delete item?',
   cancel: 'Cancel',
 

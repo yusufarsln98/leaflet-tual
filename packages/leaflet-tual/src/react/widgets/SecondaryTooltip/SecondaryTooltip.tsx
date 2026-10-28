@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import type { Controller, Item, ShapeItem, Style } from '../../../core/index.js'
-import { getItemBounds, resolveColor, resolveTypographyLabel } from '../../../core/index.js'
+import {
+  getItemBounds,
+  resolveColor,
+  resolveItemStyle,
+  resolveTypographyLabel,
+} from '../../../core/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
 import { PillButton } from '../../ui/index.js'
 import { useTooltipEvents } from './utils/index.js'
@@ -55,7 +60,6 @@ export function SecondaryTooltip({
   const topPos = Math.round(Math.max(16, bounds.minY - 44))
   const scheme = controller.scheme
   const style = selectedItem.style ?? {}
-  const colorHex = resolveColor(style.color ?? 'ink', 'light')
 
   const updateStyle = (patch: Partial<Style>) =>
     controller.update(selectedItem.id, { style: { ...style, ...patch } })
@@ -66,6 +70,13 @@ export function SecondaryTooltip({
   const isSquareShape = isShape && (selectedItem as ShapeItem).kind === 'square'
   const isNote = selectedItem.type === 'note'
   const isTextOrNote = isNote || selectedItem.type === 'text'
+  const resolvedStyle =
+    selectedItem.type === 'shape' || selectedItem.type === 'note'
+      ? resolveItemStyle(selectedItem, scheme)
+      : undefined
+  const colorHex =
+    resolvedStyle?.strokeColor ??
+    resolveColor(style.color ?? (isShape || isArrow ? 'blue' : 'ink'), 'light')
   const hasTypography = isTextOrNote || isShape || isArrow
   const hasBorder =
     isShape ||
@@ -166,6 +177,7 @@ export function SecondaryTooltip({
         style={style}
         scheme={scheme as 'light' | 'dark'}
         colorHex={colorHex}
+        resolvedStyle={resolvedStyle}
         activePopover={activePopover}
         onToggle={toggle}
         onClose={() => setActivePopover(null)}
