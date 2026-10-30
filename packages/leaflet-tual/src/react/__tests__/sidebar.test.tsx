@@ -234,8 +234,10 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
     fireEvent.change(opacityInput, { target: { value: '0.5' } })
     expect(result.current.items[0].style?.opacity).toBe(0.5)
 
-    // Delete item from inside the sidebar using the x button and confirm popover
+    // Delete item from inside the sidebar using the close button and confirm popover
     const deleteTriggerBtn = screen.getByTitle('Delete')
+    expect(deleteTriggerBtn.querySelector('svg')).not.toBeNull()
+    expect(deleteTriggerBtn.querySelector('svg path[d="M18 6 6 18"]')).not.toBeNull()
     fireEvent.click(deleteTriggerBtn)
     expect(screen.getByText('Delete item?')).toBeDefined()
 
@@ -243,5 +245,83 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
     const dialog = screen.getByRole('dialog')
     fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }))
     expect(result.current.items.find((i) => i.id === shapeId)).toBeUndefined()
+  })
+
+  it('re-enables map dragging when closing the sidebar or unmounting', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    const map = createMockMap()
+    const onClose = vi.fn()
+
+    const { container, unmount } = render(
+      <Sidebar controller={result.current} map={map} onClose={onClose} />,
+    )
+
+    const sidebar = container.querySelector('.tual-sidebar') as HTMLElement
+    expect(sidebar).not.toBeNull()
+
+    // Mouse enters sidebar -> dragging is disabled so gestures in sidebar do not pan map
+    fireEvent.mouseEnter(sidebar)
+    expect(map.dragging.enabled()).toBe(false)
+
+    // Clicking close button re-enables map dragging immediately
+    const closeBtn = screen.getByTitle('Close sidebar')
+    fireEvent.click(closeBtn)
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(map.dragging.enabled()).toBe(true)
+
+    // If mouse re-enters and sidebar unmounts, unmount cleanup restores dragging
+    fireEvent.mouseEnter(sidebar)
+    expect(map.dragging.enabled()).toBe(false)
+    unmount()
+    expect(map.dragging.enabled()).toBe(true)
+  })
+
+  it('allows panning immediately after closing sidebar in LeafletTual without clicking any action', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    const map = createMockMap()
+    const { container } = render(<LeafletTual map={map} controller={result.current} />)
+
+    // Open sidebar via trigger bar
+    const toggleBtn = screen.getByTitle('Toggle sidebar')
+    fireEvent.click(toggleBtn)
+
+    const sidebar = container.querySelector('.tual-sidebar') as HTMLElement
+    expect(sidebar).not.toBeNull()
+
+    // Hover or interact with sidebar -> disables map dragging
+    fireEvent.mouseEnter(sidebar)
+    expect(map.dragging.enabled()).toBe(false)
+
+    // Close sidebar from header close button
+    const closeBtn = screen.getByTitle('Close sidebar')
+    fireEvent.click(closeBtn)
+
+    // Sidebar is gone and map dragging is immediately re-enabled
+    expect(container.querySelector('.tual-sidebar')).toBeNull()
+    expect(map.dragging.enabled()).toBe(true)
+  })
+
+  it('renders consistent chevron icon sizes between expanded and collapsed states in the sidebar', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    const map = createMockMap()
+    const { container } = render(<Sidebar controller={result.current} map={map} onClose={vi.fn()} />)
+
+    // Layer tree group chevron initially expanded
+    const treeChevron = container.querySelector('.tual-sidebar-tree-chevron svg') as SVGSVGElement
+    expect(treeChevron).not.toBeNull()
+    expect(treeChevron.getAttribute('viewBox')).toBe('0 0 24 24')
+    expect(treeChevron.getAttribute('width')).toBe('14')
+    expect(treeChevron.getAttribute('height')).toBe('14')
+
+    // Click to collapse
+    const treeHeader = container.querySelector('.tual-sidebar-tree-group-header') as HTMLElement
+    fireEvent.click(treeHeader)
+
+    // Now collapsed, chevronRight is rendered with matching dimensions & viewBox
+    const collapsedTreeChevron = container.querySelector('.tual-sidebar-tree-chevron svg') as SVGSVGElement
+    expect(collapsedTreeChevron).not.toBeNull()
+    expect(collapsedTreeChevron.getAttribute('viewBox')).toBe('0 0 24 24')
+    expect(collapsedTreeChevron.getAttribute('width')).toBe('14')
+    expect(collapsedTreeChevron.getAttribute('height')).toBe('14')
   })
 })

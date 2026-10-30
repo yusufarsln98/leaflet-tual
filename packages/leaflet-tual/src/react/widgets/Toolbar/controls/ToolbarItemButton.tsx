@@ -77,8 +77,8 @@ export function ToolbarItemButton({
 
   const icon =
     isVariantValid && effectiveVariant
-      ? (ICONS[effectiveVariant]?.() ?? ICONS[toolId]())
-      : ICONS[toolId]()
+      ? (ICONS[effectiveVariant]?.() ?? (ICONS[toolId]?.() ?? ICONS.pencil()))
+      : (ICONS[toolId]?.() ?? ICONS.pencil())
 
   const shortcut = TOOL_SHORTCUTS[toolId] ?? toolId.charAt(0).toUpperCase()
   const toolName = t(toolId, undefined, toolId.charAt(0).toUpperCase() + toolId.slice(1))

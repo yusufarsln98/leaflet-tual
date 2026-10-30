@@ -3,11 +3,11 @@
 .tual-secondary-tooltip {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 0 4px;
-  height: 36px;
+  gap: 4px;
+  padding: 3px 6px;
+  height: 38px;
   background-color: var(--tual-surface);
-  border: 1px solid var(--tual-border);
+  border: 1px solid var(--tual-toolbar-border, var(--tual-border));
   border-radius: var(--tual-radius-toolbar, 12px);
   box-shadow: var(--tual-shadow-floating);
   pointer-events: auto;
@@ -16,6 +16,12 @@
   animation: tualFadeIn 0.12s ease-out;
   box-sizing: border-box;
   z-index: 700;
+}
+
+.tual[data-theme='dark'] .tual-secondary-tooltip {
+  background-color: var(--tual-surface);
+  border-color: var(--tual-toolbar-border, var(--tual-border));
+  box-shadow: var(--tual-shadow-floating);
 }
 
 @keyframes tualFadeIn {
@@ -29,33 +35,37 @@
   }
 }
 
-/* Secondary Pill Buttons (e.g. Medium ⌄ trigger) */
+/* Secondary Pill Buttons (e.g. Aa Medium ⌄ trigger) */
 .tual-secondary-pill-btn {
   display: inline-flex;
   align-items: center;
   height: 28px;
-  padding: 0 6px;
-  border-radius: var(--tual-radius-btn, 6px);
-  background-color: transparent;
+  padding: 0 8px;
+  border-radius: 8px;
+  background-color: var(--tual-surface);
   color: var(--tual-text);
-  border: none;
+  border: 1px solid var(--tual-border-solid, #e5e7eb);
   cursor: pointer;
   font-family: inherit;
   font-size: 13px;
-  font-weight: 450;
-  transition: background-color 0.12s ease;
+  font-weight: 500;
+  transition:
+    background-color 0.12s ease,
+    border-color 0.12s ease;
   box-sizing: border-box;
-  gap: 3px;
+  gap: 4px;
 }
 
 .tual-secondary-pill-btn:hover {
   background-color: var(--tual-surface-hover);
+  border-color: var(--tual-border-hover);
 }
 
 .tual-secondary-pill-btn[data-active='true'],
 .tual-secondary-pill-btn[aria-expanded='true'] {
   background-color: var(--tual-surface-active-neutral);
   color: var(--tual-text);
+  border-color: var(--tual-border-hover);
   font-weight: 500;
 }
 
@@ -83,10 +93,10 @@
 }
 
 .tual-secondary-swatch-box {
-  width: 16px;
-  height: 16px;
-  border-radius: var(--tual-radius-swatch, 4px);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
@@ -226,7 +236,9 @@
   font-size: 12px;
   cursor: pointer;
   color: var(--tual-text-secondary);
-  transition: background-color 0.15s, color 0.15s;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
 }
 
 .tual-border-dash-btn:hover {
@@ -250,7 +262,9 @@
   border: 1px solid var(--tual-border);
   background: var(--tual-surface);
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
   width: 100%;
   box-sizing: border-box;
 }

@@ -11,6 +11,7 @@ export function renderFreedrawOnCanvas(
   freedraw: FreedrawItem,
   options: {
     isSelected?: boolean
+    isHovered?: boolean
   } = {},
 ) {
   if (freedraw.points.length < 2) return
@@ -19,7 +20,8 @@ export function renderFreedrawOnCanvas(
   const scale = getItemZoomScale(map, freedraw)
   const color = resolveColor(freedraw.style?.color ?? 'ink')
   const baseLineWidth = resolveWidth(freedraw.style?.width ?? 'm')
-  const lineWidth = Math.max(0.5, baseLineWidth * scale)
+  const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
+  const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
   const dash = resolveDash(freedraw.style?.dash ?? 'solid').map((d) => d * scale)
 
   ctx.save()

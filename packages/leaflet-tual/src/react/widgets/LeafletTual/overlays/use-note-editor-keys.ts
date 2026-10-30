@@ -2,7 +2,12 @@
 
 import type L from 'leaflet'
 import type { Controller, ScreenPoint, Style } from '../../../../core/index.js'
-import { getStyleShortcutPatch, screenToGeo } from '../../../../core/index.js'
+import {
+  getStyleShortcutPatch,
+  screenToGeo,
+  translateItem,
+  worldDelta,
+} from '../../../../core/index.js'
 
 export interface EditableTextTarget {
   id: string
@@ -31,19 +36,45 @@ export function startOverlayDrag(
   controller: Controller,
   onDragEnd?: () => void,
 ): void {
+  const target = controller.items.find((i) => i.id === itemId)
+  if (target?.locked) return
   map.dragging?.disable()
   const startX = e.clientX
   const startY = e.clientY
+  const startGeo = screenToGeo(map, originScreen)
+  const initialItems = controller.selected.filter((i) => !i.locked)
+  const isMulti = initialItems.length > 1
   const getAt = (ev: PointerEvent) =>
-    screenToGeo(map, { x: originScreen.x + ev.clientX - startX, y: originScreen.y + ev.clientY - startY })
+    screenToGeo(map, {
+      x: originScreen.x + ev.clientX - startX,
+      y: originScreen.y + ev.clientY - startY,
+    })
 
   const onPointerMove = (ev: PointerEvent) => {
-    controller.update(itemId, { at: getAt(ev) }, false)
+    const nextGeo = getAt(ev)
+    if (isMulti) {
+      const delta = worldDelta(startGeo, nextGeo)
+      controller.updateMany(
+        initialItems.map((item) => ({ id: item.id, patch: translateItem(item, delta) })),
+        false,
+      )
+    } else {
+      controller.update(itemId, { at: nextGeo }, false)
+    }
   }
 
   const onPointerUp = (ev: PointerEvent) => {
     onDragEnd?.()
-    controller.update(itemId, { at: getAt(ev) }, true)
+    const nextGeo = getAt(ev)
+    if (isMulti) {
+      const delta = worldDelta(startGeo, nextGeo)
+      controller.updateMany(
+        initialItems.map((item) => ({ id: item.id, patch: translateItem(item, delta) })),
+        true,
+      )
+    } else {
+      controller.update(itemId, { at: nextGeo }, true)
+    }
     if (controller.tool === 'select') map.dragging?.enable()
     window.removeEventListener('pointermove', onPointerMove)
     window.removeEventListener('pointerup', onPointerUp)
@@ -90,8 +121,7 @@ export function handleTextEditorKeyDown(
           setTimeout(() => textarea.setSelectionRange(lineStart, lineStart), 0)
         } else {
           const insertText = `\n${bulletMatch[1]}• `
-          const nextVal =
-            value.slice(0, selectionStart) + insertText + value.slice(selectionEnd)
+          const nextVal = value.slice(0, selectionStart) + insertText + value.slice(selectionEnd)
           controller.update(item.id, { text: nextVal })
           setTimeout(() => {
             const pos = selectionStart + insertText.length
@@ -104,4 +134,3 @@ export function handleTextEditorKeyDown(
 }
 
 export const handleNoteKeyDown = handleTextEditorKeyDown
-

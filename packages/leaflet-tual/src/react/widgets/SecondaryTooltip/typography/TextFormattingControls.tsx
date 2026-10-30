@@ -69,14 +69,30 @@ export function TextFormattingControls({
         variant="secondary-icon"
         label={t('bold')}
         active={isBold}
-        icon={ICONS.bold()}
+        icon={
+          <span style={{ fontWeight: 700, fontSize: 14, fontFamily: 'inherit', lineHeight: 1 }}>
+            B
+          </span>
+        }
         onClick={toggleBold}
       />
       <IconButton
         variant="secondary-icon"
         label={t('italic')}
         active={isItalic}
-        icon={ICONS.italic()}
+        icon={
+          <span
+            style={{
+              fontStyle: 'italic',
+              fontWeight: 600,
+              fontSize: 14,
+              fontFamily: 'Georgia, serif',
+              lineHeight: 1,
+            }}
+          >
+            I
+          </span>
+        }
         onClick={toggleItalic}
       />
       <IconButton

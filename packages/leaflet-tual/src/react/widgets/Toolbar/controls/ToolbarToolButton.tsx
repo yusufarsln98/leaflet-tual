@@ -68,7 +68,7 @@ export function ToolbarToolButton({
           }
         }}
       >
-        <span className="tual-btn-chevron">{ICONS.chevronDown(14)}</span>
+        <span className="tual-btn-chevron">{ICONS['chevron-down-sm'](14)}</span>
       </button>
     </>
   )

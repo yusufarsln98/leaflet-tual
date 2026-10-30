@@ -9,7 +9,7 @@ import { SidebarLayerTree } from './SidebarLayerTree.js'
 import { SidebarProperties } from './SidebarProperties.js'
 import type { SidebarProps } from './types.js'
 
-export function Sidebar({ controller, map, onClose, className }: SidebarProps) {
+export function Sidebar({ controller, map, onClose, onItemContextMenu, className }: SidebarProps) {
   const { t } = useTranslation(controller)
   const guardRef = useWheelGuard<HTMLElement>()
 
@@ -20,6 +20,21 @@ export function Sidebar({ controller, map, onClose, className }: SidebarProps) {
   }, [controller, map])
 
   useControllerState(controller)
+
+  useEffect(() => {
+    return () => {
+      if (controller.tool === 'select') {
+        map?.dragging?.enable()
+      }
+    }
+  }, [controller.tool, map])
+
+  const handleClose = () => {
+    if (controller.tool === 'select') {
+      map?.dragging?.enable()
+    }
+    onClose()
+  }
 
   return (
     <TranslationProvider translations={controller.translations}>
@@ -55,11 +70,14 @@ export function Sidebar({ controller, map, onClose, className }: SidebarProps) {
           <IconButton
             icon={ICONS.close()}
             label={t('closeSidebar')}
-            onClick={onClose}
+            onClick={handleClose}
           />
         </div>
 
-        <SidebarLayerTree controller={controller} />
+        <SidebarLayerTree
+          controller={controller}
+          onItemContextMenu={onItemContextMenu}
+        />
         <SidebarProperties controller={controller} map={map} />
       </aside>
     </TranslationProvider>

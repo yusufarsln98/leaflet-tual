@@ -57,7 +57,7 @@ export function SidebarTriggerBar({
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           label={<span>{zoomPercent}%</span>}
-          trailing={<span className="tual-page-chevron">{ICONS.chevronDown()}</span>}
+          trailing={<span className="tual-page-chevron">{ICONS['chevron-down-sm']()}</span>}
           onClick={() => setMenuOpen((open) => !open)}
         />
 

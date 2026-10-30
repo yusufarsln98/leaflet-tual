@@ -2,12 +2,15 @@ import type L from 'leaflet'
 import type { ArrowKind, Controller, ShapeKind } from '../../../../core/index.js'
 import {
   DEFAULT_TOOL_STYLES,
+  drawHandle,
+  getSelectionScreenBounds,
   renderArrowOnCanvas,
   renderFreedrawOnCanvas,
   renderItemOnCanvas,
   renderPenOnCanvas,
   renderRulerOnCanvas,
   renderShapeOnCanvas,
+  resolveColor,
   snapAngle,
 } from '../../../../core/index.js'
 import {
@@ -24,6 +27,7 @@ export function drawCanvasScene(
   controller: Controller,
   activeGesture: CanvasGesture | null,
   isShiftPressed: boolean,
+  hoveredItemId: string | null = null,
 ) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
@@ -41,13 +45,65 @@ export function drawCanvasScene(
 
   const items = controller.items
   const selectionSet = new Set(controller.selection)
+  const isMultiSelected = controller.selected.length > 1
+
+  const hoveredIds: string[] =
+    !activeGesture && hoveredItemId ? [hoveredItemId] : []
+  const hoveredSet = new Set(hoveredIds)
 
   for (const item of items) {
+    const isItemSelected = selectionSet.has(item.id)
     renderItemOnCanvas(ctx, map, item, {
-      isSelected: selectionSet.has(item.id),
+      isSelected: !isMultiSelected && isItemSelected,
+      isHovered: hoveredSet.has(item.id) || (isMultiSelected && isItemSelected),
       isEditing: controller.editingId === item.id,
       translations: controller.translations,
     })
+  }
+
+  // Multi-selection bounding frame
+  if (isMultiSelected) {
+    const selectionBounds = getSelectionScreenBounds(map, controller.selected)
+    if (selectionBounds && (selectionBounds.width > 0 || selectionBounds.height > 0)) {
+      const pad = 6
+      const gx = selectionBounds.minX - pad
+      const gy = selectionBounds.minY - pad
+      const gw = selectionBounds.width + pad * 2
+      const gh = selectionBounds.height + pad * 2
+      const handleColor = resolveColor('blue')
+
+      ctx.save()
+      ctx.strokeStyle = handleColor
+      ctx.lineWidth = 1.5
+      ctx.setLineDash([])
+      ctx.strokeRect(gx, gy, gw, gh)
+      ctx.restore()
+
+      drawHandle(ctx, { x: gx, y: gy }, handleColor, 8)
+      drawHandle(ctx, { x: gx + gw, y: gy }, handleColor, 8)
+      drawHandle(ctx, { x: gx + gw, y: gy + gh }, handleColor, 8)
+      drawHandle(ctx, { x: gx, y: gy + gh }, handleColor, 8)
+    }
+  }
+
+  // Active Shift+drag marquee selection box
+  if (activeGesture && activeGesture.type === 'marquee') {
+    const x = Math.min(activeGesture.startPt.x, activeGesture.currentPt.x)
+    const y = Math.min(activeGesture.startPt.y, activeGesture.currentPt.y)
+    const w = Math.abs(activeGesture.currentPt.x - activeGesture.startPt.x)
+    const h = Math.abs(activeGesture.currentPt.y - activeGesture.startPt.y)
+    if (w > 1 || h > 1) {
+      ctx.save()
+      ctx.fillStyle = 'rgba(107, 114, 128, 0.12)'
+      ctx.strokeStyle = 'rgba(107, 114, 128, 0.75)'
+      ctx.lineWidth = 1
+      ctx.setLineDash([])
+      ctx.beginPath()
+      ctx.rect(x, y, w, h)
+      ctx.fill()
+      ctx.strokeRect(x, y, w, h)
+      ctx.restore()
+    }
   }
 
   const currentZoom = typeof map.getZoom === 'function' ? map.getZoom() : 13

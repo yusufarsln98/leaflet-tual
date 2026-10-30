@@ -20,6 +20,7 @@ export * from './ruler/render-ruler.js'
 
 export interface RenderItemOptions {
   isSelected?: boolean
+  isHovered?: boolean
   isEditing?: boolean
   translations?: Partial<TranslationTokens>
 }

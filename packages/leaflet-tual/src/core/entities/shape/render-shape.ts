@@ -14,6 +14,7 @@ export function renderShapeOnCanvas(
   shape: ShapeItem,
   options: {
     isSelected?: boolean
+    isHovered?: boolean
     isEditing?: boolean
   } = {},
 ) {
@@ -30,7 +31,9 @@ export function renderShapeOnCanvas(
 
   const bounds: ShapeBounds = { minX, minY, maxX, maxY, width, height, cx, cy }
   const visual = resolveItemStyle(shape)
-  const lineWidth = visual.strokeWidth > 0 ? Math.max(0.5, visual.strokeWidth * scale) : 0
+  const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
+  const baseStroke = visual.strokeWidth > 0 ? Math.max(0.5, visual.strokeWidth * scale) : 0
+  const lineWidth = isHoveredOnly && baseStroke > 0 ? baseStroke + 0.75 * scale : baseStroke
 
   ctx.save()
   ctx.globalAlpha = visual.opacity
@@ -40,6 +43,12 @@ export function renderShapeOnCanvas(
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
 
+  if (isHoveredOnly) {
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.14)'
+    ctx.shadowBlur = 8 * scale
+    ctx.shadowOffsetY = 1.5 * scale
+  }
+
   ctx.beginPath()
   traceShapePath(ctx, shape.kind, bounds, visual.radius * scale)
 
@@ -48,13 +57,24 @@ export function renderShapeOnCanvas(
     ctx.fill()
   } else if (visual.fill === 'tint') {
     ctx.save()
-    ctx.globalAlpha = visual.opacity * 0.25
+    ctx.globalAlpha = visual.opacity * (isHoveredOnly ? 0.36 : 0.25)
     ctx.fillStyle = visual.fillColor
+    ctx.fill()
+    ctx.restore()
+  } else if (isHoveredOnly) {
+    ctx.save()
+    ctx.globalAlpha = visual.opacity * 0.08
+    ctx.fillStyle = visual.strokeColor
     ctx.fill()
     ctx.restore()
   }
 
   if (lineWidth > 0) ctx.stroke()
+  if (isHoveredOnly) {
+    ctx.shadowColor = 'transparent'
+    ctx.shadowBlur = 0
+    ctx.shadowOffsetY = 0
+  }
 
   if (shape.label && !options.isEditing) {
     const labelY = getShapeLabelY(shape.labelPosition ?? 'center', minY, maxY, cy)

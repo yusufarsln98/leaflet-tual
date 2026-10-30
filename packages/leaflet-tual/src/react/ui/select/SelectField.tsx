@@ -82,7 +82,7 @@ export function Select<T extends string | number>({
       {unit && <span className="tual-select-unit">{unit}</span>}
 
       <span className="tual-select-chevron" aria-hidden="true">
-        {ICONS.chevronDown(8)}
+        {ICONS['chevron-down-sm'](8)}
       </span>
 
 

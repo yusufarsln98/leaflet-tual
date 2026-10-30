@@ -7,6 +7,7 @@ import {
   DocError,
   LeafletTual,
   Toolbar,
+  ContextMenu,
   Sidebar,
   SidebarTriggerBar,
   useLeafletTual,
@@ -22,6 +23,8 @@ import {
   hitTest,
   bounds,
   getItemBounds,
+  getSelectionScreenBounds,
+  findItemsInMarquee,
   distance,
   pathDistance,
   formatDistance,
@@ -79,6 +82,7 @@ describe('leaflet-tual v2 package contract exports', () => {
   it('exports all core public components and hooks from leaflet-tual/react', () => {
     expect(LeafletTual).toBeDefined()
     expect(Toolbar).toBeDefined()
+    expect(ContextMenu).toBeDefined()
     expect(Sidebar).toBeDefined()
     expect(SidebarTriggerBar).toBeDefined()
     expect(useLeafletTual).toBeDefined()
@@ -100,6 +104,8 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(hitTest).toBeDefined()
     expect(bounds).toBeDefined()
     expect(getItemBounds).toBeDefined()
+    expect(getSelectionScreenBounds).toBeDefined()
+    expect(findItemsInMarquee).toBeDefined()
     expect(distance).toBeDefined()
     expect(pathDistance).toBeDefined()
     expect(formatDistance).toBeDefined()

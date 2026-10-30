@@ -14,7 +14,9 @@ export function findResizeGestureUnderPointer(
   pt: ScreenPoint,
   geo: GeoPoint,
 ): CanvasGesture | null {
+  if (selectedItems.length !== 1) return null
   for (const item of selectedItems) {
+    if (item.locked) continue
     if (item.type === 'shape') {
       const hitHandle = hitTestShapeHandle(map, item, pt, 8)
       if (hitHandle) {

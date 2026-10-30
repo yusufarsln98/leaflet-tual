@@ -112,6 +112,17 @@ export interface TranslationTokens {
   fitInView: string
   close: string
 
+  // Context menu & z-order
+  duplicate: string
+  bringToFront: string
+  bringForward: string
+  sendBackward: string
+  sendToBack: string
+  editLabel: string
+  lock: string
+  unlock: string
+  selectAll: string
+
   // Palette colors
   ink: string
   gray: string

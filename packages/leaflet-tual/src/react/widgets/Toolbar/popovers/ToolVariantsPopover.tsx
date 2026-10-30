@@ -106,7 +106,7 @@ export function ToolVariantsPopover({
             options: (allowedDrawVariants ?? ALL_DRAW_KINDS).map((v) => ({
               id: v,
               label: t(v, undefined, DRAW_LABELS[v]),
-              icon: ICONS[v]?.(),
+              icon: (v === 'freedraw' ? ICONS.pencil : ICONS[v])?.(),
               shortcut: DRAW_SHORTCUTS[v],
               selected: effectiveDrawVariant === v,
               onSelect: () => controller.setTool(v),
@@ -114,7 +114,7 @@ export function ToolVariantsPopover({
           }
         : {
             header: t('shapeType'),
-            minWidth: 175,
+            minWidth: 220,
             layout: 'variant-grid',
             options: (allowedShapeVariants ?? ALL_SHAPE_KINDS).map((s) => ({
               id: s,
@@ -134,6 +134,7 @@ export function ToolVariantsPopover({
         top: 'calc(100% + 6px)',
         left: 0,
         minWidth: config.minWidth,
+        width: 'max-content',
       }}
     >
       <DropdownMenu layout={config.layout}>

@@ -30,6 +30,7 @@ export function TextOverlayView({
 }: TextOverlayViewProps) {
   const { t } = useTranslation(controller)
   const containerRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [isEditing, setIsEditing] = useState(controller.editingId === textItem.id)
 
   useEffect(() => {
@@ -37,11 +38,23 @@ export function TextOverlayView({
   }, [controller.editingId, textItem.id])
 
   useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      const el = textareaRef.current
+      el.focus()
+      el.select()
+      const frame = requestAnimationFrame(() => {
+        el.select()
+      })
+      return () => cancelAnimationFrame(frame)
+    }
+  }, [isEditing])
+
+  useEffect(() => {
     const el = containerRef.current
     if (!el) return
     const handleDoubleClick = (event: MouseEvent) => {
       event.stopPropagation()
-      if (isEditing || controller.readOnly) return
+      if (isEditing || controller.readOnly || textItem.locked) return
       event.preventDefault()
       setIsEditing(true)
       controller.edit(textItem.id)
@@ -67,15 +80,22 @@ export function TextOverlayView({
   const handlePointerDown = (e: React.PointerEvent) => {
     if (controller.readOnly || isEditing || e.button !== 0) return
     e.stopPropagation()
-    controller.select(textItem.id)
+    const wasSelected = controller.selection.includes(textItem.id)
+    if (!wasSelected) {
+      controller.select(textItem.id)
+    }
     startOverlayDrag(e, textItem.id, pt, map, controller)
   }
+
+  const isSelected = controller.selection.includes(textItem.id)
+  const isEmpty = !textItem.text || textItem.text.trim() === ''
+  const placeholder = t('placeholderText', undefined, 'Double-click to type')
 
   if (isEditing) {
     return (
       <div
         ref={containerRef}
-        className={`tual-text-item ${className ?? ''}`}
+        className={`tual-text-item tual-text-item-editing ${className ?? ''}`}
         style={{
           left: pt.x,
           top: pt.y,
@@ -89,40 +109,54 @@ export function TextOverlayView({
         onPointerDown={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <textarea
-          autoFocus
-          value={textItem.text}
-          placeholder={t('placeholderText')}
-          rows={Math.max(1, textItem.text.split('\n').length)}
-          style={{
-            background: 'transparent',
-            border: '1px dashed var(--tual-accent)',
-            outline: 'none',
-            color: 'inherit',
-            fontSize: 'inherit',
-            fontWeight: 'inherit',
-            fontStyle: 'inherit',
-            textDecoration,
-            fontFamily: 'inherit',
-            textAlign: align,
-            resize: 'none',
-            whiteSpace: 'pre-wrap',
-          }}
-          onFocus={() => map.dragging?.disable()}
-          onChange={(e) =>
-            controller.update(textItem.id, { text: formatBulletInput(e.target.value) })
-          }
-          onBlur={() => {
-            setIsEditing(false)
-            controller.edit(null)
-            if (controller.tool === 'select') map.dragging?.enable()
-          }}
-          onKeyDown={(e) =>
-            handleTextEditorKeyDown(e, textItem, controller, e.currentTarget.value, () =>
-              setIsEditing(false),
-            )
-          }
-        />
+        <div className="tual-text-editor-wrapper">
+          <span
+            aria-hidden="true"
+            className="tual-text-editor-sizer"
+            style={{
+              fontWeight: weight,
+              fontStyle,
+              textDecoration,
+              textAlign: align,
+            }}
+          >
+            {(textItem.text || placeholder) + ' '}
+          </span>
+          <textarea
+            ref={textareaRef}
+            autoFocus
+            value={textItem.text}
+            placeholder={placeholder}
+            rows={1}
+            className="tual-text-editor-input"
+            style={{
+              color: 'inherit',
+              fontSize: 'inherit',
+              fontWeight: weight,
+              fontStyle,
+              textDecoration,
+              fontFamily: 'inherit',
+              textAlign: align,
+            }}
+            onFocus={(e) => {
+              map.dragging?.disable()
+              e.currentTarget.select()
+            }}
+            onChange={(e) =>
+              controller.update(textItem.id, { text: formatBulletInput(e.target.value) })
+            }
+            onBlur={() => {
+              setIsEditing(false)
+              controller.edit(null)
+              if (controller.tool === 'select') map.dragging?.enable()
+            }}
+            onKeyDown={(e) =>
+              handleTextEditorKeyDown(e, textItem, controller, e.currentTarget.value, () =>
+                setIsEditing(false),
+              )
+            }
+          />
+        </div>
       </div>
     )
   }
@@ -131,25 +165,28 @@ export function TextOverlayView({
     <div
       ref={containerRef}
       className={`tual-text-item ${className ?? ''}`}
+      data-selected={isSelected}
+      data-empty={isEmpty}
       style={{
         left: pt.x,
         top: pt.y,
-        color,
+        color: isEmpty ? 'var(--tual-text-muted, #9ca3af)' : color,
         fontSize,
         fontWeight: weight,
-        fontStyle,
-        textDecoration,
+        fontStyle: isEmpty ? 'normal' : fontStyle,
+        textDecoration: isEmpty ? 'none' : textDecoration,
         textAlign: align,
         opacity: textItem.style?.opacity ?? 1,
-        whiteSpace: 'pre-wrap',
-        outline: controller.selection.includes(textItem.id)
-          ? '1.5px solid var(--tual-accent)'
-          : undefined,
-        outlineOffset: 4,
       }}
       onPointerDown={handlePointerDown}
+      onContextMenu={() => {
+        if (controller.readOnly) return
+        if (!controller.selection.includes(textItem.id)) {
+          controller.select(textItem.id)
+        }
+      }}
     >
-      {textItem.text}
+      {textItem.text || placeholder}
     </div>
   )
 }

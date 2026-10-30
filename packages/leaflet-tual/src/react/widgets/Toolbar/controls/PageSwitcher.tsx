@@ -69,7 +69,7 @@ export function PageSwitcher({
         title={t('pageSwitcher')}
         leading={<span className="tual-page-badge">{pageCount}</span>}
         label={<span className="tual-page-name">{pageName}</span>}
-        trailing={<span className="tual-page-chevron">{ICONS.chevronDown()}</span>}
+        trailing={<span className="tual-page-chevron">{ICONS['chevron-down-sm']()}</span>}
       />
 
       {isOpen && (

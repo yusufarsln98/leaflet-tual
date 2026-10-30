@@ -114,6 +114,17 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   fitInView: 'Fit in View',
   close: 'Close',
 
+  // Context menu & z-order
+  duplicate: 'Duplicate',
+  bringToFront: 'Bring to front',
+  bringForward: 'Bring forward',
+  sendBackward: 'Send backward',
+  sendToBack: 'Send to back',
+  editLabel: 'Edit label',
+  lock: 'Lock',
+  unlock: 'Unlock',
+  selectAll: 'Select all',
+
   // Palette colors
   ink: 'Ink',
   gray: 'Gray',
@@ -128,7 +139,7 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
 
   // Placeholders & Accessibility
   placeholderNote: 'Note text...',
-  placeholderText: 'Type text...',
+  placeholderText: 'Double-click to type',
   addLabel: 'Add label...',
   hexColor: 'Hex color',
   opacityPercentage: 'Opacity percentage',

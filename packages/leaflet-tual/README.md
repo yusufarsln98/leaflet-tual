@@ -256,9 +256,10 @@ const tual = useLeafletTual({
 - `updateMany(patches, committed?)`
 - `duplicate(ids?)`
 - `reorder(ids, action)` (`'front' | 'back' | 'forward' | 'backward'`)
+- `bringToFront(ids?)` / `sendToBack(ids?)` / `bringForward(ids?)` / `sendBackward(ids?)`
 - `remove(ids?)`
 - `clear()`
-- `select(ids)`
+- `select(ids)` / `selectAll()`
 - `edit(id)`
 - `undo()` / `redo()`
 - `fit(target)` ('all', 'selection', or item id)

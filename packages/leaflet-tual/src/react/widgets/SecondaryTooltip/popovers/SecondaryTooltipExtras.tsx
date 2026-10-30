@@ -81,16 +81,29 @@ export function SecondaryTooltipExtras({
           {activePopover === 'labelPosition' && (
             <LabelPositionDropdown
               currentPosition={(selectedItem as ShapeItem).labelPosition}
-              onSelectPosition={(p) => controller.update(selectedItem.id, { labelPosition: p })}
+              onSelectPosition={(p) =>
+                controller.update(selectedItem.id, { labelPosition: p })
+              }
               onClose={onClose}
             />
           )}
         </div>
       )}
 
+      <Divider variant="secondary" />
+      <IconButton
+        variant="secondary-icon"
+        label={selectedItem.locked ? t('unlock') : t('lock')}
+        active={Boolean(selectedItem.locked)}
+        icon={selectedItem.locked ? ICONS.lock() : ICONS.unlock()}
+        onClick={() => {
+          onClose()
+          controller.update(selectedItem.id, { locked: !selectedItem.locked })
+        }}
+      />
+
       {!sidebarOpen && (
         <>
-          <Divider variant="secondary" />
           <IconButton
             variant="secondary-icon"
             label={t('moreOptions')}

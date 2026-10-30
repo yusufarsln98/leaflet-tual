@@ -44,7 +44,7 @@
 
 .tual-variant-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(max-content, 1fr));
   gap: 2px;
 }
 
@@ -146,10 +146,39 @@
   color: var(--tual-text);
 }
 
+.tual-option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.85;
+}
+
 .tual-option-label {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.tual-context-menu {
+  min-width: 210px;
+  padding: 5px;
+  animation: tualContextMenuIn 0.1s ease-out;
+}
+
+@keyframes tualContextMenuIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .tual-option-meta {
@@ -348,9 +377,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
   background: transparent;
   border: none;
   color: var(--tual-text-tertiary);
@@ -359,50 +388,58 @@
   transition: opacity 0.12s ease, color 0.12s ease;
 }
 
+.tual-confirm-trigger-btn svg {
+  width: 11px;
+  height: 11px;
+}
+
 .tual-confirm-trigger-btn:hover,
 .tual-confirm-trigger-btn[data-active='true'] {
+  opacity: 1;
   color: #ef4444;
 }
 
+.tual-confirm-popover-portal {
+  pointer-events: auto;
+}
+
 .tual-confirm-popover {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 4px;
+  position: relative;
   background: var(--tual-surface);
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-popover, 12px);
+  border-radius: var(--tual-radius-popover-compact, 8px);
   box-shadow: var(--tual-shadow-popover);
-  padding: 10px;
-  min-width: 160px;
-  z-index: 850;
+  padding: 6px 8px;
+  min-width: 128px;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .tual-confirm-message {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--tual-text);
-  line-height: 16px;
+  line-height: 14px;
 }
 
 .tual-confirm-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
+  gap: 4px;
 }
 
 .tual-confirm-cancel-btn,
 .tual-confirm-delete-btn {
-  padding: 3px 6px;
+  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
   cursor: pointer;
   border: none;
+  line-height: 14px;
 }
 
 .tual-confirm-cancel-btn {

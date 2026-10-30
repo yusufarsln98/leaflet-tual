@@ -204,11 +204,23 @@ export function createController(
       itemOps.updateMany(patches, committed),
     duplicate: (ids?: string | string[]) => itemOps.duplicate(ids),
     reorder: (ids: string | string[], action: ReorderAction) => itemOps.reorder(ids, action),
+    bringToFront: (ids?: string | string[]) => itemOps.reorder(ids ?? selection, 'front'),
+    sendToBack: (ids?: string | string[]) => itemOps.reorder(ids ?? selection, 'back'),
+    bringForward: (ids?: string | string[]) => itemOps.reorder(ids ?? selection, 'forward'),
+    sendBackward: (ids?: string | string[]) => itemOps.reorder(ids ?? selection, 'backward'),
     remove: (ids?: string | string[]) => itemOps.remove(ids),
     clear: () => itemOps.clear(),
 
     select(ids: string[] | string | null) {
-      selection = ids === null ? [] : Array.isArray(ids) ? ids : [ids]
+      const raw = ids === null ? [] : Array.isArray(ids) ? ids : [ids]
+      selection = raw
+      editingId = null
+      emit('select', controller.selected)
+      emit('state')
+    },
+
+    selectAll() {
+      selection = getActivePage().items.map((i) => i.id)
       editingId = null
       emit('select', controller.selected)
       emit('state')

@@ -54,7 +54,10 @@ describe('v2 Text Overlay Component', () => {
     const textEl = screen.getByText('Editable text')
     fireEvent.doubleClick(textEl)
 
-    expect(screen.getByDisplayValue('Editable text')).toBeDefined()
+    const textarea = screen.getByDisplayValue('Editable text') as HTMLTextAreaElement
+    expect(textarea).toBeDefined()
+    expect(textarea.selectionStart).toBe(0)
+    expect(textarea.selectionEnd).toBe('Editable text'.length)
     expect(onParentDoubleClick).not.toHaveBeenCalled()
 
     container.removeEventListener('dblclick', onParentDoubleClick)
@@ -135,5 +138,38 @@ describe('v2 Text Overlay Component', () => {
     fireEvent.keyDown(textarea, { key: 'u', ctrlKey: true })
     const updated3 = controller.items.find((it): it is TextItem => it.id === text.id)
     expect(updated3?.style?.underline).toBe(false)
+  })
+
+  it('renders placeholder "Double-click to type" when empty and applies clean non-dashed border', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const text = controller.add({
+      type: 'text',
+      at: { lat: 41, lng: 28 },
+      text: '',
+    }) as TextItem
+
+    controller.select(text.id)
+
+    const { container } = render(
+      <TextOverlayView
+        map={map}
+        textItem={text}
+        controller={controller}
+        currentZoom={14}
+      />,
+    )
+
+    const placeholderEl = screen.getByText('Double-click to type')
+    expect(placeholderEl).toBeDefined()
+    expect(placeholderEl.getAttribute('data-selected')).toBe('true')
+    expect(placeholderEl.getAttribute('data-empty')).toBe('true')
+
+    // Double-click into editor
+    fireEvent.doubleClick(placeholderEl)
+    const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+    expect(textarea).toBeDefined()
+    expect(textarea.placeholder).toBe('Double-click to type')
+    expect(textarea.style.border).not.toContain('dashed')
   })
 })

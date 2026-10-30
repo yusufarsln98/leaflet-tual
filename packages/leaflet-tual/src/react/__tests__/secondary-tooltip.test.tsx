@@ -507,4 +507,48 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(screen.queryByTitle('Underline')).toBeNull()
     expect(screen.queryByTitle('Bulleted List')).toBeNull()
   })
+
+  it('toggles lock and unlock directly from the secondary tooltip', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    let shapeId = ''
+    act(() => {
+      const shape = result.current.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 41.0, lng: 28.0 },
+        width: 100,
+        height: 100,
+      })
+      shapeId = shape.id
+      result.current.select(shape.id)
+    })
+
+    const map = createMockMap()
+    render(<SecondaryTooltip map={map} controller={result.current} />)
+
+    const lockBtn = screen.getByTitle('Lock')
+    expect(lockBtn).toBeDefined()
+    expect(lockBtn.getAttribute('data-active')).toBe('false')
+
+    act(() => {
+      fireEvent.click(lockBtn)
+    })
+
+    expect(result.current.items.find((i) => i.id === shapeId)?.locked).toBe(true)
+
+    const unlockBtn = screen.getByTitle('Unlock')
+    expect(unlockBtn).toBeDefined()
+    expect(unlockBtn.getAttribute('data-active')).toBe('true')
+
+    act(() => {
+      fireEvent.click(unlockBtn)
+    })
+
+    expect(result.current.items.find((i) => i.id === shapeId)?.locked).toBe(false)
+  })
 })

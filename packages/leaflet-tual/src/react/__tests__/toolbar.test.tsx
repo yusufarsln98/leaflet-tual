@@ -94,6 +94,9 @@ describe('v2 Toolbar Component', () => {
     // Clicking the chevron opens the shape variants popover
     fireEvent.click(screen.getByLabelText(/Shape options/i))
     expect(screen.getByText('Shape Type')).toBeDefined()
+    expect(screen.getByText('Triangle')).toBeDefined()
+    expect(screen.getByText('Diamond')).toBeDefined()
+    expect(screen.getByText('Hexagon')).toBeDefined()
 
     fireEvent.click(screen.getByText('Circle'))
     expect(result.current.tool).toBe('shape')

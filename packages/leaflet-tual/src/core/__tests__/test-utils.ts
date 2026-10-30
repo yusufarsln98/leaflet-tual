@@ -68,6 +68,7 @@ export function createMockCanvasContext(): CanvasRenderingContext2D {
     quadraticCurveTo: vi.fn(),
     bezierCurveTo: vi.fn(),
     strokeRect: vi.fn(),
+    fillRect: vi.fn(),
     setLineDash: vi.fn(),
     measureText: vi.fn().mockReturnValue({ width: 50 }),
     fillText: vi.fn(),

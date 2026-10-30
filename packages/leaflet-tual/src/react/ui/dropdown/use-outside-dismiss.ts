@@ -8,7 +8,7 @@ import { useEffect, type RefObject } from 'react'
  * map/canvas containers does not block dismissal.
  */
 export function useOutsideDismiss(
-  ref: RefObject<HTMLElement | null>,
+  ref: RefObject<HTMLElement | null> | Array<RefObject<HTMLElement | null>>,
   isOpen: boolean,
   onDismiss: () => void,
 ) {
@@ -19,7 +19,9 @@ export function useOutsideDismiss(
 
     const handlePointerDown = (e: MouseEvent | PointerEvent) => {
       const target = e.target as Node | null
-      if (ref.current && target && !ref.current.contains(target)) {
+      const refs = Array.isArray(ref) ? ref : [ref]
+      const isInside = refs.some((r) => r.current && target && r.current.contains(target))
+      if (!isInside) {
         onDismissRef()
       }
     }

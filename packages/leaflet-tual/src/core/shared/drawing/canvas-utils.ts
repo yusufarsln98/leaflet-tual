@@ -35,6 +35,7 @@ export function drawLabelPill(
 ) {
   if (!text) return
   ctx.save()
+  ctx.setLineDash([])
   const fontSize = options.fontSize ?? 10
   if (fontSize < 1) {
     ctx.restore()

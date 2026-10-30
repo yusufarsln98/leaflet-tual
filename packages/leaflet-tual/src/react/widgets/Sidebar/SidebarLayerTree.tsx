@@ -7,6 +7,7 @@ import { ConfirmPopover, ICONS } from '../../ui/index.js'
 
 export interface SidebarLayerTreeProps {
   controller: Controller
+  onItemContextMenu?: (item: Item, e: React.MouseEvent) => void
 }
 
 function getItemIcon(item: Item) {
@@ -16,7 +17,7 @@ function getItemIcon(item: Item) {
     case 'arrow':
       return (ICONS[item.kind] ?? ICONS.linear)()
     case 'freedraw':
-      return ICONS.freedraw()
+      return ICONS.pencil()
     case 'pen':
       return ICONS.pen()
     case 'text':
@@ -43,7 +44,7 @@ function getItemPreview(item: Item): string | null {
   }
 }
 
-export function SidebarLayerTree({ controller }: SidebarLayerTreeProps) {
+export function SidebarLayerTree({ controller, onItemContextMenu }: SidebarLayerTreeProps) {
   const { t } = useTranslation(controller)
   const [collapsedPages, setCollapsedPages] = useState<Record<string, boolean>>({})
 
@@ -115,6 +116,18 @@ export function SidebarLayerTree({ controller }: SidebarLayerTreeProps) {
                         controller.select(item.id)
                         controller.fit(item.id)
                       }}
+                      onContextMenu={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        if (!isPageActive) {
+                          controller.pages.select(page.id)
+                        }
+                        if (!controller.selection.includes(item.id)) {
+                          controller.select(item.id)
+                        }
+                        controller.edit(null)
+                        onItemContextMenu?.(item, e)
+                      }}
                     >
                       <span className="tual-sidebar-tree-icon">{getItemIcon(item)}</span>
                       <span className="tual-sidebar-tree-label">{typeName}</span>
@@ -123,6 +136,7 @@ export function SidebarLayerTree({ controller }: SidebarLayerTreeProps) {
                       )}
 
                       <ConfirmPopover
+                        triggerIcon={ICONS.close()}
                         triggerTitle={t('delete')}
                         message={t('confirmDelete')}
                         confirmLabel={t('delete')}

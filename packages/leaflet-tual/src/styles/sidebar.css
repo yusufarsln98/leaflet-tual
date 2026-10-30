@@ -119,10 +119,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   color: var(--tual-text-secondary);
   flex-shrink: 0;
+}
+
+.tual-sidebar-tree-chevron svg {
+  width: 14px;
+  height: 14px;
+  display: block;
 }
 
 .tual-sidebar-tree-hash {
@@ -202,6 +208,29 @@
   min-width: 0;
   flex: 1;
   font-size: 11px;
+}
+
+.tual-sidebar-tree-item .tual-confirm-trigger-wrap {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.tual-sidebar-tree-item .tual-confirm-trigger-btn {
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+}
+
+.tual-sidebar-tree-item .tual-confirm-trigger-btn svg {
+  width: 11px;
+  height: 11px;
+}
+
+.tual-sidebar-tree-item:hover .tual-confirm-trigger-btn,
+.tual-sidebar-tree-item .tual-confirm-trigger-btn:hover,
+.tual-sidebar-tree-item .tual-confirm-trigger-btn:focus-visible,
+.tual-sidebar-tree-item .tual-confirm-trigger-btn[data-active='true'] {
+  opacity: 1;
 }
 
 /* Empty Sidebar View */
@@ -287,11 +316,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   color: var(--tual-text-secondary);
   flex-shrink: 0;
   transition: color 0.12s ease;
+}
+
+.tual-collapsible-chevron svg {
+  width: 14px;
+  height: 14px;
+  display: block;
 }
 
 .tual-collapsible-header:hover .tual-collapsible-chevron {

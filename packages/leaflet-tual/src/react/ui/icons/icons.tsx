@@ -30,21 +30,6 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
       <path d="M5.05 4.31 Q5.04 1.44 7.13 3.41 L11.47 7.5 Q12.48 8.45 11.15 8.86 L10.11 9.19 Q9.82 9.28 9.95 9.55 L11.07 11.88 Q11.28 12.33 10.87 12.59 L9.96 13.2 Q9.13 13.75 8.71 12.85 L7.66 10.61 Q7.47 10.2 7.05 10.38 L6.27 10.71 Q5.07 11.23 5.07 9.92Z" />
     </svg>
   ),
-  hand: () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M6.56 7.94 V4.11 A1.12 1.12 0 0 1 8.8 4.11 V3.2 A1.13 1.13 0 0 1 11.06 3.2 V4.98 A1.1 1.1 0 0 1 13.25 4.98 V8.3 C13.25 11.68 10.48 12.99 8.91 12.99 C7.48 12.99 5.39 11.08 5.21 10.81 L3.5 7.81 Q3.3 6.91 4.5 6.81 H6.56" />
-      <path d="M8.8 4.11 V6.98 M11.06 3.2 V6.98" />
-    </svg>
-  ),
   text: () => (
     <svg
       width="16"
@@ -104,20 +89,6 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
     </svg>
   ),
   pencil: () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.19"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3.28 13.32 Q2.3 13.64 2.59 12.66 L3.4 9.89 Q3.49 9.61 3.69 9.4 L9.85 3.22 Q11.27 1.8 12.49 3.39 L13 4.05 Q13.71 4.99 12.88 5.82 L6.49 12.23 Q6.43 12.29 6.35 12.31Z" />
-    </svg>
-  ),
-  freedraw: () => (
     <svg
       width="16"
       height="16"
@@ -541,21 +512,6 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
       <circle cx="8" cy="6.6" r="1.7" />
     </svg>
   ),
-  'present-frame': () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.16"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="1.49" y="3.04" width="12.81" height="10.92" rx="2.19" />
-      <path d="M10.73 6.5 V10.25" />
-    </svg>
-  ),
   'chevron-down-sm': (size = 16) => (
     <svg
       width={size}
@@ -570,7 +526,7 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
       <path d="M6.02 6.98 L7.99 9.05 L9.98 6.98" opacity={0.5} />
     </svg>
   ),
-  chevronDown: (size = 16) => (
+  chevronDownSm: (size = 16) => (
     <svg
       width={size}
       height={size}
@@ -582,6 +538,20 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
       strokeLinejoin="round"
     >
       <path d="M6.02 6.98 L7.99 9.05 L9.98 6.98" opacity={0.5} />
+    </svg>
+  ),
+  chevronDown: (size = 14) => (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m6 9 6 6 6-6" />
     </svg>
   ),
 
@@ -634,10 +604,10 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
       <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
     </svg>
   ),
-  chevronLeft: () => (
+  chevronLeft: (size = 14) => (
     <svg
-      width="14"
-      height="14"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -648,10 +618,10 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
       <path d="m15 18-6-6 6-6" />
     </svg>
   ),
-  chevronRight: () => (
+  chevronRight: (size = 14) => (
     <svg
-      width="14"
-      height="14"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -779,24 +749,6 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
     >
       <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-  ),
-  style: () => (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="m4.93 4.93 4.24 4.24" />
-      <path d="m14.83 9.17 4.24-4.24" />
-      <path d="m14.83 14.83 4.24 4.24" />
-      <path d="m9.17 14.83-4.24 4.24" />
     </svg>
   ),
   radius: () => (
@@ -1013,21 +965,6 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
       <line x1="3" x2="21" y1="18" y2="18" strokeWidth="4" />
     </svg>
   ),
-  pin: () => (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="12" y1="17" x2="12" y2="22" />
-      <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
-    </svg>
-  ),
 
   // Label positions
   top: () => (
@@ -1076,6 +1013,149 @@ export const ICONS: Record<string, (size?: number) => ReactNode> = {
       <rect width="7" height="13" x="3" y="3" rx="1" />
       <path d="m9 22 3-3 3 3" />
       <rect width="7" height="13" x="14" y="3" rx="1" />
+    </svg>
+  ),
+
+  // Context menu & z-order icons
+  duplicate: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="13" height="13" x="9" y="9" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  ),
+  bringToFront: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="8" height="8" x="8" y="8" rx="1.5" fill="currentColor" fillOpacity="0.18" />
+      <path d="M4 10a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2" />
+      <path d="M14 20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2" />
+    </svg>
+  ),
+  bringForward: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m18 15-6-6-6 6" />
+      <path d="M4 5h16" />
+    </svg>
+  ),
+  sendBackward: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m6 9 6 6 6-6" />
+      <path d="M4 19h16" />
+    </svg>
+  ),
+  sendToBack: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="8" height="8" x="8" y="8" rx="1.5" strokeDasharray="2 2" />
+      <path d="M4 10a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2" />
+      <path d="M14 20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2" />
+    </svg>
+  ),
+  edit: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  ),
+  lock: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  ),
+  unlock: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+    </svg>
+  ),
+  fitSelection: () => (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 9V5a2 2 0 0 1 2-2h4" />
+      <path d="M21 15v4a2 2 0 0 1-2 2h-4" />
+      <path d="M15 3h6v6" />
+      <path d="m21 3-7 7" />
+      <path d="M9 21H3v-6" />
+      <path d="m3 21 7-7" />
     </svg>
   ),
 }

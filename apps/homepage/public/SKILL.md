@@ -377,9 +377,14 @@ Actions:
 | `updateMany(patches, committed?)` | Batch-update multiple items in a single undo step.                                                |
 | `duplicate(ids?)`              | Clone one id, an array of ids, or the current selection.                                             |
 | `reorder(ids, action)`         | Z-order (`'front' \| 'back' \| 'forward' \| 'backward'`).                                            |
+| `bringToFront(ids?)`           | Move item(s) or current selection to the top of the z-order.                                         |
+| `sendToBack(ids?)`             | Move item(s) or current selection to the bottom of the z-order.                                      |
+| `bringForward(ids?)`           | Step item(s) or current selection one layer forward.                                                 |
+| `sendBackward(ids?)`           | Step item(s) or current selection one layer backward.                                                |
 | `remove(ids?)`                 | Remove one id or an array. With no argument, removes the selection.                                  |
 | `clear()`                      | Remove every item on the active page.                                                                |
 | `select(ids \| null)`          | Replace the selection.                                                                               |
+| `selectAll()`                  | Select every item on the active page.                                                                |
 | `edit(id)`                     | Start inline editing (label, text, title) for an item.                                               |
 | `undo()` / `redo()`            | One global history across pages.                                                                     |
 | `fit(target)`                  | Animate the map to `'all'`, `'selection'` or an item id.                                             |
@@ -487,7 +492,7 @@ tual.destroy()
 
 | Tool       | Variants                                                                               | Key | Behavior                                                         |
 | ---------- | -------------------------------------------------------------------------------------- | --- | ---------------------------------------------------------------- |
-| `select`   |                                                                                        | V   | Click, Shift-click, move, resize, delete.                        |
+| `select`   |                                                                                        | V   | Click, Shift-click, Shift-drag marquee box selection, right-click context menu, move, resize, reorder, delete. |
 | `text`     |                                                                                        | T   | Click to place and type.                                         |
 | `note`     |                                                                                        | N   | Click to place a sticky note and edit it.                        |
 | `freedraw` |                                                                                        | F   | Smoothed freehand stroke.                                        |

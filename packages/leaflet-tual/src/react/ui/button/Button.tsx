@@ -35,7 +35,7 @@ export function Button({
     >
       {children}
       {hasVariants && (
-        <span className="tual-btn-chevron">{chevron ?? ICONS.chevronDown()}</span>
+        <span className="tual-btn-chevron">{chevron ?? ICONS['chevron-down-sm']()}</span>
       )}
     </button>
   )

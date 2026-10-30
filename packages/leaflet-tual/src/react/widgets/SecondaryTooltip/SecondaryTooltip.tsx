@@ -51,7 +51,14 @@ export function SecondaryTooltip({
     onClosePopover: () => setActivePopover(null),
   })
 
-  if (!selectedItem || controller.readOnly || sidebarOpen) return null
+  if (
+    controller.selected.length !== 1 ||
+    !selectedItem ||
+    controller.readOnly ||
+    sidebarOpen
+  ) {
+    return null
+  }
 
   const bounds = getItemBounds(map, selectedItem)
   const leftPos = Math.round(bounds.cx)
@@ -127,23 +134,39 @@ export function SecondaryTooltip({
         <div style={{ position: 'relative' }}>
           <PillButton
             variant="secondary"
-            title={t('textSizeAndStyle')}
+            title={t('textSizeAndStyle', undefined, 'Text style')}
             onClick={() => toggle('typography')}
             leading={
               <span
                 style={{
-                  opacity: 0.7,
-                  fontWeight: 700,
-                  fontSize: 11,
-                  marginRight: 3,
-                  letterSpacing: -0.5,
+                  color: 'var(--tual-text-secondary)',
+                  fontWeight: 500,
+                  fontSize: 13,
+                  marginRight: 4,
+                  letterSpacing: -0.2,
                 }}
               >
-                TT
+                Aa
               </span>
             }
-            label={<span style={{ fontWeight: 500, margin: '0 4px' }}>{typographyLabel}</span>}
-            trailing={<span style={{ fontSize: 9, opacity: 0.6 }}>⌄</span>}
+            label={<span style={{ fontWeight: 500, margin: '0 2px' }}>{typographyLabel}</span>}
+            trailing={
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 16 16"
+                fill="none"
+                style={{ opacity: 0.6, marginLeft: 2 }}
+              >
+                <path
+                  d="M4 6L8 10L12 6"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
           />
           {activePopover === 'typography' && (
             <TypographyDropdown

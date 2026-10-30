@@ -11,8 +11,8 @@
 
 /* Leaflet Zoom Control (+ / -) */
 .leaflet-bar {
-  border: 1px solid var(--border-primary) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid var(--border-secondary) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
   border-radius: 8px !important;
   overflow: hidden !important;
   background-color: var(--bg-pane) !important;
@@ -21,7 +21,7 @@
 .leaflet-bar a {
   background-color: var(--bg-pane) !important;
   color: var(--text-primary) !important;
-  border-bottom: 1px solid var(--border-primary) !important;
+  border-bottom: 1px solid var(--border-secondary) !important;
   transition: background-color 0.15s ease, color 0.15s ease !important;
   font-family: var(--font-mono) !important;
   line-height: 26px !important;
@@ -47,13 +47,13 @@
   background-color: color-mix(in oklch, var(--bg-pane) 88%, transparent) !important;
   backdrop-filter: blur(8px) !important;
   color: var(--text-muted) !important;
-  border: 1px solid var(--border-primary) !important;
+  border: 1px solid var(--border-secondary) !important;
   border-radius: 6px !important;
   font-family: var(--font-mono) !important;
   font-size: 10px !important;
   margin: 8px !important;
   padding: 2px 8px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
 .leaflet-control-attribution a {

@@ -8,7 +8,7 @@
   padding: 0 4px;
   height: 36px;
   background-color: var(--tual-surface);
-  border: 1px solid var(--tual-border);
+  border: 1px solid var(--tual-toolbar-border, var(--tual-border));
   border-radius: var(--tual-radius-toolbar, 12px);
   box-shadow: var(--tual-shadow-floating);
   pointer-events: auto;

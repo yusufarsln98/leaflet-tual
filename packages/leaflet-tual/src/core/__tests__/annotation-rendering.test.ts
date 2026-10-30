@@ -186,6 +186,27 @@ describe('v2 Canvas annotation rendering', () => {
     expect(y).toBeCloseTo(1011) // bottom edge 1000 + (pill height / 2 + gap)
   })
 
+  it('never makes label container dashed even when shape stroke is dashed', () => {
+    const map = createMockMap()
+    const ctx = createMockCtx()
+    renderShapeOnCanvas(ctx, map, {
+      id: 'dashed-shape',
+      type: 'shape',
+      kind: 'square',
+      at: { lat: 41.1, lng: 28.1 },
+      width: 200,
+      height: 200,
+      label: 'Solid Label',
+      style: { color: 'blue', dash: 'dashed' },
+      createdAt: Date.now(),
+    })
+
+    // The shape stroke sets a dashed pattern
+    expect(ctx.setLineDash).toHaveBeenCalledWith([6, 6])
+    // But drawLabelPill resets lineDash to solid [] so the pill border is never dashed
+    expect(ctx.setLineDash).toHaveBeenCalledWith([])
+  })
+
   it('renders freehand (freedraw) drawings', () => {
     const ctx = createMockCtx()
     const map = createMockMap()

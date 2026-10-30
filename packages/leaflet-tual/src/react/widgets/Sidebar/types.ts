@@ -1,5 +1,5 @@
 import type L from 'leaflet'
-import type { Controller } from '../../../core/index.js'
+import type { Controller, Item } from '../../../core/index.js'
 
 export interface SidebarTriggerBarProps {
   controller: Controller
@@ -22,6 +22,7 @@ export interface SidebarProps {
   controller: Controller
   map?: L.Map
   onClose: () => void
+  onItemContextMenu?: (item: Item, e: React.MouseEvent) => void
   className?: string
 }
 

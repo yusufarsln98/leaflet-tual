@@ -23,6 +23,7 @@ export function renderArrowOnCanvas(
   arrow: ArrowItem,
   options: {
     isSelected?: boolean
+    isHovered?: boolean
     isEditing?: boolean
   } = {},
 ) {
@@ -34,7 +35,8 @@ export function renderArrowOnCanvas(
   const scale = getItemZoomScale(map, arrow)
   const color = resolveColor(arrow.style?.strokeColor ?? arrow.style?.color ?? 'ink')
   const baseLineWidth = resolveWidth(arrow.style?.width ?? 'm')
-  const lineWidth = Math.max(0.5, baseLineWidth * scale)
+  const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
+  const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
   const dash = resolveDash(arrow.style?.dash ?? 'solid').map((d) => d * scale)
   const heads = arrow.heads ?? { start: 'none', end: 'triangle' }
   const headBase = arrow.style?.width === 'l' ? 18 : arrow.style?.width === 's' ? 10 : 14

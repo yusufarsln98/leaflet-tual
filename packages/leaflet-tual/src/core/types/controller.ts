@@ -66,9 +66,14 @@ export interface Controller {
   updateMany(patches: Array<{ id: string; patch: Partial<Item> }>, committed?: boolean): void
   duplicate(ids?: string | string[]): Item[]
   reorder(ids: string | string[], action: ReorderAction): void
+  bringToFront(ids?: string | string[]): void
+  sendToBack(ids?: string | string[]): void
+  bringForward(ids?: string | string[]): void
+  sendBackward(ids?: string | string[]): void
   remove(ids?: string | string[]): void
   clear(): void
   select(ids: string[] | string | null): void
+  selectAll(): void
   edit(id: string | null): void
   undo(): void
   redo(): void

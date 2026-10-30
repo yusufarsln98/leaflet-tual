@@ -25,8 +25,13 @@ export function SidebarProperties({ controller, map }: SidebarPropertiesProps) {
   }
 
   const style = selectedItem.style ?? {}
-  const updateStyle = (patch: Partial<Style>) =>
-    controller.update(selectedItem.id, { style: { ...style, ...patch } })
+  const updateStyle = (patch: Partial<Style>) => {
+    if (controller.selection.length > 1) {
+      controller.setStyle(patch)
+    } else {
+      controller.update(selectedItem.id, { style: { ...style, ...patch } })
+    }
+  }
 
   return (
     <div className="tual-sidebar-properties">

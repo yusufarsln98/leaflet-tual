@@ -5,6 +5,7 @@ import type { Controller, GeoPoint, ScreenPoint } from '../../../../core/index.j
 import {
   commitDrawnItem,
   editPenPointList,
+  findItemsInMarquee,
   resizeShape,
   translateItem,
   worldDelta,
@@ -16,7 +17,11 @@ import { updatePenDraftOnMove } from './use-pen-draft.js'
 export function commitPendingClickSelection(
   controller: Controller,
   pending: PendingClickSelection,
+  map?: L.Map,
 ): void {
+  if (pending.shiftKey) {
+    map?.dragging?.enable()
+  }
   if (pending.itemId !== null) {
     const isSel = controller.selection.includes(pending.itemId)
     if (pending.shiftKey) {
@@ -94,6 +99,10 @@ export function applyGestureMouseMove(
       gesture.initialItems.map((item) => ({ id: item.id, patch: translateItem(item, delta) })),
       false,
     )
+  } else if (gesture.type === 'marquee') {
+    setGesture({ ...gesture, currentPt: pt, currentGeo: geo })
+    const matched = findItemsInMarquee(map, controller.items, gesture.startPt, pt)
+    controller.select(matched)
   }
 }
 
@@ -125,6 +134,10 @@ export function commitGestureMouseUp(
       gesture.itemIds.map((id) => ({ id, patch: {} })),
       true,
     )
+    map.dragging?.enable()
+  } else if (gesture.type === 'marquee') {
+    const matched = findItemsInMarquee(map, controller.items, gesture.startPt, endPt)
+    controller.select(matched)
     map.dragging?.enable()
   } else if (gesture.type === 'draw') {
     commitDrawnItem(

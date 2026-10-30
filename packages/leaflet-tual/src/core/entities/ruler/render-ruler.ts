@@ -20,6 +20,7 @@ export function renderRulerOnCanvas(
   ruler: RulerItem,
   options: {
     isSelected?: boolean
+    isHovered?: boolean
     translations?: Partial<TranslationTokens>
   } = {},
 ) {
@@ -31,7 +32,8 @@ export function renderRulerOnCanvas(
   const scale = getItemZoomScale(map, ruler)
   const color = resolveColor(ruler.style?.color ?? 'ink')
   const baseLineWidth = resolveWidth(ruler.style?.width ?? 'm')
-  const lineWidth = Math.max(0.5, baseLineWidth * scale)
+  const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
+  const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
   const dash = resolveDash(ruler.style?.dash ?? 'solid').map((d) => d * scale)
 
   ctx.save()

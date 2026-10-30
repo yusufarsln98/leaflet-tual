@@ -314,4 +314,46 @@ describe('v2 Controller state machine', () => {
     c.reorder(s1.id, 'back')
     expect(c.items[0].id).toBe(s1.id)
   })
+
+  it('supports z-order convenience methods and selectAll', () => {
+    const c = createController()
+    const s1 = c.add({
+      type: 'shape',
+      kind: 'square',
+      at: { lat: 41, lng: 28 },
+      width: 50,
+      height: 50,
+    })
+    const s2 = c.add({
+      type: 'shape',
+      kind: 'circle',
+      at: { lat: 41.05, lng: 28.05 },
+      width: 60,
+      height: 60,
+    })
+    const s3 = c.add({
+      type: 'shape',
+      kind: 'star',
+      at: { lat: 41.1, lng: 28.1 },
+      width: 70,
+      height: 70,
+    })
+
+    // Bring to front / send to back / bring forward / send backward
+    c.bringToFront(s1.id)
+    expect(c.items.map((i) => i.id)).toEqual([s2.id, s3.id, s1.id])
+
+    c.sendToBack(s1.id)
+    expect(c.items.map((i) => i.id)).toEqual([s1.id, s2.id, s3.id])
+
+    c.bringForward(s1.id)
+    expect(c.items.map((i) => i.id)).toEqual([s2.id, s1.id, s3.id])
+
+    c.sendBackward(s1.id)
+    expect(c.items.map((i) => i.id)).toEqual([s1.id, s2.id, s3.id])
+
+    // selectAll selects every item on the page
+    c.selectAll()
+    expect(c.selection).toHaveLength(3)
+  })
 })

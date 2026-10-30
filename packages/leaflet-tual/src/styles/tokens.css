@@ -1,5 +1,6 @@
 /* Design Tokens - Minimalist Canvas / Claude-Style Light Theme */
 
+:root,
 .tual {
   /* Backgrounds & Surfaces */
   --tual-canvas-bg: #f2f2f2;
@@ -19,16 +20,17 @@
   --tual-handle: #2563eb;
 
   /* Borders & Dividers */
-  --tual-border: rgba(0, 0, 0, 0.08);
-  --tual-border-solid: #e5e7eb;
-  --tual-border-hover: #d1d5db;
+  --tual-border: rgba(0, 0, 0, 0.13);
+  --tual-border-solid: #d4d4d8;
+  --tual-border-hover: #a1a1aa;
   --tual-border-focus: #2563eb;
   --tual-border-muted: #f3f4f6;
   --tual-divider: #eeeeee;
+  --tual-toolbar-border: rgba(0, 0, 0, 0.16);
 
   /* Elevation & Shadows */
-  --tual-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --tual-shadow-floating: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --tual-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --tual-shadow-floating: 0 1px 2px rgba(0, 0, 0, 0.04);
   --tual-shadow-popover: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
   --tual-shadow-tooltip: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --tual-shadow-tooltip-dark: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -65,7 +67,9 @@
   box-sizing: border-box;
 }
 
-.tual[data-theme='dark'] {
+.tual[data-theme='dark'],
+[data-theme='dark'] .tual,
+:root[data-theme='dark'] {
   --tual-canvas-bg: #121214;
   --tual-surface: #1e1e22;
   --tual-surface-recessed: #27272b;
@@ -81,15 +85,16 @@
   --tual-accent: #3b82f6;
   --tual-handle: #60a5fa;
 
-  --tual-border: rgba(255, 255, 255, 0.1);
-  --tual-border-solid: #33333a;
-  --tual-border-hover: #484852;
+  --tual-border: rgba(255, 255, 255, 0.15);
+  --tual-border-solid: #3f3f46;
+  --tual-border-hover: #52525b;
   --tual-border-focus: #3b82f6;
   --tual-border-muted: #27272b;
   --tual-divider: #28282e;
+  --tual-toolbar-border: rgba(255, 255, 255, 0.18);
 
-  --tual-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-  --tual-shadow-floating: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --tual-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --tual-shadow-floating: 0 1px 3px rgba(0, 0, 0, 0.25);
   --tual-shadow-popover: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 4px 10px -2px rgba(0, 0, 0, 0.4);
   --tual-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.3);
   --tual-shadow-tooltip-dark: 0 4px 12px rgba(0, 0, 0, 0.3);

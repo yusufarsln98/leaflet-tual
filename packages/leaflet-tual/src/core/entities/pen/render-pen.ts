@@ -12,6 +12,7 @@ export function renderPenOnCanvas(
   pen: PenItem,
   options: {
     isSelected?: boolean
+    isHovered?: boolean
   } = {},
 ) {
   if (pen.points.length === 0) return
@@ -26,7 +27,8 @@ export function renderPenOnCanvas(
   const scale = getItemZoomScale(map, pen)
   const color = resolveColor(pen.style?.color ?? 'ink')
   const baseLineWidth = resolveWidth(pen.style?.width ?? 'm')
-  const lineWidth = Math.max(0.5, baseLineWidth * scale)
+  const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
+  const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
   const dash = resolveDash(pen.style?.dash ?? 'solid').map((d) => d * scale)
 
   ctx.save()

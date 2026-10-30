@@ -3,7 +3,11 @@
 import { useRef, useState } from 'react'
 import type L from 'leaflet'
 import type { Controller, NoteItem } from '../../../../core/index.js'
-import { formatBulletInput, geoToScreen, resolveItemStyle } from '../../../../core/index.js'
+import {
+  formatBulletInput,
+  geoToScreen,
+  resolveItemStyle,
+} from '../../../../core/index.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { ResizeHandles } from '../../../ui/index.js'
@@ -18,12 +22,7 @@ export interface NoteOverlayViewProps {
   className?: string
 }
 
-export function NoteOverlayView({
-  map,
-  note,
-  controller,
-  className,
-}: NoteOverlayViewProps) {
+export function NoteOverlayView({ map, note, controller, className }: NoteOverlayViewProps) {
   const { t } = useTranslation(controller)
   const cardRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
@@ -64,12 +63,21 @@ export function NoteOverlayView({
     if ((e.target as HTMLElement).closest('textarea, .tual-note-handle')) return
     e.stopPropagation()
     const wasSelected = controller.selection.includes(note.id)
-    controller.select(note.id)
-    if (!wasSelected) return
+    if (!wasSelected) {
+      controller.select(note.id)
+      return
+    }
     isDraggingRef.current = true
-    startOverlayDrag(e, note.id, center, map, controller, () => {
-      isDraggingRef.current = false
-    })
+    startOverlayDrag(
+      e,
+      note.id,
+      center,
+      map,
+      controller,
+      () => {
+        isDraggingRef.current = false
+      },
+    )
   }
 
   return (
@@ -95,13 +103,19 @@ export function NoteOverlayView({
         opacity: visual.opacity,
       }}
       onPointerDown={handlePointerDown}
+      onContextMenu={() => {
+        if (controller.readOnly) return
+        if (!controller.selection.includes(note.id)) {
+          controller.select(note.id)
+        }
+      }}
     >
       <textarea
         className="tual-note-textarea"
         data-focused={isFocused}
         value={note.text}
         placeholder={t('placeholderNote')}
-        readOnly={controller.readOnly}
+        readOnly={controller.readOnly || Boolean(note.locked)}
         style={{
           fontSize: visual.text.fontSize,
           color: visual.text.color,
@@ -133,7 +147,7 @@ export function NoteOverlayView({
         onChange={(e) => controller.update(note.id, { text: formatBulletInput(e.target.value) })}
       />
 
-      {isSelected && !controller.readOnly && (
+      {isSelected && !controller.readOnly && !note.locked && (
         <ResizeHandles
           classNamePrefix="tual-note-handle"
           onResizeStart={(e, handle) =>
@@ -144,4 +158,3 @@ export function NoteOverlayView({
     </div>
   )
 }
-

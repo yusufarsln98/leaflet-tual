@@ -49,7 +49,7 @@ export function ToolbarDrawGroup({
     >
       <ToolbarToolButton
         label={label}
-        icon={ICONS[previewTool]()}
+        icon={previewTool === 'freedraw' ? ICONS.pencil() : ICONS[previewTool]()}
         isActive={isActive}
         hasVariants={hasVariants}
         isPopoverOpen={isPopoverOpen}
