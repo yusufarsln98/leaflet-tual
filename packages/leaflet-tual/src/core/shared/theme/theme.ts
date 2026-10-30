@@ -1,35 +1,18 @@
 import type { ColorName, Style } from '../../types/items.js'
-import type { Scheme, Theme, Tokens } from '../../types/theme.js'
-import {
-  DEFAULT_PALETTE,
-  DEFAULT_SCHEME,
-  NOTE_SURFACES,
-} from './theme-constants.js'
+import { DEFAULT_PALETTE, NOTE_SURFACES } from './theme-constants.js'
 
-export {
-  DEFAULT_PALETTE,
-  DEFAULT_SCHEME,
-  DEFAULT_TOOL_STYLES,
-  NOTE_SURFACES,
-} from './theme-constants.js'
+export { DEFAULT_PALETTE, DEFAULT_TOOL_STYLES, NOTE_SURFACES } from './theme-constants.js'
 
 const isCssColor = (val: string) =>
   val.startsWith('#') || val.startsWith('rgb') || val.startsWith('hsl')
 
-export function resolveColor(
-  name: ColorName | string = 'ink',
-  _scheme: 'light' | 'dark' = 'light',
-  tokens?: Partial<Tokens>,
-): string {
+export function resolveColor(name: ColorName | string = 'ink'): string {
   if (typeof name === 'string' && isCssColor(name)) return name
-  const custom = tokens?.palette?.[name as ColorName]
-  if (custom) return custom.light
-  return (DEFAULT_PALETTE[name as ColorName] ?? DEFAULT_PALETTE.ink).light
+  return DEFAULT_PALETTE[name as ColorName] ?? DEFAULT_PALETTE.ink
 }
 
 export function resolveNoteColors(
   color: ColorName | string = 'yellow',
-  _scheme: 'light' | 'dark' = 'light',
   customText?: ColorName | string,
   customBg?: ColorName | string,
 ): { bg: string; text: string; border: string } {
@@ -37,15 +20,15 @@ export function resolveNoteColors(
   if (typeof bgKey === 'string' && isCssColor(bgKey)) {
     return {
       bg: bgKey,
-      text: customText ? resolveColor(customText, 'light') : '#1F2A30',
+      text: customText ? resolveColor(customText) : '#1F2A30',
       border: 'rgba(0, 0, 0, 0.12)',
     }
   }
-  const { light } = NOTE_SURFACES[bgKey as ColorName] ?? NOTE_SURFACES.yellow
+  const surface = NOTE_SURFACES[bgKey as ColorName] ?? NOTE_SURFACES.yellow
   return {
-    bg: light.bg,
-    text: customText ? resolveColor(customText, 'light') : light.text,
-    border: light.border,
+    bg: surface.bg,
+    text: customText ? resolveColor(customText) : surface.text,
+    border: surface.border,
   }
 }
 
@@ -55,15 +38,21 @@ export function resolveWidth(width: 's' | 'm' | 'l' | number = 'm'): number {
   return typeof width === 'number' ? width : (WIDTH_MAP[width] ?? 2)
 }
 
-const SIZE_MAP: Record<'s' | 'm' | 'l' | 'xl', number> = { s: 12, m: 16, l: 24, xl: 32 }
+const SIZE_MAP: Record<'s' | 'm' | 'l' | 'xl' | 'huge', number> = {
+  s: 14,
+  m: 24,
+  l: 40,
+  xl: 72,
+  huge: 120,
+}
 
 export function resolveSize(
-  size: 's' | 'm' | 'l' | 'xl' | number = 'm',
+  size: 's' | 'm' | 'l' | 'xl' | 'huge' | number = 'm',
   customPx?: number,
 ): number {
   if (typeof customPx === 'number' && customPx > 0) return customPx
   if (typeof size === 'number' && size > 0) return size
-  return SIZE_MAP[size as keyof typeof SIZE_MAP] ?? 16
+  return SIZE_MAP[size as keyof typeof SIZE_MAP] ?? 24
 }
 
 const WEIGHT_MAP: Record<string, string> = {
@@ -84,21 +73,3 @@ export function resolveDash(dash: 'solid' | 'dashed' | 'dotted' | 'none' = 'soli
   if (dash === 'dotted') return [2, 4]
   return []
 }
-
-export function resolveScheme(
-  schemeName: 'light' | 'dark',
-  tokens?: Partial<Tokens>,
-): Scheme {
-  const base = DEFAULT_SCHEME[schemeName]
-  const overrides = schemeName === 'dark' ? tokens?.dark : tokens?.light
-  return { ...base, ...overrides }
-}
-
-export function resolveSchemeFromTheme(theme: Theme = 'system'): 'light' | 'dark' {
-  if (theme === 'light' || theme === 'dark') return theme
-  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  }
-  return 'light'
-}
-

@@ -1,0 +1,151 @@
+/* Canvas & Overlays */
+
+.tual-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 650;
+  background-color: transparent;
+}
+
+.tual-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Inline Shape Label Editor */
+.tual-inline-label-editor {
+  position: absolute;
+  z-index: 800;
+  pointer-events: auto;
+}
+
+.tual-label-input {
+  background: var(--tual-surface);
+  color: var(--tual-text);
+  border: 1px solid var(--tual-border-focus);
+  border-radius: var(--tual-radius-btn, 6px);
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  outline: none;
+  box-shadow: var(--tual-shadow-floating);
+  min-width: 60px;
+}
+
+/* Notes & Overlays */
+.tual-note-card {
+  position: absolute;
+  pointer-events: auto;
+  border: 1px solid var(--tual-border);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  user-select: none;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1 / 1;
+  transform-origin: center center;
+  border-radius: 6px;
+}
+
+.tual-note-card[data-selected='true'] {
+  outline: 2px solid var(--tual-handle);
+  outline-offset: -1px;
+  cursor: grab;
+}
+
+.tual-note-card[data-selected='true']:active {
+  cursor: grabbing;
+}
+
+.tual-note-textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  resize: none;
+  font-family: inherit;
+  outline: none;
+  color: inherit;
+  box-sizing: border-box;
+  padding: 12px;
+  line-height: 1.4;
+  cursor: text;
+  overflow-y: hidden;
+}
+
+.tual-note-textarea:focus,
+.tual-note-textarea[data-focused='true'] {
+  overflow-y: auto;
+}
+
+.tual-note-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--tual-handle);
+  box-sizing: border-box;
+  border-radius: 2px;
+  z-index: 10;
+}
+.tual-note-handle-nw {
+  top: -4px;
+  left: -4px;
+  cursor: nwse-resize;
+}
+.tual-note-handle-ne {
+  top: -4px;
+  right: -4px;
+  cursor: nesw-resize;
+}
+.tual-note-handle-se {
+  bottom: -4px;
+  right: -4px;
+  cursor: nwse-resize;
+}
+.tual-note-handle-sw {
+  bottom: -4px;
+  left: -4px;
+  cursor: nesw-resize;
+}
+.tual-note-handle-n {
+  top: -4px;
+  left: calc(50% - 4px);
+  cursor: ns-resize;
+}
+.tual-note-handle-s {
+  bottom: -4px;
+  left: calc(50% - 4px);
+  cursor: ns-resize;
+}
+.tual-note-handle-w {
+  top: calc(50% - 4px);
+  left: -4px;
+  cursor: ew-resize;
+}
+.tual-note-handle-e {
+  top: calc(50% - 4px);
+  right: -4px;
+  cursor: ew-resize;
+}
+
+/* Text Overlay */
+.tual-text-item {
+  position: absolute;
+  pointer-events: auto;
+  cursor: grab;
+  white-space: pre-wrap;
+  outline: none;
+}
+

@@ -81,7 +81,6 @@ export function applyGestureMouseMove(
       controller.update(gesture.shapeId, next, false)
     }
   } else if (gesture.type === 'resize-arrow') {
-
     controller.update(
       gesture.arrowId,
       gesture.handle === 'start' ? { from: geo } : gesture.handle === 'end' ? { to: geo } : { via: geo },
@@ -91,9 +90,10 @@ export function applyGestureMouseMove(
     controller.update(gesture.rulerId, gesture.handle === 'start' ? { from: geo } : { to: geo }, false)
   } else if (gesture.type === 'drag-item') {
     const delta = worldDelta(gesture.startGeo, geo)
-    for (const item of gesture.initialItems) {
-      controller.update(item.id, translateItem(item, delta), false)
-    }
+    controller.updateMany(
+      gesture.initialItems.map((item) => ({ id: item.id, patch: translateItem(item, delta) })),
+      false,
+    )
   }
 }
 
@@ -114,7 +114,6 @@ export function commitGestureMouseUp(
       controller.update(item.id, { at: item.at, width: item.width, height: item.height }, true)
     }
     map.dragging?.enable()
-
   } else if (gesture.type === 'resize-arrow') {
     controller.update(gesture.arrowId, {}, true)
     map.dragging?.enable()
@@ -122,9 +121,10 @@ export function commitGestureMouseUp(
     controller.update(gesture.rulerId, {}, true)
     map.dragging?.enable()
   } else if (gesture.type === 'drag-item') {
-    for (const id of gesture.itemIds) {
-      if (controller.items.some((i) => i.id === id)) controller.update(id, {}, true)
-    }
+    controller.updateMany(
+      gesture.itemIds.map((id) => ({ id, patch: {} })),
+      true,
+    )
     map.dragging?.enable()
   } else if (gesture.type === 'draw') {
     commitDrawnItem(

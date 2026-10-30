@@ -2,7 +2,7 @@
 
 import type { Controller, Item, ShapeItem, Style } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { Divider, IconButton, ICONS, LABEL_POSITION_ICONS } from '../../../ui/index.js'
+import { Divider, IconButton, ICONS } from '../../../ui/index.js'
 import { BorderPopover } from './BorderPopover.js'
 import { LabelPositionDropdown } from './LabelPositionDropdown.js'
 
@@ -14,7 +14,6 @@ export interface SecondaryTooltipExtrasProps {
   style: Style
   selectedItem: Item
   controller: Controller
-  scheme: 'light' | 'dark'
   activePopover: string | null
   sidebarOpen?: boolean
   onOpenSidebar?: () => void
@@ -31,7 +30,6 @@ export function SecondaryTooltipExtras({
   style,
   selectedItem,
   controller,
-  scheme,
   activePopover,
   sidebarOpen = false,
   onOpenSidebar,
@@ -59,7 +57,6 @@ export function SecondaryTooltipExtras({
               currentStrokeColor={style.strokeColor}
               currentWidth={isNote ? (style.width ?? 's') : style.width}
               currentRadius={style.radius}
-              scheme={scheme}
               isSquareShape={isSquareShape}
               showRadius={isNote || isSquareShape}
               onSelectDash={(d) => onUpdateStyle({ dash: d })}
@@ -78,7 +75,7 @@ export function SecondaryTooltipExtras({
             variant="secondary-icon"
             label={t('labelPosition')}
             active={activePopover === 'labelPosition'}
-            icon={LABEL_POSITION_ICONS.center()}
+            icon={ICONS.center()}
             onClick={() => onToggle('labelPosition')}
           />
           {activePopover === 'labelPosition' && (

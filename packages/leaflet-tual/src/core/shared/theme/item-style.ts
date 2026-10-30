@@ -1,5 +1,4 @@
 import type { NoteItem, ShapeItem, Style } from '../../types/items.js'
-import type { Tokens } from '../../types/theme.js'
 import { parseColorString } from './color-utils.js'
 import {
   resolveColor,
@@ -18,12 +17,6 @@ export type BoxContext = 'shape' | 'note'
 
 export type ResolvedDash = NonNullable<Style['dash']>
 
-/**
- * The fully resolved text styling shared by notes and shape labels.
- *
- * Keeping this in one place means the DOM overlays (notes) and the canvas
- * renderers (shapes) interpret `Style` in exactly the same way.
- */
 export interface ResolvedTextStyle {
   color: string
   fontSize: number
@@ -33,13 +26,6 @@ export interface ResolvedTextStyle {
   align: 'left' | 'center' | 'right'
 }
 
-/**
- * The fully resolved box styling shared by notes and shapes.
- *
- * Notes derive their colors from the soft surface palette, while shapes use
- * the regular drawing palette. Both expose the same resolved interface so
- * renderers and UI controls can stay item-agnostic.
- */
 export interface ResolvedItemStyle {
   fill: NonNullable<Style['fill']>
   fillColor: string
@@ -62,19 +48,7 @@ function withAlpha(color: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${a * alpha})`
 }
 
-/**
- * Resolve a shape's or note's style into the shared {@link ResolvedItemStyle}
- * interface.
- *
- * Annotations intentionally render with the fixed light palette, so the
- * `scheme` argument is only used for note surfaces today. Tokens are accepted
- * for callers that override the palette.
- */
-export function resolveItemStyle(
-  item: BoxItem,
-  scheme: 'light' | 'dark' = 'light',
-  tokens?: Partial<Tokens>,
-): ResolvedItemStyle {
+export function resolveItemStyle(item: BoxItem): ResolvedItemStyle {
   const style = item.style ?? {}
   const context: BoxContext = item.type === 'note' ? 'note' : 'shape'
   const isNote = context === 'note'
@@ -83,18 +57,13 @@ export function resolveItemStyle(
   const baseColor = style.color ?? (isNote ? 'yellow' : 'blue')
 
   const noteColors = isNote
-    ? resolveNoteColors(
-        baseColor,
-        scheme,
-        style.textColor,
-        style.fillColor,
-      )
+    ? resolveNoteColors(baseColor, style.textColor, style.fillColor)
     : null
 
   const fill = style.fill ?? (isNote ? 'solid' : 'tint')
   const fillColor = noteColors
     ? noteColors.bg
-    : resolveColor(style.fillColor ?? baseColor, scheme, tokens)
+    : resolveColor(style.fillColor ?? baseColor)
   const backgroundColor =
     fill === 'none'
       ? 'transparent'
@@ -103,9 +72,9 @@ export function resolveItemStyle(
         : fillColor
   const strokeColor = noteColors
     ? style.strokeColor
-      ? resolveColor(style.strokeColor, scheme, tokens)
+      ? resolveColor(style.strokeColor)
       : noteColors.border
-    : resolveColor(style.strokeColor ?? baseColor, scheme, tokens)
+    : resolveColor(style.strokeColor ?? baseColor)
 
   const strokeWidth =
     dash === 'none' || style.width === 0
@@ -132,9 +101,7 @@ export function resolveItemStyle(
     radius: style.radius ?? 8,
     opacity: style.opacity ?? 1,
     text: {
-      color: noteColors
-        ? noteColors.text
-        : resolveColor(style.textColor ?? 'ink', scheme, tokens),
+      color: noteColors ? noteColors.text : resolveColor(style.textColor ?? 'ink'),
       fontSize,
       fontWeight: resolveWeight(style.weight),
       fontStyle: style.fontStyle === 'italic' ? 'italic' : 'normal',

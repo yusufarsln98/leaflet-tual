@@ -1,0 +1,99 @@
+/* Design Tokens - Minimalist Canvas / Claude-Style Light Theme */
+
+.tual {
+  /* Backgrounds & Surfaces */
+  --tual-canvas-bg: #f2f2f2;
+  --tual-surface: #ffffff;
+  --tual-surface-recessed: #f3f4f6;
+  --tual-surface-hover: #f4f4f5;
+  --tual-surface-active-neutral: #eaeaea;
+  --tual-active-bg: #dce8fa;
+  --tual-active-fg: #1d4ed8;
+
+  /* Text & Foreground Hierarchy */
+  --tual-text: #111827;
+  --tual-text-secondary: #6b7280;
+  --tual-text-tertiary: #9ca3af;
+  --tual-muted: #9ca3af;
+  --tual-accent: #2563eb;
+  --tual-handle: #2563eb;
+
+  /* Borders & Dividers */
+  --tual-border: rgba(0, 0, 0, 0.08);
+  --tual-border-solid: #e5e7eb;
+  --tual-border-hover: #d1d5db;
+  --tual-border-focus: #2563eb;
+  --tual-border-muted: #f3f4f6;
+  --tual-divider: #eeeeee;
+
+  /* Elevation & Shadows */
+  --tual-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --tual-shadow-floating: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --tual-shadow-popover: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+  --tual-shadow-tooltip: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --tual-shadow-tooltip-dark: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --tual-shadow-thumb: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  /* Border Radii */
+  --tual-radius-toolbar: 12px;
+  --tual-radius-popover: 12px;
+  --tual-radius-popover-compact: 8px;
+  --tual-radius-tooltip: 6px;
+  --tual-radius-track: 8px;
+  --tual-radius-row: 8px;
+  --tual-radius-btn: 6px;
+  --tual-radius-input: 6px;
+  --tual-radius-swatch: 4px;
+  --tual-radius: 6px;
+
+  /* Typography */
+  --tual-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --tual-font-size: 13px;
+  --tual-line-height: 20px;
+
+  font-family: var(--tual-font);
+  font-size: var(--tual-font-size);
+  line-height: var(--tual-line-height);
+  color: var(--tual-text);
+  color-scheme: light;
+  box-sizing: border-box;
+}
+
+.tual *,
+.tual *::before,
+.tual *::after {
+  box-sizing: border-box;
+}
+
+.tual[data-theme='dark'] {
+  --tual-canvas-bg: #121214;
+  --tual-surface: #1e1e22;
+  --tual-surface-recessed: #27272b;
+  --tual-surface-hover: #2c2c32;
+  --tual-surface-active-neutral: #35353d;
+  --tual-active-bg: #1e3a8a;
+  --tual-active-fg: #60a5fa;
+
+  --tual-text: #f9fafb;
+  --tual-text-secondary: #9ca3af;
+  --tual-text-tertiary: #6b7280;
+  --tual-muted: #6b7280;
+  --tual-accent: #3b82f6;
+  --tual-handle: #60a5fa;
+
+  --tual-border: rgba(255, 255, 255, 0.1);
+  --tual-border-solid: #33333a;
+  --tual-border-hover: #484852;
+  --tual-border-focus: #3b82f6;
+  --tual-border-muted: #27272b;
+  --tual-divider: #28282e;
+
+  --tual-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --tual-shadow-floating: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --tual-shadow-popover: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 4px 10px -2px rgba(0, 0, 0, 0.4);
+  --tual-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --tual-shadow-tooltip-dark: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --tual-shadow-thumb: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+  color-scheme: dark;
+}

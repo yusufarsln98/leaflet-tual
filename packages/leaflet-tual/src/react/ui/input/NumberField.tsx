@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from '../../features/i18n/index.js'
 import { ICONS } from '../icons/index.js'
 import type { NumberFieldProps } from './types.js'
 
@@ -18,6 +19,7 @@ export function NumberField({
   className = 'tual-typo-input',
   ...rest
 }: NumberFieldProps) {
+  const { t } = useTranslation()
   const stepNum = typeof step === 'number' ? step : (parseFloat(String(step)) || 1)
   const minNum = min !== undefined ? Number(min) : -Infinity
   const maxNum = max !== undefined ? Number(max) : Infinity
@@ -57,7 +59,7 @@ export function NumberField({
           <button
             type="button"
             tabIndex={-1}
-            aria-label="Increment"
+            aria-label={t('increment')}
             className="tual-number-step-btn tual-number-step-up"
             disabled={disabled || readOnly || (max !== undefined && value >= Number(max))}
             onClick={(e) => handleStep(1, e)}
@@ -68,7 +70,7 @@ export function NumberField({
           <button
             type="button"
             tabIndex={-1}
-            aria-label="Decrement"
+            aria-label={t('decrement')}
             className="tual-number-step-btn tual-number-step-down"
             disabled={disabled || readOnly || (min !== undefined && value <= Number(min))}
             onClick={(e) => handleStep(-1, e)}

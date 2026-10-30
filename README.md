@@ -227,6 +227,8 @@ const tual = useLeafletTual({
   value,
   onChange,
   readOnly: false,
+  theme: 'system',
+  translations: {},
   tool: 'select',
 })
 ```
@@ -239,7 +241,6 @@ const tual = useLeafletTual({
 - `style`: Current drawing defaults.
 - `selection`: Selected item ids.
 - `selected`: Selected items.
-- `scheme`: Resolved color scheme (`'light' | 'dark'`, adapts to `theme` or system preference).
 - `theme`: Active theme setting (`'light' | 'dark' | 'system'`).
 - `readOnly`: Boolean.
 - `canUndo` / `canRedo`: History status.
@@ -249,17 +250,20 @@ const tual = useLeafletTual({
 - `setTool(tool, variant?)`
 - `setStyle(patch)` (selection-aware)
 - `setTheme(theme)` (`'light' | 'dark' | 'system'`)
+- `setTranslations(patch)`
 - `add(item)`
-- `update(id, patch)`
+- `update(id, patch, committed?)`
+- `updateMany(patches, committed?)`
+- `duplicate(ids?)`
+- `reorder(ids, action)` (`'front' | 'back' | 'forward' | 'backward'`)
 - `remove(ids?)`
 - `clear()`
 - `select(ids)`
 - `edit(id)`
 - `undo()` / `redo()`
-- `fit(target)` ('all', 'selection')
+- `fit(target)` ('all', 'selection', or item id)
 - `load(doc)`
 - `setReadOnly(boolean)`
-- `setTranslations(patch)`
 - `pages`: `list`, `active`, `add(name?)`, `rename(id, name)`, `remove(id)`, `move(id, toIndex)`, `select(id)`
 
 ---

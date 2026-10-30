@@ -42,7 +42,7 @@ export function NoteOverlayView({
   const maxY = center.y + screenHeight / 2
 
   const isSelected = controller.selection.includes(note.id)
-  const visual = resolveItemStyle(note, 'light')
+  const visual = resolveItemStyle(note)
 
   const handleFocus = () => {
     setIsFocused(true)

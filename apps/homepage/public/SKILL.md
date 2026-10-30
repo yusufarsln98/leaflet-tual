@@ -225,7 +225,7 @@ Every label, tooltip, placeholder, and unit is managed through clean translation
 />
 ```
 
-Configure globally via `setDefaultTranslations(tokens)` or dynamically via `tual.setTranslations(patch)`.
+Configure globally via `setDefaultTranslations(tokens)` (see `DEFAULT_TRANSLATION_TOKENS` and `TRANSLATION_KEYS`) or dynamically via `tual.setTranslations(patch)`.
 
 ### Palette
 
@@ -273,7 +273,6 @@ Everything about the toolbar is controlled by the `toolbar` prop:
     position: 'bottom',
     tools: ['select', 'freedraw', 'pen', 'arrow', 'shape', 'note'],
     pages: false,
-    actions: [{ id: 'snapshot', label: 'Snapshot', icon: <CameraIcon />, onClick: snapshot }],
   }}
 />
 ```
@@ -287,22 +286,7 @@ interface ToolbarOptions {
            | 'bottom-left' | 'bottom' | 'bottom-right'        // default 'top-left'
   orientation?: 'horizontal' | 'vertical'                      // default 'horizontal'
   tools?: ToolId[]            // which tools to show and in what order; default: all
-  variants?: {                // limit the options inside the Draw, Arrow and Shapes popovers
-    draw?: DrawKind[]
-    arrow?: ArrowKind[]
-    shape?: ShapeKind[]
-  }
   pages?: boolean             // page switcher, default true
-  actions?: ToolbarAction[]   // your own buttons, appended after the tools
-}
-
-interface ToolbarAction {
-  id: string
-  label: string               // tooltip and accessible name
-  icon: ReactNode
-  onClick: () => void
-  active?: boolean
-  disabled?: boolean
 }
 ```
 
@@ -333,15 +317,11 @@ All props are optional.
 | `value`             | `Doc`                                   | Controlled document.                                                                  |
 | `defaultValue`      | `Doc`                                   | Uncontrolled initial document.                                                        |
 | `onChange`          | `(doc, info) => void`                   | The single change callback. See below.                                               |
-| `onSelect`          | `(items: Item[]) => void`               | Selection changed.                                                                    |
-| `onToolChange`      | `(tool, variant) => void`               | Active tool changed.                                                                  |
 | `theme`             | `'light' \| 'dark' \| 'system'`          | Color scheme. Default `'system'`.                                                     |
 | `toolbar`           | `false \| ToolbarOptions`               | Toolbar configuration (section 6).                                                    |
 | `readOnly`          | `boolean`                               | No drawing, editing or selection. Hides the toolbar unless `toolbar` is set.          |
 | `translations`      | `Partial<TranslationTokens>`            | Localize every tooltip, placeholder and menu string.                                  |
-| `collapseBelowZoom` | `{ notes?: number; text?: number }`     | Auto-collapse overlays when zoomed out below these levels.                            |
 | `map`               | `L.Map`                                 | Only needed outside `<MapContainer>`.                                                 |
-| `zIndex`            | `number`                                | Default `650`.                                                                        |
 
 ```ts
 type ChangeInfo = {
@@ -360,8 +340,9 @@ const tual = useLeafletTual({
   defaultValue,            // Doc, uncontrolled start
   value,                   // Doc, controlled
   onChange,                // same signature as the component prop
-  maxHistory: 100,
   readOnly: false,
+  theme: 'system',         // 'light' | 'dark' | 'system'
+  translations: {},        // Partial<TranslationTokens>
   tool: 'select',          // initial tool
   style: { color: 'ink', width: 'm' },     // initial drawing defaults
 })
@@ -369,29 +350,33 @@ const tual = useLeafletTual({
 
 State (values that re-render your component):
 
-| Member                | Type                  | Description                                  |
-| --------------------- | --------------------- | -------------------------------------------- |
-| `doc`                 | `Doc`                 | The full document.                           |
-| `items`               | `Item[]`              | Items on the active page.                    |
-| `tool`                | `ToolId`              | Active tool.                                 |
-| `variant`             | `string \| null`      | Active variant (arrow kind or shape kind).   |
-| `style`               | `Style`               | Current drawing defaults.                    |
-| `selection`           | `string[]`            | Selected item ids.                           |
-| `selected`            | `Item[]`              | Selected items.                              |
-| `scheme`              | `'light' \| 'dark'`   | Resolved color scheme (auto system preference). |
-| `readOnly`            | `boolean`             |                                                 |
-| `canUndo` / `canRedo` | `boolean`             |                                                 |
-| `translations`        | `TranslationTokens`   | Current resolved translation tokens.            |
+| Member                | Type                            | Description                                     |
+| --------------------- | ------------------------------- | ----------------------------------------------- |
+| `doc`                 | `Doc`                           | The full document.                              |
+| `items`               | `Item[]`                        | Items on the active page.                       |
+| `tool`                | `ToolId`                        | Active tool.                                    |
+| `variant`             | `string \| null`                | Active variant (arrow kind or shape kind).      |
+| `style`               | `Style`                         | Current drawing defaults.                       |
+| `selection`           | `string[]`                      | Selected item ids.                              |
+| `selected`            | `Item[]`                        | Selected items.                                 |
+| `theme`               | `'light' \| 'dark' \| 'system'` | Active theme preference.                        |
+| `readOnly`            | `boolean`                       |                                                 |
+| `canUndo` / `canRedo` | `boolean`                       |                                                 |
+| `translations`        | `TranslationTokens`             | Current resolved translation tokens.            |
 
 Actions:
 
 | Method                         | Description                                                                                         |
 | ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `setTheme(theme)`              | Update theme (`'light' \| 'dark' \| 'system'`) dynamically.                                         |
 | `setTranslations(patch)`       | Update translation tokens dynamically.                                                              |
 | `setTool(tool, variant?)`      | Activate a tool. `setTool('shape', 'star')`, `setTool('arrow', 'curved')`.                          |
 | `setStyle(patch)`              | **Selection-aware.** Changes the selected items, or the drawing defaults when nothing is selected.  |
 | `add(item)`                    | Add a `NewItem` to the active page. Returns the created `Item`.                                      |
-| `update(id, patch)`            | Shallow-merge into an item. `style` is merged one level deep.                                        |
+| `update(id, patch, committed?)`| Shallow-merge into an item. `style` is merged one level deep.                                        |
+| `updateMany(patches, committed?)` | Batch-update multiple items in a single undo step.                                                |
+| `duplicate(ids?)`              | Clone one id, an array of ids, or the current selection.                                             |
+| `reorder(ids, action)`         | Z-order (`'front' \| 'back' \| 'forward' \| 'backward'`).                                            |
 | `remove(ids?)`                 | Remove one id or an array. With no argument, removes the selection.                                  |
 | `clear()`                      | Remove every item on the active page.                                                                |
 | `select(ids \| null)`          | Replace the selection.                                                                               |
@@ -544,5 +529,5 @@ Pure functions. Those that take no map work anywhere.
 | `distance(a, b)`                          | Geodesic distance in meters.                                          |
 | `pathDistance(points)`                    | Cumulative geodesic distance in meters.                               |
 | `formatDistance(meters, unit = 'metric')` | `"1.2 km"` or `"0.7 mi"`.                                             |
-| `resolveColor(name, scheme)`              | Palette name to hex for a scheme.                                     |
+| `resolveColor(name)`                      | Palette name to hex color.                                            |
 

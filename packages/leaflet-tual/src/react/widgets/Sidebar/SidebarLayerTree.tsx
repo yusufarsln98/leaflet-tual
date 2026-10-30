@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import type { Controller, Item } from '../../../core/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
-import { ARROW_ICONS, ConfirmPopover, DRAW_ICONS, ICONS, SHAPE_ICONS } from '../../ui/index.js'
+import { ConfirmPopover, ICONS } from '../../ui/index.js'
 
 export interface SidebarLayerTreeProps {
   controller: Controller
@@ -12,13 +12,13 @@ export interface SidebarLayerTreeProps {
 function getItemIcon(item: Item) {
   switch (item.type) {
     case 'shape':
-      return (SHAPE_ICONS[item.kind] ?? SHAPE_ICONS.square)()
+      return (ICONS[item.kind] ?? ICONS.square)()
     case 'arrow':
-      return (ARROW_ICONS[item.kind] ?? ARROW_ICONS.linear)()
+      return (ICONS[item.kind] ?? ICONS.linear)()
     case 'freedraw':
-      return DRAW_ICONS.freedraw()
+      return ICONS.freedraw()
     case 'pen':
-      return DRAW_ICONS.pen()
+      return ICONS.pen()
     case 'text':
       return ICONS.text()
     case 'note':

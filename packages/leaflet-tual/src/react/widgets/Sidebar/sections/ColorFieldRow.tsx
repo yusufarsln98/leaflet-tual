@@ -13,7 +13,6 @@ export interface ColorFieldRowProps {
   mode: 'stroke' | 'fill'
   currentColor: ColorName | string
   currentFill?: Style['fill']
-  scheme: 'light' | 'dark'
   colorHex: string
   value?: string
   noFill?: boolean
@@ -33,7 +32,6 @@ export function ColorFieldRow({
   mode,
   currentColor,
   currentFill,
-  scheme,
   colorHex,
   value,
   noFill = false,
@@ -70,7 +68,6 @@ export function ColorFieldRow({
               mode={mode}
               currentColor={currentColor}
               currentFill={currentFill}
-              scheme={scheme}
               onSelectColor={onSelectColor}
               onSelectFillMode={onSelectFillMode}
               onClose={() => setIsOpen(false)}

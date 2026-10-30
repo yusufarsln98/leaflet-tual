@@ -50,7 +50,6 @@ export function WorkbenchMapView({
           readOnly={readOnly}
           theme={theme}
           toolbar={{ position: toolbarPosition }}
-          collapseBelowZoom={{ notes: 12 }}
         />
       </MapContainer>
     </div>

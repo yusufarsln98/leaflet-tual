@@ -25,7 +25,6 @@ export function SidebarProperties({ controller, map }: SidebarPropertiesProps) {
   }
 
   const style = selectedItem.style ?? {}
-  const scheme = controller.scheme
   const updateStyle = (patch: Partial<Style>) =>
     controller.update(selectedItem.id, { style: { ...style, ...patch } })
 
@@ -35,7 +34,6 @@ export function SidebarProperties({ controller, map }: SidebarPropertiesProps) {
         map={map}
         selectedItem={selectedItem}
         style={style}
-        scheme={scheme}
         onUpdateStyle={updateStyle}
       />
       <TypographySection

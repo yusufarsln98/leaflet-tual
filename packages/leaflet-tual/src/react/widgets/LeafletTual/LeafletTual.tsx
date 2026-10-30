@@ -15,15 +15,13 @@ import { Sidebar, SidebarTriggerBar } from '../Sidebar/index.js'
 import type { LeafletTualProps } from '../../types/index.js'
 import { InlineShapeLabelEditor, NoteOverlayView, TextOverlayView } from './overlays/index.js'
 import { drawCanvasScene, type CanvasGesture, useCanvasGestures } from './gestures/index.js'
-import { useKeyboardShortcuts, useThemeResolver, useMapInteractions } from './hooks/index.js'
+import { useKeyboardShortcuts, useMapInteractions, useThemeResolver } from './hooks/index.js'
 
 function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps }) {
   const internalController = useLeafletTual({
     defaultValue: props.defaultValue,
     value: props.value,
     onChange: props.onChange,
-    onSelect: props.onSelect,
-    onToolChange: props.onToolChange,
     readOnly: props.readOnly,
     theme: props.theme,
     translations: props.translations,
@@ -34,9 +32,20 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
 
   useEffect(() => {
     const internal = controller as InternalController
-    internal._setScheme?.(resolvedScheme)
     internal._setMap?.(map)
-  }, [controller, resolvedScheme, map])
+  }, [controller, map])
+
+  useEffect(() => {
+    if (props.controller && props.theme !== undefined && props.controller.theme !== props.theme) {
+      props.controller.setTheme(props.theme)
+    }
+  }, [props.controller, props.theme])
+
+  useEffect(() => {
+    if (props.controller && props.translations) {
+      props.controller.setTranslations(props.translations)
+    }
+  }, [props.controller, props.translations])
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [currentZoom, setCurrentZoom] = useState(() => map.getZoom())
@@ -50,11 +59,10 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
       canvas,
       map,
       controller,
-      resolvedScheme,
       activeGesture,
       isShiftPressedRef.current,
     )
-  }, [activeGesture, controller, map, resolvedScheme])
+  }, [activeGesture, controller, map])
 
   useLeafletSync(map, () => {
     setCurrentZoom(map.getZoom())
@@ -66,7 +74,6 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
   useEffect(() => {
     redraw()
   }, [redraw])
-
 
   useMapInteractions(map, controller)
 
@@ -90,27 +97,16 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
 
   useKeyboardShortcuts(controller, gestures.cancelGesture, gestures.finishPen)
 
-  const [internalSidebarOpen, setInternalSidebarOpen] = useState(
-    props.defaultSidebarOpen ?? false,
-  )
-  const isSidebarOpen =
-    props.sidebarOpen !== undefined ? props.sidebarOpen : internalSidebarOpen
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  const handleSidebarChange = (next: boolean) => {
-    setInternalSidebarOpen(next)
-    props.onSidebarOpenChange?.(next)
-  }
-
-  const showToolbar = props.toolbar !== false && (!props.readOnly || props.toolbar !== undefined)
-  const showSidebarControl =
-    props.sidebar !== false && showToolbar && (typeof props.toolbar !== 'object' || props.toolbar.zoom !== false)
+  const showToolbar = props.toolbar !== false && (!props.readOnly || Boolean(props.toolbar))
 
   return (
-    <TranslationProvider translations={props.translations}>
+    <TranslationProvider translations={controller.translations}>
       <div
         className="tual tual-container"
         data-theme={resolvedScheme}
-        style={{ zIndex: props.zIndex ?? 650 }}
+        style={{ zIndex: 650 }}
       >
         <canvas
           ref={canvasRef}
@@ -132,7 +128,7 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
             map={map}
             controller={controller}
             sidebarOpen={isSidebarOpen}
-            onOpenSidebar={() => handleSidebarChange(true)}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
           />
         )}
 
@@ -158,7 +154,6 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
               textItem={item}
               controller={controller}
               currentZoom={currentZoom}
-              collapseThreshold={props.collapseBelowZoom?.text}
             />
           ) : null,
         )}
@@ -174,16 +169,15 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
         )}
 
         {/* Floating Sidebar & Zoom Trigger Tooltip */}
-        {showSidebarControl && (
+        {showToolbar && (
           <SidebarTriggerBar
             controller={controller}
             map={map}
             currentZoom={currentZoom}
             sidebarOpen={isSidebarOpen}
-            onToggleSidebar={() => handleSidebarChange(!isSidebarOpen)}
+            onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
           />
         )}
-
       </div>
 
       {/* Right Properties & Layers Sidebar — own overlay layer so it sits above Leaflet controls (e.g. attribution) */}
@@ -192,7 +186,7 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           <Sidebar
             controller={controller}
             map={map}
-            onClose={() => handleSidebarChange(false)}
+            onClose={() => setIsSidebarOpen(false)}
           />
         </div>
       )}

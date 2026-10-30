@@ -1,16 +1,16 @@
 import type { ColorName } from '../../types/index.js'
 
-export const PRESET_COLORS: { name: ColorName; light: string; dark: string }[] = [
-  { name: 'ink', light: '#1F2A30', dark: '#ECEAE6' },
-  { name: 'taupe', light: '#4A5560', dark: '#9CA3AF' },
-  { name: 'blue', light: '#1B4CC0', dark: '#60A5FA' },
-  { name: 'red', light: '#8F2323', dark: '#F87171' },
-  { name: 'green', light: '#0B6B49', dark: '#34D399' },
-  { name: 'purple', light: '#4A2C80', dark: '#A78BFA' },
-  { name: 'gray', light: '#6B7280', dark: '#9CA3AF' },
-  { name: 'orange', light: '#EA580C', dark: '#FB923C' },
-  { name: 'yellow', light: '#D97706', dark: '#FBBF24' },
-  { name: 'pink', light: '#DB2777', dark: '#F472B6' },
+export const PRESET_COLORS: { name: ColorName; hex: string }[] = [
+  { name: 'ink', hex: '#1F2A30' },
+  { name: 'taupe', hex: '#4A5560' },
+  { name: 'blue', hex: '#1B4CC0' },
+  { name: 'red', hex: '#8F2323' },
+  { name: 'green', hex: '#0B6B49' },
+  { name: 'purple', hex: '#4A2C80' },
+  { name: 'gray', hex: '#6B7280' },
+  { name: 'orange', hex: '#EA580C' },
+  { name: 'yellow', hex: '#D97706' },
+  { name: 'pink', hex: '#DB2777' },
 ]
 
 export interface RgbaColor {
@@ -20,10 +20,7 @@ export interface RgbaColor {
   a: number
 }
 
-export function parseColorString(
-  val?: string,
-  scheme: 'light' | 'dark' = 'light',
-): RgbaColor {
+export function parseColorString(val?: string): RgbaColor {
   if (!val) return { r: 217, g: 119, b: 6, a: 1 }
   const trimmed = val.trim()
 
@@ -62,8 +59,7 @@ export function parseColorString(
 
   const preset = PRESET_COLORS.find((c) => c.name === trimmed)
   if (preset) {
-    const hex = scheme === 'dark' ? preset.dark : preset.light
-    return parseColorString(hex, scheme)
+    return parseColorString(preset.hex)
   }
 
   return { r: 217, g: 119, b: 6, a: 1 }

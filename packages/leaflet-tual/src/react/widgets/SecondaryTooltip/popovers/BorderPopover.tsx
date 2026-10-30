@@ -20,7 +20,6 @@ export interface BorderPopoverProps {
   currentStrokeColor?: ColorName | string
   currentWidth?: 's' | 'm' | 'l' | number
   currentRadius?: number
-  scheme: 'light' | 'dark'
   isSquareShape?: boolean
   showRadius?: boolean
   onSelectDash: (dash: 'solid' | 'dashed' | 'dotted' | 'none') => void
@@ -70,7 +69,6 @@ export function BorderPopover({
   currentStrokeColor,
   currentWidth = 'm',
   currentRadius = 8,
-  scheme,
   isSquareShape,
   showRadius,
   onSelectDash,
@@ -83,7 +81,7 @@ export function BorderPopover({
   const [showPalette, setShowPalette] = useState(false)
 
   const activeStroke = currentStrokeColor ?? currentColor ?? 'blue'
-  const strokeHex = resolveColor(activeStroke, scheme)
+  const strokeHex = resolveColor(activeStroke)
   const radiusVisible = showRadius ?? isSquareShape !== false
   const numWidth = resolveWidth(currentWidth)
 
@@ -175,7 +173,7 @@ export function BorderPopover({
             variant="border-flyout"
             items={PALETTE_KEYS.map((key) => ({
               name: key,
-              hex: resolveColor(key, 'light'),
+              hex: resolveColor(key),
               title: t(key),
             }))}
             selectedColor={activeStroke}

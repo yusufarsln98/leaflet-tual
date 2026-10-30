@@ -1,9 +1,10 @@
 import type L from 'leaflet'
-import type { ArrowKind, Controller, ShapeKind, Tokens } from '../../../../core/index.js'
+import type { ArrowKind, Controller, ShapeKind } from '../../../../core/index.js'
 import {
   DEFAULT_TOOL_STYLES,
   renderArrowOnCanvas,
   renderFreedrawOnCanvas,
+  renderItemOnCanvas,
   renderPenOnCanvas,
   renderRulerOnCanvas,
   renderShapeOnCanvas,
@@ -21,10 +22,8 @@ export function drawCanvasScene(
   canvas: HTMLCanvasElement,
   map: L.Map,
   controller: Controller,
-  _resolvedScheme: 'light' | 'dark',
   activeGesture: CanvasGesture | null,
   isShiftPressed: boolean,
-  tokens?: Partial<Tokens>,
 ) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
@@ -44,27 +43,11 @@ export function drawCanvasScene(
   const selectionSet = new Set(controller.selection)
 
   for (const item of items) {
-    const isSelected = selectionSet.has(item.id)
-    const isEditing = controller.editingId === item.id
-    const renderOpts = { isSelected, isEditing, tokens }
-
-    switch (item.type) {
-      case 'arrow':
-        renderArrowOnCanvas(ctx, map, item, 'light', renderOpts)
-        break
-      case 'shape':
-        renderShapeOnCanvas(ctx, map, item, 'light', renderOpts)
-        break
-      case 'freedraw':
-        renderFreedrawOnCanvas(ctx, map, item, 'light', renderOpts)
-        break
-      case 'pen':
-        renderPenOnCanvas(ctx, map, item, 'light', renderOpts)
-        break
-      case 'ruler':
-        renderRulerOnCanvas(ctx, map, item, 'light', renderOpts)
-        break
-    }
+    renderItemOnCanvas(ctx, map, item, {
+      isSelected: selectionSet.has(item.id),
+      isEditing: controller.editingId === item.id,
+      translations: controller.translations,
+    })
   }
 
   const currentZoom = typeof map.getZoom === 'function' ? map.getZoom() : 13
@@ -77,45 +60,33 @@ export function drawCanvasScene(
 
     if (g.tool === 'arrow') {
       if (isShiftPressed) toGeo = snapAngle(g.startGeo, g.currentGeo, 45)
-      renderArrowOnCanvas(
-        ctx,
-        map,
-        {
-          id: 'preview',
-          type: 'arrow',
-          kind: (g.variant as ArrowKind) ?? 'linear',
-          from: g.startGeo,
-          to: toGeo,
-          baseZoom: currentZoom,
-          style: previewStyle,
-          createdAt: Date.now(),
-        },
-        'light',
-        { tokens },
-      )
+      renderArrowOnCanvas(ctx, map, {
+        id: 'preview',
+        type: 'arrow',
+        kind: (g.variant as ArrowKind) ?? 'linear',
+        from: g.startGeo,
+        to: toGeo,
+        baseZoom: currentZoom,
+        style: previewStyle,
+        createdAt: Date.now(),
+      })
     } else if (g.tool === 'shape') {
       if (!isClickGesture(g.startPt, g.currentPt)) {
         const placement = resolveShapePlacement(map, g.startPt, g.currentPt, {
           shiftKey: isShiftPressed,
           isCompleted: false,
         })
-        renderShapeOnCanvas(
-          ctx,
-          map,
-          {
-            id: 'preview',
-            type: 'shape',
-            kind: (g.variant as ShapeKind) ?? 'square',
-            at: placement.at,
-            width: placement.width,
-            height: placement.height,
-            baseZoom: currentZoom,
-            style: previewStyle,
-            createdAt: Date.now(),
-          },
-          'light',
-          { tokens },
-        )
+        renderShapeOnCanvas(ctx, map, {
+          id: 'preview',
+          type: 'shape',
+          kind: (g.variant as ShapeKind) ?? 'square',
+          at: placement.at,
+          width: placement.width,
+          height: placement.height,
+          baseZoom: currentZoom,
+          style: previewStyle,
+          createdAt: Date.now(),
+        })
       }
     } else if (g.tool === 'ruler') {
       renderRulerOnCanvas(
@@ -130,24 +101,17 @@ export function drawCanvasScene(
           style: previewStyle,
           createdAt: Date.now(),
         },
-        'light',
-        { tokens },
+        { translations: controller.translations },
       )
     } else if (g.tool === 'freedraw' && g.freedrawPoints && g.freedrawPoints.length > 1) {
-      renderFreedrawOnCanvas(
-        ctx,
-        map,
-        {
-          id: 'preview',
-          type: 'freedraw',
-          points: g.freedrawPoints,
-          baseZoom: currentZoom,
-          style: previewStyle,
-          createdAt: Date.now(),
-        },
-        'light',
-        { tokens },
-      )
+      renderFreedrawOnCanvas(ctx, map, {
+        id: 'preview',
+        type: 'freedraw',
+        points: g.freedrawPoints,
+        baseZoom: currentZoom,
+        style: previewStyle,
+        createdAt: Date.now(),
+      })
     }
   }
 
@@ -167,8 +131,7 @@ export function drawCanvasScene(
         style: { ...DEFAULT_TOOL_STYLES.pen, ...controller.style },
         createdAt: Date.now(),
       },
-      'light',
-      { isSelected: true, tokens },
+      { isSelected: true },
     )
   }
 }

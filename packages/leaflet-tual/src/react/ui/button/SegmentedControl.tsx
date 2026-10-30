@@ -5,14 +5,18 @@ import type { SegmentedControlProps } from './types.js'
 const GROUP_CLASS: Record<NonNullable<SegmentedControlProps<string>['variant']>, string> = {
   'color-tabs': 'tual-color-tabs',
   'typo-tabs': 'tual-typo-tabs',
+  'pill-tabs': 'tual-pill-tabs',
   'border-dash': 'tual-border-dash-group',
+  recessed: 'tual-segmented-recessed',
   'button-group': '',
 }
 
 const ITEM_CLASS: Record<NonNullable<SegmentedControlProps<string>['variant']>, string> = {
   'color-tabs': 'tual-color-tab',
   'typo-tabs': 'tual-typo-tab',
+  'pill-tabs': 'tual-pill-tab',
   'border-dash': 'tual-border-dash-btn',
+  recessed: 'tual-segmented-recessed-item',
   'button-group': 'tual-btn',
 }
 

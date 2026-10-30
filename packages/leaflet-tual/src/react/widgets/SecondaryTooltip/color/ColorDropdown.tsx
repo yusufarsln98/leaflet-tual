@@ -20,7 +20,6 @@ export interface ColorDropdownProps {
   allowCustom?: boolean
   currentColor?: string
   currentFill?: 'none' | 'tint' | 'solid'
-  scheme: 'light' | 'dark'
   map?: L.Map
   onSelectColor: (color: ColorName | string, hex: string) => void
   onSelectFillMode?: (mode: 'none' | 'tint' | 'solid') => void
@@ -32,7 +31,6 @@ export function ColorDropdown({
   allowCustom = true,
   currentColor,
   currentFill = 'solid',
-  scheme,
   map,
   onSelectColor,
   onSelectFillMode,
@@ -64,7 +62,7 @@ export function ColorDropdown({
           variant="color-dropdown"
           items={PRESET_COLORS.map((c) => ({
             name: c.name,
-            hex: c.light,
+            hex: c.hex,
             title: t(c.name, undefined, c.name),
           }))}
           selectedColor={currentColor}
@@ -84,7 +82,6 @@ export function ColorDropdown({
       ) : (
         <CustomColorPicker
           currentColor={currentColor}
-          scheme={scheme}
           map={map}
           onSelectColor={onSelectColor}
         />

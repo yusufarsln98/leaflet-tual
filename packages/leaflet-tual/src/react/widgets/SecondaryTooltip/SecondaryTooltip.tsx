@@ -10,7 +10,7 @@ import {
   resolveTypographyLabel,
 } from '../../../core/index.js'
 import { useControllerState } from '../../features/index.js'
-import { useTranslation } from '../../features/i18n/index.js'
+import { TranslationProvider, useTranslation } from '../../features/i18n/index.js'
 import { PillButton } from '../../ui/index.js'
 import { useTooltipEvents } from './utils/index.js'
 import {
@@ -56,7 +56,6 @@ export function SecondaryTooltip({
   const bounds = getItemBounds(map, selectedItem)
   const leftPos = Math.round(bounds.cx)
   const topPos = Math.round(Math.max(16, bounds.minY - 44))
-  const scheme = controller.scheme
   const style = selectedItem.style ?? {}
 
   const updateStyle = (patch: Partial<Style>) =>
@@ -69,10 +68,10 @@ export function SecondaryTooltip({
   const isNote = selectedItem.type === 'note'
   const isTextOrNote = isNote || selectedItem.type === 'text'
   const resolvedStyle =
-    isShape || isNote ? resolveItemStyle(selectedItem, scheme) : undefined
+    isShape || isNote ? resolveItemStyle(selectedItem) : undefined
   const colorHex =
     resolvedStyle?.strokeColor ??
-    resolveColor(style.color ?? (isShape || isArrow ? 'blue' : 'ink'), 'light')
+    resolveColor(style.color ?? (isShape || isArrow ? 'blue' : 'ink'))
   const hasTypography = isTextOrNote || isShape || isArrow
   const hasBorder = selectedItem.type !== 'text'
 
@@ -95,9 +94,10 @@ export function SecondaryTooltip({
   const typographyLabel = resolveTypographyLabel(style, t)
 
   return (
-    <div
-      ref={tooltipRef}
-      className={`tual-secondary-tooltip ${className ?? ''}`}
+    <TranslationProvider translations={controller.translations}>
+      <div
+        ref={tooltipRef}
+        className={`tual-secondary-tooltip ${className ?? ''}`}
       style={{
         position: 'absolute',
         left: leftPos,
@@ -166,7 +166,6 @@ export function SecondaryTooltip({
         isShape={isShape}
         isArrow={isArrow}
         style={style}
-        scheme={scheme as 'light' | 'dark'}
         colorHex={colorHex}
         resolvedStyle={resolvedStyle}
         activePopover={activePopover}
@@ -192,7 +191,6 @@ export function SecondaryTooltip({
         style={style}
         selectedItem={selectedItem}
         controller={controller}
-        scheme={scheme as 'light' | 'dark'}
         activePopover={activePopover}
         sidebarOpen={sidebarOpen}
         onOpenSidebar={onOpenSidebar}
@@ -200,6 +198,7 @@ export function SecondaryTooltip({
         onClose={() => setActivePopover(null)}
         onUpdateStyle={updateStyle}
       />
-    </div>
+      </div>
+    </TranslationProvider>
   )
 }

@@ -22,7 +22,6 @@ export const DEFAULT_COLOR_NAMES: ColorName[] = [
 export function ColorPaletteGrid({
   colors = DEFAULT_COLOR_NAMES,
   selectedColor,
-  scheme = 'light',
   variant = 'palette',
   header,
   onSelectColor,
@@ -34,10 +33,7 @@ export function ColorPaletteGrid({
       {header !== undefined && <div className="tual-popover-header">{header}</div>}
       <div className={variant === 'border' ? 'tual-border-color-row' : 'tual-palette'}>
         {colors.map((name) => {
-          const hex =
-            variant === 'border'
-              ? resolveColor(name, scheme)
-              : DEFAULT_PALETTE[name].light
+          const hex = variant === 'border' ? resolveColor(name) : DEFAULT_PALETTE[name]
           const fallbackLabel =
             variant === 'border'
               ? name.charAt(0).toUpperCase() + name.slice(1)

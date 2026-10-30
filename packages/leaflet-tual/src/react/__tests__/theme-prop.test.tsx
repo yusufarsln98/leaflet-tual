@@ -5,16 +5,21 @@ import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 import { BorderPopover } from '../widgets/SecondaryTooltip/popovers/BorderPopover.js'
 
-describe('Automatic system scheme & custom select dropdowns', () => {
+describe('Theme prop & custom select dropdowns', () => {
   beforeEach(() => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
   })
 
-  it('automatically sets data-theme on LeafletTual root container from system preference', () => {
+  it('sets data-theme on LeafletTual root container from theme prop or system preference', () => {
     const map = createMockMap()
-    const { container } = render(<LeafletTual map={map} defaultValue={emptyDoc()} />)
+    const { container, rerender } = render(
+      <LeafletTual map={map} defaultValue={emptyDoc()} theme="dark" />,
+    )
     const root = container.querySelector('.tual')
-    expect(root?.getAttribute('data-theme')).toMatch(/light|dark/)
+    expect(root?.getAttribute('data-theme')).toBe('dark')
+
+    rerender(<LeafletTual map={map} defaultValue={emptyDoc()} theme="light" />)
+    expect(root?.getAttribute('data-theme')).toBe('light')
   })
 
   it('renders custom select menu for stroke width and corner radius in BorderPopover', () => {
@@ -25,7 +30,6 @@ describe('Automatic system scheme & custom select dropdowns', () => {
       <BorderPopover
         currentWidth={2}
         currentRadius={8}
-        scheme="dark"
         isSquareShape={true}
         onSelectDash={vi.fn()}
         onSelectStrokeColor={vi.fn()}

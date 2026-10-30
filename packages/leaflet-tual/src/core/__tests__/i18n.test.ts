@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import {
   DEFAULT_TRANSLATION_TOKENS,
+  TRANSLATION_KEYS,
   resolveTranslations,
   createTranslator,
   setDefaultTranslations,
@@ -15,7 +16,7 @@ describe('i18n core translations and tokens', () => {
     resetDefaultTranslations()
   })
 
-  it('contains default English translations for all tokens', () => {
+  it('contains default English translations for all tokens and exports TRANSLATION_KEYS', () => {
     expect(DEFAULT_TRANSLATION_TOKENS.select).toBe('Select')
     expect(DEFAULT_TRANSLATION_TOKENS.freedraw).toBe('Free draw')
     expect(DEFAULT_TRANSLATION_TOKENS.undo).toBe('Undo')
@@ -24,6 +25,19 @@ describe('i18n core translations and tokens', () => {
     expect(DEFAULT_TRANSLATION_TOKENS.properties).toBe('Properties')
     expect(DEFAULT_TRANSLATION_TOKENS.theme).toBe('Theme')
     expect(DEFAULT_TRANSLATION_TOKENS.custom).toBe('Custom')
+    expect(DEFAULT_TRANSLATION_TOKENS.hexColor).toBe('Hex color')
+    expect(DEFAULT_TRANSLATION_TOKENS.increment).toBe('Increment')
+    expect(DEFAULT_TRANSLATION_TOKENS.decrement).toBe('Decrement')
+    expect(TRANSLATION_KEYS).toContain('select')
+    expect(TRANSLATION_KEYS).toContain('pageDefault')
+  })
+
+  it('uses pageDefault translation token in emptyDoc when provided', () => {
+    const defaultDoc = emptyDoc()
+    expect(defaultDoc.pages[0].name).toBe('Page 1')
+
+    const customDoc = emptyDoc({ pageDefault: 'Sayfa {n}' })
+    expect(customDoc.pages[0].name).toBe('Sayfa 1')
   })
 
   it('resolves translations with partial overrides', () => {

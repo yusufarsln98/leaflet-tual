@@ -205,7 +205,6 @@ State:
 - `style: Style`
 - `selection: string[]`
 - `selected: Item[]`
-- `scheme: 'light' | 'dark'` (resolved color scheme)
 - `theme: 'light' | 'dark' | 'system'`
 - `readOnly: boolean`
 - `canUndo: boolean`
@@ -218,13 +217,16 @@ Actions:
 - `setTheme(theme)`
 - `setTranslations(patch)`
 - `add(item)`
-- `update(id, patch)`
+- `update(id, patch, committed?)`
+- `updateMany(patches, committed?)`
+- `duplicate(ids?)`
+- `reorder(ids, action)`
 - `remove(ids?)`
 - `clear()`
 - `select(ids)`
 - `edit(id)`
 - `undo()` / `redo()`
-- `fit(target)` ('all', 'selection')
+- `fit(target)` ('all', 'selection', or item id)
 - `load(doc)`
 - `setReadOnly(boolean)`
 - `pages.list`, `pages.active`, `pages.add(name?)`, `pages.rename(id, name)`, `pages.remove(id)`, `pages.move(id, toIndex)`, `pages.select(id)`
@@ -235,6 +237,6 @@ Actions:
 - `lockAspect(anchor, target, ratio = 1)` (world space)
 - `snapAngle(anchor, target, step = 45)` (world space)
 - `defaultVia(from, to, curvature = 0.25)` (world space)
-- `distance(a, b)` / `pathDistance(points)` / `formatDistance(meters, unit)`
+- `distance(a, b)` / `pathDistance(points)` / `formatDistance(meters, unit, tokens?)`
 - `bounds(item)` / `hitTest(item, point, tolerance)`
-- `resolveColor(name, scheme, tokens?)`
+- `resolveColor(name)`

@@ -1,9 +1,9 @@
-import type { ArrowKind, Doc, Item, NewItem, ShapeKind, Style } from './items.js'
-import type { Theme } from './theme.js'
+import type { Doc, Item, NewItem, Style } from './items.js'
 import type { TranslationTokens } from '../shared/i18n/index.js'
 
 export type { TranslationTokens, TranslationToken, Translator } from '../shared/i18n/index.js'
-export type { Theme } from './theme.js'
+
+export type Theme = 'light' | 'dark' | 'system'
 
 /** Tools grouped under the toolbar's Draw dropdown. */
 export type DrawKind = 'freedraw' | 'pen'
@@ -11,7 +11,16 @@ export type DrawKind = 'freedraw' | 'pen'
 export type ToolId = 'select' | 'text' | 'note' | DrawKind | 'arrow' | 'shape' | 'ruler'
 
 export type ChangeReason =
-  'create' | 'update' | 'delete' | 'reorder' | 'page' | 'load' | 'undo' | 'redo'
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'reorder'
+  | 'page'
+  | 'load'
+  | 'undo'
+  | 'redo'
+
+export type ReorderAction = 'front' | 'back' | 'forward' | 'backward'
 
 export type ChangeInfo = {
   reason: ChangeReason
@@ -37,7 +46,6 @@ export interface Controller {
   readonly style: Style
   readonly selection: string[]
   readonly selected: Item[]
-  readonly scheme: 'light' | 'dark'
   readonly theme: Theme
   readonly readOnly: boolean
   readonly canUndo: boolean
@@ -55,6 +63,9 @@ export interface Controller {
   setStyle(patch: Partial<Style>): void
   add(item: NewItem): Item
   update(id: string, patch: Partial<Item>, committed?: boolean): void
+  updateMany(patches: Array<{ id: string; patch: Partial<Item> }>, committed?: boolean): void
+  duplicate(ids?: string | string[]): Item[]
+  reorder(ids: string | string[], action: ReorderAction): void
   remove(ids?: string | string[]): void
   clear(): void
   select(ids: string[] | string | null): void
@@ -72,51 +83,34 @@ export interface Controller {
 
 export interface InternalController extends Controller {
   _updateControlledDoc?: (nextDoc: Doc) => void
-  _setScheme?: (s: 'light' | 'dark') => void
-  _setTheme?: (t: Theme) => void
   _setMap?: (m: L.Map | null) => void
 }
 
-export interface ToolbarAction {
-  id: string
-  label: string
-  title?: string
-  icon?: unknown
-  onClick?: () => void
-  run?: (controller: Controller) => void
-  active?: boolean
-  disabled?: boolean
-}
+export type ToolbarPosition =
+  | 'top-left'
+  | 'top'
+  | 'top-right'
+  | 'left'
+  | 'right'
+  | 'bottom-left'
+  | 'bottom'
+  | 'bottom-right'
 
 export interface ToolbarOptions {
-  position?:
-    'top-left' | 'top' | 'top-right' | 'left' | 'right' | 'bottom-left' | 'bottom' | 'bottom-right'
+  position?: ToolbarPosition
   orientation?: 'horizontal' | 'vertical'
   tools?: ToolId[]
-  variants?: {
-    arrow?: ArrowKind[]
-    shape?: ShapeKind[]
-    draw?: DrawKind[]
-  }
   pages?: boolean
-  zoom?: boolean
-  actions?: ToolbarAction[]
 }
 
 export interface CreateLeafletTualOptions {
   defaultValue?: Doc
   value?: Doc
   onChange?: (doc: Doc, info: ChangeInfo) => void
-  onSelect?: (items: Item[]) => void
-  onToolChange?: (tool: ToolId, variant: string | null) => void
-  maxHistory?: number
   readOnly?: boolean
+  theme?: Theme
   tool?: ToolId
   variant?: string | null
   style?: Partial<Style>
-  theme?: Theme
-  toolbar?: false | ToolbarOptions
   translations?: Partial<TranslationTokens>
-  collapseBelowZoom?: { notes?: number; text?: number }
-  zIndex?: number
 }

@@ -13,7 +13,6 @@ export interface ColorSwatchControlsProps {
   isShape: boolean
   isArrow?: boolean
   style: Style
-  scheme: 'light' | 'dark'
   colorHex: string
   resolvedStyle?: ResolvedItemStyle
   activePopover: string | null
@@ -28,7 +27,6 @@ export function ColorSwatchControls({
   isShape,
   isArrow,
   style,
-  scheme,
   colorHex,
   resolvedStyle,
   activePopover,
@@ -39,10 +37,10 @@ export function ColorSwatchControls({
   const { t } = useTranslation()
 
   if (isNote) {
-    const textColor = resolvedStyle?.text.color ?? resolveColor(style.textColor ?? 'ink', 'light')
+    const textColor = resolvedStyle?.text.color ?? resolveColor(style.textColor ?? 'ink')
     const backgroundColor =
       resolvedStyle?.fillColor ??
-      resolveColor(style.fillColor ?? style.color ?? 'yellow', 'light')
+      resolveColor(style.fillColor ?? style.color ?? 'yellow')
 
     return (
       <>
@@ -59,7 +57,6 @@ export function ColorSwatchControls({
               title={t('textColor')}
               mode="stroke"
               currentColor={style.textColor ?? 'ink'}
-              scheme={scheme}
               onSelectColor={(c) => onUpdateStyle({ textColor: c })}
               onClose={onClose}
             />
@@ -80,7 +77,6 @@ export function ColorSwatchControls({
               mode="fill"
               currentColor={style.fillColor ?? style.color ?? 'yellow'}
               currentFill={style.fill}
-              scheme={scheme}
               onSelectColor={(c: ColorName | string) => onUpdateStyle({ color: c, fillColor: c })}
               onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
               onClose={onClose}
@@ -107,7 +103,6 @@ export function ColorSwatchControls({
           mode={isShape ? 'fill' : 'stroke'}
           currentColor={style.color}
           currentFill={style.fill}
-          scheme={scheme}
           onSelectColor={(c) => {
             const nextStyle: Partial<Style> = { color: c }
             // Shapes paint both fill and stroke from their primary color, while

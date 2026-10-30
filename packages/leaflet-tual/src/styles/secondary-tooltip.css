@@ -1,0 +1,312 @@
+/* Secondary Contextual Tooltip (Floating Contextual Toolbar above selected item) */
+
+.tual-secondary-tooltip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+  height: 36px;
+  background-color: var(--tual-surface);
+  border: 1px solid var(--tual-border);
+  border-radius: var(--tual-radius-toolbar, 12px);
+  box-shadow: var(--tual-shadow-floating);
+  pointer-events: auto;
+  user-select: none;
+  white-space: nowrap;
+  animation: tualFadeIn 0.12s ease-out;
+  box-sizing: border-box;
+  z-index: 700;
+}
+
+@keyframes tualFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Secondary Pill Buttons (e.g. Medium ⌄ trigger) */
+.tual-secondary-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: var(--tual-radius-btn, 6px);
+  background-color: transparent;
+  color: var(--tual-text);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 450;
+  transition: background-color 0.12s ease;
+  box-sizing: border-box;
+  gap: 3px;
+}
+
+.tual-secondary-pill-btn:hover {
+  background-color: var(--tual-surface-hover);
+}
+
+.tual-secondary-pill-btn[data-active='true'],
+.tual-secondary-pill-btn[aria-expanded='true'] {
+  background-color: var(--tual-surface-active-neutral);
+  color: var(--tual-text);
+  font-weight: 500;
+}
+
+/* Secondary Swatch Button */
+.tual-secondary-swatch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--tual-radius-btn, 6px);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.tual-secondary-swatch-btn:hover {
+  background-color: var(--tual-surface-hover);
+}
+
+.tual-secondary-swatch-btn[data-active='true'] {
+  background-color: var(--tual-surface-active-neutral);
+}
+
+.tual-secondary-swatch-box {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--tual-radius-swatch, 4px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.tual[data-theme='dark'] .tual-secondary-swatch-box {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* Secondary Icon Button (e.g. B, I, Align) */
+.tual-secondary-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  color: var(--tual-text);
+  border: none;
+  border-radius: var(--tual-radius-btn, 6px);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.tual-secondary-icon-btn:hover {
+  background-color: var(--tual-surface-hover);
+}
+
+.tual-secondary-icon-btn[data-active='true'] {
+  background-color: var(--tual-surface-active-neutral);
+  color: var(--tual-text);
+}
+
+.tual-secondary-separator {
+  width: 1px;
+  height: 16px;
+  background-color: var(--tual-border);
+  margin: 0 3px;
+  flex-shrink: 0;
+}
+
+.tual-secondary-input {
+  width: 100%;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  border: 1px solid var(--tual-border-focus);
+  border-radius: var(--tual-radius-btn, 6px);
+  background: var(--tual-surface);
+  color: var(--tual-text);
+  outline: none;
+}
+
+.tual-secondary-popover {
+  bottom: calc(100% + 5px);
+  top: auto;
+  min-width: 120px;
+}
+
+.tual-secondary-dropdown {
+  bottom: calc(100% + 5px);
+  top: auto;
+  min-width: 90px;
+}
+
+/* Radius Popover (compact single-line popover) */
+.tual-radius-popover {
+  bottom: calc(100% + 5px);
+  top: auto;
+  left: 0;
+  padding: 4px;
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  border-radius: var(--tual-radius-popover-compact, 8px);
+  background-color: var(--tual-surface);
+  border: 1px solid var(--tual-border);
+  box-shadow: var(--tual-shadow-popover);
+}
+
+.tual-radius-btn {
+  height: 24px;
+  min-height: 24px;
+  width: auto;
+  min-width: 28px;
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--tual-radius-btn, 6px);
+}
+
+/* Border Popover & Dash Control */
+.tual-border-popover-wrapper {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 750;
+  pointer-events: auto;
+}
+
+.tual-border-main-card {
+  background: var(--tual-surface);
+  border: 1px solid var(--tual-border);
+  border-radius: var(--tual-radius-popover, 12px);
+  box-shadow: var(--tual-shadow-popover);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 168px;
+  box-sizing: border-box;
+}
+
+.tual-border-dash-group {
+  display: flex;
+  align-items: center;
+  background: var(--tual-surface-recessed);
+  padding: 2px;
+  border-radius: var(--tual-radius-btn, 6px);
+  gap: 2px;
+}
+
+.tual-border-dash-btn {
+  flex: 1;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--tual-text-secondary);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.tual-border-dash-btn:hover {
+  color: var(--tual-text);
+}
+
+.tual-border-dash-btn[data-active='true'] {
+  background: var(--tual-surface);
+  color: var(--tual-text);
+  box-shadow: var(--tual-shadow-thumb);
+  font-weight: 600;
+}
+
+.tual-border-color-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: var(--tual-radius-btn, 6px);
+  border: 1px solid var(--tual-border);
+  background: var(--tual-surface);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tual-border-color-pill:hover {
+  border-color: var(--tual-border-hover);
+}
+
+.tual-border-color-pill[data-active='true'] {
+  border-color: var(--tual-border-focus);
+}
+
+.tual-border-color-pill-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--tual-radius-swatch, 4px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.tual-border-color-pill-hex {
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 500;
+  color: var(--tual-text);
+  line-height: 1;
+}
+
+.tual-border-bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tual-border-color-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: 2px 0;
+}
+
+.tual-border-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--tual-radius-swatch, 4px);
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease;
+}
+
+.tual-border-swatch:hover {
+  transform: scale(1.15);
+}
+
+.tual-border-swatch[data-active='true'] {
+  outline: 2px solid var(--tual-accent);
+  outline-offset: 1px;
+}

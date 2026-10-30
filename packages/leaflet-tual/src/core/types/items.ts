@@ -3,7 +3,7 @@ import type { GeoPoint } from './geo.js'
 export type ColorName =
   'ink' | 'gray' | 'taupe' | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'purple' | 'pink'
 
-export type FontSizeName = 's' | 'm' | 'l' | 'xl'
+export type FontSizeName = 's' | 'm' | 'l' | 'xl' | 'huge'
 
 export type FontWeight =
   | 'regular'

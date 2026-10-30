@@ -5,7 +5,7 @@ import { useTranslation } from '../../../features/i18n/index.js'
 import {
   DropdownItem,
   DropdownMenu,
-  LABEL_POSITION_ICONS,
+  ICONS,
   Popover,
 } from '../../../ui/index.js'
 
@@ -34,7 +34,7 @@ export function LabelPositionDropdown({
           <DropdownItem
             key={p.id}
             selected={currentPosition === p.id}
-            leading={LABEL_POSITION_ICONS[p.id]()}
+            leading={ICONS[p.id]()}
             label={t(p.id, undefined, p.label)}
             onClick={() => onSelectPosition(p.id)}
           />

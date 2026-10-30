@@ -245,7 +245,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       fireEvent.click(typoBtn)
     })
 
-    const headingBtn = screen.getByText('Heading 1')
+    const headingBtn = screen.getByText('Extra large')
     expect(headingBtn).toBeDefined()
 
     act(() => {

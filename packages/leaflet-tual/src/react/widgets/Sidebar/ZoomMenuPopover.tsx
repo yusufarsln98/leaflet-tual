@@ -59,11 +59,6 @@ export function ZoomMenuPopover({
 
       <Divider variant="popover" />
 
-      <div className="tual-zoom-menu-status">
-        <span>{t('zoomLevel')}</span>
-        <span>{zoomPercent}%</span>
-      </div>
-
       <DropdownMenu layout="list">
         {ZOOM_PRESETS.map((preset) => (
           <DropdownItem

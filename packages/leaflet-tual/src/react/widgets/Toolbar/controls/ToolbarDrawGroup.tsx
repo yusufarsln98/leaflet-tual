@@ -2,7 +2,7 @@
 
 import type { Controller, DrawKind } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { DRAW_ICONS } from '../../../ui/index.js'
+import { ICONS } from '../../../ui/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
 import { ToolVariantsPopover } from '../popovers/index.js'
 
@@ -38,24 +38,28 @@ export function ToolbarDrawGroup({
     : availableDrawTools[0]
   const previewTool = activeDrawTool ?? fallbackTool
   const shortcut = previewTool === 'pen' ? 'P' : 'F'
-  const label = `${t('draw')} (${shortcut})`
+  const drawName = t('draw', undefined, 'Draw')
+  const label = `${drawName} (${shortcut})`
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div
+      className="tual-tool-group"
+      data-has-variants={hasVariants || undefined}
+      style={{ position: 'relative' }}
+    >
       <ToolbarToolButton
         label={label}
-        icon={DRAW_ICONS[previewTool]()}
+        icon={ICONS[previewTool]()}
         isActive={isActive}
         hasVariants={hasVariants}
+        isPopoverOpen={isPopoverOpen}
+        chevronLabel={`${drawName} options`}
         onSelect={() => {
-          if (hasVariants) {
-            const nextOpen = activePopover !== 'draw'
-            if (!isActive) controller.setTool(fallbackTool)
-            onTogglePopover(nextOpen)
-          } else {
-            controller.setTool(fallbackTool)
-            onClosePopover()
-          }
+          controller.setTool(previewTool)
+          onClosePopover()
+        }}
+        onToggleVariants={() => {
+          onTogglePopover(!isPopoverOpen)
         }}
       />
 
@@ -63,6 +67,7 @@ export function ToolbarDrawGroup({
         <ToolVariantsPopover
           controller={controller}
           type="draw"
+          activeVariant={previewTool}
           allowedDrawVariants={availableDrawTools}
           onClose={onClosePopover}
           className={popoverClassName}

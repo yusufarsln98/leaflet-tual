@@ -3,9 +3,7 @@ import type {
   ChangeInfo,
   Controller,
   Doc,
-  Item,
   Theme,
-  ToolId,
   ToolbarOptions,
   TranslationTokens,
 } from '../../core/types/index.js'
@@ -15,19 +13,11 @@ export interface LeafletTualProps {
   value?: Doc
   defaultValue?: Doc
   onChange?: (doc: Doc, info: ChangeInfo) => void
-  onSelect?: (items: Item[]) => void
-  onToolChange?: (tool: ToolId, variant: string | null) => void
-  theme?: Theme
-  toolbar?: false | ToolbarOptions
-  sidebar?: boolean
-  defaultSidebarOpen?: boolean
-  sidebarOpen?: boolean
-  onSidebarOpenChange?: (open: boolean) => void
   readOnly?: boolean
+  theme?: Theme
+  toolbar?: boolean | ToolbarOptions
   translations?: Partial<TranslationTokens>
-  collapseBelowZoom?: { notes?: number; text?: number }
   map?: L.Map
-  zIndex?: number
 }
 
 export interface ToolbarProps extends ToolbarOptions {

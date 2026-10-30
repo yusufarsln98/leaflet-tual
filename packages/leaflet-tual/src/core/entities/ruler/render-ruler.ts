@@ -1,5 +1,6 @@
 import type L from 'leaflet'
-import type { RulerItem, Tokens } from '../../types/index.js'
+import type { RulerItem } from '../../types/index.js'
+import type { TranslationTokens } from '../../shared/i18n/types.js'
 import {
   distance,
   formatDistance,
@@ -17,10 +18,9 @@ export function renderRulerOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   ruler: RulerItem,
-  _scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
-    tokens?: Partial<Tokens>
+    translations?: Partial<TranslationTokens>
   } = {},
 ) {
   const start = geoToScreen(map, ruler.from)
@@ -29,7 +29,7 @@ export function renderRulerOnCanvas(
   if (dist < 1) return
 
   const scale = getItemZoomScale(map, ruler)
-  const color = resolveColor(ruler.style?.color ?? 'ink', 'light', options.tokens)
+  const color = resolveColor(ruler.style?.color ?? 'ink')
   const baseLineWidth = resolveWidth(ruler.style?.width ?? 'm')
   const lineWidth = Math.max(0.5, baseLineWidth * scale)
   const dash = resolveDash(ruler.style?.dash ?? 'solid').map((d) => d * scale)
@@ -71,7 +71,7 @@ export function renderRulerOnCanvas(
 
   // Distance label
   const realMeters = distance(ruler.from, ruler.to)
-  const text = ruler.label ?? formatDistance(realMeters, ruler.unit ?? 'metric')
+  const text = ruler.label ?? formatDistance(realMeters, ruler.unit ?? 'metric', options.translations)
   const center = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
 
   drawLabelPill(ctx, center, text, {
@@ -84,7 +84,7 @@ export function renderRulerOnCanvas(
   })
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', 'light', options.tokens)
+    const handleColor = resolveColor('blue')
     const handleSize = Math.max(4, 8 * scale)
     drawHandle(ctx, start, handleColor, handleSize)
     drawHandle(ctx, end, handleColor, handleSize)

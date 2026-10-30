@@ -8,12 +8,13 @@ import type {
   InternalController,
   Item,
   NewItem,
+  ReorderAction,
   Style,
   Theme,
   ToolId,
 } from '../../types/index.js'
 import { cloneDoc, emptyDoc, parseDoc } from '../../shared/doc.js'
-import { DEFAULT_TOOL_STYLES, resolveSchemeFromTheme } from '../../shared/theme/theme.js'
+import { DEFAULT_TOOL_STYLES } from '../../shared/theme/theme.js'
 import { resolveTranslations, type TranslationTokens } from '../../shared/i18n/index.js'
 import { fitItemsToBounds } from './fit.js'
 import { createPageManager } from './page-manager.js'
@@ -21,6 +22,8 @@ import { createHistoryManager } from './history-manager.js'
 import { createItemOperations } from './item-crud.js'
 
 type Listener = (...args: unknown[]) => void
+
+const DEFAULT_MAX_HISTORY = 100
 
 function mergeStylePatch(
   style: Style,
@@ -47,7 +50,7 @@ export function createController(
     ? parseDoc(options.value)
     : options.defaultValue
       ? parseDoc(options.defaultValue)
-      : emptyDoc()
+      : emptyDoc(options.translations)
 
   let activeTool: ToolId = options.tool ?? 'select'
   let activeVariant: string | null = options.variant ?? null
@@ -58,11 +61,9 @@ export function createController(
   let editingId: string | null = null
   let readOnlyState = Boolean(options.readOnly)
   let activeTheme: Theme = options.theme ?? 'system'
-  let currentScheme: 'light' | 'dark' = resolveSchemeFromTheme(activeTheme)
-  let translations = resolveTranslations(options.translations)
+  let customTranslations: Partial<TranslationTokens> = { ...options.translations }
+  const getResolvedTranslations = (): TranslationTokens => resolveTranslations(customTranslations)
 
-
-  const maxHistory = options.maxHistory ?? 100
   const listeners: Record<string, Set<Listener>> = {}
   const emit = (event: string, ...args: unknown[]) => listeners[event]?.forEach((fn) => fn(...args))
   const getActivePage = () => doc.pages.find((p) => p.id === doc.page) ?? doc.pages[0]
@@ -72,14 +73,18 @@ export function createController(
     getDoc: () => doc,
     setDoc: (nextDoc) => { doc = nextDoc },
     clearSelection,
-    maxHistory,
+    maxHistory: DEFAULT_MAX_HISTORY,
     onChange: options.onChange,
     emit,
   })
 
   function commitChange(reason: ChangeReason, ids: string[], committed: boolean, prevDoc?: Doc) {
-    if (committed && prevDoc) history.push(prevDoc)
-    const info: ChangeInfo = { reason, ids, committed }
+    if (!committed) {
+      emit('state')
+      return
+    }
+    if (prevDoc) history.push(prevDoc)
+    const info: ChangeInfo = { reason, ids, committed: true }
     options.onChange?.(doc, info)
     emit('change', doc, info)
     emit('state')
@@ -96,7 +101,7 @@ export function createController(
     getMap,
     commitChange,
     emit,
-    getTranslations: () => translations,
+    getTranslations: getResolvedTranslations,
   })
 
   const itemOps = createItemOperations({
@@ -121,26 +126,27 @@ export function createController(
       const set = new Set(selection)
       return getActivePage().items.filter((i) => set.has(i.id))
     },
-    get scheme(): 'light' | 'dark' { return currentScheme },
     get theme(): Theme { return activeTheme },
     get readOnly(): boolean { return readOnlyState },
     get canUndo(): boolean { return history.canUndo },
     get canRedo(): boolean { return history.canRedo },
     get editingId(): string | null { return editingId },
-    get translations(): TranslationTokens { return translations },
+    get translations(): TranslationTokens { return getResolvedTranslations() },
     get pages() { return pageManager },
 
     getTranslations(): TranslationTokens {
-      return translations
+      return getResolvedTranslations()
     },
 
     setTranslations(patch: Partial<TranslationTokens>) {
+      const current = getResolvedTranslations()
       const hasChange = Object.entries(patch).some(
-        ([k, v]) => v !== undefined && (translations as unknown as Record<string, unknown>)[k] !== v,
+        ([k, v]) => v !== undefined && (current as unknown as Record<string, unknown>)[k] !== v,
       )
       if (!hasChange) return
-      translations = { ...translations, ...patch } as TranslationTokens
-      emit('translations', translations)
+      customTranslations = { ...customTranslations, ...patch }
+      const next = getResolvedTranslations()
+      emit('translations', next)
       emit('state')
     },
 
@@ -151,7 +157,6 @@ export function createController(
     setTheme(nextTheme: Theme) {
       if (activeTheme === nextTheme) return
       activeTheme = nextTheme
-      currentScheme = resolveSchemeFromTheme(nextTheme)
       emit('theme', activeTheme)
       emit('state')
     },
@@ -166,7 +171,6 @@ export function createController(
         activeVariant = tool === 'arrow' || tool === 'shape' ? (lastVariants.get(tool) ?? null) : null
       }
       if (tool !== 'select') clearSelection()
-      options.onToolChange?.(tool, activeVariant)
       emit('tool', tool, activeVariant)
       emit('state')
     },
@@ -193,18 +197,20 @@ export function createController(
       }
     },
 
-
     add: (item: NewItem) => itemOps.add(item),
-    update: (id: string, patch: Partial<Item>, committed?: boolean) => itemOps.update(id, patch, committed),
+    update: (id: string, patch: Partial<Item>, committed?: boolean) =>
+      itemOps.update(id, patch, committed),
+    updateMany: (patches: Array<{ id: string; patch: Partial<Item> }>, committed?: boolean) =>
+      itemOps.updateMany(patches, committed),
+    duplicate: (ids?: string | string[]) => itemOps.duplicate(ids),
+    reorder: (ids: string | string[], action: ReorderAction) => itemOps.reorder(ids, action),
     remove: (ids?: string | string[]) => itemOps.remove(ids),
     clear: () => itemOps.clear(),
 
     select(ids: string[] | string | null) {
       selection = ids === null ? [] : Array.isArray(ids) ? ids : [ids]
       editingId = null
-      const selectedItems = controller.selected
-      options.onSelect?.(selectedItems)
-      emit('select', selectedItems)
+      emit('select', controller.selected)
       emit('state')
     },
 
@@ -220,7 +226,12 @@ export function createController(
     fit(target: 'all' | 'selection' | string) {
       const items = getActivePage().items
       const set = new Set(selection)
-      const targetItems = target === 'all' ? items : target === 'selection' ? items.filter((i) => set.has(i.id)) : items.filter((i) => i.id === target)
+      const targetItems =
+        target === 'all'
+          ? items
+          : target === 'selection'
+            ? items.filter((i) => set.has(i.id))
+            : items.filter((i) => i.id === target)
       fitItemsToBounds(getMap(), targetItems)
     },
 
@@ -242,20 +253,18 @@ export function createController(
     ) {
       if (!listeners[event]) listeners[event] = new Set()
       listeners[event].add(handler)
-      return () => { listeners[event]?.delete(handler) }
-    },
-
-    _updateControlledDoc: (nextDoc: Doc) => { doc = nextDoc; emit('state') },
-    _setScheme: (s: 'light' | 'dark') => {
-      if (currentScheme !== s) {
-        currentScheme = s
-        emit('state')
+      return () => {
+        listeners[event]?.delete(handler)
       }
     },
-    _setTheme(t: Theme) {
-      this.setTheme(t)
+
+    _updateControlledDoc: (nextDoc: Doc) => {
+      doc = parseDoc(nextDoc)
+      emit('state')
     },
-    _setMap: (m: L.Map | null) => { boundMap = m },
+    _setMap: (m: L.Map | null) => {
+      boundMap = m
+    },
   }
 
   return controller

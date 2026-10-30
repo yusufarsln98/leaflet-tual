@@ -1,5 +1,5 @@
 import type L from 'leaflet'
-import type { ArrowItem, ScreenPoint, Tokens } from '../../types/index.js'
+import type { ArrowItem, ScreenPoint } from '../../types/index.js'
 import {
   defaultVia,
   geoToScreen,
@@ -21,11 +21,9 @@ export function renderArrowOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   arrow: ArrowItem,
-  _scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
     isEditing?: boolean
-    tokens?: Partial<Tokens>
   } = {},
 ) {
   const start = geoToScreen(map, arrow.from)
@@ -34,7 +32,7 @@ export function renderArrowOnCanvas(
   if (dist < 1) return
 
   const scale = getItemZoomScale(map, arrow)
-  const color = resolveColor(arrow.style?.strokeColor ?? arrow.style?.color ?? 'ink', 'light', options.tokens)
+  const color = resolveColor(arrow.style?.strokeColor ?? arrow.style?.color ?? 'ink')
   const baseLineWidth = resolveWidth(arrow.style?.width ?? 'm')
   const lineWidth = Math.max(0.5, baseLineWidth * scale)
   const dash = resolveDash(arrow.style?.dash ?? 'solid').map((d) => d * scale)
@@ -164,7 +162,7 @@ export function renderArrowOnCanvas(
 
   // Draw selection handles
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', 'light', options.tokens)
+    const handleColor = resolveColor('blue')
     const handleSize = Math.max(4, 8 * scale)
 
     // Curved arrows get a dashed guide from start → control point → end.

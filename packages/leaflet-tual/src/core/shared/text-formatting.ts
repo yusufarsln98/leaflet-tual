@@ -5,10 +5,11 @@ export const THEME_PRESETS: {
   label: string
   px: number
 }[] = [
-  { id: 'xl', label: 'Heading 1', px: 28 },
-  { id: 'l', label: 'Heading 2', px: 20 },
-  { id: 'm', label: 'Body', px: 16 },
-  { id: 's', label: 'Caption', px: 12 },
+  { id: 's', label: 'Small', px: 14 },
+  { id: 'm', label: 'Medium', px: 24 },
+  { id: 'l', label: 'Large', px: 40 },
+  { id: 'xl', label: 'Extra large', px: 72 },
+  { id: 'huge', label: 'Huge', px: 120 },
 ]
 
 export const WEIGHT_OPTIONS: { id: FontWeight; label: string; num: number }[] = [
@@ -72,10 +73,11 @@ export function resolveTypographyLabel(
   t?: (token: string, params?: Record<string, string | number>, fallback?: string) => string,
 ): string {
   if (style.fontSize) return `${style.fontSize}px`
-  if (style.size === 'xl') return t ? t('heading1', undefined, 'Heading 1') : 'Heading 1'
-  if (style.size === 'l') return t ? t('heading2', undefined, 'Heading 2') : 'Heading 2'
-  if (style.size === 's') return t ? t('caption', undefined, 'Caption') : 'Caption'
-  return t ? t('body', undefined, 'Body') : 'Body'
+  if (style.size === 'huge') return t ? t('huge', undefined, 'Huge') : 'Huge'
+  if (style.size === 'xl') return t ? t('extraLarge', undefined, 'Extra large') : 'Extra large'
+  if (style.size === 'l') return t ? t('large', undefined, 'Large') : 'Large'
+  if (style.size === 's') return t ? t('small', undefined, 'Small') : 'Small'
+  return t ? t('medium', undefined, 'Medium') : 'Medium'
 }
 
 export function formatBulletInput(val: string, forceBullets = false): string {

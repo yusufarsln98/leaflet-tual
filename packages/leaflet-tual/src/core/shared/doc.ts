@@ -1,5 +1,6 @@
 import type { Doc, Item } from '../types/items.js'
 import { createId } from './geometry/geo.js'
+import { createTranslator, type TranslationTokens } from './i18n/index.js'
 
 export class DocError extends Error {
   constructor(message: string) {
@@ -12,12 +13,13 @@ export function cloneDoc(doc: Doc): Doc {
   return JSON.parse(JSON.stringify(doc))
 }
 
-export function emptyDoc(): Doc {
+export function emptyDoc(translations?: Partial<TranslationTokens>): Doc {
   const pageId = createId('page')
+  const t = createTranslator(translations)
   return {
     version: 2,
     page: pageId,
-    pages: [{ id: pageId, name: 'Page 1', items: [] }],
+    pages: [{ id: pageId, name: t('pageDefault', { n: 1 }), items: [] }],
   }
 }
 

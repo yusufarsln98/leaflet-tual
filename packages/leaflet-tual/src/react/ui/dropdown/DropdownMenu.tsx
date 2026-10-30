@@ -25,6 +25,7 @@ export function DropdownItem({
   variant = 'option',
   title,
   onClick,
+  'data-size': dataSize,
 }: DropdownItemProps) {
   if (variant === 'action-menu') {
     const cls = ['tual-action-menu-item', danger ? 'tual-action-menu-item-danger' : '']
@@ -41,14 +42,17 @@ export function DropdownItem({
     return (
       <button
         type="button"
-        className="tual-btn tual-variant-item"
+        className="tual-variant-item"
         data-active={selected}
         title={title}
         disabled={disabled}
         onClick={onClick}
       >
-        {leading && <span className="tual-variant-icon">{leading}</span>}
-        <span className="tual-variant-label">{label}</span>
+        <span className="tual-variant-left">
+          {leading && <span className="tual-variant-icon">{leading}</span>}
+          <span className="tual-variant-label">{label}</span>
+        </span>
+        {meta && <span className="tual-variant-shortcut">{meta}</span>}
       </button>
     )
   }
@@ -59,6 +63,7 @@ export function DropdownItem({
         type="button"
         className="tual-typo-row"
         data-selected={selected}
+        data-size={dataSize}
         title={title}
         disabled={disabled}
         onClick={onClick}

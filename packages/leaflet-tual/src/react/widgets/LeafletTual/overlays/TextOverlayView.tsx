@@ -18,8 +18,7 @@ export interface TextOverlayViewProps {
   map: L.Map
   textItem: TextItem
   controller: Controller
-  currentZoom: number
-  collapseThreshold?: number
+  currentZoom?: number
   className?: string
 }
 
@@ -27,8 +26,6 @@ export function TextOverlayView({
   map,
   textItem,
   controller,
-  currentZoom,
-  collapseThreshold,
   className,
 }: TextOverlayViewProps) {
   const { t } = useTranslation(controller)
@@ -55,11 +52,7 @@ export function TextOverlayView({
 
   const pt = geoToScreen(map, textItem.at)
 
-  if (collapseThreshold !== undefined && currentZoom < collapseThreshold) {
-    return null
-  }
-
-  const color = resolveColor(textItem.style?.color ?? 'ink', 'light')
+  const color = resolveColor(textItem.style?.color ?? 'ink')
   const baseFontSize = resolveSize(textItem.style?.size ?? 'm', textItem.style?.fontSize)
   const scale = getItemZoomScale(map, textItem)
   const fontSize = Math.max(8, Math.round(baseFontSize * scale))

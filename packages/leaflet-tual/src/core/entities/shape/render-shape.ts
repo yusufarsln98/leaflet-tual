@@ -1,5 +1,5 @@
 import type L from 'leaflet'
-import type { ShapeItem, Tokens } from '../../types/index.js'
+import type { ShapeItem } from '../../types/index.js'
 import { geoToScreen } from '../../shared/geometry/geo.js'
 import { resolveColor, resolveItemStyle } from '../../shared/theme/index.js'
 import { drawHandle, drawLabelPill } from '../../shared/drawing/canvas-utils.js'
@@ -12,11 +12,9 @@ export function renderShapeOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   shape: ShapeItem,
-  _scheme: 'light' | 'dark',
   options: {
     isSelected?: boolean
     isEditing?: boolean
-    tokens?: Partial<Tokens>
   } = {},
 ) {
   const scale = getItemZoomScale(map, shape)
@@ -31,7 +29,7 @@ export function renderShapeOnCanvas(
   const maxY = cy + height / 2
 
   const bounds: ShapeBounds = { minX, minY, maxX, maxY, width, height, cx, cy }
-  const visual = resolveItemStyle(shape, 'light', options.tokens)
+  const visual = resolveItemStyle(shape)
   const lineWidth = visual.strokeWidth > 0 ? Math.max(0.5, visual.strokeWidth * scale) : 0
 
   ctx.save()
@@ -74,7 +72,7 @@ export function renderShapeOnCanvas(
   }
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', 'light', options.tokens)
+    const handleColor = resolveColor('blue')
 
     ctx.save()
     ctx.strokeStyle = handleColor

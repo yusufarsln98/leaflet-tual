@@ -14,7 +14,6 @@ export interface ColorSwatchProps {
 export interface ColorPaletteGridProps {
   colors?: ReadonlyArray<ColorName>
   selectedColor?: ColorName | string
-  scheme?: 'light' | 'dark'
   variant?: 'palette' | 'border'
   header?: string
   onSelectColor: (color: ColorName) => void
@@ -39,7 +38,6 @@ export interface ColorSwatchListProps {
 
 export interface CustomColorPickerProps {
   currentColor?: string
-  scheme: 'light' | 'dark'
   map?: L.Map
   onSelectColor: (color: string, hex: string) => void
 }

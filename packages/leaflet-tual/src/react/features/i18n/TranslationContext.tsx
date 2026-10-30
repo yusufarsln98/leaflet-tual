@@ -3,15 +3,11 @@
 import { createContext, useMemo } from 'react'
 import {
   createTranslator,
-  getDefaultTranslations,
   resolveTranslations,
 } from '../../../core/index.js'
 import type { TranslationContextValue, TranslationProviderProps } from './types.js'
 
-export const TranslationContext = createContext<TranslationContextValue>({
-  tokens: getDefaultTranslations(),
-  t: createTranslator(),
-})
+export const TranslationContext = createContext<TranslationContextValue | null>(null)
 
 export function TranslationProvider({ translations, children }: TranslationProviderProps) {
   const value = useMemo<TranslationContextValue>(() => {

@@ -124,10 +124,14 @@ export interface TranslationTokens {
   purple: string
   pink: string
 
-  // Placeholders
+  // Placeholders & Accessibility
   placeholderNote: string
   placeholderText: string
   addLabel: string
+  hexColor: string
+  opacityPercentage: string
+  increment: string
+  decrement: string
 
   // Units
   m: string

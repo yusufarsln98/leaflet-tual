@@ -8,6 +8,7 @@ import {
   rgbToHex,
   rgbToHsv,
 } from '../../../core/index.js'
+import { useTranslation } from '../../features/i18n/index.js'
 import { Divider } from '../divider/index.js'
 import { NumberField, TextField } from '../input/index.js'
 import type { CustomColorPickerProps } from './types.js'
@@ -70,11 +71,11 @@ function DragTrack({
 
 export function CustomColorPicker({
   currentColor,
-  scheme,
   map,
   onSelectColor,
 }: CustomColorPickerProps) {
-  const parsed = parseColorString(currentColor, scheme)
+  const { t } = useTranslation()
+  const parsed = parseColorString(currentColor)
   const [initialH, initialS, initialV] = rgbToHsv(parsed.r, parsed.g, parsed.b)
 
   const [hue, setHue] = useState(initialH)
@@ -84,14 +85,14 @@ export function CustomColorPicker({
   const [hexInput, setHexInput] = useState(() => rgbToHex(parsed.r, parsed.g, parsed.b))
 
   useEffect(() => {
-    const p = parseColorString(currentColor, scheme)
+    const p = parseColorString(currentColor)
     const [h, s, v] = rgbToHsv(p.r, p.g, p.b)
     setHue(h)
     setSat(s)
     setVal(v)
     setOpacity(p.a)
     setHexInput(rgbToHex(p.r, p.g, p.b))
-  }, [currentColor, scheme])
+  }, [currentColor])
 
   const [currentR, currentG, currentB] = hsvToRgb(hue, sat, val)
 
@@ -110,7 +111,7 @@ export function CustomColorPicker({
     const clean = raw.trim()
     if (/^#?[0-9A-Fa-f]{6}$/.test(clean)) {
       const formatted = clean.startsWith('#') ? clean : `#${clean}`
-      const p = parseColorString(formatted, scheme)
+      const p = parseColorString(formatted)
       const [newH, newS, newV] = rgbToHsv(p.r, p.g, p.b)
       setHue(newH)
       setSat(newS)
@@ -191,7 +192,7 @@ export function CustomColorPicker({
           className="tual-color-hex-field"
           value={hexInput}
           onChange={handleHexChange}
-          aria-label="Hex color"
+          aria-label={t('hexColor')}
           placeholder="#000000"
         />
         <Divider variant="input" />
@@ -210,7 +211,7 @@ export function CustomColorPicker({
             setOpacity(clamped)
             emitColor(hue, sat, val, clamped)
           }}
-          aria-label="Opacity percentage"
+          aria-label={t('opacityPercentage', undefined, 'Opacity percentage')}
         />
       </div>
     </div>

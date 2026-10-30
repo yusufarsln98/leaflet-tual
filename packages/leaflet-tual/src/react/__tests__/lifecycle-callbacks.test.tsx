@@ -4,7 +4,7 @@ import { useLeafletTual } from '../features/use-leaflet-tual.js'
 import { emptyDoc } from '../../core/index.js'
 
 describe('v2 Lifecycle callbacks', () => {
-  it('calls onChange with Doc and ChangeInfo when items are added', () => {
+  it('calls onChange with Doc and ChangeInfo when items are committed', () => {
     const handleChange = vi.fn()
     const { result } = renderHook(() =>
       useLeafletTual({
@@ -13,66 +13,38 @@ describe('v2 Lifecycle callbacks', () => {
       }),
     )
 
+    let arrowId = ''
     act(() => {
-      result.current.add({
+      const arrow = result.current.add({
         type: 'arrow',
         kind: 'linear',
         from: { lat: 41, lng: 28 },
         to: { lat: 41.1, lng: 28.1 },
       })
+      arrowId = arrow.id
     })
 
+    expect(handleChange).toHaveBeenCalledTimes(1)
     expect(handleChange).toHaveBeenCalledWith(
       expect.objectContaining({ version: 2 }),
       expect.objectContaining({
         reason: 'create',
         committed: true,
-        ids: expect.any(Array),
-      }),
-    )
-  })
-
-  it('calls onSelect when selection changes', () => {
-    const handleSelect = vi.fn()
-    const { result } = renderHook(() =>
-      useLeafletTual({
-        defaultValue: emptyDoc(),
-        onSelect: handleSelect,
+        ids: [arrowId],
       }),
     )
 
-    let createdId = ''
+    // Uncommitted gesture updates do not spam onChange
     act(() => {
-      const item = result.current.add({
-        type: 'note',
-        at: { lat: 41, lng: 28 },
-        text: 'Test note',
-      })
-      createdId = item.id
+      result.current.update(arrowId, { label: 'Draft 1' }, false)
+      result.current.update(arrowId, { label: 'Draft 2' }, false)
     })
+    expect(handleChange).toHaveBeenCalledTimes(1)
 
+    // Committing the update triggers onChange once
     act(() => {
-      result.current.select(createdId)
+      result.current.update(arrowId, { label: 'Final' }, true)
     })
-
-    expect(handleSelect).toHaveBeenCalledWith([
-      expect.objectContaining({ id: createdId }),
-    ])
-  })
-
-  it('calls onToolChange when tool changes', () => {
-    const handleToolChange = vi.fn()
-    const { result } = renderHook(() =>
-      useLeafletTual({
-        defaultValue: emptyDoc(),
-        onToolChange: handleToolChange,
-      }),
-    )
-
-    act(() => {
-      result.current.setTool('shape', 'star')
-    })
-
-    expect(handleToolChange).toHaveBeenCalledWith('shape', 'star')
+    expect(handleChange).toHaveBeenCalledTimes(2)
   })
 })

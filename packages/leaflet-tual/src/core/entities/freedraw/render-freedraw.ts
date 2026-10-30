@@ -1,5 +1,5 @@
 import type L from 'leaflet'
-import type { FreedrawItem, ScreenPoint, Tokens } from '../../types/index.js'
+import type { FreedrawItem, ScreenPoint } from '../../types/index.js'
 import { geoToScreen } from '../../shared/geometry/geo.js'
 import { resolveColor, resolveDash, resolveWidth } from '../../shared/theme/theme.js'
 import { drawHandle } from '../../shared/drawing/canvas-utils.js'
@@ -9,17 +9,15 @@ export function renderFreedrawOnCanvas(
   ctx: CanvasRenderingContext2D,
   map: L.Map,
   freedraw: FreedrawItem,
-  _scheme?: 'light' | 'dark',
   options: {
     isSelected?: boolean
-    tokens?: Partial<Tokens>
   } = {},
 ) {
   if (freedraw.points.length < 2) return
 
   const screenPoints: ScreenPoint[] = freedraw.points.map((p) => geoToScreen(map, p))
   const scale = getItemZoomScale(map, freedraw)
-  const color = resolveColor(freedraw.style?.color ?? 'ink', 'light', options.tokens)
+  const color = resolveColor(freedraw.style?.color ?? 'ink')
   const baseLineWidth = resolveWidth(freedraw.style?.width ?? 'm')
   const lineWidth = Math.max(0.5, baseLineWidth * scale)
   const dash = resolveDash(freedraw.style?.dash ?? 'solid').map((d) => d * scale)
@@ -52,7 +50,7 @@ export function renderFreedrawOnCanvas(
   ctx.stroke()
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue', 'light', options.tokens)
+    const handleColor = resolveColor('blue')
     const handleSize = Math.max(4, 8 * scale)
     drawHandle(ctx, screenPoints[0], handleColor, handleSize)
     drawHandle(ctx, screenPoints[screenPoints.length - 1], handleColor, handleSize)

@@ -25,6 +25,7 @@ export interface DropdownItemProps {
   variant?: 'option' | 'action-menu' | 'variant' | 'typo'
   title?: string
   onClick?: () => void
+  'data-size'?: string
 }
 
 export interface DropdownMenuProps {

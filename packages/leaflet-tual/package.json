@@ -86,7 +86,7 @@
     "react-leaflet"
   ],
   "scripts": {
-    "build": "tsup && cp src/styles.css dist/styles.css",
+    "build": "tsup && cp src/styles.css dist/styles.css && cp -r src/styles dist/styles",
     "dev": "tsup --watch",
     "lint": "eslint src --ext ts,tsx",
     "typecheck": "tsc --noEmit",

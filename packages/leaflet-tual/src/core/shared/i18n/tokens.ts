@@ -126,10 +126,14 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   purple: 'Purple',
   pink: 'Pink',
 
-  // Placeholders
+  // Placeholders & Accessibility
   placeholderNote: 'Note text...',
   placeholderText: 'Type text...',
   addLabel: 'Add label...',
+  hexColor: 'Hex color',
+  opacityPercentage: 'Opacity percentage',
+  increment: 'Increment',
+  decrement: 'Decrement',
 
   // Units
   m: 'm',
@@ -137,3 +141,7 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   ft: 'ft',
   mi: 'mi',
 }
+
+export const TRANSLATION_KEYS = Object.keys(DEFAULT_TRANSLATION_TOKENS) as Array<
+  keyof TranslationTokens
+>

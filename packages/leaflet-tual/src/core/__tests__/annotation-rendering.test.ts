@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   renderArrowOnCanvas,
   renderFreedrawOnCanvas,
+  renderItemOnCanvas,
   renderShapeOnCanvas,
   renderPenOnCanvas,
   renderRulerOnCanvas,
@@ -64,7 +65,6 @@ describe('v2 Canvas annotation rendering', () => {
         style: { color: 'blue', width: 'm' },
         createdAt: Date.now(),
       },
-      'light',
       { isSelected: true },
     )
     expect(ctx.beginPath).toHaveBeenCalled()
@@ -78,79 +78,59 @@ describe('v2 Canvas annotation rendering', () => {
 
     // Linear with bi-directional heads
     const linearCtx = createMockCtx()
-    renderArrowOnCanvas(
-      linearCtx,
-      map,
-      {
-        id: 'arrow-linear',
-        type: 'arrow',
-        kind: 'linear',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.2, lng: 28.2 },
-        heads: { start: 'triangle', end: 'triangle' },
-        createdAt: Date.now(),
-      },
-      'light',
-    )
+    renderArrowOnCanvas(linearCtx, map, {
+      id: 'arrow-linear',
+      type: 'arrow',
+      kind: 'linear',
+      from: { lat: 41, lng: 28 },
+      to: { lat: 41.2, lng: 28.2 },
+      heads: { start: 'triangle', end: 'triangle' },
+      createdAt: Date.now(),
+    })
     expect(linearCtx.fill).toHaveBeenCalled()
     expect(linearCtx.stroke).toHaveBeenCalled()
 
     // Elbow arrow
     const elbowCtx = createMockCtx()
-    renderArrowOnCanvas(
-      elbowCtx,
-      map,
-      {
-        id: 'arrow-elbow',
-        type: 'arrow',
-        kind: 'elbow',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.2, lng: 28.2 },
-        heads: { end: 'triangle' },
-        createdAt: Date.now(),
-      },
-      'light',
-    )
+    renderArrowOnCanvas(elbowCtx, map, {
+      id: 'arrow-elbow',
+      type: 'arrow',
+      kind: 'elbow',
+      from: { lat: 41, lng: 28 },
+      to: { lat: 41.2, lng: 28.2 },
+      heads: { end: 'triangle' },
+      createdAt: Date.now(),
+    })
     expect(elbowCtx.stroke).toHaveBeenCalled()
     expect(elbowCtx.fill).toHaveBeenCalled()
 
     // S-curve arrow
     const scurveCtx = createMockCtx()
-    renderArrowOnCanvas(
-      scurveCtx,
-      map,
-      {
-        id: 'arrow-scurve',
-        type: 'arrow',
-        kind: 's-curve',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.2, lng: 28.2 },
-        heads: { end: 'open' },
-        createdAt: Date.now(),
-      },
-      'light',
-    )
+    renderArrowOnCanvas(scurveCtx, map, {
+      id: 'arrow-scurve',
+      type: 'arrow',
+      kind: 's-curve',
+      from: { lat: 41, lng: 28 },
+      to: { lat: 41.2, lng: 28.2 },
+      heads: { end: 'open' },
+      createdAt: Date.now(),
+    })
     expect(scurveCtx.stroke).toHaveBeenCalled()
   })
 
   it('renders geometric shapes with fill and stroke', () => {
     const ctx = createMockCtx()
     const map = createMockMap()
-    renderShapeOnCanvas(
-      ctx,
-      map,
-      {
-        id: 'shape-1',
-        type: 'shape',
-        kind: 'star',
-        at: { lat: 41.1, lng: 28.1 },
-        width: 200,
-        height: 200,
-        style: { color: 'red', fill: 'solid' },
-        createdAt: Date.now(),
-      },
-      'light',
-    )
+    renderShapeOnCanvas(ctx, map, {
+      id: 'shape-1',
+      type: 'shape',
+      kind: 'star',
+      at: { lat: 41.1, lng: 28.1 },
+      width: 200,
+      height: 200,
+      style: { color: 'red', fill: 'solid' },
+      createdAt: Date.now(),
+    })
     expect(ctx.fill).toHaveBeenCalled()
     expect(ctx.stroke).toHaveBeenCalled()
   })
@@ -170,7 +150,6 @@ describe('v2 Canvas annotation rendering', () => {
         height: 400,
         createdAt: Date.now(),
       },
-      'light',
       { isSelected: true },
     )
 
@@ -193,14 +172,14 @@ describe('v2 Canvas annotation rendering', () => {
     }
 
     const topCtx = createMockCtx()
-    renderShapeOnCanvas(topCtx, map, { ...shape, labelPosition: 'top' }, 'light')
+    renderShapeOnCanvas(topCtx, map, { ...shape, labelPosition: 'top' })
     let [text, x, y] = (topCtx.fillText as ReturnType<typeof vi.fn>).mock.calls[0]
     expect(text).toBe('Outside label')
     expect(x).toBeCloseTo(100)
     expect(y).toBeCloseTo(789) // top edge 800 - (pill height / 2 + gap)
 
     const bottomCtx = createMockCtx()
-    renderShapeOnCanvas(bottomCtx, map, { ...shape, labelPosition: 'bottom' }, 'light')
+    renderShapeOnCanvas(bottomCtx, map, { ...shape, labelPosition: 'bottom' })
     ;[text, x, y] = (bottomCtx.fillText as ReturnType<typeof vi.fn>).mock.calls[0]
     expect(text).toBe('Outside label')
     expect(x).toBeCloseTo(100)
@@ -210,22 +189,17 @@ describe('v2 Canvas annotation rendering', () => {
   it('renders freehand (freedraw) drawings', () => {
     const ctx = createMockCtx()
     const map = createMockMap()
-    renderFreedrawOnCanvas(
-      ctx,
-      map,
-      {
-        id: 'freedraw-1',
-        type: 'freedraw',
-        points: [
-          { lat: 41, lng: 28 },
-          { lat: 41.1, lng: 28.1 },
-          { lat: 41.2, lng: 28.2 },
-        ],
-        style: { color: 'green', width: 'l' },
-        createdAt: Date.now(),
-      },
-      'light',
-    )
+    renderFreedrawOnCanvas(ctx, map, {
+      id: 'freedraw-1',
+      type: 'freedraw',
+      points: [
+        { lat: 41, lng: 28 },
+        { lat: 41.1, lng: 28.1 },
+        { lat: 41.2, lng: 28.2 },
+      ],
+      style: { color: 'green', width: 'l' },
+      createdAt: Date.now(),
+    })
     expect(ctx.stroke).toHaveBeenCalled()
     expect(ctx.quadraticCurveTo).toHaveBeenCalled()
   })
@@ -250,7 +224,6 @@ describe('v2 Canvas annotation rendering', () => {
         style: { color: 'blue', width: 'm' },
         createdAt: Date.now(),
       },
-      'light',
       { isSelected: true },
     )
     expect(ctx.bezierCurveTo).toHaveBeenCalled()
@@ -260,44 +233,32 @@ describe('v2 Canvas annotation rendering', () => {
   it('renders distance ruler with end ticks and distance pill', () => {
     const ctx = createMockCtx()
     const map = createMockMap()
-    renderRulerOnCanvas(
-      ctx,
-      map,
-      {
-        id: 'ruler-1',
-        type: 'ruler',
-        from: { lat: 41, lng: 28 },
-        to: { lat: 41.5, lng: 28.5 },
-        unit: 'metric',
-        style: { color: 'ink' },
-        createdAt: Date.now(),
-      },
-      'light',
-    )
+    renderRulerOnCanvas(ctx, map, {
+      id: 'ruler-1',
+      type: 'ruler',
+      from: { lat: 41, lng: 28 },
+      to: { lat: 41.5, lng: 28.5 },
+      unit: 'metric',
+      style: { color: 'ink' },
+      createdAt: Date.now(),
+    })
     expect(ctx.stroke).toHaveBeenCalled()
     expect(ctx.fillText).toHaveBeenCalled()
   })
 
-  it('always uses light theme colors for shapes and items even when scheme is dark', () => {
-    const ctxLight = createMockCtx()
-    const ctxDark = createMockCtx()
+  it('dispatches items via renderItemOnCanvas with opinionated ink color', () => {
+    const ctx = createMockCtx()
     const map = createMockMap()
-    const shapeItem = {
+    renderItemOnCanvas(ctx, map, {
       id: 'shape-1',
-      type: 'shape' as const,
-      kind: 'square' as const,
+      type: 'shape',
+      kind: 'square',
       at: { lat: 41, lng: 28 },
       width: 100,
       height: 100,
-      style: { color: 'ink' as const, fill: 'solid' as const },
+      style: { color: 'ink', fill: 'solid' },
       createdAt: Date.now(),
-    }
-
-    renderShapeOnCanvas(ctxLight, map, shapeItem, 'light')
-    renderShapeOnCanvas(ctxDark, map, shapeItem, 'dark')
-
-    // Both light and dark scheme calls render the shape with light ink color (#1D1D1B)
-    expect(ctxLight.strokeStyle).toBe('#1D1D1B')
-    expect(ctxDark.strokeStyle).toBe('#1D1D1B')
+    })
+    expect(ctx.strokeStyle).toBe('#1D1D1B')
   })
 })

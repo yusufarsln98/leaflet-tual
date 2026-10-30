@@ -1,10 +1,11 @@
 'use client'
 
+import { useRef } from 'react'
 import type { ArrowKind, Controller, ShapeKind, ToolId } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { ARROW_ICONS, ICONS, SHAPE_ICONS } from '../../../ui/index.js'
+import { ICONS } from '../../../ui/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
-import { ToolVariantsPopover } from '../popovers/index.js'
+import { ALL_ARROW_KINDS, ALL_SHAPE_KINDS, ToolVariantsPopover } from '../popovers/index.js'
 
 const TOOL_SHORTCUTS: Record<ToolId, string> = {
   select: 'V',
@@ -20,6 +21,7 @@ const TOOL_SHORTCUTS: Record<ToolId, string> = {
 export interface ToolbarItemButtonProps {
   toolId: ToolId
   controller: Controller
+  activeVariant?: string | null
   isPopoverOpen: boolean
   popoverClassName?: string
   allowedArrowVariants?: ArrowKind[]
@@ -31,6 +33,7 @@ export interface ToolbarItemButtonProps {
 export function ToolbarItemButton({
   toolId,
   controller,
+  activeVariant,
   isPopoverOpen,
   popoverClassName,
   allowedArrowVariants,
@@ -40,33 +43,67 @@ export function ToolbarItemButton({
 }: ToolbarItemButtonProps) {
   const { t } = useTranslation(controller)
   const isActive = controller.tool === toolId
-  const hasVariants = toolId === 'arrow' || toolId === 'shape'
+  const isArrow = toolId === 'arrow'
+  const isShape = toolId === 'shape'
+  const hasVariants = isArrow || isShape
+
+  const lastVariantRef = useRef<string | null>(
+    controller.tool === toolId ? controller.variant : null,
+  )
+
+  if (controller.tool === toolId && controller.variant) {
+    if (isArrow && ALL_ARROW_KINDS.includes(controller.variant as ArrowKind)) {
+      lastVariantRef.current = controller.variant
+    } else if (isShape && ALL_SHAPE_KINDS.includes(controller.variant as ShapeKind)) {
+      lastVariantRef.current = controller.variant
+    }
+  }
+
+  const effectiveVariant =
+    activeVariant !== undefined
+      ? activeVariant
+      : controller.tool === toolId
+        ? controller.variant
+        : lastVariantRef.current
+
+  const isVariantValid =
+    hasVariants &&
+    effectiveVariant &&
+    (isArrow
+      ? ALL_ARROW_KINDS.includes(effectiveVariant as ArrowKind)
+      : isShape
+        ? ALL_SHAPE_KINDS.includes(effectiveVariant as ShapeKind)
+        : false)
+
   const icon =
-    toolId === 'arrow' && controller.variant
-      ? (ARROW_ICONS[controller.variant as ArrowKind]?.() ?? ICONS.arrow())
-      : toolId === 'shape' && controller.variant
-        ? (SHAPE_ICONS[controller.variant as ShapeKind]?.() ?? ICONS.shape())
-        : ICONS[toolId]()
+    isVariantValid && effectiveVariant
+      ? (ICONS[effectiveVariant]?.() ?? ICONS[toolId]())
+      : ICONS[toolId]()
+
   const shortcut = TOOL_SHORTCUTS[toolId] ?? toolId.charAt(0).toUpperCase()
   const toolName = t(toolId, undefined, toolId.charAt(0).toUpperCase() + toolId.slice(1))
   const label = `${toolName} (${shortcut})`
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div
+      className="tual-tool-group"
+      data-has-variants={hasVariants || undefined}
+      style={{ position: 'relative' }}
+    >
       <ToolbarToolButton
         label={label}
         icon={icon}
         isActive={isActive}
         hasVariants={hasVariants}
+        isPopoverOpen={isPopoverOpen}
+        chevronLabel={`${toolName} options`}
         onSelect={() => {
-          if (hasVariants) {
-            const nextOpen = !isPopoverOpen
-            if (!isActive) controller.setTool(toolId)
-            onTogglePopover(nextOpen)
-          } else {
-            controller.setTool(toolId)
-            onClosePopover()
-          }
+          const variantToRestore = isVariantValid && effectiveVariant ? effectiveVariant : undefined
+          controller.setTool(toolId, variantToRestore)
+          onClosePopover()
+        }}
+        onToggleVariants={() => {
+          onTogglePopover(!isPopoverOpen)
         }}
       />
 
@@ -74,6 +111,7 @@ export function ToolbarItemButton({
         <ToolVariantsPopover
           controller={controller}
           type={toolId as 'arrow' | 'shape'}
+          activeVariant={effectiveVariant}
           allowedArrowVariants={allowedArrowVariants}
           allowedShapeVariants={allowedShapeVariants}
           onClose={onClosePopover}

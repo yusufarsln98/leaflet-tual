@@ -217,8 +217,8 @@ describe('v2 Controller state machine', () => {
       style: sharedStyle,
     }) as NoteItem
 
-    const shapeVisual = resolveItemStyle(shape, 'light')
-    const noteVisual = resolveItemStyle(note, 'light')
+    const shapeVisual = resolveItemStyle(shape)
+    const noteVisual = resolveItemStyle(note)
 
     // Both interpret the schema consistently:
     expect(shapeVisual.fill).toBe('solid')
@@ -244,5 +244,74 @@ describe('v2 Controller state machine', () => {
     expect(shapeVisual.fillColor).toBe('#2F6FEB') // standard blue
     expect(noteVisual.fillColor).toBe('#DBEAFE') // soft note blue surface
     expect(noteVisual.text.color).toBe('#1E3A8A') // dark blue note text
+  })
+
+  it('batches uncommitted updates and supports updateMany, duplicate, and reorder', () => {
+    const changes: Array<{ reason: string; ids: string[] }> = []
+    const c = createController({
+      onChange: (_doc, info) => changes.push({ reason: info.reason, ids: info.ids }),
+    })
+
+    const s1 = c.add({
+      type: 'shape',
+      kind: 'square',
+      at: { lat: 41, lng: 28 },
+      width: 50,
+      height: 50,
+    })
+    const s2 = c.add({
+      type: 'shape',
+      kind: 'circle',
+      at: { lat: 41.1, lng: 28.1 },
+      width: 60,
+      height: 60,
+    })
+    expect(changes.length).toBe(2)
+
+    // Uncommitted drag frames should NOT fire onChange
+    c.updateMany(
+      [
+        { id: s1.id, patch: { width: 70 } },
+        { id: s2.id, patch: { width: 80 } },
+      ],
+      false,
+    )
+    c.updateMany(
+      [
+        { id: s1.id, patch: { width: 90 } },
+        { id: s2.id, patch: { width: 100 } },
+      ],
+      false,
+    )
+    expect(changes.length).toBe(2)
+
+    // Commit gesture on mouseup -> fires onChange once and records a single undo step
+    c.updateMany(
+      [
+        { id: s1.id, patch: {} },
+        { id: s2.id, patch: {} },
+      ],
+      true,
+    )
+    expect(changes.length).toBe(3)
+    expect((c.items[0] as ShapeItem).width).toBe(90)
+    expect((c.items[1] as ShapeItem).width).toBe(100)
+
+    // Undo restores the state from before the uncommitted gesture started
+    c.undo()
+    expect((c.items[0] as ShapeItem).width).toBe(50)
+    expect((c.items[1] as ShapeItem).width).toBe(60)
+
+    // Duplicate creates offset copies and selects them
+    const dupes = c.duplicate([s1.id])
+    expect(dupes).toHaveLength(1)
+    expect(c.items).toHaveLength(3)
+    expect(c.selection).toEqual([dupes[0].id])
+
+    // Reorder items in activePage.items
+    c.reorder(s1.id, 'front')
+    expect(c.items[c.items.length - 1].id).toBe(s1.id)
+    c.reorder(s1.id, 'back')
+    expect(c.items[0].id).toBe(s1.id)
   })
 })

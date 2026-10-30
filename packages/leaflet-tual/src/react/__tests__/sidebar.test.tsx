@@ -176,7 +176,7 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
 
     const map = createMockMap()
     const { container } = render(
-      <LeafletTual map={map} controller={result.current} defaultSidebarOpen={false} />,
+      <LeafletTual map={map} controller={result.current} />,
     )
 
     // When sidebar is inactive, SecondaryTooltip is visible on the item and has More Options button

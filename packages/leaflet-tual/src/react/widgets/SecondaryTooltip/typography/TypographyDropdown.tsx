@@ -58,11 +58,11 @@ export function TypographyDropdown({
   return (
     <Popover variant="typography">
       <SegmentedControl
-        variant="typo-tabs"
+        variant="pill-tabs"
         value={activeTab}
         options={[
-          { value: 'theme', label: t('theme') },
-          { value: 'custom', label: t('custom') },
+          { value: 'theme', label: t('theme', undefined, 'Theme') },
+          { value: 'custom', label: t('custom', undefined, 'Custom') },
         ]}
         onChange={setActiveTab}
       />
@@ -72,21 +72,13 @@ export function TypographyDropdown({
           {THEME_PRESETS.map((p) => {
             const isSelected =
               !currentFontSize && (currentSize === p.id || (p.id === 'm' && !currentSize))
-            const labelKey =
-              p.id === 'xl'
-                ? 'heading1'
-                : p.id === 'l'
-                  ? 'heading2'
-                  : p.id === 's'
-                    ? 'caption'
-                    : 'body'
-            const presetLabel = t(labelKey, undefined, p.label)
             return (
               <DropdownItem
                 key={p.id}
                 variant="typo"
+                data-size={String(p.id)}
                 selected={isSelected}
-                label={presetLabel}
+                label={t(p.id, undefined, p.label)}
                 meta={`${p.px}px`}
                 onClick={() => handleSelectPreset(p.id)}
               />

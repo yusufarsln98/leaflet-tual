@@ -11,7 +11,6 @@ export interface FillStrokeSectionProps {
   map?: L.Map
   selectedItem: Item
   style: Style
-  scheme: 'light' | 'dark'
   open?: boolean
   onOpenChange?: (open: boolean) => void
   onUpdateStyle: (patch: Partial<Style>) => void
@@ -28,7 +27,6 @@ export function FillStrokeSection({
   map,
   selectedItem,
   style,
-  scheme,
   open,
   onOpenChange,
   onUpdateStyle,
@@ -42,21 +40,21 @@ export function FillStrokeSection({
   const isBoxItem = isShape || isNote
   const hasBorder = !isText
 
-  const visual = isBoxItem ? resolveItemStyle(selectedItem, 'light') : null
+  const visual = isBoxItem ? resolveItemStyle(selectedItem) : null
 
   const strokeColorKey =
     isText || (isNote && !style.strokeColor)
       ? style.textColor ?? style.color ?? (isNote ? 'yellow' : 'ink')
       : style.strokeColor ?? style.color ?? (isShape || isArrow ? 'blue' : 'ink')
   const strokeHex = isText
-    ? resolveColor(style.textColor ?? style.color ?? 'ink', 'light')
-    : visual?.strokeColor ?? resolveColor(strokeColorKey, 'light')
+    ? resolveColor(style.textColor ?? style.color ?? 'ink')
+    : visual?.strokeColor ?? resolveColor(strokeColorKey)
 
   const textColorKey = style.textColor ?? 'ink'
-  const textHex = visual?.text.color ?? resolveColor(textColorKey, 'light')
+  const textHex = visual?.text.color ?? resolveColor(textColorKey)
 
   const fillColorKey = style.fillColor ?? style.color ?? (isNote ? 'yellow' : 'blue')
-  const fillHex = visual?.fillColor ?? resolveColor(fillColorKey, 'light')
+  const fillHex = visual?.fillColor ?? resolveColor(fillColorKey)
   const fillMode = style.fill ?? 'solid'
   const hasNoFill = isBoxItem && fillMode === 'none'
 
@@ -102,7 +100,6 @@ export function FillStrokeSection({
         title={isText ? t('textColor') : t('stroke')}
         mode="stroke"
         currentColor={strokeColorKey}
-        scheme={scheme}
         colorHex={strokeHex}
         onSelectColor={handleStrokeColor}
       />
@@ -114,7 +111,6 @@ export function FillStrokeSection({
           title={t('textColor')}
           mode="stroke"
           currentColor={textColorKey}
-          scheme={scheme}
           colorHex={textHex}
           onSelectColor={(color) => onUpdateStyle({ textColor: color })}
         />
@@ -143,7 +139,6 @@ export function FillStrokeSection({
           mode="fill"
           currentColor={fillColorKey}
           currentFill={fillMode}
-          scheme={scheme}
           colorHex={fillHex}
           value={hasNoFill ? t('noFill') : undefined}
           noFill={hasNoFill}

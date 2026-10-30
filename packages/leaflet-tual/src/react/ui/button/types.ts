@@ -39,7 +39,7 @@ export interface SegmentedControlProps<T extends string | number> {
   options: ReadonlyArray<SegmentedOption<T>>
   value: T
   onChange: (value: T) => void
-  variant?: 'color-tabs' | 'typo-tabs' | 'border-dash' | 'button-group'
+  variant?: 'color-tabs' | 'typo-tabs' | 'border-dash' | 'button-group' | 'recessed' | 'pill-tabs'
   title?: string
   marginTop?: number
   className?: string
