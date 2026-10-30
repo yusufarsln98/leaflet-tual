@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import { useMap } from 'react-leaflet'
-import type { Controller, InternalController } from '../../../core/index.js'
+import type { Controller, InternalController, Item } from '../../../core/index.js'
 import { hitTest } from '../../../core/index.js'
 import { useLeafletTual } from '../../features/use-leaflet-tual.js'
 import { useLeafletSync } from '../../features/use-leaflet-sync.js'
@@ -158,6 +158,17 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     [controller, map],
   )
 
+  const handleSidebarItemContextMenu = useCallback(
+    (_item: Item, e: React.MouseEvent) => {
+      if (!canvasRef.current) return
+      const rect = canvasRef.current.getBoundingClientRect()
+      const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+      controller.edit(null)
+      setContextMenuPos(pt)
+    },
+    [controller],
+  )
+
   const showToolbar = props.toolbar !== false && (!props.readOnly || Boolean(props.toolbar))
 
   return (
@@ -199,17 +210,6 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
               onOpenSidebar={() => setIsSidebarOpen(true)}
             />
           )}
-
-        {/* Right-click Context Menu for single item or multi-selection */}
-        {contextMenuPos && !controller.readOnly && (
-          <ContextMenu
-            map={map}
-            controller={controller}
-            position={contextMenuPos}
-            onClose={() => setContextMenuPos(null)}
-            onOpenSidebar={() => setIsSidebarOpen(true)}
-          />
-        )}
 
         {/* Note overlays */}
         {controller.items.map((item) =>
@@ -279,6 +279,20 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
                 map.dragging?.enable()
               }
             }}
+            onItemContextMenu={handleSidebarItemContextMenu}
+          />
+        </div>
+      )}
+
+      {/* Right-click Context Menu for single item, multi-selection, or sidebar item */}
+      {contextMenuPos && !controller.readOnly && (
+        <div className="tual tual-context-menu-layer" data-theme={resolvedScheme}>
+          <ContextMenu
+            map={map}
+            controller={controller}
+            position={contextMenuPos}
+            onClose={() => setContextMenuPos(null)}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
           />
         </div>
       )}

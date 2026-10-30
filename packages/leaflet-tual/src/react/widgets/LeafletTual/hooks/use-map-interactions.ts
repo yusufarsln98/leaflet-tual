@@ -5,16 +5,6 @@ import type L from 'leaflet'
 import type { Controller } from '../../../../core/index.js'
 
 export function useMapInteractions(map: L.Map, controller: Controller) {
-  const hasSelection = controller.selection.length > 0
-
-  useEffect(() => {
-    if (!hasSelection) return
-    map.scrollWheelZoom?.disable()
-    return () => {
-      map.scrollWheelZoom?.enable()
-    }
-  }, [hasSelection, map])
-
   useEffect(() => {
     const isDrawingTool = controller.tool !== 'select' && !controller.readOnly
     if (isDrawingTool) {

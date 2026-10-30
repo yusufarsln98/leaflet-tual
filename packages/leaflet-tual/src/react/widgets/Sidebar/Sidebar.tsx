@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
-import type { InternalController } from '../../../core/index.js'
+import { useEffect, useState } from 'react'
+import type { InternalController, Item } from '../../../core/index.js'
 import { useControllerState } from '../../features/index.js'
 import { TranslationProvider, useTranslation } from '../../features/i18n/index.js'
 import { IconButton, ICONS, useWheelGuard } from '../../ui/index.js'
+import { ContextMenu, type ContextMenuPosition } from '../ContextMenu/index.js'
 import { SidebarLayerTree } from './SidebarLayerTree.js'
 import { SidebarProperties } from './SidebarProperties.js'
 import type { SidebarProps } from './types.js'
@@ -12,6 +13,18 @@ import type { SidebarProps } from './types.js'
 export function Sidebar({ controller, map, onClose, onItemContextMenu, className }: SidebarProps) {
   const { t } = useTranslation(controller)
   const guardRef = useWheelGuard<HTMLElement>()
+  const [internalMenuPos, setInternalMenuPos] = useState<ContextMenuPosition | null>(null)
+
+  const handleItemContextMenu = (item: Item, e: React.MouseEvent) => {
+    if (onItemContextMenu) {
+      onItemContextMenu(item, e)
+    } else {
+      const rect = guardRef.current?.getBoundingClientRect()
+      const x = rect ? Math.max(8, e.clientX - rect.left - 216) : e.clientX
+      const y = rect ? Math.max(8, e.clientY - rect.top) : e.clientY
+      setInternalMenuPos({ x, y })
+    }
+  }
 
   useEffect(() => {
     if (map) {
@@ -76,9 +89,18 @@ export function Sidebar({ controller, map, onClose, onItemContextMenu, className
 
         <SidebarLayerTree
           controller={controller}
-          onItemContextMenu={onItemContextMenu}
+          onItemContextMenu={handleItemContextMenu}
         />
         <SidebarProperties controller={controller} map={map} />
+
+        {internalMenuPos && !controller.readOnly && (
+          <ContextMenu
+            map={map}
+            controller={controller}
+            position={internalMenuPos}
+            onClose={() => setInternalMenuPos(null)}
+          />
+        )}
       </aside>
     </TranslationProvider>
   )

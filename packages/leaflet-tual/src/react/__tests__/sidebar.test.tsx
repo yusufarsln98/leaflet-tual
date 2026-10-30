@@ -324,4 +324,70 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
     expect(collapsedTreeChevron.getAttribute('width')).toBe('14')
     expect(collapsedTreeChevron.getAttribute('height')).toBe('14')
   })
+
+  it('opens context menu when right-clicking an item in the sidebar tree in LeafletTual', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    let shapeId = ''
+    act(() => {
+      const s = result.current.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
+        label: 'Zone A',
+      })
+      shapeId = s.id
+    })
+
+    const map = createMockMap()
+    const { container } = render(<LeafletTual map={map} controller={result.current} />)
+
+    // Open sidebar
+    fireEvent.click(screen.getByTitle('Toggle sidebar'))
+    const treeItem = screen.getByRole('treeitem')
+
+    // Right-click on the tree item
+    fireEvent.contextMenu(treeItem, { clientX: 750, clientY: 150 })
+
+    // Context menu opens for that item
+    expect(result.current.selection).toEqual([shapeId])
+    const contextMenu = container.querySelector('.tual-context-menu')
+    expect(contextMenu).not.toBeNull()
+    expect(screen.getByText('Duplicate')).toBeDefined()
+    expect(screen.getByText('Bring to front')).toBeDefined()
+    expect(screen.getByText('Lock')).toBeDefined()
+
+    // Clicking an action in context menu executes it
+    fireEvent.click(screen.getByText('Duplicate'))
+    expect(result.current.items).toHaveLength(2)
+    expect(container.querySelector('.tual-context-menu')).toBeNull()
+  })
+
+  it('opens context menu on standalone Sidebar item right-click', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    let sId = ''
+    act(() => {
+      const s = result.current.add({
+        type: 'shape',
+        kind: 'circle',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 80,
+        height: 80,
+      })
+      sId = s.id
+    })
+
+    const map = createMockMap()
+    const { container } = render(
+      <Sidebar controller={result.current} map={map} onClose={vi.fn()} />,
+    )
+
+    const treeItem = screen.getByRole('treeitem')
+    fireEvent.contextMenu(treeItem, { clientX: 100, clientY: 100 })
+
+    expect(result.current.selection).toEqual([sId])
+    expect(container.querySelector('.tual-context-menu')).not.toBeNull()
+    expect(screen.getByText('Duplicate')).toBeDefined()
+  })
 })

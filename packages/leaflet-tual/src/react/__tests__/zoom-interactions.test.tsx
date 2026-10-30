@@ -7,7 +7,7 @@ import { createMockMap } from './test-utils.js'
 vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
 
 describe('v2 map zoom interactions', () => {
-  it('does not disable scroll wheel zoom on hover, only while an item is selected', () => {
+  it('does not disable scroll wheel zoom on hover or when items are selected', () => {
     const { result } = renderHook(() =>
       useLeafletTual({
         defaultValue: emptyDoc(),
@@ -39,13 +39,13 @@ describe('v2 map zoom interactions', () => {
     fireEvent.mouseLeave(card)
     expect(map.scrollWheelZoom?.enabled()).toBe(true)
 
-    // Focusing (selecting) an item keeps the map from zooming underneath it.
+    // Selecting an item must never disable zoom.
     act(() => {
       result.current.select(noteId)
     })
-    expect(map.scrollWheelZoom?.enabled()).toBe(false)
+    expect(map.scrollWheelZoom?.enabled()).toBe(true)
 
-    // Deselecting restores normal map zoom.
+    // Deselecting also keeps map zoom enabled.
     act(() => {
       result.current.select(null)
     })
