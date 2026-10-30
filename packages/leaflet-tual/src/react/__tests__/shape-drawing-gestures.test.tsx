@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, renderHook } from '@testing-library/react'
 import { LeafletTual } from '../widgets/LeafletTual/LeafletTual.js'
 import { useLeafletTual } from '../features/use-leaflet-tual.js'
-import { emptyDoc } from '../../core/index.js'
+import { emptyDoc, type ShapeItem } from '../../core/index.js'
 import { createMockCanvasContext } from '../../core/__tests__/test-utils.js'
-import { resizeShapeInWorld } from '../widgets/LeafletTual/gestures/index.js'
+import { resizeShape } from '../widgets/LeafletTual/gestures/index.js'
 import { createMockMap } from './test-utils.js'
 
 describe('v2 shape drawing gestures', () => {
@@ -181,36 +181,42 @@ describe('v2 shape drawing gestures', () => {
   })
 
   it('resizes from the grabbed edge while keeping the opposite edge anchored', () => {
-    const from = { lat: 10, lng: 10 }
-    const to = { lat: 20, lng: 20 }
-
-    const expectBounds = (
-      result: { from: { lat: number; lng: number }; to: { lat: number; lng: number } },
-      expected: { from: { lat: number; lng: number }; to: { lat: number; lng: number } },
-    ) => {
-      expect(result.from.lat).toBeCloseTo(expected.from.lat, 6)
-      expect(result.from.lng).toBeCloseTo(expected.from.lng, 6)
-      expect(result.to.lat).toBeCloseTo(expected.to.lat, 6)
-      expect(result.to.lng).toBeCloseTo(expected.to.lng, 6)
+    const map = createMockMap({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+    const initialAt = { lat: 15, lng: 15 }
+    const shape: ShapeItem = {
+      id: 'shape-1',
+      type: 'shape',
+      kind: 'square',
+      at: initialAt,
+      width: 100,
+      height: 100,
+      baseZoom: 14,
+      createdAt: 1,
     }
 
-    // South-east: the south and east edges follow the pointer.
-    expectBounds(resizeShapeInWorld(from, to, { lat: 0, lng: 25 }, 'se'), {
-      from: { lat: 0, lng: 10 },
-      to: { lat: 20, lng: 25 },
-    })
+    // South-east: moving SE handle to (250, 300) keeps NW at (100, 100) -> width 150, height 200, center (175, 200)
+    const seResult = resizeShape(map, shape, initialAt, 100, 100, { x: 250, y: 300 }, 'se')
+    expect(seResult.width).toBe(150)
+    expect(seResult.height).toBe(200)
+    expect(seResult.at.lat).toBeCloseTo(20, 6)
+    expect(seResult.at.lng).toBeCloseTo(17.5, 6)
 
-    // North-west: the north and west edges follow the pointer.
-    expectBounds(resizeShapeInWorld(from, to, { lat: 30, lng: 5 }, 'nw'), {
-      from: { lat: 10, lng: 5 },
-      to: { lat: 30, lng: 20 },
-    })
+    // North-west: moving NW handle to (50, 50) keeps SE at (200, 200) -> width 150, height 150, center (125, 125)
+    const nwResult = resizeShape(map, shape, initialAt, 100, 100, { x: 50, y: 50 }, 'nw')
+    expect(nwResult.width).toBe(150)
+    expect(nwResult.height).toBe(150)
+    expect(nwResult.at.lat).toBeCloseTo(12.5, 6)
+    expect(nwResult.at.lng).toBeCloseTo(12.5, 6)
 
-    // North-east: the north edge must move, not the south edge.
-    expectBounds(resizeShapeInWorld(from, to, { lat: 30, lng: 25 }, 'ne'), {
-      from: { lat: 10, lng: 10 },
-      to: { lat: 30, lng: 25 },
-    })
+    // North-east: moving NE handle to (250, 50) keeps SW at (100, 200) -> width 150, height 150, center (175, 125)
+    const neResult = resizeShape(map, shape, initialAt, 100, 100, { x: 250, y: 50 }, 'ne')
+    expect(neResult.width).toBe(150)
+    expect(neResult.height).toBe(150)
+    expect(neResult.at.lat).toBeCloseTo(12.5, 6)
+    expect(neResult.at.lng).toBeCloseTo(17.5, 6)
   })
 
   it('resizes a selected shape from its handle without creating another shape', () => {

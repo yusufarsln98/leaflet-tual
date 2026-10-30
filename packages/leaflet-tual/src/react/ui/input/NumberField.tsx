@@ -1,5 +1,6 @@
 'use client'
 
+import { ICONS } from '../icons/index.js'
 import type { NumberFieldProps } from './types.js'
 
 export function NumberField({
@@ -22,19 +23,11 @@ export function NumberField({
   const maxNum = max !== undefined ? Number(max) : Infinity
   const precision = stepNum.toString().split('.')[1]?.length ?? 0
 
-  const handleStepUp = (e: React.MouseEvent) => {
+  const handleStep = (dir: 1 | -1, e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
     if (disabled || readOnly) return
-    const next = Math.min(maxNum, Math.max(minNum, Number((value + stepNum).toFixed(precision))))
-    onChange(next)
-  }
-
-  const handleStepDown = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (disabled || readOnly) return
-    const next = Math.max(minNum, Math.min(maxNum, Number((value - stepNum).toFixed(precision))))
+    const next = Math.min(maxNum, Math.max(minNum, Number((value + dir * stepNum).toFixed(precision))))
     onChange(next)
   }
 
@@ -67,22 +60,10 @@ export function NumberField({
             aria-label="Increment"
             className="tual-number-step-btn tual-number-step-up"
             disabled={disabled || readOnly || (max !== undefined && value >= Number(max))}
-            onClick={handleStepUp}
+            onClick={(e) => handleStep(1, e)}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <svg
-              width="7"
-              height="7"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="m18 15-6-6-6 6" />
-            </svg>
+            {ICONS.chevronUp(7)}
           </button>
           <button
             type="button"
@@ -90,27 +71,16 @@ export function NumberField({
             aria-label="Decrement"
             className="tual-number-step-btn tual-number-step-down"
             disabled={disabled || readOnly || (min !== undefined && value <= Number(min))}
-            onClick={handleStepDown}
+            onClick={(e) => handleStep(-1, e)}
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <svg
-              width="7"
-              height="7"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
+            {ICONS.chevronDown(7)}
           </button>
         </div>
       )}
     </div>
   )
 }
+
 
 

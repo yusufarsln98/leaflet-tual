@@ -45,11 +45,9 @@ export type CanvasGesture =
       type: 'resize-shape'
       shapeId: string
       handle: ShapeHandleType
-      initialAt?: GeoPoint
-      initialWidth?: number
-      initialHeight?: number
-      initialFrom?: GeoPoint
-      initialTo?: GeoPoint
+      initialAt: GeoPoint
+      initialWidth: number
+      initialHeight: number
       startPt: ScreenPoint
       startGeo: GeoPoint
     }

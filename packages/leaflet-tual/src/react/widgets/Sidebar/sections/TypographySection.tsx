@@ -10,7 +10,7 @@ import type {
 } from '../../../../core/index.js'
 import { resolveSize, WEIGHT_OPTIONS } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { Collapsible, NumberField, Select } from '../../../ui/index.js'
+import { Collapsible, NumberField, PropertyRow, Select } from '../../../ui/index.js'
 import { TextFormattingControls } from '../../SecondaryTooltip/typography/TextFormattingControls.js'
 
 export interface TypographySectionProps {
@@ -60,73 +60,62 @@ export function TypographySection({
 
   return (
     <Collapsible title={t('typography')} className="tual-sidebar-section">
-      <div className="tual-sidebar-prop-row">
-        <span className="tual-sidebar-prop-label">{t('fontSize')}</span>
-        <div className="tual-sidebar-prop-control">
-          <NumberField
-            aria-label={t('fontSizePx')}
-            min={8}
-            max={144}
-            step={1}
-            value={effectivePx}
-            unit="px"
-            wrapperClassName="tual-sidebar-input-field"
-            className="tual-sidebar-number-input"
-            onChange={(px) =>
-              onUpdateStyle({ fontSize: Math.max(8, Math.min(144, Math.round(px))) })
-            }
-          />
-        </div>
-      </div>
+      <PropertyRow label={t('fontSize')}>
+        <NumberField
+          aria-label={t('fontSizePx')}
+          min={8}
+          max={144}
+          step={1}
+          value={effectivePx}
+          unit="px"
+          wrapperClassName="tual-sidebar-input-field"
+          className="tual-sidebar-number-input"
+          onChange={(px) =>
+            onUpdateStyle({ fontSize: Math.max(8, Math.min(144, Math.round(px))) })
+          }
+        />
+      </PropertyRow>
 
-      <div className="tual-sidebar-prop-row">
-        <span className="tual-sidebar-prop-label">{t('weight')}</span>
-        <div className="tual-sidebar-prop-control">
-          <Select
-            ariaLabel={t('fontWeight')}
-            title={t('fontWeight')}
-            value={typeof style.weight === 'string' ? style.weight : 'regular'}
-            options={WEIGHT_OPTIONS.map((w) => ({
-              value: w.id,
-              label: t(w.id, undefined, w.label),
-            }))}
-            align="start"
-            className="tual-sidebar-select-field"
-            onChange={(weight) => onUpdateStyle({ weight: weight as FontWeight })}
-          />
-        </div>
-      </div>
+      <PropertyRow label={t('weight')}>
+        <Select
+          ariaLabel={t('fontWeight')}
+          title={t('fontWeight')}
+          value={typeof style.weight === 'string' ? style.weight : 'regular'}
+          options={WEIGHT_OPTIONS.map((w) => ({
+            value: w.id,
+            label: t(w.id, undefined, w.label),
+          }))}
+          align="start"
+          className="tual-sidebar-select-field"
+          onChange={(weight) => onUpdateStyle({ weight: weight as FontWeight })}
+        />
+      </PropertyRow>
 
       {isTextOrNote && (
-        <div className="tual-sidebar-prop-row">
-          <span className="tual-sidebar-prop-label">{t('align')}</span>
-          <div className="tual-sidebar-prop-control tual-sidebar-formatting-row">
-            <TextFormattingControls
-              style={style}
-              currentText={currentText}
-              onUpdateStyle={onUpdateStyle}
-              onUpdateText={handleUpdateText}
-            />
-          </div>
-        </div>
+        <PropertyRow label={t('align')} controlClassName="tual-sidebar-formatting-row">
+          <TextFormattingControls
+            style={style}
+            currentText={currentText}
+            onUpdateStyle={onUpdateStyle}
+            onUpdateText={handleUpdateText}
+          />
+        </PropertyRow>
       )}
 
       {isShape && (
-        <div className="tual-sidebar-prop-row">
-          <span className="tual-sidebar-prop-label">{t('labelPosition')}</span>
-          <div className="tual-sidebar-prop-control">
-            <Select
-              ariaLabel={t('labelPosition')}
-              title={t('labelPosition')}
-              value={(selectedItem as ShapeItem).labelPosition ?? 'center'}
-              options={labelPositionOptions}
-              align="start"
-              className="tual-sidebar-select-field"
-              onChange={(p) => controller.update(selectedItem.id, { labelPosition: p })}
-            />
-          </div>
-        </div>
+        <PropertyRow label={t('labelPosition')}>
+          <Select
+            ariaLabel={t('labelPosition')}
+            title={t('labelPosition')}
+            value={(selectedItem as ShapeItem).labelPosition ?? 'center'}
+            options={labelPositionOptions}
+            align="start"
+            className="tual-sidebar-select-field"
+            onChange={(p) => controller.update(selectedItem.id, { labelPosition: p })}
+          />
+        </PropertyRow>
       )}
     </Collapsible>
   )
 }
+

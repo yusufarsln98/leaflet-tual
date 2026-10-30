@@ -7,24 +7,23 @@ import { resolveSize, resolveWeight } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { getLabelAnchor } from '../../../../core/shared/drawing/shape-label.js'
 import { getItemZoomScale } from '../../../../core/shared/geometry/zoom.js'
+import { applyStyleShortcutKeyDown } from './use-note-editor-keys.js'
+
 
 export interface InlineShapeLabelEditorProps {
   map: L.Map
-  shape?: ShapeItem
-  item?: ShapeItem | ArrowItem
+  item: ShapeItem | ArrowItem
   controller: Controller
   className?: string
 }
 
 export function InlineShapeLabelEditor({
   map,
-  shape,
-  item,
+  item: target,
   controller,
   className,
 }: InlineShapeLabelEditorProps) {
   const { t } = useTranslation(controller)
-  const target = item ?? shape!
   const [value, setValue] = useState(target.label ?? '')
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -73,40 +72,9 @@ export function InlineShapeLabelEditor({
       inputRef.current?.blur()
       return
     }
-
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
-      e.preventDefault()
-      const isBold = target.style?.weight === 'bold' || target.style?.weight === 700
-      controller.update(target.id, {
-        style: { ...target.style, weight: isBold ? 'regular' : 'bold' },
-      })
-      return
-    }
-
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'i') {
-      e.preventDefault()
-      const isItalic = target.style?.fontStyle === 'italic'
-      controller.update(target.id, {
-        style: { ...target.style, fontStyle: isItalic ? 'normal' : 'italic' },
-      })
-      return
-    }
-
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'u') {
-      e.preventDefault()
-      const isUnderline = Boolean(
-        target.style?.underline || target.style?.textDecoration === 'underline',
-      )
-      controller.update(target.id, {
-        style: {
-          ...target.style,
-          underline: !isUnderline,
-          textDecoration: !isUnderline ? 'underline' : 'none',
-        },
-      })
-      return
-    }
+    applyStyleShortcutKeyDown(e, target, controller)
   }
+
 
   const isEditing = controller.editingId === target.id
   const scale = getItemZoomScale(map, target)

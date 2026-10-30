@@ -12,6 +12,7 @@ import {
   PillButton,
   Popover,
   TextField,
+  useOutsideDismiss,
 } from '../../../ui/index.js'
 
 export interface PageSwitcherProps {
@@ -46,21 +47,11 @@ export function PageSwitcher({
     if (!isOpen) {
       setEditingId(null)
       setActionMenuId(null)
-      return
     }
+  }, [isOpen])
 
-    const handleMouseDown = (e: MouseEvent | PointerEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        onClose()
-      }
-    }
-    document.addEventListener('pointerdown', handleMouseDown, true)
-    document.addEventListener('mousedown', handleMouseDown, true)
-    return () => {
-      document.removeEventListener('pointerdown', handleMouseDown, true)
-      document.removeEventListener('mousedown', handleMouseDown, true)
-    }
-  }, [isOpen, onClose])
+  useOutsideDismiss(containerRef, isOpen, onClose)
+
 
   const commitRename = (pageId: string) => {
     const trimmed = editingName.trim()

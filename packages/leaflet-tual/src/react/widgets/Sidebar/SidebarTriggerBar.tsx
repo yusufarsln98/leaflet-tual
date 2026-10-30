@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
+import { useControllerState } from '../../features/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
 import { IconButton, ICONS, PillButton, useOutsideDismiss } from '../../ui/index.js'
 import type { SidebarTriggerBarProps } from './types.js'
@@ -18,9 +19,9 @@ export function SidebarTriggerBar({
   const { t } = useTranslation(controller)
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const [, setTick] = useState(0)
 
-  useEffect(() => controller.on('state', () => setTick((n) => n + 1)), [controller])
+  useControllerState(controller)
+
 
   const closeMenu = useCallback(() => setMenuOpen(false), [])
   useOutsideDismiss(menuRef, menuOpen, closeMenu)

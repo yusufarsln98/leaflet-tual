@@ -1,11 +1,56 @@
 'use client'
 
-import type { Controller, Style } from '../../../../core/index.js'
+import type L from 'leaflet'
+import type { Controller, ScreenPoint, Style } from '../../../../core/index.js'
+import { getStyleShortcutPatch, screenToGeo } from '../../../../core/index.js'
 
 export interface EditableTextTarget {
   id: string
   text?: string
   style?: Style
+}
+
+export function applyStyleShortcutKeyDown(
+  e: React.KeyboardEvent,
+  item: { id: string; style?: Style },
+  controller: Controller,
+): boolean {
+  if (!(e.metaKey || e.ctrlKey)) return false
+  const patch = getStyleShortcutPatch(e.key, item.style)
+  if (!patch) return false
+  e.preventDefault()
+  controller.update(item.id, { style: { ...item.style, ...patch } })
+  return true
+}
+
+export function startOverlayDrag(
+  e: React.PointerEvent,
+  itemId: string,
+  originScreen: ScreenPoint,
+  map: L.Map,
+  controller: Controller,
+  onDragEnd?: () => void,
+): void {
+  map.dragging?.disable()
+  const startX = e.clientX
+  const startY = e.clientY
+  const getAt = (ev: PointerEvent) =>
+    screenToGeo(map, { x: originScreen.x + ev.clientX - startX, y: originScreen.y + ev.clientY - startY })
+
+  const onPointerMove = (ev: PointerEvent) => {
+    controller.update(itemId, { at: getAt(ev) }, false)
+  }
+
+  const onPointerUp = (ev: PointerEvent) => {
+    onDragEnd?.()
+    controller.update(itemId, { at: getAt(ev) }, true)
+    if (controller.tool === 'select') map.dragging?.enable()
+    window.removeEventListener('pointermove', onPointerMove)
+    window.removeEventListener('pointerup', onPointerUp)
+  }
+
+  window.addEventListener('pointermove', onPointerMove)
+  window.addEventListener('pointerup', onPointerUp)
 }
 
 export function handleTextEditorKeyDown(
@@ -24,41 +69,7 @@ export function handleTextEditorKeyDown(
     return
   }
 
-  const isMeta = e.metaKey || e.ctrlKey
-  const key = e.key.toLowerCase()
-
-  if (isMeta && key === 'b') {
-    e.preventDefault()
-    const isBold = item.style?.weight === 'bold' || item.style?.weight === 700
-    controller.update(item.id, {
-      style: { ...item.style, weight: isBold ? 'regular' : 'bold' },
-    })
-    return
-  }
-
-  if (isMeta && key === 'i') {
-    e.preventDefault()
-    const isItalic = item.style?.fontStyle === 'italic'
-    controller.update(item.id, {
-      style: { ...item.style, fontStyle: isItalic ? 'normal' : 'italic' },
-    })
-    return
-  }
-
-  if (isMeta && key === 'u') {
-    e.preventDefault()
-    const isUnderline = Boolean(
-      item.style?.underline || item.style?.textDecoration === 'underline',
-    )
-    controller.update(item.id, {
-      style: {
-        ...item.style,
-        underline: !isUnderline,
-        textDecoration: !isUnderline ? 'underline' : 'none',
-      },
-    })
-    return
-  }
+  if (applyStyleShortcutKeyDown(e, item, controller)) return
 
   if (e.key === 'Enter') {
     const textarea = e.currentTarget
@@ -78,8 +89,7 @@ export function handleTextEditorKeyDown(
           controller.update(item.id, { text: nextVal })
           setTimeout(() => textarea.setSelectionRange(lineStart, lineStart), 0)
         } else {
-          const indent = bulletMatch[1]
-          const insertText = `\n${indent}• `
+          const insertText = `\n${bulletMatch[1]}• `
           const nextVal =
             value.slice(0, selectionStart) + insertText + value.slice(selectionEnd)
           controller.update(item.id, { text: nextVal })
@@ -94,3 +104,4 @@ export function handleTextEditorKeyDown(
 }
 
 export const handleNoteKeyDown = handleTextEditorKeyDown
+

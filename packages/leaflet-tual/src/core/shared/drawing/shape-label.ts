@@ -1,5 +1,5 @@
 import type L from 'leaflet'
-import type { ArrowItem, GeoPoint, LabelPosition, ShapeItem } from '../../types/index.js'
+import type { ArrowItem, LabelPosition, ShapeItem } from '../../types/index.js'
 import { defaultVia, geoToScreen, getQuadraticBezierPoint } from '../geometry/geo.js'
 import { getItemZoomScale } from '../geometry/zoom.js'
 
@@ -32,25 +32,13 @@ export function getLabelAnchor(
   target: ShapeItem | ArrowItem,
 ): { x: number; y: number } {
   if (target.type === 'shape') {
-    if (target.at) {
-      const center = geoToScreen(map, target.at)
-      const scale = getItemZoomScale(map, target)
-      const rawH = Math.max(1, (target.height ?? 96) * scale)
-      const minY = center.y - rawH / 2
-      const maxY = center.y + rawH / 2
-      const position = target.labelPosition ?? 'center'
-      return { x: center.x, y: getShapeLabelY(position, minY, maxY, center.y) }
-    }
-    const legacy = target as unknown as { from?: GeoPoint; to?: GeoPoint }
-    if (legacy.from && legacy.to) {
-      const p1 = geoToScreen(map, legacy.from)
-      const p2 = geoToScreen(map, legacy.to)
-      const minY = Math.min(p1.y, p2.y)
-      const maxY = Math.max(p1.y, p2.y)
-      const position = target.labelPosition ?? 'center'
-      return { x: (p1.x + p2.x) / 2, y: getShapeLabelY(position, minY, maxY, (minY + maxY) / 2) }
-    }
-    return { x: 0, y: 0 }
+    const center = geoToScreen(map, target.at)
+    const scale = getItemZoomScale(map, target)
+    const rawH = Math.max(1, (target.height ?? 96) * scale)
+    const minY = center.y - rawH / 2
+    const maxY = center.y + rawH / 2
+    const position = target.labelPosition ?? 'center'
+    return { x: center.x, y: getShapeLabelY(position, minY, maxY, center.y) }
   }
 
   const start = geoToScreen(map, target.from)
@@ -62,3 +50,4 @@ export function getLabelAnchor(
   }
   return { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
 }
+

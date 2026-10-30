@@ -1,10 +1,11 @@
 import type L from 'leaflet'
-import type { GeoPoint, ScreenPoint, ShapeItem, Tokens } from '../../types/index.js'
+import type { ShapeItem, Tokens } from '../../types/index.js'
 import { geoToScreen } from '../../shared/geometry/geo.js'
 import { resolveColor, resolveItemStyle } from '../../shared/theme/index.js'
 import { drawHandle, drawLabelPill } from '../../shared/drawing/canvas-utils.js'
 import { getShapeLabelY } from '../../shared/drawing/shape-label.js'
 import { getItemZoomScale } from '../../shared/geometry/zoom.js'
+import { getShapeScreenHandles } from './shape-handles.js'
 import { type ShapeBounds, traceShapePath } from './trace-shape.js'
 
 export function renderShapeOnCanvas(
@@ -18,58 +19,31 @@ export function renderShapeOnCanvas(
     tokens?: Partial<Tokens>
   } = {},
 ) {
-  let center: ScreenPoint
-  let rawWidth: number
-  let rawHeight: number
   const scale = getItemZoomScale(map, shape)
-
-  if (shape.at) {
-    center = geoToScreen(map, shape.at)
-    rawWidth = Math.max(1, (shape.width ?? 96) * scale)
-    rawHeight = Math.max(1, (shape.height ?? 96) * scale)
-  } else {
-    const legacy = shape as unknown as { from?: GeoPoint; to?: GeoPoint }
-    if (legacy.from && legacy.to) {
-      const p1 = geoToScreen(map, legacy.from)
-      const p2 = geoToScreen(map, legacy.to)
-      const minX = Math.min(p1.x, p2.x)
-      const maxX = Math.max(p1.x, p2.x)
-      const minY = Math.min(p1.y, p2.y)
-      const maxY = Math.max(p1.y, p2.y)
-      rawWidth = Math.max(1, maxX - minX)
-      rawHeight = Math.max(1, maxY - minY)
-      center = { x: minX + rawWidth / 2, y: minY + rawHeight / 2 }
-    } else {
-      return
-    }
-  }
-
-  const minX = center.x - rawWidth / 2
-  const maxX = center.x + rawWidth / 2
-  const minY = center.y - rawHeight / 2
-  const maxY = center.y + rawHeight / 2
+  const center = geoToScreen(map, shape.at)
+  const width = Math.max(1, (shape.width ?? 96) * scale)
+  const height = Math.max(1, (shape.height ?? 96) * scale)
   const cx = center.x
   const cy = center.y
-  const width = rawWidth
-  const height = rawHeight
+  const minX = cx - width / 2
+  const maxX = cx + width / 2
+  const minY = cy - height / 2
+  const maxY = cy + height / 2
 
   const bounds: ShapeBounds = { minX, minY, maxX, maxY, width, height, cx, cy }
-
   const visual = resolveItemStyle(shape, 'light', options.tokens)
   const lineWidth = visual.strokeWidth > 0 ? Math.max(0.5, visual.strokeWidth * scale) : 0
-  const dash = visual.dashArray.map((d) => d * scale)
-  const radius = visual.radius * scale
 
   ctx.save()
   ctx.globalAlpha = visual.opacity
   ctx.strokeStyle = visual.strokeColor
   ctx.lineWidth = lineWidth
-  ctx.setLineDash(dash)
+  ctx.setLineDash(visual.dashArray.map((d) => d * scale))
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
 
   ctx.beginPath()
-  traceShapePath(ctx, shape.kind, bounds, radius)
+  traceShapePath(ctx, shape.kind, bounds, visual.radius * scale)
 
   if (visual.fill === 'solid') {
     ctx.fillStyle = visual.fillColor
@@ -82,13 +56,10 @@ export function renderShapeOnCanvas(
     ctx.restore()
   }
 
-  if (lineWidth > 0) {
-    ctx.stroke()
-  }
+  if (lineWidth > 0) ctx.stroke()
 
   if (shape.label && !options.isEditing) {
-    const position = shape.labelPosition ?? 'center'
-    const labelY = getShapeLabelY(position, minY, maxY, cy)
+    const labelY = getShapeLabelY(shape.labelPosition ?? 'center', minY, maxY, cy)
     drawLabelPill(ctx, { x: cx, y: labelY }, shape.label, {
       textColor: visual.text.color,
       bgColor: '#FFFFFF',
@@ -105,24 +76,19 @@ export function renderShapeOnCanvas(
   if (options.isSelected) {
     const handleColor = resolveColor('blue', 'light', options.tokens)
 
-    // Selection frame between the resize handles.
     ctx.save()
     ctx.strokeStyle = handleColor
-    ctx.lineWidth = Math.max(0.5, 1 * scale)
+    ctx.lineWidth = Math.max(0.5, scale)
     ctx.setLineDash([4 * scale, 4 * scale])
-    ctx.strokeRect(minX, minY, rawWidth, rawHeight)
+    ctx.strokeRect(minX, minY, width, height)
     ctx.restore()
 
     const handleSize = Math.max(4, 8 * scale)
-    drawHandle(ctx, { x: minX, y: minY }, handleColor, handleSize)
-    drawHandle(ctx, { x: maxX, y: minY }, handleColor, handleSize)
-    drawHandle(ctx, { x: maxX, y: maxY }, handleColor, handleSize)
-    drawHandle(ctx, { x: minX, y: maxY }, handleColor, handleSize)
-    drawHandle(ctx, { x: cx, y: minY }, handleColor, handleSize)
-    drawHandle(ctx, { x: cx, y: maxY }, handleColor, handleSize)
-    drawHandle(ctx, { x: minX, y: cy }, handleColor, handleSize)
-    drawHandle(ctx, { x: maxX, y: cy }, handleColor, handleSize)
+    for (const h of getShapeScreenHandles(map, shape)) {
+      drawHandle(ctx, h, handleColor, handleSize)
+    }
   }
 
   ctx.restore()
 }
+

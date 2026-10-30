@@ -24,8 +24,6 @@ export const DEFAULT_SCHEME: { light: Scheme; dark: Scheme } = {
     activeBg: '#DBEAFE',
     activeFg: '#2563EB',
     shadow: '0 4px 16px -2px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04)',
-    artboardFill: '#FFFFFF',
-    artboardBorder: '#E4E4E7',
     handle: '#2563EB',
   },
   dark: {
@@ -37,8 +35,6 @@ export const DEFAULT_SCHEME: { light: Scheme; dark: Scheme } = {
     activeBg: '#1E3A8A',
     activeFg: '#60A5FA',
     shadow: '0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.3)',
-    artboardFill: '#27272A',
-    artboardBorder: '#3F3F46',
     handle: '#60A5FA',
   },
 }

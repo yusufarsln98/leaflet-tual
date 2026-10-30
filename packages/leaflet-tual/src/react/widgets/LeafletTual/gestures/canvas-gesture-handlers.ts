@@ -1,15 +1,15 @@
 import { useEffect } from 'react'
 import type { RefObject } from 'react'
 import type L from 'leaflet'
-import type { Controller, GeoPoint, Item, ScreenPoint } from '../../../../core/index.js'
+import type { Controller, GeoPoint, ScreenPoint } from '../../../../core/index.js'
 import {
   commitDrawnItem,
   editPenPointList,
   resizeShape,
-  resizeShapeInWorld,
   translateItem,
   worldDelta,
 } from '../../../../core/index.js'
+
 import type { CanvasGesture, PendingClickSelection } from './gesture-types.js'
 import { updatePenDraftOnMove } from './use-pen-draft.js'
 
@@ -68,30 +68,20 @@ export function applyGestureMouseMove(
   } else if (gesture.type === 'resize-shape') {
     const item = controller.items.find((i) => i.id === gesture.shapeId)
     if (item && item.type === 'shape') {
-      if (gesture.initialFrom && gesture.initialTo) {
-        const next = resizeShapeInWorld(
-          gesture.initialFrom,
-          gesture.initialTo,
-          geo,
-          gesture.handle,
-          shiftKey,
-        )
-        controller.update(gesture.shapeId, next as Partial<Item>, false)
-      } else if (gesture.initialAt) {
-        const next = resizeShape(
-          map,
-          item,
-          gesture.initialAt,
-          gesture.initialWidth ?? 96,
-          gesture.initialHeight ?? 96,
-          pt,
-          gesture.handle,
-          shiftKey,
-        )
-        controller.update(gesture.shapeId, next, false)
-      }
+      const next = resizeShape(
+        map,
+        item,
+        gesture.initialAt,
+        gesture.initialWidth,
+        gesture.initialHeight,
+        pt,
+        gesture.handle,
+        shiftKey,
+      )
+      controller.update(gesture.shapeId, next, false)
     }
   } else if (gesture.type === 'resize-arrow') {
+
     controller.update(
       gesture.arrowId,
       gesture.handle === 'start' ? { from: geo } : gesture.handle === 'end' ? { to: geo } : { via: geo },
@@ -121,14 +111,10 @@ export function commitGestureMouseUp(
   } else if (gesture.type === 'resize-shape') {
     const item = controller.items.find((i) => i.id === gesture.shapeId)
     if (item && item.type === 'shape') {
-      const legacy = item as unknown as { from?: GeoPoint; to?: GeoPoint }
-      if (legacy.from && legacy.to) {
-        controller.update(item.id, { from: legacy.from, to: legacy.to } as Partial<Item>, true)
-      } else {
-        controller.update(item.id, { at: item.at, width: item.width, height: item.height }, true)
-      }
+      controller.update(item.id, { at: item.at, width: item.width, height: item.height }, true)
     }
     map.dragging?.enable()
+
   } else if (gesture.type === 'resize-arrow') {
     controller.update(gesture.arrowId, {}, true)
     map.dragging?.enable()

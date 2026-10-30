@@ -1,4 +1,10 @@
-import type { InputHTMLAttributes } from 'react'
+import type { InputHTMLAttributes, ReactNode } from 'react'
+
+export interface PropertyRowProps {
+  label: ReactNode
+  controlClassName?: string
+  children: ReactNode
+}
 
 export interface NumberFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
   value: number
@@ -14,4 +20,5 @@ export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElemen
   value: string
   onChange: (value: string) => void
 }
+
 

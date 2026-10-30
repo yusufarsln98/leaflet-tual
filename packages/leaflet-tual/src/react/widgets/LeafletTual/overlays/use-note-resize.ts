@@ -5,7 +5,6 @@ import type { Controller, NoteItem } from '../../../../core/index.js'
 import { screenToGeo } from '../../../../core/index.js'
 
 export type NoteResizeHandle = 'nw' | 'ne' | 'se' | 'sw' | 'n' | 's' | 'e' | 'w'
-export type Corner = NoteResizeHandle
 
 export interface NoteBounds {
   minX: number
@@ -34,35 +33,18 @@ export function startNoteResize(
   const minScreenH = 40 * scale
 
   const getResizePatch = (cur: { x: number; y: number }) => {
-    let left = bounds.minX
-    let right = bounds.maxX
-    let top = bounds.minY
-    let bottom = bounds.maxY
-
-    if (handle === 'nw' || handle === 'w' || handle === 'sw') {
-      left = Math.min(cur.x, bounds.maxX - minScreenW)
-    }
-    if (handle === 'ne' || handle === 'e' || handle === 'se') {
-      right = Math.max(cur.x, bounds.minX + minScreenW)
-    }
-    if (handle === 'nw' || handle === 'n' || handle === 'ne') {
-      top = Math.min(cur.y, bounds.maxY - minScreenH)
-    }
-    if (handle === 'sw' || handle === 's' || handle === 'se') {
-      bottom = Math.max(cur.y, bounds.minY + minScreenH)
-    }
-
-    const newCenterX = (left + right) / 2
-    const newCenterY = (top + bottom) / 2
-    const newBaseWidth = Math.max(40, Math.round((right - left) / scale))
-    const newBaseHeight = Math.max(40, Math.round((bottom - top) / scale))
+    const left = handle.includes('w') ? Math.min(cur.x, bounds.maxX - minScreenW) : bounds.minX
+    const right = handle.includes('e') ? Math.max(cur.x, bounds.minX + minScreenW) : bounds.maxX
+    const top = handle.includes('n') ? Math.min(cur.y, bounds.maxY - minScreenH) : bounds.minY
+    const bottom = handle.includes('s') ? Math.max(cur.y, bounds.minY + minScreenH) : bounds.maxY
 
     return {
-      at: screenToGeo(map, { x: newCenterX, y: newCenterY }),
-      width: newBaseWidth,
-      height: newBaseHeight,
+      at: screenToGeo(map, { x: (left + right) / 2, y: (top + bottom) / 2 }),
+      width: Math.max(40, Math.round((right - left) / scale)),
+      height: Math.max(40, Math.round((bottom - top) / scale)),
     }
   }
+
 
   const onPointerMove = (ev: PointerEvent) =>
     controller.update(

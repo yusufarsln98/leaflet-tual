@@ -13,15 +13,17 @@ When the **leaflet-tual** library API surface changes — e.g. a prop is added/r
 
 Before updating any API surface, verify that changes comply with the library's design principles:
 
-1. **Geographic Coordinate Decoupling**: All persistent `CanvasItem` elements (`ArrowItem`, `FreeDrawItem`, `ShapeItem`, `NoteItem`, `TextItem`) store geographic coordinates (`GeoPoint`: `{ lat, lng }`), NOT screen pixels. Projection to screen coordinates (`geoToScreen` / `screenToGeo`) occurs dynamically at render and interaction time using Leaflet map projection APIs.
-2. **Decoupled Controller State**: `useLeafletTual` manages drawing mode, selection, item creation/update/deletion, and undo/redo history stacks. It operates in either controlled mode (`items` + `onItemsChange`) or uncontrolled mode (`initialItems`).
-3. **Pure Function Decomposition**: Coordinate transformations (`shared/geo.ts`), hit-testing (`hitTestArrow`, `hitTestShape`, `hitTestFreeDraw`), and canvas rendering (`renderArrowOnCanvas`, `renderShapeOnCanvas`, `renderFreeDrawOnCanvas`) are pure, deterministic functions decoupled from React component lifecycles and Leaflet DOM operations.
-4. **FSD Module Layering**: The package source strictly follows Feature-Sliced Design layers:
-   - `shared`: Geo math, constants, generic utility helpers.
-   - `entities`: Domain models and renderers for items (`arrow`, `shape`, `freedraw`, `note`, `text`).
-   - `features`: Interaction hooks (`use-leaflet-tual`, `use-leaflet-sync`).
-   - `widgets`: Composite UI components (`LeafletTual`, `CanvasToolbar`).
-   - `types`: Public TypeScript interfaces and type definitions.
+1. **Geographic Coordinate Decoupling**: All persistent `Item` elements (`ArrowItem`, `FreedrawItem`, `PenItem`, `ShapeItem`, `RulerItem`, `NoteItem`, `TextItem`) store geographic coordinates (`GeoPoint`: `{ lat, lng }`), NOT screen pixels. Projection to screen coordinates (`geoToScreen` / `screenToGeo`) occurs dynamically at render and interaction time using Leaflet map projection APIs.
+2. **Decoupled Controller State**: `createController` / `useLeafletTual` / `createLeafletTual` manages drawing mode, selection, item creation/update/deletion, pages, and undo/redo history stacks. It operates in either controlled mode (`value` + `onChange`) or uncontrolled mode (`defaultValue`).
+3. **Pure Function Decomposition**: Coordinate transformations (`src/core/shared/geometry/`), hit-testing (`hitTest`), and canvas rendering (`renderArrowOnCanvas`, `renderShapeOnCanvas`, `renderFreedrawOnCanvas`, `renderPenOnCanvas`, `renderRulerOnCanvas`) are pure, deterministic functions decoupled from React component lifecycles and Leaflet DOM operations.
+4. **Module Layering**: The package source separates framework-agnostic core (`src/core/`) and React bindings (`src/react/`):
+   - `src/core/types`: Public TypeScript interfaces and type definitions (`Doc`, `Page`, `Item`, `Style`, `Controller`).
+   - `src/core/shared`: Geo math, palette, doc validation (`emptyDoc`, `parseDoc`), i18n tokens, drawing helpers.
+   - `src/core/entities`: Domain models and canvas renderers for items (`arrow`, `shape`, `freedraw`, `pen`, `ruler`, `item`).
+   - `src/core/features`: Core controller state machine (`controller`) and vanilla JS factory (`vanilla`).
+   - `src/react/ui`: Reusable React UI primitives (`button`, `color-picker`, `divider`, `dropdown`, `icons`, `input`, `popover`, `resize-handles`, `segmented-control`, `select`).
+   - `src/react/features`: React hooks (`use-leaflet-tual`, `use-leaflet-sync`, `use-controller-state`, `i18n`).
+   - `src/react/widgets`: Composite UI widgets (`LeafletTual`, `Toolbar`, `SecondaryTooltip`, `Sidebar`).
 
 ---
 
@@ -31,22 +33,25 @@ Whenever an export is added, removed, or renamed:
 
 ### Files to Update
 
-- **Main entry:** `packages/leaflet-tual/src/index.ts`
+- **Core entry:** `packages/leaflet-tual/src/index.ts` and `packages/leaflet-tual/src/core/index.ts`
+- **React entry:** `packages/leaflet-tual/src/react.ts` and `packages/leaflet-tual/src/react/index.ts`
 - **Sub-barrel entries:**
-  - `packages/leaflet-tual/src/types/index.ts`
-  - `packages/leaflet-tual/src/shared/index.ts`
-  - `packages/leaflet-tual/src/entities/index.ts`
-  - `packages/leaflet-tual/src/features/index.ts`
-  - `packages/leaflet-tual/src/widgets/index.ts`
+  - `packages/leaflet-tual/src/core/types/index.ts`
+  - `packages/leaflet-tual/src/core/shared/index.ts`
+  - `packages/leaflet-tual/src/core/entities/index.ts`
+  - `packages/leaflet-tual/src/core/features/index.ts`
+  - `packages/leaflet-tual/src/react/ui/index.ts`
+  - `packages/leaflet-tual/src/react/features/index.ts`
+  - `packages/leaflet-tual/src/react/widgets/index.ts`
 
 ### Mandatory Contract Tests
 
-**File:** `packages/leaflet-tual/src/__tests__/index.test.ts`
+**File:** `packages/leaflet-tual/src/react/__tests__/index.test.ts`
 
-This test suite validates core exports, utility math functions, toolbar interaction harness, aspect-ratio locking, angle snapping, and toolbar labels. **You MUST update and run this test** whenever public types, toolbar buttons, geometry utilities, or exports change:
+This test suite validates core and React exports, UI primitives, geometry utilities, and i18n helpers. **You MUST update and run this test** whenever public types, components, geometry utilities, or exports change:
 
 ```bash
-npm test -- src/__tests__/index.test.ts
+npm test
 ```
 
 ---
@@ -55,18 +60,19 @@ npm test -- src/__tests__/index.test.ts
 
 The library is organized into single-responsibility modules:
 
-| Subsystem              | Source Location                                                  | Tests Location                | Responsibility                                                                    |
-| :--------------------- | :--------------------------------------------------------------- | :---------------------------- | :-------------------------------------------------------------------------------- |
-| **Arrow Rendering**    | `packages/leaflet-tual/src/entities/arrow/render-arrow.ts`| `annotation-rendering.test.ts`| Linear, curved, bi-directional, elbow, and s-curve arrow paths & hit-tests        |
-| **Shape Rendering**    | `packages/leaflet-tual/src/entities/shape/render-shape.ts`| `annotation-rendering.test.ts`| Star, square, circle, actor, triangle, diamond, hexagon, and marker paths        |
-| **FreeDraw Rendering** | `packages/leaflet-tual/src/entities/freedraw/render-freedraw.ts` | `lifecycle-callbacks.test.tsx`| Freehand drawing paths, hit-testing, and bounding boxes                          |
-| **Note Overlay**       | `packages/leaflet-tual/src/entities/note/NoteOverlay.tsx`| `note-overlay.test.tsx`       | Interactive draggable sticky notes with color themes and auto-resize textareas    |
-| **Text Overlay**       | `packages/leaflet-tual/src/entities/text/TextOverlay.tsx`| `text-overlay.test.tsx`       | Floating canvas text annotations with inline editing and font styling             |
-| **Canvas Controller**  | `packages/leaflet-tual/src/features/use-leaflet-tual.ts`| `readonly.test.tsx`, `lifecycle-callbacks.test.tsx` | Controller state machine, history undo/redo stacks, active tool & selection state |
-| **Leaflet Sync**       | `packages/leaflet-tual/src/features/use-leaflet-sync.ts` | `map-interactions.test.ts`    | Leaflet map event bindings (`move`, `zoom`, `resize`, `viewreset`)                |
-| **LeafletTual**      | `packages/leaflet-tual/src/widgets/LeafletTual.tsx`    | `lifecycle-callbacks.test.tsx`, `map-interactions.test.ts` | Main canvas overlay component, mouse/touch event router, drag handles & portals |
-| **CanvasToolbar**      | `packages/leaflet-tual/src/widgets/CanvasToolbar.tsx`    | `toolbar.test.tsx`            | Floating/docked toolbar with tool groups, secondary settings bar, and dropdowns   |
-| **Geo Math**           | `packages/leaflet-tual/src/shared/geo.ts`                | `geo.test.ts`                 | Pure coordinate transformations, aspect-ratio locking, angle snapping, distances |
+| Subsystem              | Source Location                                                              | Tests Location                     | Responsibility                                                                    |
+| :--------------------- | :--------------------------------------------------------------------------- | :--------------------------------- | :-------------------------------------------------------------------------------- |
+| **Arrow Rendering**    | `packages/leaflet-tual/src/core/entities/arrow/render-arrow.ts`              | `annotation-rendering.test.ts`     | Linear, curved, elbow, and s-curve arrow paths & arrowheads                       |
+| **Shape Rendering**    | `packages/leaflet-tual/src/core/entities/shape/render-shape.ts`              | `annotation-rendering.test.ts`     | Star, square, circle, actor, triangle, diamond, hexagon, and marker paths        |
+| **Freedraw Rendering** | `packages/leaflet-tual/src/core/entities/freedraw/render-freedraw.ts`        | `lifecycle-callbacks.test.tsx`     | Freehand drawing paths and hit-testing                                            |
+| **Pen Rendering**      | `packages/leaflet-tual/src/core/entities/pen/render-pen.ts`                  | `pen-tool.test.tsx`                | Cubic Bezier paths, anchor handles, and hit-testing                               |
+| **Ruler Rendering**    | `packages/leaflet-tual/src/core/entities/ruler/render-ruler.ts`              | `annotation-rendering.test.ts`     | Geodesic measurement lines and distance pill labels                               |
+| **Core Controller**    | `packages/leaflet-tual/src/core/features/controller/create-controller.ts`    | `controller-actions.test.ts`       | Controller state machine, pages, history undo/redo stacks, tool & selection state |
+| **LeafletTual**        | `packages/leaflet-tual/src/react/widgets/LeafletTual/LeafletTual.tsx`        | `shape-drawing-gestures.test.tsx`  | Main canvas overlay component, mouse/touch event router, inline editors           |
+| **Toolbar**            | `packages/leaflet-tual/src/react/widgets/Toolbar/Toolbar.tsx`                | `toolbar.test.tsx`                 | Floating toolbar with tool groups, page switcher, and variant popovers            |
+| **SecondaryTooltip**   | `packages/leaflet-tual/src/react/widgets/SecondaryTooltip/SecondaryTooltip.tsx` | `secondary-tooltip.test.tsx`    | Contextual floating property bar above selected items                             |
+| **Sidebar**            | `packages/leaflet-tual/src/react/widgets/Sidebar/Sidebar.tsx`                | `sidebar.test.tsx`                 | Properties inspector and layer tree sidebar                                       |
+| **Geo Math**           | `packages/leaflet-tual/src/core/shared/geometry/`                            | `geo.test.ts`                      | Pure coordinate transformations, aspect-ratio locking, angle snapping, distances |
 
 ---
 
@@ -75,17 +81,17 @@ The library is organized into single-responsibility modules:
 **File:** `packages/leaflet-tual/README.md` and root `README.md`
 
 Update documentation to reflect any changes:
-- Component prop tables (`<LeafletTual>`, `<CanvasToolbar>`)
-- Hook options and return interfaces (`useLeafletTual`, `useLeafletSync`)
-- Data model types (`CanvasItem`, `ArrowItem`, `ShapeItem`, `NoteItem`, `TextItem`, `GeoPoint`)
-- Toolbar customization (`CanvasLabels`, `CanvasIcons`, `LeafletTualClassNames`, `LeafletTualStyles`)
+- Component prop tables (`<LeafletTual>`, `<Toolbar>`)
+- Hook and controller options and return interfaces (`useLeafletTual`, `createLeafletTual`)
+- Data model types (`Doc`, `Page`, `Item`, `ArrowItem`, `ShapeItem`, `FreedrawItem`, `PenItem`, `RulerItem`, `NoteItem`, `TextItem`, `GeoPoint`)
+- Toolbar configuration (`ToolbarOptions`, `ToolbarAction`) and internationalization (`TranslationTokens`, `setDefaultTranslations`)
 - Quick Start and code examples
 
 ---
 
 ## 5. AI Context Standards (SKILL.md & llms.txt)
 
-Documentation is maintained solely via singleton AI standards:
+Documentation is maintained via singleton AI standards:
 - **SKILL.md:** `.agents/skills/leaflet-tual/SKILL.md` (mirrored to `apps/homepage/public/SKILL.md`)
 - **llms.txt:** `apps/homepage/public/llms.txt`
 
@@ -129,9 +135,9 @@ npm run build:homepage
 
 When changing any API, verify each item:
 
-- [ ] **Implementation**: Added/updated in modular source file (e.g. `src/entities/`, `src/features/`, or `src/widgets/`)
-- [ ] **Re-export**: Re-exported through slice barrel (`index.ts`) and root entrypoint (`src/index.ts`)
-- [ ] **Contract Test**: `packages/leaflet-tual/src/__tests__/index.test.ts` updated and passing
+- [ ] **Implementation**: Added/updated in modular source file (`src/core/` or `src/react/`)
+- [ ] **Re-export**: Re-exported through slice barrel (`index.ts`) and root entrypoint (`src/index.ts` / `src/react.ts`)
+- [ ] **Contract Test**: `packages/leaflet-tual/src/react/__tests__/index.test.ts` updated and passing
 - [ ] **Canonical README**: `packages/leaflet-tual/README.md` and root `README.md` updated
 - [ ] **AI SKILL.md**: `.agents/skills/leaflet-tual/SKILL.md` updated and mirrored to `apps/homepage/public/SKILL.md`
 - [ ] **AI llms.txt**: `apps/homepage/public/llms.txt` updated

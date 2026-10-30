@@ -1,6 +1,6 @@
 import type L from 'leaflet'
 import type { ArrowItem, GeoPoint, RulerItem, ScreenPoint, ShapeItem } from '../../types/index.js'
-import { defaultVia, fromWorld, geoToScreen, screenToGeo, toWorld } from '../../shared/geometry/coordinates.js'
+import { defaultVia, geoToScreen, screenToGeo } from '../../shared/geometry/coordinates.js'
 import { getItemZoomScale } from '../../shared/geometry/zoom.js'
 
 export type ShapeHandleType = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w'
@@ -24,42 +24,16 @@ const HANDLE_CURSORS: Record<ShapeHandleType, string> = {
 }
 
 export function getShapeScreenHandles(map: L.Map, shape: ShapeItem): ShapeHandle[] {
-  let minX: number
-  let maxX: number
-  let minY: number
-  let maxY: number
-  let cx: number
-  let cy: number
-
-  if (shape.at) {
-    const center = geoToScreen(map, shape.at)
-    const scale = getItemZoomScale(map, shape)
-
-    const halfW = (shape.width * scale) / 2
-    const halfH = (shape.height * scale) / 2
-
-    minX = center.x - halfW
-    maxX = center.x + halfW
-    minY = center.y - halfH
-    maxY = center.y + halfH
-    cx = center.x
-    cy = center.y
-  } else {
-    const legacy = shape as unknown as { from?: GeoPoint; to?: GeoPoint }
-    if (legacy.from && legacy.to) {
-      const p1 = geoToScreen(map, legacy.from)
-      const p2 = geoToScreen(map, legacy.to)
-
-      minX = Math.min(p1.x, p2.x)
-      maxX = Math.max(p1.x, p2.x)
-      minY = Math.min(p1.y, p2.y)
-      maxY = Math.max(p1.y, p2.y)
-      cx = (minX + maxX) / 2
-      cy = (minY + maxY) / 2
-    } else {
-      return []
-    }
-  }
+  const center = geoToScreen(map, shape.at)
+  const scale = getItemZoomScale(map, shape)
+  const halfW = (shape.width * scale) / 2
+  const halfH = (shape.height * scale) / 2
+  const minX = center.x - halfW
+  const maxX = center.x + halfW
+  const minY = center.y - halfH
+  const maxY = center.y + halfH
+  const cx = center.x
+  const cy = center.y
 
   return [
     { type: 'nw', x: minX, y: minY, cursor: HANDLE_CURSORS.nw },
@@ -79,13 +53,10 @@ export function hitTestShapeHandle(
   pt: ScreenPoint,
   radius = 8,
 ): ShapeHandle | null {
-  const handles = getShapeScreenHandles(map, shape)
-  for (const h of handles) {
-    if (Math.hypot(pt.x - h.x, pt.y - h.y) <= radius) {
-      return h
-    }
-  }
-  return null
+  return (
+    getShapeScreenHandles(map, shape).find((h) => Math.hypot(pt.x - h.x, pt.y - h.y) <= radius) ??
+    null
+  )
 }
 
 export function hitTestArrowHandle(
@@ -99,8 +70,7 @@ export function hitTestArrowHandle(
   const endPt = geoToScreen(map, arrow.to)
   if (Math.hypot(pt.x - endPt.x, pt.y - endPt.y) <= radius) return 'end'
   if (arrow.kind === 'curved') {
-    const via = arrow.via ?? defaultVia(arrow.from, arrow.to)
-    const viaPt = geoToScreen(map, via)
+    const viaPt = geoToScreen(map, arrow.via ?? defaultVia(arrow.from, arrow.to))
     if (Math.hypot(pt.x - viaPt.x, pt.y - viaPt.y) <= radius) return 'via'
   }
   return null
@@ -117,82 +87,6 @@ export function hitTestRulerHandle(
   const endPt = geoToScreen(map, ruler.to)
   if (Math.hypot(pt.x - endPt.x, pt.y - endPt.y) <= radius) return 'end'
   return null
-}
-
-export function resizeShapeInWorld(
-  initialFrom: GeoPoint,
-  initialTo: GeoPoint,
-  currentGeo: GeoPoint,
-  handle: ShapeHandleType,
-  lockAspect = false,
-): { from: GeoPoint; to: GeoPoint } {
-  const w1 = toWorld(initialFrom)
-  const w2 = toWorld(initialTo)
-  let wMinX = Math.min(w1.x, w2.x)
-  let wMaxX = Math.max(w1.x, w2.x)
-  let wMinY = Math.min(w1.y, w2.y)
-  let wMaxY = Math.max(w1.y, w2.y)
-
-  const curWorld = toWorld(currentGeo)
-
-  switch (handle) {
-    case 'se':
-      wMaxX = curWorld.x
-      wMinY = curWorld.y
-      break
-    case 'nw':
-      wMinX = curWorld.x
-      wMaxY = curWorld.y
-      break
-    case 'ne':
-      wMaxX = curWorld.x
-      wMaxY = curWorld.y
-      break
-    case 'sw':
-      wMinX = curWorld.x
-      wMinY = curWorld.y
-      break
-    case 'n':
-      wMaxY = curWorld.y
-      break
-    case 's':
-      wMinY = curWorld.y
-      break
-    case 'w':
-      wMinX = curWorld.x
-      break
-    case 'e':
-      wMaxX = curWorld.x
-      break
-  }
-
-  if (lockAspect) {
-    const cx = (wMinX + wMaxX) / 2
-    const cy = (wMinY + wMaxY) / 2
-    const size = Math.max(Math.abs(wMaxX - wMinX), Math.abs(wMaxY - wMinY))
-    const east = handle === 'e' || handle === 'ne' || handle === 'se'
-    const west = handle === 'w' || handle === 'nw' || handle === 'sw'
-    const north = handle === 'n' || handle === 'ne' || handle === 'nw'
-    const south = handle === 's' || handle === 'se' || handle === 'sw'
-
-    if (east) wMaxX = wMinX + size
-    if (west) wMinX = wMaxX - size
-    if (north) wMaxY = wMinY + size
-    if (south) wMinY = wMaxY - size
-
-    if (handle === 'e' || handle === 'w') {
-      wMinY = cy - size / 2
-      wMaxY = cy + size / 2
-    } else if (handle === 'n' || handle === 's') {
-      wMinX = cx - size / 2
-      wMaxX = cx + size / 2
-    }
-  }
-
-  return {
-    from: fromWorld({ x: wMinX, y: wMinY }),
-    to: fromWorld({ x: wMaxX, y: wMaxY }),
-  }
 }
 
 export function resizeShape(
@@ -215,36 +109,10 @@ export function resizeShape(
   let minY = center.y - h / 2
   let maxY = center.y + h / 2
 
-  switch (handle) {
-    case 'se':
-      maxX = currentPt.x
-      maxY = currentPt.y
-      break
-    case 'nw':
-      minX = currentPt.x
-      minY = currentPt.y
-      break
-    case 'ne':
-      maxX = currentPt.x
-      minY = currentPt.y
-      break
-    case 'sw':
-      minX = currentPt.x
-      maxY = currentPt.y
-      break
-    case 'n':
-      minY = currentPt.y
-      break
-    case 's':
-      maxY = currentPt.y
-      break
-    case 'w':
-      minX = currentPt.x
-      break
-    case 'e':
-      maxX = currentPt.x
-      break
-  }
+  if (handle.includes('e')) maxX = currentPt.x
+  if (handle.includes('w')) minX = currentPt.x
+  if (handle.includes('n')) minY = currentPt.y
+  if (handle.includes('s')) maxY = currentPt.y
 
   let finalW = Math.max(10, Math.abs(maxX - minX))
   let finalH = Math.max(10, Math.abs(maxY - minY))
@@ -255,13 +123,11 @@ export function resizeShape(
     finalH = size
   }
 
-  const cx = (minX + maxX) / 2
-  const cy = (minY + maxY) / 2
-
   return {
-    at: screenToGeo(map, { x: cx, y: cy }),
+    at: screenToGeo(map, { x: (minX + maxX) / 2, y: (minY + maxY) / 2 }),
     width: Math.round(finalW / scale),
     height: Math.round(finalH / scale),
   }
 }
+
 

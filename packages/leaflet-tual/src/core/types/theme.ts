@@ -11,8 +11,6 @@ export interface Scheme {
   activeBg: string
   activeFg: string
   shadow: string
-  artboardFill: string
-  artboardBorder: string
   handle: string
 }
 
@@ -28,4 +26,4 @@ export interface Tokens {
   >
 }
 
-export type Part = 'toolbar' | 'popover' | 'note' | 'text' | 'artboard' | 'handle'
+export type Part = 'toolbar' | 'popover' | 'note' | 'text' | 'handle'

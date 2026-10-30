@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import type { InternalController } from '../../../core/index.js'
+import { useControllerState } from '../../features/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
 import { IconButton, ICONS, useWheelGuard } from '../../ui/index.js'
 import { SidebarLayerTree } from './SidebarLayerTree.js'
@@ -10,7 +11,6 @@ import type { SidebarProps } from './types.js'
 
 export function Sidebar({ controller, map, onClose, className }: SidebarProps) {
   const { t } = useTranslation(controller)
-  const [, setTick] = useState(0)
   const guardRef = useWheelGuard<HTMLElement>()
 
   useEffect(() => {
@@ -19,11 +19,8 @@ export function Sidebar({ controller, map, onClose, className }: SidebarProps) {
     }
   }, [controller, map])
 
-  useEffect(() => {
-    return controller.on('state', () => {
-      setTick((n) => n + 1)
-    })
-  }, [controller])
+  useControllerState(controller)
+
 
   return (
     <aside

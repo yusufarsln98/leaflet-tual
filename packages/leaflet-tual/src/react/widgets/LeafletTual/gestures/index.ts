@@ -11,7 +11,6 @@ export {
   hitTestRulerHandle,
   hitTestShapeHandle,
   resizeShape,
-  resizeShapeInWorld,
   type ShapeHandle,
   type ShapeHandleType,
 } from '../../../../core/index.js'

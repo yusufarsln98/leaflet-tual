@@ -1,6 +1,6 @@
 # leaflet-tual
 
-> Opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, artboards, pages) for Leaflet maps.
+> Opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, pages) for Leaflet maps.
 
 Draw on a map the way you draw on a design canvas. Everything you place is stored as geographic coordinates (`GeoPoint`: `{ lat, lng }`), keeping annotations attached to the ground while the map pans and zooms.
 
@@ -62,7 +62,6 @@ export function MapView() {
 10. **Modifiers are built in.** `Shift` locks aspect (1:1) and snaps angles to 45°. `Alt` resizes from the center.
 11. **Validate untrusted JSON** with `parseDoc(input)` before `load`.
 12. **Map context.** Inside `<MapContainer>`, `<LeafletTual>` finds the map itself. Outside it, pass `map={mapInstance}`.
-13. **Items inside an artboard move with it.**
 
 ---
 
@@ -127,8 +126,9 @@ export interface ShapeItem {
   id: string
   type: 'shape'
   kind: ShapeKind
-  from: GeoPoint
-  to: GeoPoint
+  at: GeoPoint
+  width: number
+  height: number
   label?: string
   labelPosition?: LabelPosition   // default 'center'
   style?: Style
@@ -173,9 +173,10 @@ export interface NoteItem {
   id: string
   type: 'note'
   at: GeoPoint
+  width?: number
+  height?: number
   title?: string
   text: string
-  collapsed?: boolean
   style?: Style
   createdAt: number
 }
@@ -189,19 +190,9 @@ export interface TextItem {
   createdAt: number
 }
 
-export interface ArtboardItem {
-  id: string
-  type: 'artboard'
-  from: GeoPoint
-  to: GeoPoint
-  title: string
-  style?: Style
-  createdAt: number
-}
-
 export type Item =
   | ArrowItem | ShapeItem | FreedrawItem | PenItem | RulerItem
-  | NoteItem | TextItem | ArtboardItem
+  | NoteItem | TextItem
 ```
 
 ---
@@ -265,7 +256,7 @@ const tual = useLeafletTual({
 - `select(ids)`
 - `edit(id)`
 - `undo()` / `redo()`
-- `fit(target)` ('all', 'selection', artboardId)
+- `fit(target)` ('all', 'selection')
 - `load(doc)`
 - `setReadOnly(boolean)`
 - `setTranslations(patch)`

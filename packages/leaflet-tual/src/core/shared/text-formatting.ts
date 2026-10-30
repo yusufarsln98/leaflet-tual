@@ -78,3 +78,30 @@ export function resolveTypographyLabel(
   return t ? t('body', undefined, 'Body') : 'Body'
 }
 
+export function formatBulletInput(val: string, forceBullets = false): string {
+  const formatted = val.replace(/(^|\n)([-*])\s/g, '$1• ')
+  if (forceBullets && formatted && !formatted.startsWith('• ')) {
+    return `• ${formatted}`
+  }
+  return formatted
+}
+
+export function getStyleShortcutPatch(
+  key: string,
+  style: Style = {},
+): Partial<Style> | null {
+  const lower = key.toLowerCase()
+  if (lower === 'b') {
+    return { weight: isItemBold(style) ? 'regular' : 'bold' }
+  }
+  if (lower === 'i') {
+    return { fontStyle: isItemItalic(style) ? 'normal' : 'italic' }
+  }
+  if (lower === 'u') {
+    const next = !isItemUnderline(style)
+    return { underline: next, textDecoration: next ? 'underline' : 'none' }
+  }
+  return null
+}
+
+

@@ -18,7 +18,6 @@ export function findResizeGestureUnderPointer(
     if (item.type === 'shape') {
       const hitHandle = hitTestShapeHandle(map, item, pt, 8)
       if (hitHandle) {
-        const legacy = item as unknown as { from?: GeoPoint; to?: GeoPoint }
         return {
           type: 'resize-shape',
           shapeId: item.id,
@@ -26,13 +25,12 @@ export function findResizeGestureUnderPointer(
           initialAt: item.at,
           initialWidth: item.width,
           initialHeight: item.height,
-          initialFrom: legacy.from,
-          initialTo: legacy.to,
           startPt: pt,
           startGeo: geo,
         }
       }
     } else if (item.type === 'arrow') {
+
       const hitHandle = hitTestArrowHandle(map, item, pt, 8)
       if (hitHandle) {
         return { type: 'resize-arrow', arrowId: item.id, handle: hitHandle, startGeo: geo }

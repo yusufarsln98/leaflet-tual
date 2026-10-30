@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import L from 'leaflet'
 import type { Controller, Item, ShapeItem, Style } from '../../../core/index.js'
 import {
@@ -9,6 +9,7 @@ import {
   resolveItemStyle,
   resolveTypographyLabel,
 } from '../../../core/index.js'
+import { useControllerState } from '../../features/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
 import { PillButton } from '../../ui/index.js'
 import { useTooltipEvents } from './utils/index.js'
@@ -36,13 +37,10 @@ export function SecondaryTooltip({
 }: SecondaryTooltipProps) {
   const { t } = useTranslation(controller)
   const [activePopover, setActivePopover] = useState<string | null>(null)
-  const [, setTick] = useState(0)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const selectedItem = controller.selected[0] as Item | undefined
 
-  useEffect(() => {
-    return controller.on('state', () => setTick((t) => t + 1))
-  }, [controller])
+  useControllerState(controller)
 
   useTooltipEvents({
     tooltipRef,
@@ -71,20 +69,13 @@ export function SecondaryTooltip({
   const isNote = selectedItem.type === 'note'
   const isTextOrNote = isNote || selectedItem.type === 'text'
   const resolvedStyle =
-    selectedItem.type === 'shape' || selectedItem.type === 'note'
-      ? resolveItemStyle(selectedItem, scheme)
-      : undefined
+    isShape || isNote ? resolveItemStyle(selectedItem, scheme) : undefined
   const colorHex =
     resolvedStyle?.strokeColor ??
     resolveColor(style.color ?? (isShape || isArrow ? 'blue' : 'ink'), 'light')
   const hasTypography = isTextOrNote || isShape || isArrow
-  const hasBorder =
-    isShape ||
-    isNote ||
-    selectedItem.type === 'arrow' ||
-    selectedItem.type === 'ruler' ||
-    selectedItem.type === 'freedraw' ||
-    selectedItem.type === 'pen'
+  const hasBorder = selectedItem.type !== 'text'
+
 
   const currentText =
     selectedItem.type === 'note' || selectedItem.type === 'text'

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { ColorName } from '../../../../core/index.js'
-import { resolveColor } from '../../../../core/index.js'
+import { resolveColor, resolveWidth } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import {
   ColorSwatchList,
@@ -12,6 +12,7 @@ import {
   Select,
   useWheelGuard,
 } from '../../../ui/index.js'
+
 
 export interface BorderPopoverProps {
   currentDash?: 'solid' | 'dashed' | 'dotted' | 'none'
@@ -84,14 +85,8 @@ export function BorderPopover({
   const activeStroke = currentStrokeColor ?? currentColor ?? 'blue'
   const strokeHex = resolveColor(activeStroke, scheme)
   const radiusVisible = showRadius ?? isSquareShape !== false
-  const numWidth =
-    typeof currentWidth === 'number'
-      ? currentWidth
-      : currentWidth === 's'
-        ? 1
-        : currentWidth === 'l'
-          ? 4
-          : 2
+  const numWidth = resolveWidth(currentWidth)
+
 
   return (
     <div

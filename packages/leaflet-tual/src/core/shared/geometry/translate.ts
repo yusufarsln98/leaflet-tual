@@ -31,25 +31,10 @@ export function translateItem(item: Item, delta: WorldPoint): Partial<Item> {
     return { from: translate(item.from), to: translate(item.to) }
   }
 
-  if (item.type === 'shape') {
-    if (item.at) return { at: translate(item.at) }
-    const legacy = item as unknown as { from?: GeoPoint; to?: GeoPoint }
-    if (legacy.from && legacy.to) {
-      return { from: translate(legacy.from), to: translate(legacy.to) } as Partial<Item>
-    }
-  }
-
-  if (item.type === 'note') {
-    if (item.at) return { at: translate(item.at) }
-    const legacy = item as unknown as { from?: GeoPoint; to?: GeoPoint }
-    if (legacy.from && legacy.to) {
-      return { from: translate(legacy.from), to: translate(legacy.to) } as Partial<Item>
-    }
-  }
-
   if (item.type === 'freedraw') {
     return { points: item.points.map(translate) }
   }
+
 
   if (item.type === 'pen') {
     return {

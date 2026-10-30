@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { DrawKind, ToolId } from '../../../core/index.js'
+import { useControllerState } from '../../features/index.js'
 import type { ToolbarProps } from '../../types/index.js'
-import { Button, Divider } from '../../ui/index.js'
+import { Button, Divider, useOutsideDismiss } from '../../ui/index.js'
 import { PageSwitcher, ToolbarDrawGroup, ToolbarItemButton } from './controls/index.js'
 
 const ALL_TOOLS: ToolId[] = ['select', 'text', 'note', 'freedraw', 'pen', 'arrow', 'shape', 'ruler']
@@ -19,13 +20,7 @@ export function Toolbar({
   pages = true,
   actions,
 }: ToolbarProps) {
-  const [, setTick] = useState(0)
-
-  useEffect(() => {
-    return controller.on('state', () => {
-      setTick((n) => n + 1)
-    })
-  }, [controller])
+  useControllerState(controller)
 
   const [activePopover, setActivePopover] = useState<'pages' | 'draw' | ToolId | null>(null)
   const toolbarRef = useRef<HTMLDivElement>(null)
@@ -39,21 +34,9 @@ export function Toolbar({
     (t) => tools.includes(t) && (!variants?.draw || variants.draw.includes(t)),
   )
 
-  const closePopover = () => setActivePopover(null)
+  const closePopover = useCallback(() => setActivePopover(null), [])
+  useOutsideDismiss(toolbarRef, activePopover !== null, closePopover)
 
-  useEffect(() => {
-    const onDocClick = (e: MouseEvent | PointerEvent) => {
-      if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node)) {
-        closePopover()
-      }
-    }
-    window.addEventListener('pointerdown', onDocClick, true)
-    window.addEventListener('mousedown', onDocClick, true)
-    return () => {
-      window.removeEventListener('pointerdown', onDocClick, true)
-      window.removeEventListener('mousedown', onDocClick, true)
-    }
-  }, [])
 
   return (
     <div

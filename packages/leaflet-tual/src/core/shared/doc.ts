@@ -17,97 +17,82 @@ export function emptyDoc(): Doc {
   return {
     version: 2,
     page: pageId,
-    pages: [
-      {
-        id: pageId,
-        name: 'Page 1',
-        items: [],
-      },
-    ],
+    pages: [{ id: pageId, name: 'Page 1', items: [] }],
   }
 }
 
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null
+
+const isFiniteNumber = (v: unknown): v is number =>
+  typeof v === 'number' && Number.isFinite(v)
+
+const isNonEmptyString = (v: unknown): v is string =>
+  typeof v === 'string' && v.length > 0
+
 function isValidGeo(g: unknown): boolean {
-  if (typeof g !== 'object' || g === null) return false
-  const rec = g as Record<string, unknown>
-  return (
-    typeof rec.lat === 'number' &&
-    Number.isFinite(rec.lat) &&
-    typeof rec.lng === 'number' &&
-    Number.isFinite(rec.lng)
-  )
+  return isRecord(g) && isFiniteNumber(g.lat) && isFiniteNumber(g.lng)
 }
 
 function isValidPenPoint(point: unknown): boolean {
-  if (typeof point !== 'object' || point === null) return false
-  const p = point as Record<string, unknown>
   return (
-    isValidGeo(p.at) &&
-    (p.in === undefined || isValidGeo(p.in)) &&
-    (p.out === undefined || isValidGeo(p.out))
+    isRecord(point) &&
+    isValidGeo(point.at) &&
+    (point.in === undefined || isValidGeo(point.in)) &&
+    (point.out === undefined || isValidGeo(point.out))
   )
 }
 
-/**
- * Older documents used `type: 'pen'` for freehand strokes. Their points are
- * plain GeoPoints, while a real pen path stores `{ at, in, out }` anchors.
- */
-function migrateLegacyFreehand(item: unknown): unknown {
-  if (typeof item !== 'object' || item === null) return item
-  const it = item as Record<string, unknown>
-  if (it.type !== 'pen' || !Array.isArray(it.points)) return item
-  if (!it.points.every(isValidGeo)) return item
-
-  return { ...it, type: 'freedraw' }
-}
+const ARROW_KINDS = new Set(['linear', 'curved', 'elbow', 's-curve'])
+const SHAPE_KINDS = new Set([
+  'square',
+  'circle',
+  'star',
+  'actor',
+  'triangle',
+  'diamond',
+  'hexagon',
+  'marker',
+])
+const LABEL_POSITIONS = new Set(['top', 'center', 'bottom'])
 
 function isValidItem(item: unknown): item is Item {
-  if (typeof item !== 'object' || item === null) return false
-  const it = item as Record<string, unknown>
-  if (typeof it.id !== 'string' || !it.id) return false
-  if (typeof it.createdAt !== 'number' || !Number.isFinite(it.createdAt)) return false
+  if (!isRecord(item) || !isNonEmptyString(item.id) || !isFiniteNumber(item.createdAt)) {
+    return false
+  }
 
-  switch (it.type) {
+  switch (item.type) {
     case 'arrow':
       return (
-        typeof it.kind === 'string' &&
-        ['linear', 'curved', 'elbow', 's-curve'].includes(it.kind) &&
-        isValidGeo(it.from) &&
-        isValidGeo(it.to) &&
-        (it.via === undefined || isValidGeo(it.via))
+        typeof item.kind === 'string' &&
+        ARROW_KINDS.has(item.kind) &&
+        isValidGeo(item.from) &&
+        isValidGeo(item.to) &&
+        (item.via === undefined || isValidGeo(item.via))
       )
     case 'shape':
       return (
-        typeof it.kind === 'string' &&
-        [
-          'square',
-          'circle',
-          'star',
-          'actor',
-          'triangle',
-          'diamond',
-          'hexagon',
-          'marker',
-        ].includes(it.kind) &&
-        ((isValidGeo(it.at) && typeof it.width === 'number' && typeof it.height === 'number') ||
-          (isValidGeo(it.from) && isValidGeo(it.to))) &&
-        (it.labelPosition === undefined ||
-          (typeof it.labelPosition === 'string' && ['top', 'center', 'bottom'].includes(it.labelPosition)))
+        typeof item.kind === 'string' &&
+        SHAPE_KINDS.has(item.kind) &&
+        isValidGeo(item.at) &&
+        isFiniteNumber(item.width) &&
+        isFiniteNumber(item.height) &&
+        (item.labelPosition === undefined ||
+          (typeof item.labelPosition === 'string' && LABEL_POSITIONS.has(item.labelPosition)))
       )
     case 'freedraw':
-      return Array.isArray(it.points) && it.points.every(isValidGeo)
+      return Array.isArray(item.points) && item.points.every(isValidGeo)
     case 'pen':
       return (
-        Array.isArray(it.points) &&
-        it.points.every(isValidPenPoint) &&
-        (it.closed === undefined || typeof it.closed === 'boolean')
+        Array.isArray(item.points) &&
+        item.points.every(isValidPenPoint) &&
+        (item.closed === undefined || typeof item.closed === 'boolean')
       )
     case 'ruler':
-      return isValidGeo(it.from) && isValidGeo(it.to)
+      return isValidGeo(item.from) && isValidGeo(item.to)
     case 'note':
-      return isValidGeo(it.at) && typeof it.text === 'string'
     case 'text':
-      return isValidGeo(it.at) && typeof it.text === 'string'
+      return isValidGeo(item.at) && typeof item.text === 'string'
     default:
       return false
   }
@@ -123,54 +108,39 @@ export function parseDoc(input: unknown): Doc {
     }
   }
 
-  if (typeof docObj !== 'object' || docObj === null) {
+  if (!isRecord(docObj)) {
     throw new DocError('Doc must be a valid non-null object')
   }
-
-  const d = docObj as Record<string, unknown>
-
-  if (d.version !== 2) {
-    throw new DocError(`Invalid Doc version: expected 2, got ${d.version}`)
+  if (docObj.version !== 2) {
+    throw new DocError(`Invalid Doc version: expected 2, got ${docObj.version}`)
   }
-
-  if (typeof d.page !== 'string' || !d.page) {
+  if (!isNonEmptyString(docObj.page)) {
     throw new DocError('Doc must specify an active page string id')
   }
-
-  if (!Array.isArray(d.pages) || d.pages.length === 0) {
+  if (!Array.isArray(docObj.pages) || docObj.pages.length === 0) {
     throw new DocError('Doc must contain a non-empty pages array')
   }
 
   const pageIds = new Set<string>()
-  for (const page of d.pages) {
-    if (typeof page !== 'object' || page === null) {
-      throw new DocError('Each page must be an object')
-    }
-    if (typeof page.id !== 'string' || !page.id) {
-      throw new DocError('Each page must have a valid string id')
-    }
-    if (typeof page.name !== 'string') {
-      throw new DocError('Each page must have a name')
-    }
-    if (!Array.isArray(page.items)) {
-      throw new DocError(`Page "${page.id}" items must be an array`)
-    }
-    page.items = page.items.map(migrateLegacyFreehand)
+  for (const page of docObj.pages) {
+    if (!isRecord(page)) throw new DocError('Each page must be an object')
+    if (!isNonEmptyString(page.id)) throw new DocError('Each page must have a valid string id')
+    if (typeof page.name !== 'string') throw new DocError('Each page must have a name')
+    if (!Array.isArray(page.items)) throw new DocError(`Page "${page.id}" items must be an array`)
+
     for (const item of page.items) {
       if (!isValidItem(item)) {
-        throw new DocError(
-          `Invalid item in page "${page.id}": ${JSON.stringify(item)}`,
-        )
+        throw new DocError(`Invalid item in page "${page.id}": ${JSON.stringify(item)}`)
       }
     }
+
     pageIds.add(page.id)
   }
 
-  if (!pageIds.has(d.page)) {
-    throw new DocError(
-      `Active page id "${d.page}" does not exist in document pages`,
-    )
+  if (!pageIds.has(docObj.page)) {
+    throw new DocError(`Active page id "${docObj.page}" does not exist in document pages`)
   }
 
-  return d as unknown as Doc
+  return docObj as unknown as Doc
 }
+

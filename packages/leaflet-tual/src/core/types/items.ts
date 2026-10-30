@@ -77,8 +77,7 @@ export type LabelPosition = 'top' | 'center' | 'bottom'
  * A freehand stroke recorded from pointer samples.
  *
  * Kept as its own item type so it stays independent from the bezier
- * {@link PenItem}. Documents created before the pen tool existed used
- * `type: 'pen'` for this shape; `parseDoc` migrates those automatically.
+ * {@link PenItem}.
  */
 export interface FreedrawItem extends Base {
   type: 'freedraw'

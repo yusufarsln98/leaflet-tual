@@ -1,5 +1,16 @@
 import { useEffect } from 'react'
-import type { Controller } from '../../../../core/index.js'
+import type { Controller, ToolId } from '../../../../core/index.js'
+
+const KEY_TO_TOOL: Record<string, ToolId> = {
+  V: 'select',
+  T: 'text',
+  N: 'note',
+  F: 'freedraw',
+  P: 'pen',
+  L: 'arrow',
+  S: 'shape',
+  R: 'ruler',
+}
 
 export function useKeyboardShortcuts(
   controller: Controller,
@@ -8,11 +19,8 @@ export function useKeyboardShortcuts(
 ) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (
-        document.activeElement?.tagName === 'INPUT' ||
-        document.activeElement?.tagName === 'TEXTAREA' ||
-        (document.activeElement as HTMLElement)?.isContentEditable
-      ) {
+      const el = document.activeElement as HTMLElement | null
+      if (el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.isContentEditable) {
         return
       }
 
@@ -37,15 +45,13 @@ export function useKeyboardShortcuts(
           onFinishPen()
           return
         }
-        const selected = controller.selected
+        const [item] = controller.selected
         if (
-          selected.length === 1 &&
-          (selected[0].type === 'shape' ||
-            selected[0].type === 'arrow' ||
-            selected[0].type === 'text')
+          controller.selected.length === 1 &&
+          (item.type === 'shape' || item.type === 'arrow' || item.type === 'text')
         ) {
           e.preventDefault()
-          controller.edit(selected[0].id)
+          controller.edit(item.id)
           return
         }
       }
@@ -65,37 +71,12 @@ export function useKeyboardShortcuts(
         return
       }
 
-      switch (key) {
-        case 'V':
-          controller.setTool('select')
-          break
-        case 'T':
-          controller.setTool('text')
-          break
-        case 'N':
-          controller.setTool('note')
-          break
-        case 'F':
-          controller.setTool('freedraw')
-          break
-        case 'P':
-          controller.setTool('pen')
-          break
-        case 'L':
-          controller.setTool('arrow')
-          break
-        case 'S':
-          controller.setTool('shape')
-          break
-        case 'R':
-          controller.setTool('ruler')
-          break
-      }
+      const tool = KEY_TO_TOOL[key]
+      if (tool) controller.setTool(tool)
     }
 
     window.addEventListener('keydown', onKeyDown)
-    return () => {
-      window.removeEventListener('keydown', onKeyDown)
-    }
+    return () => window.removeEventListener('keydown', onKeyDown)
   }, [controller, onEscape, onFinishPen])
 }
+

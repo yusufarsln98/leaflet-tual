@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useId, useRef, useState } from 'react'
+import { useOutsideDismiss } from '../dropdown/index.js'
+import { ICONS } from '../icons/index.js'
 import type { SelectProps } from './types.js'
 
 /**
@@ -37,28 +39,12 @@ export function Select<T extends string | number>({
     if (next) onOpen?.()
   }
 
-  useEffect(() => {
-    if (!open) return
+  const handleDismiss = useCallback(() => {
+    setOpen(false)
+    selectRef.current?.focus()
+  }, [])
 
-    const handlePointerDown = (event: MouseEvent | PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
-    }
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      event.stopPropagation()
-      setOpen(false)
-      selectRef.current?.focus()
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown, true)
-    document.addEventListener('mousedown', handlePointerDown, true)
-    document.addEventListener('keydown', handleKeyDown, true)
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown, true)
-      document.removeEventListener('mousedown', handlePointerDown, true)
-      document.removeEventListener('keydown', handleKeyDown, true)
-    }
-  }, [open])
+  useOutsideDismiss(rootRef, open, handleDismiss)
 
   const fieldClasses = [
     'tual-select-field',
@@ -96,19 +82,9 @@ export function Select<T extends string | number>({
       {unit && <span className="tual-select-unit">{unit}</span>}
 
       <span className="tual-select-chevron" aria-hidden="true">
-        <svg
-          width="8"
-          height="8"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m6 9 6 6 6-6" />
-        </svg>
+        {ICONS.chevronDown(8)}
       </span>
+
 
       <select
         ref={selectRef}

@@ -1,43 +1,33 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import type { Controller, CreateLeafletTualOptions } from '../../core/index.js'
+import { useEffect, useRef } from 'react'
+import type { Controller, CreateLeafletTualOptions, InternalController } from '../../core/index.js'
 import { createController } from '../../core/index.js'
+import { useControllerState } from './use-controller-state.js'
 
 export function useLeafletTual(options: CreateLeafletTualOptions = {}): Controller {
-  const [, setTick] = useState(0)
-
-  // Stable controller instance across renders
   const controllerRef = useRef<Controller | null>(null)
   if (!controllerRef.current) {
     controllerRef.current = createController(options)
   }
   const controller = controllerRef.current
 
-  // Subscribe to controller state changes to trigger re-renders
-  useEffect(() => {
-    return controller.on('state', () => {
-      setTick((n) => n + 1)
-    })
-  }, [controller])
+  useControllerState(controller)
 
-  // Sync controlled value prop
   const prevValueRef = useRef(options.value)
   useEffect(() => {
     if (options.value !== undefined && options.value !== prevValueRef.current) {
       prevValueRef.current = options.value
-      ;(controller as any)._updateControlledDoc?.(options.value)
+      ;(controller as InternalController)._updateControlledDoc?.(options.value)
     }
   }, [options.value, controller])
 
-  // Sync readOnly prop
   useEffect(() => {
     if (options.readOnly !== undefined && options.readOnly !== controller.readOnly) {
       controller.setReadOnly(options.readOnly)
     }
   }, [options.readOnly, controller])
 
-  // Sync translations prop
   const prevTranslationsRef = useRef(options.translations)
   useEffect(() => {
     if (options.translations && options.translations !== prevTranslationsRef.current) {
@@ -46,7 +36,6 @@ export function useLeafletTual(options: CreateLeafletTualOptions = {}): Controll
     }
   }, [options.translations, controller])
 
-  // Sync theme prop
   useEffect(() => {
     if (options.theme !== undefined && options.theme !== controller.theme) {
       controller.setTheme(options.theme)
@@ -55,3 +44,4 @@ export function useLeafletTual(options: CreateLeafletTualOptions = {}): Controll
 
   return controller
 }
+

@@ -120,10 +120,11 @@ describe('v2 Shape label editing & edit(id) action', () => {
     })
 
     const map = createMockMap()
+    if (!shape || shape.type !== 'shape') throw new Error('Expected shape')
     render(
       <InlineShapeLabelEditor
         map={map}
-        shape={shape?.type === 'shape' ? shape : undefined}
+        item={shape}
         controller={result.current}
       />,
     )

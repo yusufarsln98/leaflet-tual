@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import type { ArrowKind, Controller, DrawKind, ShapeKind } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import {
@@ -38,6 +39,14 @@ const DRAW_LABELS: Record<DrawKind, string> = {
   pen: 'Pen',
 }
 
+interface VariantOption {
+  id: string
+  label: string
+  icon: ReactNode
+  selected: boolean
+  onSelect: () => void
+}
+
 export function ToolVariantsPopover({
   controller,
   type,
@@ -49,110 +58,78 @@ export function ToolVariantsPopover({
 }: ToolVariantsPopoverProps) {
   const { t } = useTranslation(controller)
 
-  if (type === 'arrow') {
-    const variants = allowedArrowVariants ?? ALL_ARROW_KINDS
-    return (
-      <Popover
-        header={t('arrowStyle')}
-        className={className}
-        style={{
-          position: 'absolute',
-          top: 'calc(100% + 6px)',
-          left: 0,
+  const config: {
+    header: string
+    minWidth: number
+    layout: 'variant-list' | 'variant-grid'
+    options: VariantOption[]
+  } =
+    type === 'arrow'
+      ? {
+          header: t('arrowStyle'),
           minWidth: 105,
-        }}
-      >
-        <DropdownMenu layout="variant-list">
-          {variants.map((v) => {
-            const tokenKey = v === 's-curve' ? 'sCurve' : v
-            const label = t(tokenKey, undefined, v.charAt(0).toUpperCase() + v.slice(1))
-            return (
-              <DropdownItem
-                key={v}
-                variant="variant"
-                selected={controller.tool === 'arrow' && controller.variant === v}
-                leading={ARROW_ICONS[v]?.()}
-                label={label}
-                onClick={() => {
-                  controller.setTool('arrow', v)
-                  onClose()
-                }}
-              />
-            )
-          })}
-        </DropdownMenu>
-      </Popover>
-    )
-  }
+          layout: 'variant-list',
+          options: (allowedArrowVariants ?? ALL_ARROW_KINDS).map((v) => ({
+            id: v,
+            label: t(v === 's-curve' ? 'sCurve' : v, undefined, v.charAt(0).toUpperCase() + v.slice(1)),
+            icon: ARROW_ICONS[v]?.(),
+            selected: controller.tool === 'arrow' && controller.variant === v,
+            onSelect: () => controller.setTool('arrow', v),
+          })),
+        }
+      : type === 'draw'
+        ? {
+            header: t('draw'),
+            minWidth: 115,
+            layout: 'variant-list',
+            options: (allowedDrawVariants ?? ALL_DRAW_KINDS).map((v) => ({
+              id: v,
+              label: t(v, undefined, DRAW_LABELS[v]),
+              icon: DRAW_ICONS[v]?.(),
+              selected: controller.tool === v,
+              onSelect: () => controller.setTool(v),
+            })),
+          }
+        : {
+            header: t('shapeType'),
+            minWidth: 175,
+            layout: 'variant-grid',
+            options: (allowedShapeVariants ?? ALL_SHAPE_KINDS).map((s) => ({
+              id: s,
+              label: t(s, undefined, s.charAt(0).toUpperCase() + s.slice(1)),
+              icon: SHAPE_ICONS[s]?.(),
+              selected: controller.tool === 'shape' && controller.variant === s,
+              onSelect: () => controller.setTool('shape', s),
+            })),
+          }
 
-  if (type === 'draw') {
-    const variants = allowedDrawVariants ?? ALL_DRAW_KINDS
-    return (
-      <Popover
-        header={t('draw')}
-        className={className}
-        style={{
-          position: 'absolute',
-          top: 'calc(100% + 6px)',
-          left: 0,
-          minWidth: 115,
-        }}
-      >
-        <DropdownMenu layout="variant-list">
-          {variants.map((variant) => {
-            const label = t(variant, undefined, DRAW_LABELS[variant])
-            return (
-              <DropdownItem
-                key={variant}
-                variant="variant"
-                selected={
-                  (controller.tool === 'freedraw' || controller.tool === 'pen') &&
-                  controller.tool === variant
-                }
-                leading={DRAW_ICONS[variant]?.()}
-                label={label}
-                onClick={() => {
-                  controller.setTool(variant)
-                  onClose()
-                }}
-              />
-            )
-          })}
-        </DropdownMenu>
-      </Popover>
-    )
-  }
-
-  const shapeVariants = allowedShapeVariants ?? ALL_SHAPE_KINDS
   return (
     <Popover
-      header={t('shapeType')}
+      header={config.header}
       className={className}
       style={{
         position: 'absolute',
         top: 'calc(100% + 6px)',
         left: 0,
-        minWidth: 175,
+        minWidth: config.minWidth,
       }}
     >
-      <DropdownMenu layout="variant-grid">
-        {shapeVariants.map((s) => {
-          const label = t(s, undefined, s.charAt(0).toUpperCase() + s.slice(1))
-          return (
-            <DropdownItem
-              key={s}
-              variant="variant"
-              selected={controller.tool === 'shape' && controller.variant === s}
-              leading={SHAPE_ICONS[s]?.()}
-              label={label}
-              onClick={() => {
-                controller.setTool('shape', s)
-                onClose()
-              }}
-            />
-          )
-        })}
+      <DropdownMenu layout={config.layout}>
+        {config.options.map((opt) => (
+          <DropdownItem
+            key={opt.id}
+            variant="variant"
+            selected={opt.selected}
+            leading={opt.icon}
+            label={opt.label}
+            onClick={() => {
+              opt.onSelect()
+              onClose()
+            }}
+          />
+        ))}
       </DropdownMenu>
     </Popover>
   )
 }
+

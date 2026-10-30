@@ -22,7 +22,7 @@ describe('v2 Doc data model & parseDoc', () => {
     expect(parsedJson.version).toBe(2)
   })
 
-  it('validates bezier pen items and migrates legacy freehand pen items', () => {
+  it('validates bezier pen items and rejects flat points on pen items', () => {
     const doc = emptyDoc()
     doc.pages[0].items.push({
       id: 'pen-1',
@@ -41,7 +41,7 @@ describe('v2 Doc data model & parseDoc', () => {
 
     expect(() => parseDoc(doc)).not.toThrow()
 
-    const legacy = {
+    const invalidPen = {
       version: 2,
       page: 'p1',
       pages: [
@@ -50,7 +50,7 @@ describe('v2 Doc data model & parseDoc', () => {
           name: 'Page 1',
           items: [
             {
-              id: 'legacy-pen',
+              id: 'invalid-pen',
               type: 'pen',
               points: [
                 { lat: 41, lng: 28 },
@@ -63,8 +63,7 @@ describe('v2 Doc data model & parseDoc', () => {
       ],
     }
 
-    const migrated = parseDoc(legacy)
-    expect(migrated.pages[0].items[0].type).toBe('freedraw')
+    expect(() => parseDoc(invalidPen)).toThrow(DocError)
   })
 
   it('throws DocError on invalid doc or wrong version', () => {

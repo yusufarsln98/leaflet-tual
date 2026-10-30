@@ -1,6 +1,6 @@
 ---
 name: leaflet-tual
-description: Rules, data model, theming, component usage and controller API for leaflet-tual v2, an opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, artboards, pages) for Leaflet maps. Use when adding, theming or debugging map annotations.
+description: Rules, data model, theming, component usage and controller API for leaflet-tual v2, an opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, pages) for Leaflet maps. Use when adding, theming or debugging map annotations.
 ---
 
 # leaflet-tual
@@ -47,7 +47,7 @@ export function MapView() {
 }
 ```
 
-That gives you the finished product: toolbar, style popovers, pages, undo/redo, artboards and PNG export, in light or dark. Add props only when you need to change something.
+That gives you the finished product: toolbar, style popovers, pages, and undo/redo, in light or dark. Add props only when you need to change something.
 
 ---
 
@@ -168,9 +168,10 @@ export interface RulerItem extends Base {
 export interface NoteItem extends Base {
   type: 'note'
   at: GeoPoint
+  width?: number
+  height?: number
   title?: string
   text: string
-  collapsed?: boolean
 }
 
 export interface TextItem extends Base {
@@ -179,24 +180,15 @@ export interface TextItem extends Base {
   text: string
 }
 
-export interface ArtboardItem extends Base {
-  type: 'artboard'
-  from: GeoPoint
-  to: GeoPoint
-  title: string
-}
-
 export type Item =
   | ArrowItem | ShapeItem | FreedrawItem | PenItem | RulerItem
-  | NoteItem | TextItem | ArtboardItem
+  | NoteItem | TextItem
 
 /** Input for `add`: `id` and `createdAt` are generated when omitted. */
 export type NewItem = DistributiveOmit<Item, 'id' | 'createdAt'> & { id?: string }
 ```
 
-Unset style fields fall back to the defaults for that item's tool. Default look: free draw, pen, arrow, ruler and shapes use `ink` at width `'m'`, with shapes using `fill: 'solid'`. Notes are `yellow` at size `'l'`. Arrowheads are a filled triangle. Legacy documents that stored freehand strokes as `type: 'pen'` with flat `points` are migrated to `type: 'freedraw'` by `parseDoc`.
-
-Items inside an artboard move with it.
+Unset style fields fall back to the defaults for that item's tool. Default look: free draw, pen, arrow, ruler and shapes use `ink` at width `'m'`, with shapes using `fill: 'solid'`. Notes are `yellow` at size `'l'`. Arrowheads are a filled triangle.
 
 | Helper            | Purpose                                                         |
 | ----------------- | --------------------------------------------------------------- |
@@ -405,8 +397,7 @@ Actions:
 | `select(ids \| null)`          | Replace the selection.                                                                               |
 | `edit(id)`                     | Start inline editing (label, text, title) for an item.                                               |
 | `undo()` / `redo()`            | One global history across pages.                                                                     |
-| `fit(target)`                  | Animate the map to `'all'`, `'selection'` or an artboard id.                                         |
-| `exportPNG(artboardId, opts?)` | `Promise<Blob>`. Options: `{ scale = 2, scheme = 'light', basemap = false }`.                         |
+| `fit(target)`                  | Animate the map to `'all'`, `'selection'` or an item id.                                             |
 | `load(doc)`                    | Replace the document (use `parseDoc` first for untrusted input).                                     |
 | `setReadOnly(v)`               |                                                                                                      |
 
@@ -477,15 +468,6 @@ tual.pages.rename(id, 'Phase 2 · Routes')
 tual.pages.select(tual.pages.list[0].id)
 ```
 
-### Export an artboard
-
-```tsx
-const png = await tual.exportPNG(artboardId, { scale: 2, scheme: 'light' })
-download(png, 'artboard.png')
-```
-
-`basemap: true` also paints the map tiles. This fails on tiles served without CORS headers, so the promise rejects with `ExportError`. Handle it.
-
 ### Read-only viewer
 
 ```tsx
@@ -520,10 +502,8 @@ tual.destroy()
 
 | Tool       | Variants                                                                               | Key | Behavior                                                         |
 | ---------- | -------------------------------------------------------------------------------------- | --- | ---------------------------------------------------------------- |
-| `select`   |                                                                                        | V   | Click, Shift-click, marquee, move, resize, delete.               |
-| `hand`     |                                                                                        | H   | Pan only. `Space` + drag and middle mouse pan from any tool.     |
+| `select`   |                                                                                        | V   | Click, Shift-click, move, resize, delete.                        |
 | `text`     |                                                                                        | T   | Click to place and type.                                         |
-| `artboard` |                                                                                        | A   | Drag to create. Title above the corner, with fit and export buttons. |
 | `note`     |                                                                                        | N   | Click to place a sticky note and edit it.                        |
 | `freedraw` |                                                                                        | F   | Smoothed freehand stroke.                                        |
 | `pen`      |                                                                                        | P   | Bezier path: click anchors, drag handles, click first anchor to close, `Enter` to finish. |
@@ -541,9 +521,9 @@ An active drawing tool disables map dragging and double-click zoom, and restores
 
 - **Attached to the ground.** Items keep their geographic position through pan, zoom and animated zoom, with no lag and no private transform.
 - **Shapes keep their form.** Geometry is computed in world space, so a square stays square, a circle stays round and a curve keeps its curvature at every zoom level.
-- **Screen-constant UI.** Selection handles, artboard titles and icons, the marquee and hit targets stay the same size on screen.
+- **Screen-constant UI.** Selection handles and hit targets stay the same size on screen.
 - **Strokes** are constant-width on screen, like map overlays. Text scales with zoom.
-- **Fit and focus.** `tual.fit('all' | 'selection' | artboardId)` and the artboard's expand button use the map's own animated `fitBounds`.
+- **Fit and focus.** `tual.fit('all' | 'selection' | itemId)` uses the map's own animated `fitBounds`.
 
 ---
 
@@ -566,43 +546,3 @@ Pure functions. Those that take no map work anywhere.
 | `formatDistance(meters, unit = 'metric')` | `"1.2 km"` or `"0.7 mi"`.                                             |
 | `resolveColor(name, scheme)`              | Palette name to hex for a scheme.                                     |
 
----
-
-## 13. Migrating from v1
-
-v2 is a breaking release. There are no aliases and no compatibility layer.
-
-| v1                                                                   | v2                                                                  |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `items` / `initialItems` (array)                                     | `value` / `defaultValue` (`Doc` with pages)                         |
-| `onChange`, `onItemsChange`, `onChangeComplete`, `onEditEnd`, `onEditComplete` | one `onChange(doc, { committed })`                        |
-| `onItemCreate/Change/ChangeComplete/Delete`                          | `info.reason` and `info.ids` on `onChange`                          |
-| `onItemSelect`                                                       | `onSelect(items)`                                                   |
-| `showToolbar`, `toolbarPosition`, `toolbarOrientation`, `enabledTools`, `showDeleteButton`, `showClearButton`, `showToolLabels` | one `toolbar` object (or `false`) |
-| `collapsible`, `defaultCollapsed`, `collapsed`, `onCollapsedChange`, `showCollapseButton` | removed; the toolbar is always expanded |
-| `showHistoryControls` | removed; undo/redo live in the zoom menu |
-| `customTools`, `renderToolbar`                                       | `toolbar.actions`, or `toolbar={false}` with your own UI            |
-| `<CanvasToolbar>`                                                    | `<Toolbar>`                                                         |
-| `strokeColors`, `strokeWidthOptions`, `fontSizeOptions`, `annotationTheme`, `arrowTheme` | `theme` and `tokens`; the palette and size scales are fixed |
-| `styles`, `unstyled`, `icons`                                        | `tokens`, CSS variables, `classNames`                               |
-| `renderNote`, `renderText`                                           | removed; notes and text use the built-in design                     |
-| `autoMinimizeNotesZoom`, `autoMinimizeTextZoom`                      | `collapseBelowZoom={{ notes, text }}`                               |
-| `setActiveTool`, `setTool`                                           | `setTool(tool, variant?)`                                           |
-| `arrow-linear`, `arrow-curved`, `arrow-bi`, `arrow-elbow`, `arrow-s-curve` | `arrow` tool + variant; `'bi'` becomes `heads`                |
-| `freedraw`                                                           | `freedraw` tool + `FreedrawItem`; the bezier `pen` tool is new       |
-| `setActiveShape`, `setShapeFilled`                                   | `setTool('shape', kind)`, `setStyle({ fill })`                      |
-| `setActiveColor`, `setStrokeWidth`, `setDashed`, `setNoteColor`, `setFontSize`, `setFontWeight` | `setStyle({ color, width, dash, fill, size, weight })` |
-| `setSelectedId`, `selectItem`, `selectedId`, `selectedItem`          | `select(ids)`, `selection`, `selected`                              |
-| `removeItem`, `deleteItem`, `deleteSelected`, `clearAll`, `clear`    | `remove(ids?)`, `clear()`                                           |
-| `addItem`, `updateItem`                                              | `add`, `update`                                                     |
-| `isEditingLabel`, `setEditingLabel`                                  | `edit(id)`                                                          |
-| `notifyChangeComplete`                                               | not needed; `committed` is set automatically                        |
-| `exportJSON()` / `importJSON(json)`                                  | `doc` / `load(parseDoc(json))`                                      |
-| item `freedraw`, `start` / `end`, `controlPoint`, `position`         | `freedraw` / `pen`, `from` / `to`, `via`, `at`                      |
-| item `arrowStyle`, `headStyle`, `shape` (on shapes)                  | `kind`, `heads`, `kind`                                             |
-| item `color` (hex), `strokeWidth` (number), `dashed` (boolean)       | `style.color` (palette name), `style.width` (`'s'`/`'m'`/`'l'`), `style.dash` |
-| item `fillColor`, `filled`, `backgroundColor`, `textColor`, `initialFontSize`, `fontWeight` | `style.color`, `style.fill`, `style.size`, `style.weight` |
-| item `labelMode`, `hasLabelMode`, `minimized`, `collapseState`, `width`/`height`, `baseZoom` | removed; use `collapsed` and `edit(id)`    |
-| `calculateGeodesicDistance`, `calculateLineDistance`, `formatRealWorldDistance` | `distance`, `pathDistance`, `formatDistance`            |
-| `constrainToAspectRatio`, `constrainAngleTo45Degrees`, `computeDefaultControlGeoPoint` | `lockAspect`, `snapAngle`, `defaultVia`           |
-| `createLeafletTualController` / `paintLeafletTual`                   | `createLeafletTual(map, options)`                                   |

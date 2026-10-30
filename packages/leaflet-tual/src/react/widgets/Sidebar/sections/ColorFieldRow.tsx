@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import type L from 'leaflet'
 import type { ColorName, Style } from '../../../../core/index.js'
-import { useOutsideDismiss } from '../../../ui/index.js'
+import { PropertyRow, useOutsideDismiss } from '../../../ui/index.js'
 import { ColorDropdown } from '../../SecondaryTooltip/color/ColorDropdown.js'
 
 export interface ColorFieldRowProps {
@@ -46,13 +46,8 @@ export function ColorFieldRow({
   useOutsideDismiss(rootRef, isOpen, () => setIsOpen(false))
 
   return (
-    <div className="tual-sidebar-prop-row">
-      <span className="tual-sidebar-prop-label">{label}</span>
-      <div
-        ref={rootRef}
-        className="tual-sidebar-prop-control"
-        style={{ position: 'relative' }}
-      >
+    <PropertyRow label={label}>
+      <div ref={rootRef} style={{ position: 'relative', width: '100%' }}>
         <button
           type="button"
           className="tual-sidebar-color-field"
@@ -83,6 +78,7 @@ export function ColorFieldRow({
           </div>
         )}
       </div>
-    </div>
+    </PropertyRow>
   )
 }
+

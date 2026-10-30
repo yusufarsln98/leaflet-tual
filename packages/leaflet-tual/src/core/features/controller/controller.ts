@@ -13,7 +13,7 @@ import type {
   ToolId,
 } from '../../types/index.js'
 import { cloneDoc, emptyDoc, parseDoc } from '../../shared/doc.js'
-import { DEFAULT_TOOL_STYLES } from '../../shared/theme/theme.js'
+import { DEFAULT_TOOL_STYLES, resolveSchemeFromTheme } from '../../shared/theme/theme.js'
 import { resolveTranslations, type TranslationTokens } from '../../shared/i18n/index.js'
 import { fitItemsToBounds } from './fit.js'
 import { createPageManager } from './page-manager.js'
@@ -21,6 +21,23 @@ import { createHistoryManager } from './history-manager.js'
 import { createItemOperations } from './item-crud.js'
 
 type Listener = (...args: unknown[]) => void
+
+function mergeStylePatch(
+  style: Style,
+  patch: Partial<Style>,
+  type: Item['type'] | ToolId | undefined,
+): Style {
+  const next = { ...style, ...patch }
+  if (patch.color !== undefined && patch.fillColor === undefined && patch.strokeColor === undefined) {
+    if (type === 'shape') {
+      next.fillColor = patch.color
+      next.strokeColor = patch.color
+    } else if (type === 'arrow') {
+      next.strokeColor = patch.color
+    }
+  }
+  return next
+}
 
 export function createController(
   options: CreateLeafletTualOptions = {},
@@ -41,18 +58,9 @@ export function createController(
   let editingId: string | null = null
   let readOnlyState = Boolean(options.readOnly)
   let activeTheme: Theme = options.theme ?? 'system'
-
-  function resolveSchemeFromTheme(theme: Theme): 'light' | 'dark' {
-    if (theme === 'light') return 'light'
-    if (theme === 'dark') return 'dark'
-    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    }
-    return 'light'
-  }
-
   let currentScheme: 'light' | 'dark' = resolveSchemeFromTheme(activeTheme)
   let translations = resolveTranslations(options.translations)
+
 
   const maxHistory = options.maxHistory ?? 100
   const listeners: Record<string, Set<Listener>> = {}
@@ -127,13 +135,9 @@ export function createController(
     },
 
     setTranslations(patch: Partial<TranslationTokens>) {
-      let hasChange = false
-      for (const [k, v] of Object.entries(patch)) {
-        if (v !== undefined && (translations as unknown as Record<string, unknown>)[k] !== v) {
-          hasChange = true
-          break
-        }
-      }
+      const hasChange = Object.entries(patch).some(
+        ([k, v]) => v !== undefined && (translations as unknown as Record<string, unknown>)[k] !== v,
+      )
       if (!hasChange) return
       translations = { ...translations, ...patch } as TranslationTokens
       emit('translations', translations)
@@ -158,15 +162,10 @@ export function createController(
         activeVariant = variant
         if (variant) lastVariants.set(tool, variant)
         else lastVariants.delete(tool)
-      } else if (tool === 'arrow' || tool === 'shape') {
-        activeVariant = lastVariants.get(tool) ?? null
       } else {
-        activeVariant = null
+        activeVariant = tool === 'arrow' || tool === 'shape' ? (lastVariants.get(tool) ?? null) : null
       }
-      if (tool !== 'select') {
-        selection = []
-        editingId = null
-      }
+      if (tool !== 'select') clearSelection()
       options.onToolChange?.(tool, activeVariant)
       emit('tool', tool, activeVariant)
       emit('state')
@@ -174,38 +173,26 @@ export function createController(
 
     setStyle(patch: Partial<Style>) {
       const prev = cloneDoc(doc)
-      // `color` is the single primary paint for shapes (fill + stroke) and
-      // arrows (stroke). Keep their dedicated override fields in sync when the
-      // primary color changes, otherwise the defaults would win at render time.
-      const applyPatch = (style: Style, type: Item['type'] | ToolId | undefined): Style => {
-        const next = { ...style, ...patch }
-        if (patch.color !== undefined && patch.fillColor === undefined && patch.strokeColor === undefined) {
-          if (type === 'shape') {
-            next.fillColor = patch.color
-            next.strokeColor = patch.color
-          } else if (type === 'arrow') {
-            next.strokeColor = patch.color
-          }
-        }
-        return next
-      }
-
       const selectedType = selection[0]
         ? getActivePage().items.find((item) => item.id === selection[0])?.type
         : undefined
-      currentStyle = applyPatch(currentStyle, selectedType ?? activeTool)
+      currentStyle = mergeStylePatch(currentStyle, patch, selectedType ?? activeTool)
 
       if (selection.length > 0) {
         const set = new Set(selection)
         let updated = false
         for (const item of getActivePage().items) {
-          if (set.has(item.id)) { item.style = applyPatch(item.style ?? {}, item.type); updated = true }
+          if (set.has(item.id)) {
+            item.style = mergeStylePatch(item.style ?? {}, patch, item.type)
+            updated = true
+          }
         }
         if (updated) commitChange('update', [...selection], true, prev)
       } else {
         emit('state')
       }
     },
+
 
     add: (item: NewItem) => itemOps.add(item),
     update: (id: string, patch: Partial<Item>, committed?: boolean) => itemOps.update(id, patch, committed),

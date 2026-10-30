@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import type L from 'leaflet'
 import {
   hsvToRgb,
   parseColorString,
@@ -11,16 +12,68 @@ import { Divider } from '../divider/index.js'
 import { NumberField, TextField } from '../input/index.js'
 import type { CustomColorPickerProps } from './types.js'
 
+function DragTrack({
+  className,
+  style,
+  map,
+  onChange,
+  children,
+}: {
+  className: string
+  style?: CSSProperties
+  map?: L.Map | null
+  onChange: (nx: number, ny: number) => void
+  children: ReactNode
+}) {
+  const emit = (e: React.PointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const nx = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
+    const ny = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
+    onChange(nx, ny)
+  }
+
+  return (
+    <div
+      className={className}
+      style={style}
+      onPointerDown={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
+        map?.dragging?.disable()
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId)
+        } catch {}
+        emit(e)
+      }}
+      onPointerMove={(e) => {
+        e.stopPropagation()
+        if (e.buttons > 0) emit(e)
+      }}
+      onPointerUp={(e) => {
+        e.stopPropagation()
+        map?.dragging?.enable()
+        try {
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+            e.currentTarget.releasePointerCapture(e.pointerId)
+          }
+        } catch {}
+      }}
+      onPointerCancel={(e) => {
+        e.stopPropagation()
+        map?.dragging?.enable()
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
 export function CustomColorPicker({
   currentColor,
   scheme,
   map,
   onSelectColor,
 }: CustomColorPickerProps) {
-  const satBoxRef = useRef<HTMLDivElement>(null)
-  const hueSliderRef = useRef<HTMLDivElement>(null)
-  const alphaSliderRef = useRef<HTMLDivElement>(null)
-
   const parsed = parseColorString(currentColor, scheme)
   const [initialH, initialS, initialV] = rgbToHsv(parsed.r, parsed.g, parsed.b)
 
@@ -52,37 +105,6 @@ export function CustomColorPicker({
     [onSelectColor],
   )
 
-  const handleSatPointer = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = satBoxRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const newSat = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
-    const newVal = 1 - Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
-    setSat(newSat)
-    setVal(newVal)
-    emitColor(hue, newSat, newVal, opacity)
-  }
-
-  const handleHuePointer = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = hueSliderRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const newHue =
-      Math.round(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * 360) % 360
-    setHue(newHue)
-    emitColor(newHue, sat, val, opacity)
-  }
-
-  const handleAlphaPointer = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = alphaSliderRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const newAlpha =
-      Math.round(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * 100) / 100
-    setOpacity(newAlpha)
-    emitColor(hue, sat, val, newAlpha)
-  }
-
   const handleHexChange = (raw: string) => {
     setHexInput(raw)
     const clean = raw.trim()
@@ -97,64 +119,35 @@ export function CustomColorPicker({
     }
   }
 
-  const handleOpacityInputChange = (num: number) => {
-    const clamped = Math.max(0, Math.min(100, num)) / 100
-    setOpacity(clamped)
-    emitColor(hue, sat, val, clamped)
-  }
-
-  const createDragHandlers = (onDrag: (e: React.PointerEvent<HTMLDivElement>) => void) => ({
-    onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
-      e.stopPropagation()
-      e.preventDefault()
-      map?.dragging?.disable()
-      try {
-        e.currentTarget.setPointerCapture(e.pointerId)
-      } catch {}
-      onDrag(e)
-    },
-    onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
-      e.stopPropagation()
-      if (e.buttons > 0) onDrag(e)
-    },
-    onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => {
-      e.stopPropagation()
-      map?.dragging?.enable()
-      try {
-        if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-          e.currentTarget.releasePointerCapture(e.pointerId)
-        }
-      } catch {}
-    },
-    onPointerCancel: (e: React.PointerEvent<HTMLDivElement>) => {
-      e.stopPropagation()
-      map?.dragging?.enable()
-    },
-  })
-
   return (
     <div className="tual-color-custom-panel" onPointerDown={(e) => e.stopPropagation()}>
-      <div
-        ref={satBoxRef}
+      <DragTrack
         className="tual-color-sat-box"
         style={{ backgroundColor: `hsl(${hue}, 100%, 50%)` }}
-        {...createDragHandlers(handleSatPointer)}
+        map={map}
+        onChange={(nx, ny) => {
+          const nextV = 1 - ny
+          setSat(nx)
+          setVal(nextV)
+          emitColor(hue, nx, nextV, opacity)
+        }}
       >
         <div className="tual-color-sat-white" />
         <div className="tual-color-sat-black" />
         <div
           className="tual-color-picker-thumb"
-          style={{
-            left: `${Math.round(sat * 100)}%`,
-            top: `${Math.round((1 - val) * 100)}%`,
-          }}
+          style={{ left: `${Math.round(sat * 100)}%`, top: `${Math.round((1 - val) * 100)}%` }}
         />
-      </div>
+      </DragTrack>
 
-      <div
-        ref={hueSliderRef}
+      <DragTrack
         className="tual-color-slider-track tual-color-hue-track"
-        {...createDragHandlers(handleHuePointer)}
+        map={map}
+        onChange={(nx) => {
+          const nextHue = Math.round(nx * 360) % 360
+          setHue(nextHue)
+          emitColor(nextHue, sat, val, opacity)
+        }}
       >
         <div
           className="tual-color-slider-thumb"
@@ -163,12 +156,16 @@ export function CustomColorPicker({
             backgroundColor: `hsl(${hue}, 100%, 50%)`,
           }}
         />
-      </div>
+      </DragTrack>
 
-      <div
-        ref={alphaSliderRef}
+      <DragTrack
         className="tual-color-slider-track tual-color-alpha-track"
-        {...createDragHandlers(handleAlphaPointer)}
+        map={map}
+        onChange={(nx) => {
+          const nextAlpha = Math.round(nx * 100) / 100
+          setOpacity(nextAlpha)
+          emitColor(hue, sat, val, nextAlpha)
+        }}
       >
         <div
           className="tual-color-alpha-gradient"
@@ -183,7 +180,7 @@ export function CustomColorPicker({
             backgroundColor: `rgba(${currentR}, ${currentG}, ${currentB}, ${opacity})`,
           }}
         />
-      </div>
+      </DragTrack>
 
       <div
         className="tual-color-inputs-bar"
@@ -208,11 +205,16 @@ export function CustomColorPicker({
           unitClassName="tual-color-percent-sign"
           unit="%"
           value={Math.round(opacity * 100)}
-          onChange={handleOpacityInputChange}
+          onChange={(num) => {
+            const clamped = Math.max(0, Math.min(100, num)) / 100
+            setOpacity(clamped)
+            emitColor(hue, sat, val, clamped)
+          }}
           aria-label="Opacity percentage"
         />
       </div>
     </div>
   )
 }
+
 

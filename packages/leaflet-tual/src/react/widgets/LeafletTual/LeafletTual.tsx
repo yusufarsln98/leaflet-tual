@@ -6,7 +6,9 @@ import { useMap } from 'react-leaflet'
 import type { Controller, InternalController } from '../../../core/index.js'
 import { useLeafletTual } from '../../features/use-leaflet-tual.js'
 import { useLeafletSync } from '../../features/use-leaflet-sync.js'
+import { useControllerState } from '../../features/use-controller-state.js'
 import { TranslationProvider } from '../../features/i18n/index.js'
+
 import { Toolbar } from '../Toolbar/Toolbar.js'
 import { SecondaryTooltip } from '../SecondaryTooltip/SecondaryTooltip.js'
 import { Sidebar, SidebarTriggerBar } from '../Sidebar/index.js'
@@ -59,18 +61,12 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     redraw()
   })
 
-  const [, setTick] = useState(0)
-
-  useEffect(() => {
-    return controller.on('state', () => {
-      setTick((t) => t + 1)
-      redraw()
-    })
-  }, [controller, redraw])
+  useControllerState(controller, redraw)
 
   useEffect(() => {
     redraw()
   }, [redraw])
+
 
   useMapInteractions(map, controller)
 

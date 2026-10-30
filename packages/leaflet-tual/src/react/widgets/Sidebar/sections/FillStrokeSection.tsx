@@ -4,7 +4,7 @@ import type L from 'leaflet'
 import type { ColorName, Item, ShapeItem, Style } from '../../../../core/index.js'
 import { resolveColor, resolveItemStyle, resolveWidth } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
-import { Collapsible, NumberField, Select } from '../../../ui/index.js'
+import { Collapsible, NumberField, PropertyRow, Select } from '../../../ui/index.js'
 import { ColorFieldRow } from './ColorFieldRow.js'
 
 export interface FillStrokeSectionProps {
@@ -40,22 +40,14 @@ export function FillStrokeSection({
   const isText = selectedItem.type === 'text'
   const isSquareShape = isShape && (selectedItem as ShapeItem).kind === 'square'
   const isBoxItem = isShape || isNote
-  const hasBorder =
-    isBoxItem ||
-    isArrow ||
-    selectedItem.type === 'ruler' ||
-    selectedItem.type === 'freedraw' ||
-    selectedItem.type === 'pen'
+  const hasBorder = !isText
 
-  const boxItem = isBoxItem ? selectedItem : null
-  const visual = boxItem ? resolveItemStyle(boxItem, 'light') : null
+  const visual = isBoxItem ? resolveItemStyle(selectedItem, 'light') : null
 
   const strokeColorKey =
     isText || (isNote && !style.strokeColor)
       ? style.textColor ?? style.color ?? (isNote ? 'yellow' : 'ink')
-      : style.strokeColor ??
-        style.color ??
-        (isShape || isArrow ? 'blue' : 'ink')
+      : style.strokeColor ?? style.color ?? (isShape || isArrow ? 'blue' : 'ink')
   const strokeHex = isText
     ? resolveColor(style.textColor ?? style.color ?? 'ink', 'light')
     : visual?.strokeColor ?? resolveColor(strokeColorKey, 'light')
@@ -63,8 +55,7 @@ export function FillStrokeSection({
   const textColorKey = style.textColor ?? 'ink'
   const textHex = visual?.text.color ?? resolveColor(textColorKey, 'light')
 
-  const fillColorKey =
-    style.fillColor ?? style.color ?? (isNote ? 'yellow' : 'blue')
+  const fillColorKey = style.fillColor ?? style.color ?? (isNote ? 'yellow' : 'blue')
   const fillHex = visual?.fillColor ?? resolveColor(fillColorKey, 'light')
   const fillMode = style.fill ?? 'solid'
   const hasNoFill = isBoxItem && fillMode === 'none'
@@ -79,10 +70,7 @@ export function FillStrokeSection({
 
   const handleStrokeColor = (color: ColorName | string) => {
     if (isShape) {
-      onUpdateStyle({
-        strokeColor: color,
-        ...(style.color ? {} : { color }),
-      })
+      onUpdateStyle({ strokeColor: color, ...(style.color ? {} : { color }) })
     } else if (isNote) {
       onUpdateStyle({ strokeColor: color })
     } else if (isArrow) {
@@ -93,19 +81,10 @@ export function FillStrokeSection({
   }
 
   const handleFillColor = (color: ColorName | string) => {
-    if (isNote) {
-      onUpdateStyle({
-        color,
-        fillColor: color,
-        ...(fillMode === 'none' ? { fill: 'solid' as const } : {}),
-      })
-      return
-    }
-
     onUpdateStyle({
       color,
       fillColor: color,
-      strokeColor: style.strokeColor ?? color,
+      ...(isNote ? {} : { strokeColor: style.strokeColor ?? color }),
       ...(fillMode === 'none' ? { fill: 'solid' as const } : {}),
     })
   }
@@ -117,7 +96,6 @@ export function FillStrokeSection({
       open={open}
       onOpenChange={onOpenChange}
     >
-      {/* Stroke / Text color */}
       <ColorFieldRow
         map={map}
         label={isText ? t('textColor') : t('stroke')}
@@ -129,7 +107,6 @@ export function FillStrokeSection({
         onSelectColor={handleStrokeColor}
       />
 
-      {/* Text color — notes use it for the body, shapes for their label. */}
       {isBoxItem && (
         <ColorFieldRow
           map={map}
@@ -143,26 +120,21 @@ export function FillStrokeSection({
         />
       )}
 
-      {/* Thickness */}
       {hasBorder && (
-        <div className="tual-sidebar-prop-row">
-          <span className="tual-sidebar-prop-label">{t('thickness')}</span>
-          <div className="tual-sidebar-prop-control">
-            <NumberField
-              aria-label={t('strokeWidth')}
-              min={0}
-              max={32}
-              step={1}
-              value={numWidth}
-              wrapperClassName="tual-sidebar-input-field"
-              className="tual-sidebar-number-input"
-              onChange={(width) => onUpdateStyle({ width: Math.max(0, width) })}
-            />
-          </div>
-        </div>
+        <PropertyRow label={t('thickness')}>
+          <NumberField
+            aria-label={t('strokeWidth')}
+            min={0}
+            max={32}
+            step={1}
+            value={numWidth}
+            wrapperClassName="tual-sidebar-input-field"
+            className="tual-sidebar-number-input"
+            onChange={(width) => onUpdateStyle({ width: Math.max(0, width) })}
+          />
+        </PropertyRow>
       )}
 
-      {/* Fill color */}
       {isBoxItem && (
         <ColorFieldRow
           map={map}
@@ -180,61 +152,50 @@ export function FillStrokeSection({
         />
       )}
 
-      {/* Border style */}
       {hasBorder && (
-        <div className="tual-sidebar-prop-row">
-          <span className="tual-sidebar-prop-label">{t('borderStyle')}</span>
-          <div className="tual-sidebar-prop-control">
-            <Select
-              ariaLabel={t('strokeDash')}
-              title={t('strokeDash')}
-              value={style.dash ?? 'solid'}
-              options={dashOptions}
-              align="start"
-              className="tual-sidebar-select-field"
-              onChange={(dash) => onUpdateStyle({ dash })}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Corner radius */}
-      {(isNote || isSquareShape) && (
-        <div className="tual-sidebar-prop-row">
-          <span className="tual-sidebar-prop-label">{t('cornerRadius')}</span>
-          <div className="tual-sidebar-prop-control">
-            <Select
-              ariaLabel={t('cornerRadius')}
-              title={t('cornerRadius')}
-              value={style.radius ?? 8}
-              options={RADIUS_OPTIONS}
-              unit="px"
-              align="start"
-              className="tual-sidebar-select-field"
-              onChange={(radius) => onUpdateStyle({ radius })}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Opacity */}
-      <div className="tual-sidebar-prop-row">
-        <span className="tual-sidebar-prop-label">{t('opacity')}</span>
-        <div className="tual-sidebar-prop-control">
-          <NumberField
-            aria-label={t('opacity')}
-            min={0}
-            max={1}
-            step={0.1}
-            value={opacity}
-            wrapperClassName="tual-sidebar-input-field"
-            className="tual-sidebar-number-input"
-            onChange={(val) => {
-              onUpdateStyle({ opacity: Math.max(0, Math.min(1, Math.round(val * 100) / 100)) })
-            }}
+        <PropertyRow label={t('borderStyle')}>
+          <Select
+            ariaLabel={t('strokeDash')}
+            title={t('strokeDash')}
+            value={style.dash ?? 'solid'}
+            options={dashOptions}
+            align="start"
+            className="tual-sidebar-select-field"
+            onChange={(dash) => onUpdateStyle({ dash })}
           />
-        </div>
-      </div>
+        </PropertyRow>
+      )}
+
+      {(isNote || isSquareShape) && (
+        <PropertyRow label={t('cornerRadius')}>
+          <Select
+            ariaLabel={t('cornerRadius')}
+            title={t('cornerRadius')}
+            value={style.radius ?? 8}
+            options={RADIUS_OPTIONS}
+            unit="px"
+            align="start"
+            className="tual-sidebar-select-field"
+            onChange={(radius) => onUpdateStyle({ radius })}
+          />
+        </PropertyRow>
+      )}
+
+      <PropertyRow label={t('opacity')}>
+        <NumberField
+          aria-label={t('opacity')}
+          min={0}
+          max={1}
+          step={0.1}
+          value={opacity}
+          wrapperClassName="tual-sidebar-input-field"
+          className="tual-sidebar-number-input"
+          onChange={(val) =>
+            onUpdateStyle({ opacity: Math.max(0, Math.min(1, Math.round(val * 100) / 100)) })
+          }
+        />
+      </PropertyRow>
     </Collapsible>
   )
 }
+
