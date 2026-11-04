@@ -16,11 +16,10 @@ export interface ColorPaletteGridProps {
   selectedColor?: ColorName | string
   variant?: 'palette' | 'border'
   header?: string
-  onSelectColor: (color: ColorName) => void
+  onSelectColor: (hex: string) => void
 }
 
 export interface ColorSwatchListItem {
-  name: ColorName
   hex: string
   title?: string
 }
@@ -33,7 +32,7 @@ export interface ColorSwatchListProps {
   noFillSelected?: boolean
   noFillLabel?: string
   onSelectNoFill?: () => void
-  onSelectColor: (name: ColorName, hex: string) => void
+  onSelectColor: (hex: string) => void
 }
 
 export interface CustomColorPickerProps {

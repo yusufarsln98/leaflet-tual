@@ -141,7 +141,7 @@ export const NoteOverlayView = memo(function NoteOverlayView({
         height: baseHeight,
         transform: `translate(-50%, -50%) scale(${zoomScale})`,
         transformOrigin: 'center center',
-        backgroundColor: visual.backgroundColor,
+        backgroundColor: visual.fillColor,
         color: visual.text.color,
         border:
           visual.strokeWidth > 0

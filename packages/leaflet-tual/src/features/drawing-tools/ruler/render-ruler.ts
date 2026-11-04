@@ -7,6 +7,7 @@ import {
   geoToScreen,
 } from '../../../shared/geometry/geo.js'
 import {
+  DEFAULT_PALETTE,
   resolveColor,
   resolveDash,
   resolveWidth,
@@ -22,6 +23,7 @@ export function renderRulerOnCanvas(
     isSelected?: boolean
     isHovered?: boolean
     translations?: Partial<TranslationTokens>
+    fontFamily?: string
   } = {},
 ) {
   const start = geoToScreen(map, ruler.from)
@@ -30,7 +32,7 @@ export function renderRulerOnCanvas(
   if (dist < 1) return
 
   const scale = getItemZoomScale(map, ruler)
-  const color = resolveColor(ruler.style?.color ?? 'ink')
+  const color = resolveColor(ruler.style?.color ?? DEFAULT_PALETTE.ink)
   const baseLineWidth = resolveWidth(ruler.style?.width ?? 'm')
   const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
   const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
@@ -83,10 +85,11 @@ export function renderRulerOnCanvas(
     fontSize: 10 * scale,
     paddingX: 4 * scale,
     paddingY: 2 * scale,
+    fontFamily: options.fontFamily,
   })
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue')
+    const handleColor = resolveColor(DEFAULT_PALETTE.blue)
     const handleSize = Math.max(4, 8 * scale)
     drawHandle(ctx, start, handleColor, handleSize)
     drawHandle(ctx, end, handleColor, handleSize)

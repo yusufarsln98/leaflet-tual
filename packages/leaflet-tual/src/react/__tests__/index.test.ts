@@ -51,6 +51,8 @@ import {
   polygonCentroid,
   formatArea,
   resolveColor,
+  isHexColor,
+  isTransparentColor,
   renderArrowOnCanvas,
   renderFreedrawOnCanvas,
   renderShapeOnCanvas,
@@ -95,7 +97,7 @@ import pkg from '../../../package.json'
 describe('leaflet-tual v2 package contract exports', () => {
   it('exports VERSION constant matching package.json', () => {
     expect(VERSION).toBe(pkg.version)
-    expect(VERSION).toBe('2.0.1')
+    expect(VERSION).toBe('2.0.2')
   })
 
   it('creates unique ids with prefix', () => {
@@ -177,6 +179,8 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(polygonCentroid).toBeDefined()
     expect(formatArea).toBeDefined()
     expect(resolveColor).toBeDefined()
+    expect(isHexColor).toBeDefined()
+    expect(isTransparentColor).toBeDefined()
     expect(renderArrowOnCanvas).toBeDefined()
     expect(renderFreedrawOnCanvas).toBeDefined()
     expect(renderShapeOnCanvas).toBeDefined()

@@ -1,8 +1,14 @@
 'use client'
 
 import type L from 'leaflet'
-import type { ColorName, Item, ShapeItem, Style } from '../../../../core/index.js'
-import { resolveColor, resolveItemStyle, resolveWidth } from '../../../../core/index.js'
+import type { Item, ShapeItem, Style } from '../../../../core/index.js'
+import {
+  DEFAULT_PALETTE,
+  isTransparentColor,
+  resolveColor,
+  resolveItemStyle,
+  resolveWidth,
+} from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { Collapsible, NumberField, PropertyRow, Select } from '../../../ui/index.js'
 import { ColorFieldRow } from './ColorFieldRow.js'
@@ -44,19 +50,25 @@ export function FillStrokeSection({
 
   const strokeColorKey =
     isText || (isNote && !style.strokeColor)
-      ? style.textColor ?? style.color ?? (isNote ? 'yellow' : 'ink')
-      : style.strokeColor ?? style.color ?? (isShape || isArrow ? 'blue' : 'ink')
+      ? style.textColor ?? style.color ?? (isNote ? DEFAULT_PALETTE.yellow : DEFAULT_PALETTE.ink)
+      : style.strokeColor ??
+        style.color ??
+        (isShape || isArrow ? DEFAULT_PALETTE.blue : DEFAULT_PALETTE.ink)
   const strokeHex = isText
-    ? resolveColor(style.textColor ?? style.color ?? 'ink')
+    ? resolveColor(style.textColor ?? style.color ?? DEFAULT_PALETTE.ink)
     : visual?.strokeColor ?? resolveColor(strokeColorKey)
 
-  const textColorKey = style.textColor ?? 'ink'
+  const textColorKey = style.textColor ?? DEFAULT_PALETTE.ink
   const textHex = visual?.text.color ?? resolveColor(textColorKey)
 
-  const fillColorKey = style.fillColor ?? style.color ?? (isNote ? 'yellow' : 'blue')
-  const fillHex = visual?.fillColor ?? resolveColor(fillColorKey)
-  const fillMode = style.fill ?? 'solid'
-  const hasNoFill = isBoxItem && fillMode === 'none'
+  const hasNoFill = isBoxItem && isTransparentColor(style.fillColor)
+  const fillColorKey =
+    style.fillColor && !hasNoFill
+      ? style.fillColor
+      : style.color ?? (isNote ? DEFAULT_PALETTE.yellow : DEFAULT_PALETTE.blue)
+  const fillHex = hasNoFill
+    ? resolveColor(fillColorKey)
+    : visual?.fillColor ?? resolveColor(fillColorKey)
 
   const numWidth = visual?.strokeWidth ?? resolveWidth(style.width ?? 'm')
   const opacity = visual?.opacity ?? style.opacity ?? 1
@@ -66,7 +78,7 @@ export function FillStrokeSection({
     label: value === 'none' ? t('noBorder') : t(value),
   }))
 
-  const handleStrokeColor = (color: ColorName | string, op?: number) => {
+  const handleStrokeColor = (color: string, op?: number) => {
     const patch: Partial<Style> = {
       ...(op !== undefined ? { opacity: op } : {}),
     }
@@ -81,13 +93,12 @@ export function FillStrokeSection({
     }
   }
 
-  const handleFillColor = (color: ColorName | string, op?: number) => {
+  const handleFillColor = (color: string, op?: number) => {
     onUpdateStyle({
       color,
       fillColor: color,
       ...(op !== undefined ? { opacity: op } : {}),
       ...(isNote ? {} : { strokeColor: style.strokeColor ?? color }),
-      ...(fillMode === 'none' ? { fill: 'solid' as const } : {}),
     })
   }
 
@@ -102,11 +113,10 @@ export function FillStrokeSection({
         map={map}
         label={isText ? t('textColor') : t('stroke')}
         title={isText ? t('textColor') : t('stroke')}
-        mode="stroke"
         currentColor={strokeColorKey}
         currentOpacity={opacity}
         colorHex={strokeHex}
-        onSelectColor={(color, _hex, op) => handleStrokeColor(color, op)}
+        onSelectColor={(hex, op) => handleStrokeColor(hex, op)}
       />
 
       {isBoxItem && (
@@ -114,10 +124,9 @@ export function FillStrokeSection({
           map={map}
           label={t('textColor')}
           title={t('textColor')}
-          mode="stroke"
           currentColor={textColorKey}
           colorHex={textHex}
-          onSelectColor={(color) => onUpdateStyle({ textColor: color })}
+          onSelectColor={(hex) => onUpdateStyle({ textColor: hex })}
         />
       )}
 
@@ -141,15 +150,14 @@ export function FillStrokeSection({
           map={map}
           label={t('fill')}
           title={t('fill')}
-          mode="fill"
           currentColor={fillColorKey}
           currentOpacity={opacity}
-          currentFill={fillMode}
           colorHex={fillHex}
           value={hasNoFill ? t('noFill') : undefined}
           noFill={hasNoFill}
-          onSelectColor={(color, _hex, op) => handleFillColor(color, op)}
-          onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
+          allowNoFill
+          onSelectColor={(hex, op) => handleFillColor(hex, op)}
+          onSelectNoFill={() => onUpdateStyle({ fillColor: 'transparent' })}
         />
       )}
 

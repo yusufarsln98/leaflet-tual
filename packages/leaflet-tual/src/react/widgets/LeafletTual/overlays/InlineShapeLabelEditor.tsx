@@ -3,7 +3,12 @@
 import { memo, useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import type { ArrowItem, Controller, ShapeItem } from '../../../../core/index.js'
-import { resolveSize, resolveWeight } from '../../../../core/index.js'
+import {
+  resolveColor,
+  resolveItemStyle,
+  resolveSize,
+  resolveWeight,
+} from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { getLabelAnchor } from '../../../../shared/drawing/canvas/shape-label.js'
 import { getItemZoomScale } from '../../../../shared/geometry/zoom.js'
@@ -98,13 +103,21 @@ export const InlineShapeLabelEditor = memo(function InlineShapeLabelEditor({
   const scale = getItemZoomScale(map, target)
   const baseFontSize =
     target.style?.fontSize ?? (target.style?.size ? resolveSize(target.style.size) : 12)
-  const fontSize = Math.max(9, Math.round(baseFontSize * scale))
+  const fontSize = baseFontSize * scale
   const weight = resolveWeight(target.style?.weight)
   const fontStyle = target.style?.fontStyle === 'italic' ? 'italic' : 'normal'
   const isUnderline = Boolean(
     target.style?.underline || target.style?.textDecoration === 'underline',
   )
   const textDecoration = isUnderline ? 'underline' : 'none'
+  const paddingX = Math.max(3, 4 * scale)
+  const paddingY = Math.max(1.5, 2 * scale)
+  const textColor =
+    target.type === 'shape'
+      ? resolveItemStyle(target).text.color
+      : target.style?.textColor
+        ? resolveColor(target.style.textColor)
+        : '#1D1D1B'
 
   return (
     <div
@@ -142,10 +155,15 @@ export const InlineShapeLabelEditor = memo(function InlineShapeLabelEditor({
         className="tual-label-input"
         readOnly={!isEditing}
         style={{
+          color: textColor,
+          backgroundColor: '#FFFFFF',
+          fontFamily: 'inherit',
           fontSize: `${fontSize}px`,
           fontWeight: weight,
           fontStyle,
           textDecoration,
+          lineHeight: 1,
+          padding: `${paddingY}px ${paddingX}px`,
         }}
         onFocus={handleFocus}
         onChange={(e) => {

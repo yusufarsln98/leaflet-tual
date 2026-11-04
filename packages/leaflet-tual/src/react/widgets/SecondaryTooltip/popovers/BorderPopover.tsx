@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { ColorName } from '../../../../core/index.js'
-import { resolveColor, resolveWidth } from '../../../../core/index.js'
+import { DEFAULT_PALETTE, resolveColor, resolveWidth } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import {
   ColorSwatchList,
@@ -16,14 +16,14 @@ import {
 
 export interface BorderPopoverProps {
   currentDash?: 'solid' | 'dashed' | 'dotted' | 'none'
-  currentColor?: ColorName | string
-  currentStrokeColor?: ColorName | string
+  currentColor?: string
+  currentStrokeColor?: string
   currentWidth?: 's' | 'm' | 'l' | number
   currentRadius?: number
   isSquareShape?: boolean
   showRadius?: boolean
   onSelectDash: (dash: 'solid' | 'dashed' | 'dotted' | 'none') => void
-  onSelectStrokeColor: (color: ColorName | string) => void
+  onSelectStrokeColor: (hex: string) => void
   onSelectWidth: (width: 's' | 'm' | 'l' | number) => void
   onSelectRadius?: (radius: number) => void
   onClose: () => void
@@ -80,7 +80,7 @@ export function BorderPopover({
   const guardRef = useWheelGuard<HTMLDivElement>()
   const [showPalette, setShowPalette] = useState(false)
 
-  const activeStroke = currentStrokeColor ?? currentColor ?? 'blue'
+  const activeStroke = currentStrokeColor ?? currentColor ?? DEFAULT_PALETTE.blue
   const strokeHex = resolveColor(activeStroke)
   const radiusVisible = showRadius ?? isSquareShape !== false
   const numWidth = resolveWidth(currentWidth)
@@ -172,13 +172,12 @@ export function BorderPopover({
           <ColorSwatchList
             variant="border-flyout"
             items={PALETTE_KEYS.map((key) => ({
-              name: key,
-              hex: resolveColor(key),
+              hex: DEFAULT_PALETTE[key],
               title: t(key),
             }))}
             selectedColor={activeStroke}
-            onSelectColor={(name) => {
-              onSelectStrokeColor(name)
+            onSelectColor={(hex) => {
+              onSelectStrokeColor(hex)
               setShowPalette(false)
             }}
           />

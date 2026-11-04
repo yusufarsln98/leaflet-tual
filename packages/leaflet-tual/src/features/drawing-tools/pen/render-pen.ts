@@ -1,7 +1,12 @@
 import type L from 'leaflet'
 import type { PenItem } from '../../../entities/index.js'
 import { geoToScreen } from '../../../shared/geometry/geo.js'
-import { resolveColor, resolveDash, resolveWidth } from '../../../shared/theme/index.js'
+import {
+  DEFAULT_PALETTE,
+  resolveColor,
+  resolveDash,
+  resolveWidth,
+} from '../../../shared/theme/index.js'
 import { drawHandle } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
 import { getPenSegments } from './pen-geometry.js'
@@ -25,7 +30,7 @@ export function renderPenOnCanvas(
   }))
 
   const scale = getItemZoomScale(map, pen)
-  const color = resolveColor(pen.style?.color ?? 'ink')
+  const color = resolveColor(pen.style?.color ?? DEFAULT_PALETTE.ink)
   const baseLineWidth = resolveWidth(pen.style?.width ?? 'm')
   const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
   const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
@@ -57,7 +62,7 @@ export function renderPenOnCanvas(
   }
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue')
+    const handleColor = resolveColor(DEFAULT_PALETTE.blue)
     const handleSize = Math.max(4, 8 * scale)
 
     // Control handles make the curve editable-looking while selected.

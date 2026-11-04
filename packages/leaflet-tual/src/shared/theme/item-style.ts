@@ -1,5 +1,6 @@
 import type { NoteItem, ShapeItem, Style } from '../../entities/index.js'
 import {
+  DEFAULT_PALETTE,
   resolveColor,
   resolveDash,
   resolveNoteColors,
@@ -26,10 +27,7 @@ export interface ResolvedTextStyle {
 }
 
 export interface ResolvedItemStyle {
-  fill: NonNullable<Style['fill']>
   fillColor: string
-  /** The paint to use for DOM surfaces: solid, tinted or transparent. */
-  backgroundColor: string
   strokeColor: string
   strokeWidth: number
   dash: ResolvedDash
@@ -48,17 +46,15 @@ export function resolveItemStyle(item: BoxItem): ResolvedItemStyle {
   const isNote = context === 'note'
   const dash = style.dash ?? 'solid'
 
-  const baseColor = style.color ?? (isNote ? 'yellow' : 'blue')
+  const baseColor = style.color ?? (isNote ? DEFAULT_PALETTE.yellow : DEFAULT_PALETTE.blue)
 
   const noteColors = isNote
     ? resolveNoteColors(baseColor, style.textColor, style.fillColor)
     : null
 
-  const fill = style.fill ?? (isNote ? 'solid' : 'tint')
   const fillColor = noteColors
     ? noteColors.bg
     : resolveColor(style.fillColor ?? baseColor)
-  const backgroundColor = fill === 'none' ? 'transparent' : fillColor
   const strokeColor = noteColors
     ? style.strokeColor
       ? resolveColor(style.strokeColor)
@@ -80,17 +76,17 @@ export function resolveItemStyle(item: BoxItem): ResolvedItemStyle {
   )
 
   return {
-    fill,
     fillColor,
-    backgroundColor,
     strokeColor,
     strokeWidth,
     dash,
     dashArray: resolveDash(dash),
     radius: style.radius ?? 8,
-    opacity: style.opacity ?? (isNote ? 1 : (fill === 'tint' ? 0.25 : 1)),
+    opacity: style.opacity ?? (isNote ? 1 : 0.5),
     text: {
-      color: noteColors ? noteColors.text : resolveColor(style.textColor ?? 'ink'),
+      color: noteColors
+        ? noteColors.text
+        : resolveColor(style.textColor ?? DEFAULT_PALETTE.ink),
       fontSize,
       fontWeight: resolveWeight(style.weight),
       fontStyle: style.fontStyle === 'italic' ? 'italic' : 'normal',

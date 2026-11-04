@@ -199,4 +199,86 @@ describe('v2 Shape label editing & edit(id) action', () => {
     const updated = result.current.items[0]
     expect(updated?.type === 'arrow' ? updated.label : undefined).toBe('Flow B')
   })
+
+  it('uses the canvas label pill background so text stays readable in dark themes', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    let shape: ReturnType<typeof result.current.add> | undefined
+    act(() => {
+      shape = result.current.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
+        label: 'Dark mode label',
+      })
+      result.current.select(shape.id)
+      result.current.edit(shape.id)
+    })
+
+    const map = createMockMap()
+    if (!shape || shape.type !== 'shape') throw new Error('Expected shape')
+    render(
+      <InlineShapeLabelEditor
+        map={map}
+        item={shape}
+        controller={result.current}
+      />,
+    )
+
+    const input = screen.getByPlaceholderText('Add label...') as HTMLInputElement
+    expect(input.style.backgroundColor).toBe('rgb(255, 255, 255)')
+  })
+
+  it('matches font properties between edit mode input and shape styling', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    let shape: ReturnType<typeof result.current.add> | undefined
+    act(() => {
+      shape = result.current.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
+        label: 'Styled Label',
+        style: {
+          fontSize: 16,
+          weight: 'bold',
+          fontStyle: 'italic',
+          underline: true,
+          color: '#E5484D',
+        },
+      })
+      result.current.select(shape.id)
+      result.current.edit(shape.id)
+    })
+
+    const map = createMockMap()
+    if (!shape || shape.type !== 'shape') throw new Error('Expected shape')
+    render(
+      <InlineShapeLabelEditor
+        map={map}
+        item={shape}
+        controller={result.current}
+      />,
+    )
+
+    const input = screen.getByPlaceholderText('Add label...') as HTMLInputElement
+    expect(input.style.fontSize).toBe('32px')
+    expect(input.style.fontWeight).toBe('700')
+    expect(input.style.fontStyle).toBe('italic')
+    expect(input.style.textDecoration).toBe('underline')
+    expect(input.style.lineHeight).toBe('1')
+    expect(input.style.fontFamily).toBe('inherit')
+  })
 })

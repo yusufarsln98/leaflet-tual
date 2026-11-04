@@ -75,7 +75,7 @@ describe('v2 Controller state machine', () => {
 
   it('uses proper initial default colors for newly created shapes and notes', () => {
     const c = createController()
-    expect(c.style.color).toBe('blue')
+    expect(c.style.color).toBe('#2F6FEB')
 
     const shape = c.add({
       type: 'shape',
@@ -84,16 +84,15 @@ describe('v2 Controller state machine', () => {
       width: 100,
       height: 100,
     })
-    expect(shape.style?.color).toBe('blue')
-    expect(shape.style?.fill).toBe('tint')
+    expect(shape.style?.color).toBe('#2F6FEB')
+    expect(resolveItemStyle(shape as ShapeItem).opacity).toBe(0.5)
 
     const note = c.add({
       type: 'note',
       at: { lat: 41, lng: 28 },
       text: 'Default note',
     })
-    expect(note.style?.color).toBe('yellow')
-    expect(note.style?.fill).toBe('solid')
+    expect(note.style?.color).toBe('#F5C518')
   })
 
   it('selection-aware setStyle modifies selected items', () => {
@@ -109,13 +108,13 @@ describe('v2 Controller state machine', () => {
     c.select(item.id)
     expect(c.selection).toEqual([item.id])
 
-    c.setStyle({ color: 'blue', width: 'l' })
-    expect(c.items[0].style?.color).toBe('blue')
+    c.setStyle({ color: '#2F6FEB', width: 'l' })
+    expect(c.items[0].style?.color).toBe('#2F6FEB')
     expect(c.items[0].style?.width).toBe('l')
   })
 
   it('honors the initial shape color without pinning fill and stroke overrides', () => {
-    const c = createController({ style: { color: 'green' } })
+    const c = createController({ style: { color: '#30A46C' } })
     const shape = c.add({
       type: 'shape',
       kind: 'square',
@@ -124,7 +123,7 @@ describe('v2 Controller state machine', () => {
       height: 100,
     })
 
-    expect(shape.style?.color).toBe('green')
+    expect(shape.style?.color).toBe('#30A46C')
     expect(shape.style?.fillColor).toBeUndefined()
     expect(shape.style?.strokeColor).toBeUndefined()
   })
@@ -140,12 +139,12 @@ describe('v2 Controller state machine', () => {
     })
 
     c.select(shape.id)
-    c.setStyle({ color: 'red' })
+    c.setStyle({ color: '#E5484D' })
 
     expect(c.selected[0].style).toMatchObject({
-      color: 'red',
-      fillColor: 'red',
-      strokeColor: 'red',
+      color: '#E5484D',
+      fillColor: '#E5484D',
+      strokeColor: '#E5484D',
     })
 
     // The next shape drawn inherits the updated primary color too.
@@ -158,9 +157,9 @@ describe('v2 Controller state machine', () => {
       height: 100,
     })
     expect(nextShape.style).toMatchObject({
-      color: 'red',
-      fillColor: 'red',
-      strokeColor: 'red',
+      color: '#E5484D',
+      fillColor: '#E5484D',
+      strokeColor: '#E5484D',
     })
   })
 
@@ -198,9 +197,8 @@ describe('v2 Controller state machine', () => {
     const c = createController()
 
     const sharedStyle: Style = {
-      color: 'blue',
-      fill: 'solid',
-      strokeColor: 'red',
+      color: '#2F6FEB',
+      strokeColor: '#E5484D',
       width: 'l',
       dash: 'dashed',
       radius: 12,
@@ -231,8 +229,6 @@ describe('v2 Controller state machine', () => {
     const noteVisual = resolveItemStyle(note)
 
     // Both interpret the schema consistently:
-    expect(shapeVisual.fill).toBe('solid')
-    expect(noteVisual.fill).toBe('solid')
     expect(shapeVisual.strokeColor).toBe('#E5484D') // red
     expect(noteVisual.strokeColor).toBe('#E5484D') // red
     expect(shapeVisual.strokeWidth).toBe(4) // 'l'

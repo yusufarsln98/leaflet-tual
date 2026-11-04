@@ -14,7 +14,7 @@ Draw on a map the way you draw on a design canvas. Coordinates are always `GeoPo
 ## Core Invariants & Rules
 1. **Store geography, never pixels.** Every persisted coordinate is a `GeoPoint` (`{ lat, lng }`). Never put screen `{ x, y }` in an item.
 2. **Do geometry in world space.** Aspect locks, 45° snapping, circle radii, curve offsets, hit tests and resizing run in a zoom-independent plane (`toWorld` / `fromWorld`), never in current-zoom pixels. Squares stay square and curves keep their shape at every zoom level and latitude.
-3. **Use the built-in style values.** Colors are palette names, widths are `'s' | 'm' | 'l'`, text sizes are `'s' | 'm' | 'l' | 'xl'`. Do not store hex colors or pixel sizes in items.
+3. **Use hex colors and explicit sizes.** Colors are hex strings like `#2F6FEB`; transparency is a separate `opacity` value. Widths are `'s' | 'm' | 'l'`, text sizes are `'s' | 'm' | 'l' | 'xl'`.
 4. **Change the look through tokens**, not by overriding library internals with CSS selectors.
 5. **Every UI word is a translation token.** Provide custom `translations` or set default tokens.
 6. **Change the toolbar through the `toolbar` prop.**
@@ -43,15 +43,14 @@ export interface Page {
   order: string[]
 }
 
-export type ColorName =
-  | 'ink' | 'gray' | 'taupe' | 'red' | 'orange'
-  | 'yellow' | 'green' | 'blue' | 'purple' | 'pink'
-
 export interface Style {
-  color?: ColorName
-  width?: 's' | 'm' | 'l'
-  dash?: 'solid' | 'dashed' | 'dotted'
-  fill?: 'none' | 'tint' | 'solid'
+  color?: string
+  fillColor?: string
+  strokeColor?: string
+  textColor?: string
+  opacity?: number
+  width?: 's' | 'm' | 'l' | number
+  dash?: 'solid' | 'dashed' | 'dotted' | 'none'
   size?: 's' | 'm' | 'l' | 'xl'
   weight?: 'regular' | 'bold'
   fontStyle?: 'normal' | 'italic'
@@ -251,4 +250,4 @@ Actions:
 - `distance(a, b)` / `pathDistance(points)` / `formatDistance(meters, unit, tokens?)`
 - `polygonArea(points)` / `polygonCentroid(points)` / `formatArea(sqMeters, unit, tokens?)`
 - `bounds(item)` / `hitTest(item, point, tolerance)`
-- `resolveColor(name)`
+- `resolveColor(hex)`

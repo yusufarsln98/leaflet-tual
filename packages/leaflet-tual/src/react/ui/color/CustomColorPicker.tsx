@@ -97,6 +97,14 @@ export function CustomColorPicker({
 
   const [currentR, currentG, currentB] = hsvToRgb(hue, sat, val)
 
+  const emitOpacity = (nextOpacity: number) => {
+    setOpacity(nextOpacity)
+    const hex = /^#[0-9A-Fa-f]{6}$/.test(hexInput)
+      ? hexInput
+      : rgbToHex(currentR, currentG, currentB)
+    onSelectColor(hex, nextOpacity)
+  }
+
   const emitColor = useCallback(
     (h: number, s: number, v: number, a: number) => {
       const [r, g, b] = hsvToRgb(h, s, v)
@@ -164,9 +172,7 @@ export function CustomColorPicker({
         className="tual-color-slider-track tual-color-alpha-track"
         map={map}
         onChange={(nx) => {
-          const nextAlpha = Math.round(nx * 100) / 100
-          setOpacity(nextAlpha)
-          emitColor(hue, sat, val, nextAlpha)
+          emitOpacity(Math.round(nx * 100) / 100)
         }}
       >
         <div
@@ -208,9 +214,7 @@ export function CustomColorPicker({
           unit="%"
           value={Math.round(opacity * 100)}
           onChange={(num) => {
-            const clamped = Math.max(0, Math.min(100, num)) / 100
-            setOpacity(clamped)
-            emitColor(hue, sat, val, clamped)
+            emitOpacity(Math.max(0, Math.min(100, num)) / 100)
           }}
           aria-label={t('opacityPercentage', undefined, 'Opacity percentage')}
         />

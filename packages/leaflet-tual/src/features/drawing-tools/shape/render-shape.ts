@@ -1,7 +1,12 @@
 import type L from 'leaflet'
 import type { ShapeItem } from '../../../entities/index.js'
 import { geoToScreen } from '../../../shared/geometry/geo.js'
-import { resolveColor, resolveItemStyle } from '../../../shared/theme/index.js'
+import {
+  DEFAULT_PALETTE,
+  isTransparentColor,
+  resolveColor,
+  resolveItemStyle,
+} from '../../../shared/theme/index.js'
 import { drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getShapeLabelY } from '../../../shared/drawing/canvas/shape-label.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
@@ -16,6 +21,7 @@ export function renderShapeOnCanvas(
     isSelected?: boolean
     isHovered?: boolean
     isEditing?: boolean
+    fontFamily?: string
   } = {},
 ) {
   const scale = getItemZoomScale(map, shape)
@@ -36,7 +42,6 @@ export function renderShapeOnCanvas(
   const lineWidth = isHoveredOnly && baseStroke > 0 ? baseStroke + 0.75 * scale : baseStroke
 
   ctx.save()
-  ctx.globalAlpha = visual.opacity
   ctx.strokeStyle = visual.strokeColor
   ctx.lineWidth = lineWidth
   ctx.setLineDash(visual.dashArray.map((d) => d * scale))
@@ -52,15 +57,9 @@ export function renderShapeOnCanvas(
   ctx.beginPath()
   traceShapePath(ctx, shape.kind, bounds, visual.radius * scale)
 
-  if (visual.fill === 'solid') {
-    ctx.fillStyle = visual.fillColor
-    ctx.fill()
-  } else if (visual.fill === 'tint') {
+  if (!isTransparentColor(visual.fillColor)) {
     ctx.save()
-    ctx.globalAlpha =
-      shape.style?.opacity !== undefined
-        ? visual.opacity
-        : visual.opacity * (isHoveredOnly ? 0.36 : 0.25)
+    ctx.globalAlpha = visual.opacity
     ctx.fillStyle = visual.fillColor
     ctx.fill()
     ctx.restore()
@@ -72,6 +71,7 @@ export function renderShapeOnCanvas(
     ctx.restore()
   }
 
+  ctx.globalAlpha = 1
   if (lineWidth > 0) ctx.stroke()
   if (isHoveredOnly) {
     ctx.shadowColor = 'transparent'
@@ -93,12 +93,13 @@ export function renderShapeOnCanvas(
       underline: visual.text.textDecoration === 'underline',
       paddingX: Math.max(3, 4 * scale),
       paddingY: Math.max(1.5, 2 * scale),
+      fontFamily: options.fontFamily,
     })
     ctx.restore()
   }
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue')
+    const handleColor = resolveColor(DEFAULT_PALETTE.blue)
 
     ctx.save()
     ctx.strokeStyle = handleColor
@@ -115,4 +116,3 @@ export function renderShapeOnCanvas(
 
   ctx.restore()
 }
-

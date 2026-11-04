@@ -2,7 +2,12 @@ import type L from 'leaflet'
 import type { FreedrawItem } from '../../../entities/index.js'
 import type { ScreenPoint } from '../../../shared/types/index.js'
 import { geoToScreen } from '../../../shared/geometry/geo.js'
-import { resolveColor, resolveDash, resolveWidth } from '../../../shared/theme/index.js'
+import {
+  DEFAULT_PALETTE,
+  resolveColor,
+  resolveDash,
+  resolveWidth,
+} from '../../../shared/theme/index.js'
 import { drawHandle } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
 
@@ -19,7 +24,7 @@ export function renderFreedrawOnCanvas(
 
   const screenPoints: ScreenPoint[] = freedraw.points.map((p) => geoToScreen(map, p))
   const scale = getItemZoomScale(map, freedraw)
-  const color = resolveColor(freedraw.style?.color ?? 'ink')
+  const color = resolveColor(freedraw.style?.color ?? DEFAULT_PALETTE.ink)
   const baseLineWidth = resolveWidth(freedraw.style?.width ?? 'm')
   const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
   const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
@@ -53,7 +58,7 @@ export function renderFreedrawOnCanvas(
   ctx.stroke()
 
   if (options.isSelected) {
-    const handleColor = resolveColor('blue')
+    const handleColor = resolveColor(DEFAULT_PALETTE.blue)
     const handleSize = Math.max(4, 8 * scale)
     drawHandle(ctx, screenPoints[0], handleColor, handleSize)
     drawHandle(ctx, screenPoints[screenPoints.length - 1], handleColor, handleSize)

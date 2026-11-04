@@ -2,7 +2,7 @@
 
 import type L from 'leaflet'
 import type { ResolvedItemStyle, Style } from '../../../../core/index.js'
-import { resolveColor } from '../../../../core/index.js'
+import { DEFAULT_PALETTE, isTransparentColor, resolveColor } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { ColorSwatch } from '../../../ui/index.js'
 import { ColorDropdown } from './ColorDropdown.js'
@@ -37,9 +37,13 @@ export function ColorSwatchControls({
   const { t } = useTranslation()
 
   if (isNote) {
-    const textColor = resolvedStyle?.text.color ?? resolveColor(style.textColor ?? 'ink')
-    const backgroundColor =
-      resolvedStyle?.fillColor ?? resolveColor(style.fillColor ?? style.color ?? 'yellow')
+    const textColor =
+      resolvedStyle?.text.color ?? resolveColor(style.textColor ?? DEFAULT_PALETTE.ink)
+    const noFill = isTransparentColor(style.fillColor)
+    const backgroundColor = noFill
+      ? resolveColor(style.color ?? DEFAULT_PALETTE.yellow)
+      : resolvedStyle?.fillColor ??
+        resolveColor(style.fillColor ?? style.color ?? DEFAULT_PALETTE.yellow)
 
     return (
       <>
@@ -48,15 +52,15 @@ export function ColorSwatchControls({
             variant="secondary-button"
             colorHex={textColor}
             title={t('textColor')}
+            selected={activePopover === 'textColor'}
             onClick={() => onToggle('textColor')}
           />
           {activePopover === 'textColor' && (
             <ColorDropdown
               map={map}
               title={t('textColor')}
-              mode="stroke"
-              currentColor={style.textColor ?? 'ink'}
-              onSelectColor={(c) => onUpdateStyle({ textColor: c })}
+              currentColor={style.textColor ?? DEFAULT_PALETTE.ink}
+              onSelectColor={(hex) => onUpdateStyle({ textColor: hex })}
               onClose={onClose}
             />
           )}
@@ -65,26 +69,31 @@ export function ColorSwatchControls({
           <ColorSwatch
             variant="secondary-button"
             colorHex={backgroundColor}
-            noFill={style.fill === 'none'}
+            noFill={noFill}
             title={t('color')}
+            selected={activePopover === 'color'}
             onClick={() => onToggle('color')}
           />
           {activePopover === 'color' && (
             <ColorDropdown
               map={map}
               title={t('color')}
-              mode="fill"
-              currentColor={style.fillColor ?? style.color ?? 'yellow'}
+              currentColor={
+                noFill
+                  ? style.color ?? DEFAULT_PALETTE.yellow
+                  : style.fillColor ?? style.color ?? DEFAULT_PALETTE.yellow
+              }
               currentOpacity={style.opacity}
-              currentFill={style.fill}
-              onSelectColor={(c, _hex, opacity) => {
+              allowNoFill
+              noFillSelected={noFill}
+              onSelectColor={(hex, opacity) => {
                 onUpdateStyle({
-                  color: c,
-                  fillColor: c,
+                  color: hex,
+                  fillColor: hex,
                   ...(opacity !== undefined ? { opacity } : {}),
                 })
               }}
-              onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
+              onSelectNoFill={() => onUpdateStyle({ fillColor: 'transparent' })}
               onClose={onClose}
             />
           )}
@@ -93,44 +102,48 @@ export function ColorSwatchControls({
     )
   }
 
-  const shapeOrArrowColor = style.color ?? (isShape || isArrow ? 'blue' : 'ink')
-  const itemColor = isShape ? (style.fillColor ?? shapeOrArrowColor) : shapeOrArrowColor
-  const itemOpacity = style.opacity ?? (isShape ? 0.25 : 1)
+  const shapeOrArrowColor =
+    style.color ?? (isShape || isArrow ? DEFAULT_PALETTE.blue : DEFAULT_PALETTE.ink)
+  const noFill = isShape && isTransparentColor(style.fillColor)
+  const itemColor = isShape
+    ? noFill
+      ? shapeOrArrowColor
+      : style.fillColor ?? shapeOrArrowColor
+    : shapeOrArrowColor
+  const itemOpacity = style.opacity ?? (isShape ? 0.5 : 1)
 
   return (
     <div style={{ position: 'relative' }}>
       <ColorSwatch
         variant="secondary-button"
         colorHex={colorHex}
-        noFill={style.fill === 'none'}
+        noFill={noFill}
         title={t('color')}
+        selected={activePopover === 'color'}
         onClick={() => onToggle('color')}
       />
       {activePopover === 'color' && (
         <ColorDropdown
           map={map}
           title={t('color')}
-          mode={isShape ? 'fill' : 'stroke'}
           currentColor={itemColor}
           currentOpacity={itemOpacity}
-          currentFill={style.fill}
-          onSelectColor={(c, _hex, opacity) => {
+          allowNoFill={isShape}
+          noFillSelected={noFill}
+          onSelectColor={(hex, opacity) => {
             const nextStyle: Partial<Style> = {
-              color: c,
+              color: hex,
               ...(opacity !== undefined ? { opacity } : {}),
             }
             if (isShape) {
-              nextStyle.fillColor = c
-              nextStyle.strokeColor = c
+              nextStyle.fillColor = hex
+              nextStyle.strokeColor = hex
             } else if (isArrow) {
-              nextStyle.strokeColor = c
-            }
-            if (style.fill === 'none') {
-              nextStyle.fill = 'solid'
+              nextStyle.strokeColor = hex
             }
             onUpdateStyle(nextStyle)
           }}
-          onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
+          onSelectNoFill={() => onUpdateStyle({ fillColor: 'transparent' })}
           onClose={onClose}
         />
       )}

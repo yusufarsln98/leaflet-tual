@@ -35,7 +35,7 @@ export const TestToolbarHarness: React.FC<TestToolbarHarnessProps> = (props) => 
               kind: 'linear',
               from: { lat: 41.0, lng: 28.9 },
               to: { lat: 41.02, lng: 28.95 },
-              style: { color: 'blue', width: 'm' },
+              style: { color: '#2F6FEB', width: 'm' },
               createdAt: 1,
             },
           },

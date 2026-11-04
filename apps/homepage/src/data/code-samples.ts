@@ -56,7 +56,7 @@ const tual = createLeafletTual(map, {
 
 // Programmatic tool & style control
 tual.setTool('arrow', 'curved')
-tual.setStyle({ color: 'blue', width: 'm' })`,
+tual.setStyle({ color: '#2F6FEB', width: 'm' })`,
   },
   {
     id: 'decoupled-toolbar',

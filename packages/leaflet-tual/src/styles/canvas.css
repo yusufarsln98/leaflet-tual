@@ -41,18 +41,20 @@
 }
 
 .tual-label-input {
-  background: var(--tual-surface);
-  color: var(--tual-text);
+  /* Matches the always-light label pills rendered on the canvas. */
+  background: #ffffff;
+  color: #1d1d1b;
   border: 1px solid var(--tual-border-focus);
-  border-radius: var(--tual-radius-btn, 6px);
-  padding: 4px 8px;
+  border-radius: 3px;
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
   text-align: center;
   outline: none;
   box-shadow: var(--tual-shadow-floating);
   min-width: 60px;
+  box-sizing: border-box;
 }
 
 /* Notes & Overlays */
@@ -66,6 +68,7 @@
   cursor: pointer;
   user-select: none;
   box-sizing: border-box;
+  background-clip: padding-box;
   display: flex;
   flex-direction: column;
   aspect-ratio: 1 / 1;

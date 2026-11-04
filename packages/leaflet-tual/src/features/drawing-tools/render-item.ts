@@ -13,6 +13,7 @@ export interface RenderItemOptions {
   isHovered?: boolean
   isEditing?: boolean
   translations?: Partial<TranslationTokens>
+  fontFamily?: string
 }
 
 export function renderItemOnCanvas(

@@ -1,5 +1,41 @@
 # leaflet-tual
 
+## 2.0.2
+
+### Patch Changes
+
+- **Stylesheet Packaging**:
+  - Pointed the `leaflet-tual/styles.css` export at the published `dist/styles.css` bundle instead of `src/styles.css`, and stopped shipping only `src/styles.css` without its relative `styles/` imports.
+  - Made the build copy step idempotent so `dist/styles/` always contains the stylesheet partials at the paths referenced by `dist/styles.css`.
+  - Consumers can now import `leaflet-tual/styles.css` in Vite/Webpack without aliasing it to the package source.
+
+- **Simplified Color & Fill API**:
+  - Removed the `fill` and `fillOpacity` style fields. Fill is controlled by `fillColor` plus `opacity`; use `fillColor: 'transparent'` for no fill.
+  - Colors are now hex strings only. RGB, HSL and named-color style values are no longer accepted.
+  - Unified the theme color presets with the default palette and updated the showcase presets to hex values.
+
+- **Shape Theme Opacity**:
+  - Raised the default shape opacity from 25% to 50%.
+  - Theme color presets now apply 50% opacity to shapes, while explicitly customized shape opacity values remain unchanged.
+
+- **Inline Label Editor Dark Mode Contrast**:
+  - Restored the white label-pill background in the inline shape/arrow label editor to match the canvas label rendering.
+  - Dark text in the editor — which intentionally mirrors the canvas label text color — is now readable in dark themes instead of rendering dark-on-dark.
+
+- **Label Typography & Inline Editor Synchronization**:
+  - Synchronized font family between normal canvas label pill rendering and the inline shape/arrow label editor (`InlineShapeLabelEditor`). Canvas text now dynamically resolves the container's computed `fontFamily` (with fallback to default sans-serif font stack), matching the input element's font face and eliminating font face jumping when entering or exiting edit mode.
+  - Aligned font sizing (`baseFontSize * scale` without rounding or clamping), font weight, text colors, `line-height: 1`, border radius (3px), and zoom-scaled padding (`paddingX`, `paddingY`) between canvas pills and edit-mode inputs for seamless pixel alignment.
+
+- **Label Opacity Isolation**:
+  - Ensured label pills on shapes and canvas annotations never inherit shape fill or stroke opacity (`ctx.globalAlpha = 1`), keeping labels consistently opaque and readable regardless of shape transparency.
+
+- **Color Modal Opacity Synchronization**:
+  - Selecting a theme color preset in the secondary tooltip now preserves the current opacity value when switching to the Custom tab.
+  - Cleaned up item styles and demo presets to use standard hex colors with numeric opacity properties, removing deprecated RGB string conversions.
+
+- **Shape Shift-Resize Anchor Stability**:
+  - Fixed an issue where holding `Shift` to constrain proportions during shape resizing caused the opposite reference anchor to shift away from its starting position. Proportional expansion now firmly anchors to the opposing corner or side.
+
 ## 2.0.1
 
 ### Patch Changes

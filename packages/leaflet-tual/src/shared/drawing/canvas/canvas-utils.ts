@@ -17,6 +17,9 @@ export function drawHandle(
   ctx.restore()
 }
 
+export const DEFAULT_LABEL_FONT_FAMILY =
+  'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+
 export function drawLabelPill(
   ctx: CanvasRenderingContext2D,
   center: ScreenPoint,
@@ -31,6 +34,7 @@ export function drawLabelPill(
     underline?: boolean
     paddingX?: number
     paddingY?: number
+    fontFamily?: string
   } = {},
 ) {
   if (!text) return
@@ -44,7 +48,16 @@ export function drawLabelPill(
   }
   const weight = options.fontWeight ?? '500'
   const italic = options.fontStyle === 'italic' ? 'italic ' : ''
-  ctx.font = `${italic}${weight} ${fontSize}px system-ui, -apple-system, sans-serif`
+  let family = options.fontFamily
+  if (!family && typeof window !== 'undefined' && ctx.canvas?.ownerDocument) {
+    try {
+      const computed = window.getComputedStyle(ctx.canvas).fontFamily
+      if (computed) family = computed
+    } catch {
+      // fallback to default
+    }
+  }
+  ctx.font = `${italic}${weight} ${fontSize}px ${family || DEFAULT_LABEL_FONT_FAMILY}`
   const textWidth = ctx.measureText(text).width
   const paddingX = options.paddingX ?? Math.max(2, fontSize * 0.4)
   const paddingY = options.paddingY ?? Math.max(1, fontSize * 0.2)

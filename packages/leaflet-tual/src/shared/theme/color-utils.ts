@@ -1,17 +1,9 @@
 import type { ColorName } from '../../entities/item/types.js'
+import { DEFAULT_PALETTE } from './theme-constants.js'
 
-export const PRESET_COLORS: { name: ColorName; hex: string }[] = [
-  { name: 'ink', hex: '#1F2A30' },
-  { name: 'taupe', hex: '#4A5560' },
-  { name: 'blue', hex: '#1B4CC0' },
-  { name: 'red', hex: '#8F2323' },
-  { name: 'green', hex: '#0B6B49' },
-  { name: 'purple', hex: '#4A2C80' },
-  { name: 'gray', hex: '#6B7280' },
-  { name: 'orange', hex: '#EA580C' },
-  { name: 'yellow', hex: '#D97706' },
-  { name: 'pink', hex: '#DB2777' },
-]
+export const PRESET_COLORS: { name: ColorName; hex: string }[] = (
+  Object.keys(DEFAULT_PALETTE) as ColorName[]
+).map((name) => ({ name, hex: DEFAULT_PALETTE[name] }))
 
 export interface RgbaColor {
   r: number
@@ -21,48 +13,17 @@ export interface RgbaColor {
 }
 
 export function parseColorString(val?: string): RgbaColor {
-  if (!val) return { r: 217, g: 119, b: 6, a: 1 }
-  const trimmed = val.trim()
-
-  if (trimmed.startsWith('#')) {
-    let hex = trimmed.slice(1)
-    if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('')
-    if (hex.length === 6) {
-      return {
-        r: parseInt(hex.slice(0, 2), 16) || 0,
-        g: parseInt(hex.slice(2, 4), 16) || 0,
-        b: parseInt(hex.slice(4, 6), 16) || 0,
-        a: 1,
-      }
-    }
-    if (hex.length === 8) {
-      return {
-        r: parseInt(hex.slice(0, 2), 16) || 0,
-        g: parseInt(hex.slice(2, 4), 16) || 0,
-        b: parseInt(hex.slice(4, 6), 16) || 0,
-        a: (parseInt(hex.slice(6, 8), 16) || 255) / 255,
-      }
-    }
+  let hex = val?.trim().replace(/^#/, '') ?? ''
+  if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('')
+  if (!/^[0-9a-f]{6}$/i.test(hex)) {
+    hex = DEFAULT_PALETTE.ink.slice(1)
   }
-
-  const rgbaMatch = trimmed.match(
-    /rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)/,
-  )
-  if (rgbaMatch) {
-    return {
-      r: parseInt(rgbaMatch[1], 10),
-      g: parseInt(rgbaMatch[2], 10),
-      b: parseInt(rgbaMatch[3], 10),
-      a: rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1,
-    }
+  return {
+    r: parseInt(hex.slice(0, 2), 16),
+    g: parseInt(hex.slice(2, 4), 16),
+    b: parseInt(hex.slice(4, 6), 16),
+    a: 1,
   }
-
-  const preset = PRESET_COLORS.find((c) => c.name === trimmed)
-  if (preset) {
-    return parseColorString(preset.hex)
-  }
-
-  return { r: 217, g: 119, b: 6, a: 1 }
 }
 
 export function hsvToRgb(h: number, s: number, v: number): [number, number, number] {

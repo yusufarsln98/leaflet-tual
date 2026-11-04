@@ -1,4 +1,4 @@
-import { resolveColor } from '../../../shared/theme/index.js'
+import { DEFAULT_PALETTE, resolveColor } from '../../../shared/theme/index.js'
 import type { LaserPoint, LaserState } from './types.js'
 
 export const LASER_LIFETIME_MS = 1000
@@ -10,7 +10,7 @@ export function renderLaserOnCanvas(
 ): void {
   const now = Date.now()
   const rawTrail = laserState.trail.filter((p) => now - p.time < lifetimeMs)
-  const baseColor = resolveColor(laserState.color ?? 'red')
+  const baseColor = resolveColor(laserState.color ?? DEFAULT_PALETTE.red)
 
   // Group trail points into strokes by strokeId
   const strokes: LaserPoint[][] = []

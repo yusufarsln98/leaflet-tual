@@ -15,7 +15,7 @@ describe('v2 Note Overlay Component', () => {
       width: 180,
       height: 180,
       text: 'Meeting at 10 AM',
-      style: { color: 'ink', fillColor: 'yellow' },
+      style: { color: '#1D1D1B', fillColor: '#F5C518' },
     }) as NoteItem
 
     const { container } = render(
@@ -81,7 +81,7 @@ describe('v2 Note Overlay Component', () => {
       width: 180,
       height: 180,
       text: 'Bordered note',
-      style: { strokeColor: 'purple', width: 'l', dash: 'dashed' },
+      style: { strokeColor: '#8E4EC6', width: 'l', dash: 'dashed' },
     }) as NoteItem
 
     const { container } = render(

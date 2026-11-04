@@ -13,7 +13,7 @@ import {
   renderRulerOnCanvas,
   renderShapeOnCanvas,
 } from '../../../features/drawing-tools/index.js'
-import { resolveColor } from '../../theme/theme.js'
+import { DEFAULT_PALETTE, resolveColor } from '../../theme/theme.js'
 import { snapAngle } from '../../geometry/coordinates.js'
 import { isClickGesture, resolveShapePlacement } from './shape-drawing.js'
 import { isArrowKind, isShapeKind } from '../../../entities/index.js'
@@ -47,6 +47,16 @@ export function drawCanvasScene(
   const hoveredIds: string[] = !activeGesture && hoveredItemId ? [hoveredItemId] : []
   const hoveredSet = new Set(hoveredIds)
 
+  let fontFamily: string | undefined
+  if (typeof window !== 'undefined' && canvas?.ownerDocument) {
+    try {
+      const computed = window.getComputedStyle(canvas).fontFamily
+      if (computed) fontFamily = computed
+    } catch {
+      // fallback
+    }
+  }
+
   for (const item of items) {
     if (!isItemInViewport(map, item, 100)) continue
     const isItemSelected = selectionSet.has(item.id)
@@ -55,6 +65,7 @@ export function drawCanvasScene(
       isHovered: hoveredSet.has(item.id) || (isMultiSelected && isItemSelected),
       isEditing: controller.editingId === item.id,
       translations: controller.translations,
+      fontFamily,
     })
   }
 
@@ -67,7 +78,7 @@ export function drawCanvasScene(
       const gy = selectionBounds.minY - pad
       const gw = selectionBounds.width + pad * 2
       const gh = selectionBounds.height + pad * 2
-      const handleColor = resolveColor('blue')
+      const handleColor = resolveColor(DEFAULT_PALETTE.blue)
 
       ctx.save()
       ctx.strokeStyle = handleColor
