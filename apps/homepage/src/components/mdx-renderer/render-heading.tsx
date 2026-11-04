@@ -9,8 +9,7 @@ export function renderHeading(
   scrollToSection: (id: string) => void,
   sectionId: string,
 ): React.ReactNode {
-  const text = nodeText(heading as unknown as RootContent)
-  const isZeugmaSection = sectionId === 'zeugma-mosaics'
+  const text = nodeText(heading)
 
   const slug = text
     .toLowerCase()
@@ -45,11 +44,7 @@ export function renderHeading(
       <h2
         key={key}
         id={headingId}
-        className={`group flex items-center gap-2 text-2xl font-bold text-text-primary pb-2.5 transition-colors ${
-          isZeugmaSection
-            ? 'border-b border-accent font-display italic text-accent text-3xl'
-            : 'border-b border-border-primary'
-        }`}
+        className={`group flex items-center gap-2 text-2xl font-bold text-text-primary pb-2.5 transition-colors ${'border-b border-border-primary'}`}
       >
         <span>{renderInline(heading.children as RootContent[], `${key}-`)}</span>
         <a
@@ -97,4 +92,3 @@ export function renderHeading(
     </h5>
   )
 }
-

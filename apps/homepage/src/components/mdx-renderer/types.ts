@@ -14,6 +14,8 @@ import type {
   TableRow,
   TableCell,
   Blockquote,
+  Image,
+  Delete,
 } from 'mdast'
 
 export type { RootContent }
@@ -32,6 +34,8 @@ export type {
   TableRow,
   TableCell,
   Blockquote,
+  Image,
+  Delete,
 }
 
 export type CalloutType = 'note' | 'tip' | 'warning'

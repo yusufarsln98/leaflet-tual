@@ -1,0 +1,65 @@
+import type L from 'leaflet'
+import type { CanvasGesture, GeoPoint, ScreenPoint } from '../../types/index.js'
+import type { Item } from '../../../entities/item/types.js'
+import {
+  hitTestAreaHandle,
+  hitTestArrowHandle,
+  hitTestPenHandle,
+  hitTestRulerHandle,
+  hitTestShapeHandle,
+} from '../../../features/drawing-tools/index.js'
+
+export function findResizeGestureUnderPointer(
+  map: L.Map,
+  selectedItems: Item[],
+  pt: ScreenPoint,
+  geo: GeoPoint,
+): CanvasGesture | null {
+  if (selectedItems.length !== 1) return null
+  for (const item of selectedItems) {
+    if (item.locked) continue
+    if (item.type === 'shape') {
+      const hitHandle = hitTestShapeHandle(map, item, pt, 8)
+      if (hitHandle) {
+        return {
+          type: 'resize-shape',
+          shapeId: item.id,
+          handle: hitHandle.type,
+          initialAt: item.at,
+          initialWidth: item.width,
+          initialHeight: item.height,
+          startPt: pt,
+          startGeo: geo,
+        }
+      }
+    } else if (item.type === 'arrow') {
+      const hitHandle = hitTestArrowHandle(map, item, pt, 8)
+      if (hitHandle) {
+        return { type: 'resize-arrow', arrowId: item.id, handle: hitHandle, startGeo: geo }
+      }
+    } else if (item.type === 'ruler') {
+      const hitHandle = hitTestRulerHandle(map, item, pt, 8)
+      if (hitHandle) {
+        return { type: 'resize-ruler', rulerId: item.id, handle: hitHandle, startGeo: geo }
+      }
+    } else if (item.type === 'area') {
+      const hitVertex = hitTestAreaHandle(map, item, pt, 8)
+      if (hitVertex !== null) {
+        return { type: 'resize-area', areaId: item.id, vertexIndex: hitVertex, startGeo: geo }
+      }
+    } else if (item.type === 'pen') {
+      const hitHandle = hitTestPenHandle(map, item, pt)
+      if (hitHandle) {
+        return {
+          type: 'edit-pen',
+          penId: item.id,
+          pointIndex: hitHandle.pointIndex,
+          handle: hitHandle.type,
+          startGeo: geo,
+          initialPoints: item.points,
+        }
+      }
+    }
+  }
+  return null
+}

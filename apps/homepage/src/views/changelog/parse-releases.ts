@@ -11,7 +11,7 @@ export function parseReleaseGroups(nodes: RootContent[]): {
   let currentGroup: ReleaseGroup | null = null
 
   for (const node of nodes) {
-    if (node.type === 'heading' && (node as any).depth === 2) {
+    if (node.type === 'heading' && 'depth' in node && node.depth === 2) {
       if (currentGroup) {
         releases.push(currentGroup)
       }

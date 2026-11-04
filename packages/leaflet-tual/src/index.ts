@@ -13,4 +13,9 @@
  * which wraps the same core engine exported here.
  */
 
+export { VERSION } from './version.js'
+
+export * from './shared/index.js'
+export * from './entities/index.js'
+export * from './features/index.js'
 export * from './core/index.js'
