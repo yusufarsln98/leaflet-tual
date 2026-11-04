@@ -1,168 +1,175 @@
-import React from 'react'
-import type L from 'leaflet'
 import { describe, it, expect, vi } from 'vitest'
-import { render, fireEvent } from '@testing-library/react'
-import {
-  TextOverlay,
-  calculateZoomFontSize,
-  type TextItem,
-} from '../index.js'
-import './test-utils.js'
+import { render, screen, fireEvent, renderHook, act } from '@testing-library/react'
+import { TextOverlayView } from '../widgets/LeafletTual/overlays/index.js'
+import { useKeyboardShortcuts } from '../widgets/LeafletTual/hooks/index.js'
+import { useLeafletTual } from '../features/use-leaflet-tual.js'
+import { createController } from '../../core/controller.js'
+import type { TextItem } from '../../core/index.js'
+import { emptyDoc } from '../../core/index.js'
+import { createMockMap } from './test-utils.js'
 
-describe('TextOverlay', () => {
-  it('clamps TextOverlay to viewport bounds so text does not bleed off container edges', () => {
-    const mockMap = {
-      getSize: () => ({ x: 800, y: 600 }),
-      getContainer: () => ({
-        getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }),
-      }),
-      dragging: {
-        disable: vi.fn(),
-        enable: vi.fn(),
-      },
-    } as unknown as L.Map
-
-    const textItem: TextItem = {
-      id: 'text-edge',
+describe('v2 Text Overlay Component', () => {
+  it('renders text annotation on map', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const text = controller.add({
       type: 'text',
-      position: { lat: 0, lng: 0 },
-      text: 'Facility Perimeter',
-      color: '#000000',
-      initialFontSize: 16,
-      createdAt: 0,
-    }
+      at: { lat: 41, lng: 28 },
+      text: 'Bosphorus Strait',
+    }) as TextItem
+
+    render(
+      <TextOverlayView
+        map={map}
+        textItem={text}
+        controller={controller}
+        currentZoom={14}
+      />,
+    )
+
+    expect(screen.getByText('Bosphorus Strait')).toBeDefined()
+  })
+
+  it('switches to inline textarea editor on double click', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const text = controller.add({
+      type: 'text',
+      at: { lat: 41, lng: 28 },
+      text: 'Editable text',
+    }) as TextItem
 
     const { container } = render(
-      React.createElement(TextOverlay, {
-        item: textItem,
-        screenPos: { x: 795, y: 5 },
-        isSelected: false,
-        map: mockMap,
-        clampToViewport: true,
-        onSelect: vi.fn(),
-        onUpdate: vi.fn(),
-        onDelete: vi.fn(),
-      }),
+      <TextOverlayView
+        map={map}
+        textItem={text}
+        controller={controller}
+        currentZoom={14}
+      />,
     )
 
-    const el = container.querySelector('[data-tual-text="text-edge"]') as HTMLElement
-    expect(el).toBeDefined()
-    const leftVal = parseFloat(el.style.left)
-    const topVal = parseFloat(el.style.top)
-    expect(leftVal).toBeLessThan(795)
-    expect(topVal).toBeGreaterThan(5)
+    const onParentDoubleClick = vi.fn()
+    container.addEventListener('dblclick', onParentDoubleClick)
+
+    const textEl = screen.getByText('Editable text')
+    fireEvent.doubleClick(textEl)
+
+    const textarea = screen.getByDisplayValue('Editable text') as HTMLTextAreaElement
+    expect(textarea).toBeDefined()
+    expect(textarea.selectionStart).toBe(0)
+    expect(textarea.selectionEnd).toBe('Editable text'.length)
+    expect(onParentDoubleClick).not.toHaveBeenCalled()
+
+    container.removeEventListener('dblclick', onParentDoubleClick)
   })
 
-  it('renders TextOverlay in compact state when map zoom is below threshold and reveals actual state on click', () => {
-    const mockMap = {
-      getZoom: () => 10,
-      getSize: () => ({ x: 800, y: 600 }),
-      getContainer: () => ({
-        getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }),
-      }),
-      dragging: {
-        disable: vi.fn(),
-        enable: vi.fn(),
-      },
-    } as unknown as L.Map
+  it('starts editing selected text on Enter', () => {
+    const { result } = renderHook(() => {
+      const controller = useLeafletTual({ defaultValue: emptyDoc() })
+      useKeyboardShortcuts(controller, () => {})
+      return controller
+    })
 
-    const onSelect = vi.fn()
+    let textId = ''
+    act(() => {
+      const text = result.current.add({
+        type: 'text',
+        at: { lat: 41, lng: 28 },
+        text: 'Enter to edit',
+      })
+      textId = text.id
+      result.current.select(textId)
+    })
 
-    const textItem: TextItem = {
-      id: 'txt-compact-1',
+    expect(result.current.editingId).toBeNull()
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    })
+
+    expect(result.current.editingId).toBe(textId)
+  })
+
+  it('renders underline text decoration and supports shortcuts and bullets in textarea', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const text = controller.add({
       type: 'text',
-      position: { lat: 0, lng: 0 },
-      text: 'Detailed Observation Post Alpha',
-      color: '#1d4ed8',
-      initialFontSize: 24,
-      createdAt: 0,
-    }
+      at: { lat: 41, lng: 28 },
+      text: '• First line',
+      style: {
+        weight: 'bold',
+        fontStyle: 'italic',
+        underline: true,
+      },
+    }) as TextItem
 
-    const { container, rerender } = render(
-      React.createElement(TextOverlay, {
-        item: textItem,
-        screenPos: { x: 200, y: 200 },
-        isSelected: false,
-        map: mockMap,
-        autoMinimizeZoomThreshold: 12, // current zoom 10 < 12 -> compact
-        onSelect,
-        onUpdate: vi.fn(),
-        onDelete: vi.fn(),
-      }),
+    const { container } = render(
+      <TextOverlayView
+        map={map}
+        textItem={text}
+        controller={controller}
+        currentZoom={14}
+      />,
     )
 
-    // In low zoom, renders compact pill
-    const compactPill = container.querySelector('.rlc-text-compact-pill') as HTMLElement
-    expect(compactPill).toBeTruthy()
-    expect(compactPill.getAttribute('data-compact')).toBe('true')
-    expect(compactPill.style.borderRadius).toBe('9999px')
-    expect(compactPill.style.fontSize).toBe('11px')
+    const textEl = screen.getByText('• First line')
+    expect(textEl.style.textDecoration).toBe('underline')
+    expect(textEl.style.fontWeight).toBe('700')
+    expect(textEl.style.fontStyle).toBe('italic')
 
-    // Clicking compact text triggers onSelect and reveals actual state
-    fireEvent.click(compactPill)
-    expect(onSelect).toHaveBeenCalledWith('txt-compact-1')
+    // Double click to open editor
+    fireEvent.doubleClick(textEl)
+    const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+    expect(textarea).toBeDefined()
+    expect(textarea.style.textDecoration).toBe('underline')
 
-    // Re-render as selected
-    rerender(
-      React.createElement(TextOverlay, {
-        item: textItem,
-        screenPos: { x: 200, y: 200 },
-        isSelected: true,
-        map: mockMap,
-        autoMinimizeZoomThreshold: 12,
-        onSelect,
-        onUpdate: vi.fn(),
-        onDelete: vi.fn(),
-      }),
-    )
+    // Toggle bold via Ctrl+B shortcut
+    fireEvent.keyDown(textarea, { key: 'b', ctrlKey: true })
+    const updated1 = controller.items.find((it): it is TextItem => it.id === text.id)
+    expect(updated1?.style?.weight).toBe('regular')
 
-    // Actual display is rendered with dynamically scaled fontSize (11px at zoom 10 from initial 24px at baseZoom 14)
-    const normalDisplay = container.querySelector('.rlc-text-display') as HTMLElement
-    expect(normalDisplay).toBeTruthy()
-    expect(normalDisplay.style.fontSize).toBe('11px')
+    // Toggle italic via Ctrl+I shortcut
+    fireEvent.keyDown(textarea, { key: 'i', ctrlKey: true })
+    const updated2 = controller.items.find((it): it is TextItem => it.id === text.id)
+    expect(updated2?.style?.fontStyle).toBe('normal')
 
-    // At base zoom (14), font size matches the initial 24px
-    mockMap.getZoom = () => 14
-    rerender(
-      React.createElement(TextOverlay, {
-        item: textItem,
-        screenPos: { x: 200, y: 200 },
-        isSelected: true,
-        map: mockMap,
-        onSelect,
-        onUpdate: vi.fn(),
-        onDelete: vi.fn(),
-      }),
-    )
-    expect(normalDisplay.style.fontSize).toBe('24px')
-
-    // At high zoom (16), font size dynamically scales up to 36px
-    mockMap.getZoom = () => 16
-    rerender(
-      React.createElement(TextOverlay, {
-        item: textItem,
-        screenPos: { x: 200, y: 200 },
-        isSelected: true,
-        map: mockMap,
-        onSelect,
-        onUpdate: vi.fn(),
-        onDelete: vi.fn(),
-      }),
-    )
-    expect(normalDisplay.style.fontSize).toBe('36px')
+    // Toggle underline via Ctrl+U shortcut
+    fireEvent.keyDown(textarea, { key: 'u', ctrlKey: true })
+    const updated3 = controller.items.find((it): it is TextItem => it.id === text.id)
+    expect(updated3?.style?.underline).toBe(false)
   })
 
-  it('calculates dynamic zoom font size smoothly and stays within proper bounds', () => {
-    // At baseZoom (14), font size matches initial exactly
-    expect(calculateZoomFontSize(16, 14, 14)).toBe(16)
-    // When zoomed in to 16, font size scales up
-    expect(calculateZoomFontSize(16, 16, 14)).toBe(24)
-    // When zoomed out to 12, font size scales down
-    expect(calculateZoomFontSize(16, 12, 14)).toBe(11)
-    // When map.getZoom() is null, falls back to initial
-    expect(calculateZoomFontSize(18, null, 14)).toBe(18)
-    // Clamped to bounds
-    expect(calculateZoomFontSize(16, 2, 14)).toBeGreaterThanOrEqual(9)
-    expect(calculateZoomFontSize(16, 25, 14)).toBeLessThanOrEqual(72)
+  it('renders placeholder "Double-click to type" when empty and applies clean non-dashed border', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const text = controller.add({
+      type: 'text',
+      at: { lat: 41, lng: 28 },
+      text: '',
+    }) as TextItem
+
+    controller.select(text.id)
+
+    const { container } = render(
+      <TextOverlayView
+        map={map}
+        textItem={text}
+        controller={controller}
+        currentZoom={14}
+      />,
+    )
+
+    const placeholderEl = screen.getByText('Double-click to type')
+    expect(placeholderEl).toBeDefined()
+    expect(placeholderEl.getAttribute('data-selected')).toBe('true')
+    expect(placeholderEl.getAttribute('data-empty')).toBe('true')
+
+    // Double-click into editor
+    fireEvent.doubleClick(placeholderEl)
+    const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+    expect(textarea).toBeDefined()
+    expect(textarea.placeholder).toBe('Double-click to type')
+    expect(textarea.style.border).not.toContain('dashed')
   })
 })

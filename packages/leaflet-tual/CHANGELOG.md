@@ -1,5 +1,95 @@
 # leaflet-tual
 
+## 2.0.0
+
+### Major Changes
+
+- **v2 whiteboard redesign**: A complete, breaking rewrite of `leaflet-tual` around a single versioned `Doc`, a multi-page document model, an opinionated design system, and a composable widget layer. The library now ships a pen tool, area measurement, laser pointer, sidebar, context menu, i18n, light/dark theming, and a standalone toolbar.
+
+  #### New Document Model
+
+  - **`Doc` instead of a flat item array**: State is now a plain JSON document with `activePageId` and `pages`. Each `Page` stores items in an O(1) `items` record with an explicit `order` array for z-order.
+  - **Multi-page documents**: Add, rename, remove, reorder, and switch pages. Each page remembers its map view (`center` + `zoom`) and switching pages restores it. Undo/redo is global across pages.
+  - **Document helpers**: `emptyDoc()`, `parseDoc(input)` for validating untrusted JSON (`DocError` on failure), `createId()`, `getPageItems()`, `cloneDoc()`, and `getItemPreview()`.
+
+  #### New Tools & Interactions
+
+  - **Pen tool (`P`)**: Bézier path drawing with geographic anchors, mirrored in/out control handles, click-first-anchor to close, `Enter`/double-click to finish, and `Escape` to cancel. With the Select tool, drag anchors or handles to reshape a path.
+  - **Area measurement (`A`)**: Geodesic polygon area measurement with a rectangle drag mode or vertex-by-vertex polygon drafting. Draggable vertices and metric/imperial formatting (`m²`, `km²`, `sq ft`, `ac`, `sq mi`).
+  - **Laser pointer (`K`)**: `<LaserPointer>` renders an ephemeral, fading presentation trail without modifying the document.
+  - **Sidebar**: A layer tree plus a properties inspector for selection, fill/stroke, typography, colors, and zoom controls.
+  - **Right-click context menu**: Duplicate, reorder (front/back/forward/backward), delete, and open properties from the canvas or sidebar.
+  - **Secondary tooltip**: Contextual style controls appear above a single selected item.
+  - **Improved selection**: Shift-click, marquee selection, `Alt` resize-from-center, `Shift` aspect lock and 45° angle snapping, arrow-key nudging, and middle-click map panning.
+
+  #### Composable Toolbar
+
+  - **`<Toolbar>` replaces `<TualToolbar>`**: One `toolbar` prop controls position (`8` presets), orientation, tool order, and the page switcher.
+  - **Grouped tool popovers**: The Draw popover combines Free draw and Pen; the Measure popover combines Ruler and Area. Each group remembers its last-used tool.
+  - **External toolbars**: Render `<Toolbar>` anywhere outside the map with the same controller, or pass `toolbar={false}` to hide the built-in UI entirely.
+  - **No UI mode**: `useLeafletTual()` and `createLeafletTual()` work without any toolbar.
+
+  #### Theme & Design System
+
+  - **Strict style tokens**: Colors are palette names (`ink`, `gray`, `taupe`, `red`, `orange`, `yellow`, `green`, `blue`, `purple`, `pink`), widths are `'s' | 'm' | 'l'`, dashes are `'solid' | 'dashed' | 'dotted'`, and text sizes are `'s' | 'm' | 'l' | 'xl'`.
+  - **Light/dark/system themes**: `theme` prop and `setTheme()` support `'light'`, `'dark'`, and `'system'`, with live `prefers-color-scheme` tracking. Annotation colors stay palette-stable while chrome adapts.
+  - **CSS design system**: New `leaflet-tual/styles.css` entry point built from tokens and component styles (canvas, toolbar, sidebar, popovers, forms, typography, secondary tooltip, color picker). `sideEffects` now preserves CSS imports.
+  - **Resolved styles**: `resolveColor`, `resolveWidth`, `resolveSize`, `resolveWeight`, `resolveDash`, `resolveNoteColors`, and `DEFAULT_TOOL_STYLES` are exported for consistent rendering.
+
+  #### Internationalization
+
+  - **Every UI string is a translation token**: Tooltips, placeholders, menus, units, and page names are localized with English defaults.
+  - **Three configuration layers**: `translations` prop/option, `controller.setTranslations(patch)`, and global `setDefaultTranslations(patch)` / `resetDefaultTranslations()`.
+  - **Localized measurements**: Distance and area units are translation-aware.
+
+  #### Controller & State Management
+
+  - **Zustand-backed controller**: `useLeafletTual()` and `createLeafletTual()` expose reactive state (`doc`, `items`, `tool`, `variant`, `style`, `selection`, `selected`, `theme`, `readOnly`, `canUndo`, `canRedo`, `translations`) plus store subscriptions.
+  - **Controlled or uncontrolled**: Pass `value` or `defaultValue`. All edits flow through a single `onChange(doc, info)` callback.
+  - **`ChangeInfo`**: Every change reports `reason` (`create`, `update`, `delete`, `reorder`, `page`, `load`, `undo`, `redo`), affected `ids`, a `committed` flag for saving, and optional patches.
+  - **Animation-aware gestures**: `onGesture` fires during live gestures without polluting the committed change stream.
+  - **Selection-aware `setStyle()`**: Updates selected items when there is a selection, otherwise updates drawing defaults.
+  - **Expanded controller API**: `add`, `update`, `updateMany`, `duplicate`, `remove`, `clear`, `select`, `selectAll`, `edit`, `reorder`, `bringToFront`, `sendToBack`, `bringForward`, `sendBackward`, `fit`, `load`, `undo`, `redo`, and `pages.*`.
+  - **Events**: `tual.on('change' | 'gesture' | 'select' | 'tool' | 'page' | 'state' | 'translations' | 'theme', handler)` returns an unsubscribe function.
+
+  #### Framework-Agnostic Core & Vanilla API
+
+  - **`LeafletTualCore`**: A reusable core class with `controller`, `mapContext`, `eventBus`, `addTo`/`onAdd`, `onRemove`, and `destroy`.
+  - **`createLeafletTual(map, options)`**: Mounts the canvas directly on a Leaflet map and returns the full controller plus `destroy()` and `core`.
+  - **Zero React requirement**: The root and `leaflet-tual/core` entries remain fully framework-agnostic; React stays an optional peer behind `leaflet-tual/react`.
+  - **React entry re-exports the core**: `leaflet-tual/react` provides the components, hooks, UI primitives, and the complete core surface in one import.
+
+  #### React UI Primitives & Widgets
+
+  - **New widgets**: `<Toolbar>`, `<Sidebar>`, `<ContextMenu>`, `<LaserPointer>`, and `<SecondaryTooltip>`.
+  - **Exported UI primitives**: Buttons (`Button`, `IconButton`, `PillButton`, `SegmentedControl`), `Collapsible`, color controls (`ColorPaletteGrid`, `ColorSwatch`, `ColorSwatchList`, `CustomColorPicker`), `Divider`, dropdowns/popovers (`ConfirmPopover`, `DropdownMenu`, `Popover`), inputs (`NumberField`, `PropertyRow`, `TextField`, `SelectField`), and `ResizeHandles`.
+  - **New hooks**: `useControllerState`, `useControllerStore`, `useOverlayMapSync`, `useTranslation`, and the gesture/keyboard/theme hooks behind `<LeafletTual>`.
+
+  #### Performance & Rendering
+
+  - **Zoom-independent geometry**: Aspect locks, circles, curve offsets, hit tests, and resizing are computed in a world-space plane so shapes and curves keep their form at every zoom level and latitude.
+  - **Viewport-aware canvas rendering**: Off-screen items are culled during drawing.
+  - **High-DPI output**: Canvas rendering scales with `devicePixelRatio` for crisp strokes and handles.
+  - **Screen-constant UI**: Selection handles and hit targets stay the same size on screen while text scales with zoom.
+
+  #### Breaking Changes
+
+  - **Items are now document pages**: `TualItem[]` is replaced by `Doc` (`{ activePageId, pages }`). Pages contain `items: Record<string, Item>` plus `order: string[]`.
+  - **New item schema**: `arrowStyle` → `kind`, `start`/`end` → `from`/`to`, `controlPoint` → `via`, `shape` → `kind`, `position` → `at`, and `headStyle` → `heads`. Visual fields (`color`, `strokeWidth`, `dashed`, `filled`, `backgroundColor`, `textColor`, `fontSize`, …) are replaced by a single `style: Style`.
+  - **Callback changes**: `initialItems` → `defaultValue`, controlled `items`/`onItemsChange` → `value`/`onChange`, and `onChange(items)` → `onChange(doc, info)`. Use `info.committed` to decide when to persist.
+  - **Controller changes**: `createLeafletTualController` is consolidated into `createLeafletTual` / `useLeafletTual`; `TualTool` → `ToolId`; `setActiveTool` → `setTool`; `addItem`/`updateItem`/`removeItem` → `add`/`update`/`remove`; `clearAll` → `clear`; `selectedId` → `selection`/`selected`; and the individual `activeColor`, `strokeWidth`, `dashed`, `shapeFilled`, and `fontSize` fields → `style` + `setStyle`.
+  - **Toolbar changes**: `showToolbar`, `toolbarPosition`, `toolbarOrientation`, `collapsible`, `customTools`, `renderToolbar`, and the per-part `labels`/`icons`/`classNames`/`styles` overrides are replaced by `toolbar: boolean | ToolbarOptions` and `<Toolbar>`.
+  - **Removed custom render hooks**: `renderNote`, `renderText`, and the v1 overlay internals are replaced by the built-in React overlays and exported UI primitives.
+  - **Explicit stylesheet import**: Consumers must now import `leaflet-tual/styles.css` alongside the library.
+  - **Arrow tool variants**: The former separate tools (`arrow-linear`, `arrow-curved`, `arrow-bi`, `arrow-elbow`, `arrow-s-curve`) are now `setTool('arrow', kind)`. The `bi` style is expressed through `heads` rather than a separate arrow kind.
+
+  #### Homepage, Docs & Testing
+
+  - **Homepage updated for v2**: New code samples, feature pillars, map presets, demo workbench, changelog parser, and MDX rendering aligned with the `Doc` model and widget set.
+  - **Expanded documentation**: `README.md`, `SKILL.md`, and `llms.txt` rewritten for v2 with the new data model, toolbar, theming, i18n, controller, and geometry utilities.
+  - **Expanded test suite**: New coverage for documents, i18n, shape drawing, translation, context menus, laser pointer, number fields, pen gestures, secondary tooltips, shape gestures, sidebar, theming, zoom interactions, and the controller API.
+  - **Tile/CSP support**: The homepage allows additional raster basemap hosts and resolves `leaflet-tual/styles.css` from source in development.
+
 ## 1.0.0
 
 ### Major Changes

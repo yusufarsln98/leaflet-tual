@@ -1,0 +1,551 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, renderHook } from '@testing-library/react'
+import { LeafletTual } from '../widgets/LeafletTual/LeafletTual.js'
+import { useLeafletTual } from '../features/use-leaflet-tual.js'
+import { emptyDoc, type ShapeItem } from '../../core/index.js'
+import { createMockCanvasContext } from '../../core/__tests__/test-utils.js'
+import { resizeShape } from '../widgets/LeafletTual/gestures/index.js'
+import { createMockMap } from './test-utils.js'
+
+describe('v2 shape drawing gestures', () => {
+  beforeEach(() => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+      createMockCanvasContext() as never,
+    )
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function setup(mapOverrides: Partial<Record<string, unknown>> = {}) {
+    const map = createMockMap(mapOverrides)
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+    const { container } = render(
+      <LeafletTual map={map} controller={result.current} toolbar={false} />,
+    )
+    const canvas = container.querySelector('canvas')
+    if (!canvas) throw new Error('Canvas not rendered')
+    return { canvas, controller: result.current, map }
+  }
+
+  function drag(canvas: HTMLCanvasElement, from: [number, number], to: [number, number]) {
+    fireEvent.mouseDown(canvas, { clientX: from[0], clientY: from[1] })
+    fireEvent.mouseMove(window, { clientX: to[0], clientY: to[1] })
+    fireEvent.mouseUp(window, { clientX: to[0], clientY: to[1] })
+  }
+
+  it('creates a default-sized shape when the map is clicked', () => {
+    const { canvas, controller } = setup()
+    act(() => controller.setTool('shape', 'circle'))
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    fireEvent.mouseUp(window, { clientX: 100, clientY: 100 })
+
+    expect(controller.items).toHaveLength(1)
+    const shape = controller.items[0]
+    expect(shape.type).toBe('shape')
+    if (shape.type !== 'shape') return
+    expect(shape.kind).toBe('circle')
+    expect(shape.width).toBe(96)
+    expect(shape.height).toBe(96)
+    expect(shape.at).toEqual({ lat: 10, lng: 10 })
+  })
+
+  it('does not create or flicker a default-sized shape immediately on mousedown before click completes', () => {
+    const { canvas, controller } = setup()
+    act(() => controller.setTool('shape', 'square'))
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    // While mouse is held down, no shape should be committed to controller
+    expect(controller.items).toHaveLength(0)
+
+    // User moves mouse to resize shape (dragging)
+    fireEvent.mouseMove(window, { clientX: 180, clientY: 150 })
+    expect(controller.items).toHaveLength(0)
+
+    // On mouseup, the resized shape is committed without having flickered default size
+    fireEvent.mouseUp(window, { clientX: 180, clientY: 150 })
+    expect(controller.items).toHaveLength(1)
+    const shape = controller.items[0]
+    expect(shape.type).toBe('shape')
+    if (shape.type !== 'shape') return
+    expect(shape.width).toBe(80)
+    expect(shape.height).toBe(50)
+  })
+
+  it('creates the dragged shape with the selected variant', () => {
+    const { canvas, controller } = setup()
+    act(() => controller.setTool('shape', 'triangle'))
+
+    drag(canvas, [100, 100], [220, 180])
+
+    expect(controller.items).toHaveLength(1)
+    const shape = controller.items[0]
+    expect(shape.type).toBe('shape')
+    if (shape.type !== 'shape') return
+    expect(shape.kind).toBe('triangle')
+    expect(shape.width).toBe(120)
+    expect(shape.height).toBe(80)
+    expect(shape.at).toEqual({ lat: 14, lng: 16 })
+  })
+
+  it('keeps the exact same shape geometry and size between live drag preview and drop at non-default zoom levels', () => {
+    const ctx = createMockCanvasContext()
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as never)
+    const { canvas, controller } = setup({
+      getZoom: () => 15,
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+    act(() => controller.setTool('shape', 'circle'))
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    vi.mocked(ctx.ellipse).mockClear()
+    fireEvent.mouseMove(window, { clientX: 220, clientY: 180 })
+
+    // Live preview during drag at zoom 15 must render at 1x dragged box (rx=60, ry=40), not scaled by 2^(15-13)=4x
+    expect(ctx.ellipse).toHaveBeenCalledWith(160, 140, 60, 40, 0, 0, Math.PI * 2)
+
+    vi.mocked(ctx.ellipse).mockClear()
+    fireEvent.mouseUp(window, { clientX: 220, clientY: 180 })
+
+    // Dropped shape must render with the exact same center and radii as the drag preview
+    expect(ctx.ellipse).toHaveBeenCalledWith(160, 140, 60, 40, 0, 0, Math.PI * 2)
+    const shape = controller.items[0]
+    expect(shape?.type).toBe('shape')
+    if (shape?.type !== 'shape') return
+    expect(shape.kind).toBe('circle')
+    expect(shape.width).toBe(120)
+    expect(shape.height).toBe(80)
+    expect(shape.baseZoom).toBe(15)
+  })
+
+  it('uses the release point when the final move event is dropped', () => {
+    const { canvas, controller } = setup()
+    act(() => controller.setTool('shape', 'star'))
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    fireEvent.mouseUp(window, { clientX: 300, clientY: 240 })
+
+    const shape = controller.items[0]
+    expect(shape?.type).toBe('shape')
+    if (shape?.type !== 'shape') return
+    expect(shape.kind).toBe('star')
+    expect(shape.width).toBe(200)
+    expect(shape.height).toBe(140)
+    expect(shape.at).toEqual({ lat: 17, lng: 20 })
+  })
+
+  it('keeps Leaflet box zoom disabled so Shift can resize items', () => {
+    const { controller, map } = setup()
+    expect(map.boxZoom?.enabled()).toBe(false)
+
+    act(() => controller.setTool('shape', 'circle'))
+    expect(map.boxZoom?.enabled()).toBe(false)
+
+    act(() => controller.setTool('select'))
+    expect(map.boxZoom?.enabled()).toBe(false)
+  })
+
+  it('does not re-enable map panning on toolbar clicks or while drawing', () => {
+    const { canvas, controller, map } = setup()
+    act(() => controller.setTool('shape', 'circle'))
+    expect(map.dragging?.enabled()).toBe(false)
+
+    // Releasing the mouse after clicking the toolbar must not re-enable panning.
+    fireEvent.mouseUp(window, { clientX: 0, clientY: 0 })
+    expect(map.dragging?.enabled()).toBe(false)
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    fireEvent.mouseMove(window, { clientX: 300, clientY: 240 })
+    expect(map.dragging?.enabled()).toBe(false)
+
+    fireEvent.mouseUp(window, { clientX: 300, clientY: 240 })
+    // Drawing finished, the tool switched back to select, so panning returns.
+    expect(map.dragging?.enabled()).toBe(true)
+  })
+
+  it('does not leave a zero-sized arrow behind on a simple click', () => {
+    const { canvas, controller } = setup()
+    act(() => controller.setTool('arrow', 'linear'))
+
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    fireEvent.mouseUp(window, { clientX: 100, clientY: 100 })
+
+    expect(controller.items).toHaveLength(0)
+  })
+
+  it('resizes from the grabbed edge while keeping the opposite edge anchored', () => {
+    const map = createMockMap({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+    const initialAt = { lat: 15, lng: 15 }
+    const shape: ShapeItem = {
+      id: 'shape-1',
+      type: 'shape',
+      kind: 'square',
+      at: initialAt,
+      width: 100,
+      height: 100,
+      baseZoom: 14,
+      createdAt: 1,
+    }
+
+    // South-east: moving SE handle to (250, 300) keeps NW at (100, 100) -> width 150, height 200, center (175, 200)
+    const seResult = resizeShape(map, shape, initialAt, 100, 100, { x: 250, y: 300 }, 'se')
+    expect(seResult.width).toBe(150)
+    expect(seResult.height).toBe(200)
+    expect(seResult.at.lat).toBeCloseTo(20, 6)
+    expect(seResult.at.lng).toBeCloseTo(17.5, 6)
+
+    // North-west: moving NW handle to (50, 50) keeps SE at (200, 200) -> width 150, height 150, center (125, 125)
+    const nwResult = resizeShape(map, shape, initialAt, 100, 100, { x: 50, y: 50 }, 'nw')
+    expect(nwResult.width).toBe(150)
+    expect(nwResult.height).toBe(150)
+    expect(nwResult.at.lat).toBeCloseTo(12.5, 6)
+    expect(nwResult.at.lng).toBeCloseTo(12.5, 6)
+
+    // North-east: moving NE handle to (250, 50) keeps SW at (100, 200) -> width 150, height 150, center (175, 125)
+    const neResult = resizeShape(map, shape, initialAt, 100, 100, { x: 250, y: 50 }, 'ne')
+    expect(neResult.width).toBe(150)
+    expect(neResult.height).toBe(150)
+    expect(neResult.at.lat).toBeCloseTo(12.5, 6)
+    expect(neResult.at.lng).toBeCloseTo(17.5, 6)
+  })
+
+  it('resizes a selected shape from its handle without creating another shape', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: (100 - lat) * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: 100 - y / 10, lng: x / 10 }),
+    })
+
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      controller.select(shape.id)
+    })
+
+    // The south-east handle sits at the bottom-right of the screen.
+    fireEvent.mouseDown(canvas, { clientX: 200, clientY: 900 })
+    fireEvent.mouseMove(window, { clientX: 250, clientY: 1000 })
+    fireEvent.mouseUp(window, { clientX: 250, clientY: 1000 })
+
+    expect(controller.items).toHaveLength(1)
+    const shape = controller.items[0]
+    expect(shape.type).toBe('shape')
+    if (shape.type !== 'shape') return
+    expect(shape.width).toBe(150)
+    expect(shape.height).toBe(200)
+    expect(shape.at.lat).toBeCloseTo(10, 6)
+    expect(shape.at.lng).toBeCloseTo(17.5, 6)
+  })
+
+  it('prefers a selected handle over the active drawing tool', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: (100 - lat) * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: 100 - y / 10, lng: x / 10 }),
+    })
+
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      controller.setTool('shape', 'circle')
+      controller.select(shape.id)
+    })
+
+    fireEvent.mouseDown(canvas, { clientX: 200, clientY: 900 })
+    fireEvent.mouseMove(window, { clientX: 250, clientY: 1000 })
+    fireEvent.mouseUp(window, { clientX: 250, clientY: 1000 })
+
+    expect(controller.items).toHaveLength(1)
+    const shape = controller.items[0]
+    expect(shape.type).toBe('shape')
+    if (shape.type !== 'shape') return
+    expect(shape.kind).toBe('square')
+    expect(shape.width).toBe(150)
+    expect(shape.height).toBe(200)
+  })
+
+  it('edits a shape on double click without letting the event bubble to map zoom', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+
+    let shapeId = ''
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      shapeId = shape.id
+      controller.select(shape.id)
+    })
+
+    const parent = canvas.parentElement
+    if (!parent) throw new Error('Canvas parent missing')
+    const onParentDoubleClick = vi.fn()
+    parent.addEventListener('dblclick', onParentDoubleClick)
+
+    fireEvent.doubleClick(canvas, { clientX: 150, clientY: 150 })
+
+    expect(controller.editingId).toBe(shapeId)
+    expect(onParentDoubleClick).not.toHaveBeenCalled()
+
+    parent.removeEventListener('dblclick', onParentDoubleClick)
+  })
+
+  it('does not let double clicks on tual UI reach the map zoom handler', () => {
+    const { canvas, controller } = setup()
+
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      controller.select(shape.id)
+    })
+
+    const container = canvas.parentElement
+    const outer = container?.parentElement
+    if (!container || !outer) throw new Error('Tual container missing')
+
+    const tooltip = container.querySelector('.tual-secondary-tooltip') as HTMLElement
+    expect(tooltip).not.toBeNull()
+
+    const onMapDoubleClick = vi.fn()
+    outer.addEventListener('dblclick', onMapDoubleClick)
+
+    // Direct double click on the contextual tooltip.
+    fireEvent.doubleClick(tooltip)
+    expect(onMapDoubleClick).not.toHaveBeenCalled()
+
+    // Direct double click on an open dropdown.
+    fireEvent.click(tooltip.querySelector('[title="Color"]') as HTMLElement)
+    const dropdown = container.querySelector('.tual-color-popover') as HTMLElement
+    expect(dropdown).not.toBeNull()
+    fireEvent.doubleClick(dropdown)
+    expect(onMapDoubleClick).not.toHaveBeenCalled()
+
+    // Selecting a dropdown item closes it after the first click; the second
+    // click lands on the canvas but still must not zoom the map.
+    fireEvent.mouseDown(tooltip)
+    fireEvent.doubleClick(canvas, { clientX: 50, clientY: 50 })
+    expect(onMapDoubleClick).not.toHaveBeenCalled()
+
+    outer.removeEventListener('dblclick', onMapDoubleClick)
+  })
+
+  it('rotates a selected ruler by dragging one of its endpoint handles', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+
+    act(() => {
+      const ruler = controller.add({
+        type: 'ruler',
+        from: { lat: 10, lng: 10 },
+        to: { lat: 20, lng: 20 },
+      })
+      controller.select(ruler.id)
+    })
+
+    fireEvent.mouseDown(canvas, { clientX: 200, clientY: 200 })
+    fireEvent.mouseMove(window, { clientX: 250, clientY: 130 })
+    fireEvent.mouseUp(window, { clientX: 250, clientY: 130 })
+
+    expect(controller.items).toHaveLength(1)
+    const ruler = controller.items[0]
+    expect(ruler.type).toBe('ruler')
+    if (ruler.type !== 'ruler') return
+    expect(ruler.from).toEqual({ lat: 10, lng: 10 })
+    expect(ruler.to.lat).toBeCloseTo(13, 6)
+    expect(ruler.to.lng).toBeCloseTo(25, 6)
+  })
+
+  it('only selects on left-click release and ignores pan gestures or non-primary mouse buttons', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+
+    let shapeId = ''
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      shapeId = shape.id
+      controller.select(null)
+    })
+
+    expect(controller.selection).toEqual([])
+
+    // 1. Middle (wheel) and right mouse clicks must not select items.
+    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 1 })
+    fireEvent.mouseUp(window, { clientX: 150, clientY: 150, button: 1 })
+    expect(controller.selection).toEqual([])
+    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 2 })
+    fireEvent.mouseUp(window, { clientX: 150, clientY: 150, button: 2 })
+    expect(controller.selection).toEqual([])
+
+    // 2. Panning (dragging) across an unselected shape must neither select nor move it.
+    drag(canvas, [150, 150], [250, 250])
+    expect(controller.selection).toEqual([])
+    let shape = controller.items[0]
+    if (shape.type !== 'shape') return
+    expect(shape.at).toEqual({ lat: 15, lng: 15 })
+
+    // 3. Left-clicking and releasing without dragging selects the shape on release.
+    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 0 })
+    expect(controller.selection).toEqual([])
+    fireEvent.mouseUp(window, { clientX: 150, clientY: 150, button: 0 })
+    expect(controller.selection).toEqual([shapeId])
+
+    // 4. Panning on empty canvas keeps the current selection; clicking empty canvas clears it.
+    drag(canvas, [500, 500], [600, 600])
+    expect(controller.selection).toEqual([shapeId])
+
+    // 5. Dragging the selected shape moves it.
+    drag(canvas, [150, 150], [250, 250])
+    shape = controller.items[0]
+    if (shape.type !== 'shape') return
+    expect(shape.at).not.toEqual({ lat: 15, lng: 15 })
+
+    // 6. Left-clicking and releasing on empty canvas clears selection.
+    fireEvent.mouseDown(canvas, { clientX: 500, clientY: 500, button: 0 })
+    fireEvent.mouseUp(window, { clientX: 500, clientY: 500, button: 0 })
+    expect(controller.selection).toEqual([])
+  })
+
+  it('allows panning with mouse wheel drag (middle click) while an item is selected without moving or deselecting it', () => {
+    const { canvas, controller, map } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+
+    let shapeId = ''
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      shapeId = shape.id
+      controller.select(shapeId)
+    })
+
+    expect(controller.selection).toEqual([shapeId])
+
+    // Middle-click (button: 1) drag anywhere on the canvas or over the shape
+    fireEvent.mouseDown(canvas, { clientX: 150, clientY: 150, button: 1 })
+    fireEvent.mouseMove(window, { clientX: 200, clientY: 220 })
+    fireEvent.mouseUp(window, { clientX: 200, clientY: 220, button: 1 })
+
+    // Map panBy was invoked with the inverse delta
+    expect(map.panBy).toHaveBeenCalledWith([-50, -70], { animate: false })
+
+    // Selection remains unchanged
+    expect(controller.selection).toEqual([shapeId])
+
+    // Shape position has not changed
+    const shape = controller.items[0]
+    if (shape.type === 'shape') {
+      expect(shape.at).toEqual({ lat: 15, lng: 15 })
+    }
+  })
+
+  it('sets pointer cursor over unselected items and move cursor over selected items', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+
+    let shapeId = ''
+    act(() => {
+      const shape = controller.add({
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 15, lng: 15 },
+        width: 100,
+        height: 100,
+      })
+      shapeId = shape.id
+      controller.select(null)
+    })
+
+    // Hover over unselected shape (center 150, 150) -> cursor should be pointer
+    fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 })
+    expect(canvas.style.cursor).toBe('pointer')
+
+    // Select the shape
+    act(() => controller.select([shapeId]))
+
+    // Hover over selected shape -> cursor should be move
+    fireEvent.mouseMove(canvas, { clientX: 150, clientY: 150 })
+    expect(canvas.style.cursor).toBe('move')
+
+    // Hover outside item -> cursor should be default
+    fireEvent.mouseMove(canvas, { clientX: 500, clientY: 500 })
+    expect(canvas.style.cursor).toBe('default')
+  })
+
+  it('measures area by dragging a rectangle or drafting polygon vertices and allows vertex editing', () => {
+    const { canvas, controller } = setup({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+
+    // 1. Drag a rectangle to measure area
+    act(() => controller.setTool('area'))
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    fireEvent.mouseMove(window, { clientX: 200, clientY: 200 })
+    fireEvent.mouseUp(window, { clientX: 200, clientY: 200 })
+
+    expect(controller.items).toHaveLength(1)
+    const areaItem = controller.items[0]
+    expect(areaItem.type).toBe('area')
+    if (areaItem.type !== 'area') return
+    expect(areaItem.points).toHaveLength(4)
+
+    // 2. Select the area and drag one of its vertices
+    act(() => controller.select(areaItem.id))
+    // Vertex 0 is at (100, 100) -> lat 10, lng 10
+    fireEvent.mouseDown(canvas, { clientX: 100, clientY: 100 })
+    fireEvent.mouseMove(window, { clientX: 80, clientY: 80 })
+    fireEvent.mouseUp(window, { clientX: 80, clientY: 80 })
+
+    const updatedArea = controller.items[0]
+    if (updatedArea.type !== 'area') return
+    expect(updatedArea.points[0].lat).toBeCloseTo(8, 5)
+    expect(updatedArea.points[0].lng).toBeCloseTo(8, 5)
+  })
+})
