@@ -4,6 +4,7 @@ import { memo, useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import type { Controller, TextItem } from '../../../../core/index.js'
 import {
+  DEFAULT_PALETTE,
   formatBulletInput,
   geoToScreen,
   resolveColor,
@@ -77,7 +78,7 @@ export const TextOverlayView = memo(function TextOverlayView({
 
   const pt = geoToScreen(map, textItem.at)
 
-  const color = resolveColor(textItem.style?.color ?? 'ink')
+  const color = resolveColor(textItem.style?.color ?? DEFAULT_PALETTE.ink)
   const baseFontSize = resolveSize(textItem.style?.size ?? 'm', textItem.style?.fontSize)
   const scale = getItemZoomScale(map, textItem)
   const fontSize = Math.max(8, Math.round(baseFontSize * scale))

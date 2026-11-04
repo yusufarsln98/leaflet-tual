@@ -47,6 +47,7 @@ export function ColorSwatch({
     <button
       type="button"
       className="tual-secondary-swatch-btn"
+      data-active={selected}
       title={title}
       aria-label={ariaLabel ?? title}
       onClick={onClick}

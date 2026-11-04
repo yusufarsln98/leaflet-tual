@@ -18,13 +18,9 @@ export function ColorSwatchList({
     ? rgbToHex(parsedSelected.r, parsedSelected.g, parsedSelected.b).toLowerCase()
     : null
 
-  const isItemActive = (item: { name: string; hex: string }) => {
+  const isItemActive = (item: { hex: string }) => {
     if (noFillSelected) return false
-    return (
-      selectedColor === item.name ||
-      selectedColor?.toLowerCase() === item.hex.toLowerCase() ||
-      selectedHex === item.hex.toLowerCase()
-    )
+    return selectedHex === item.hex.toLowerCase()
   }
 
   if (variant === 'border-flyout') {
@@ -32,12 +28,12 @@ export function ColorSwatchList({
       <div className="tual-border-palette-list">
         {items.map((item) => (
           <button
-            key={item.name}
+            key={item.hex}
             type="button"
             className="tual-border-palette-item"
             data-selected={isItemActive(item)}
-            title={item.title ?? item.name}
-            onClick={() => onSelectColor(item.name, item.hex)}
+            title={item.title ?? item.hex}
+            onClick={() => onSelectColor(item.hex)}
           >
             <div
               className="tual-border-palette-swatch"
@@ -69,12 +65,12 @@ export function ColorSwatchList({
         const isSelected = isItemActive(item)
         return (
           <button
-            key={item.name}
+            key={item.hex}
             type="button"
             className="tual-color-row"
-            title={item.title ?? item.name}
+            title={item.title ?? item.hex}
             data-active={isSelected}
-            onClick={() => onSelectColor(item.name, item.hex)}
+            onClick={() => onSelectColor(item.hex)}
           >
             <div
               className="tual-color-swatch-box"

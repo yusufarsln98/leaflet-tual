@@ -3,32 +3,52 @@ import { DEFAULT_PALETTE, NOTE_SURFACES } from './theme-constants.js'
 
 export { DEFAULT_PALETTE, DEFAULT_TOOL_STYLES, NOTE_SURFACES } from './theme-constants.js'
 
-const isCssColor = (val: string) =>
-  val.startsWith('#') || val.startsWith('rgb') || val.startsWith('hsl')
+const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i
 
-export function resolveColor(name: ColorName | string = 'ink'): string {
-  if (typeof name === 'string' && isCssColor(name)) return name
-  return DEFAULT_PALETTE[name as ColorName] ?? DEFAULT_PALETTE.ink
+export function isHexColor(value?: string): boolean {
+  return typeof value === 'string' && HEX_COLOR.test(value.trim())
+}
+
+export function resolveColor(value?: string): string {
+  if (isTransparentColor(value)) return 'transparent'
+  return isHexColor(value) ? value!.trim() : DEFAULT_PALETTE.ink
+}
+
+export function isTransparentColor(color?: string): boolean {
+  return typeof color === 'string' && color.trim().toLowerCase() === 'transparent'
 }
 
 export function resolveNoteColors(
-  color: ColorName | string = 'yellow',
-  customText?: ColorName | string,
-  customBg?: ColorName | string,
+  color: string = DEFAULT_PALETTE.yellow,
+  customText?: string,
+  customBg?: string,
 ): { bg: string; text: string; border: string } {
   const bgKey = customBg ?? color
-  if (typeof bgKey === 'string' && isCssColor(bgKey)) {
+  if (isTransparentColor(bgKey)) {
     return {
-      bg: bgKey,
+      bg: 'transparent',
       text: customText ? resolveColor(customText) : '#1F2A30',
-      border: 'rgba(0, 0, 0, 0.12)',
+      border: '#00000033',
     }
   }
-  const surface = NOTE_SURFACES[bgKey as ColorName] ?? NOTE_SURFACES.yellow
+
+  const bg = resolveColor(bgKey)
+  const paletteName = (Object.keys(DEFAULT_PALETTE) as ColorName[]).find(
+    (name) => DEFAULT_PALETTE[name].toLowerCase() === bg.toLowerCase(),
+  )
+  const surface = paletteName ? NOTE_SURFACES[paletteName] : undefined
+  if (surface) {
+    return {
+      bg: surface.bg,
+      text: customText ? resolveColor(customText) : surface.text,
+      border: surface.border,
+    }
+  }
+
   return {
-    bg: surface.bg,
-    text: customText ? resolveColor(customText) : surface.text,
-    border: surface.border,
+    bg,
+    text: customText ? resolveColor(customText) : '#1F2A30',
+    border: '#00000033',
   }
 }
 

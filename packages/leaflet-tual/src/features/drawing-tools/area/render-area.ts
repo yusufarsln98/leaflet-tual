@@ -1,12 +1,10 @@
 import type L from 'leaflet'
 import type { AreaItem } from '../../../entities/index.js'
 import type { TranslationTokens } from '../../../shared/i18n/types.js'
+import { formatArea, geoToScreen, polygonArea } from '../../../shared/geometry/geo.js'
 import {
-  formatArea,
-  geoToScreen,
-  polygonArea,
-} from '../../../shared/geometry/geo.js'
-import {
+  DEFAULT_PALETTE,
+  isTransparentColor,
   resolveColor,
   resolveDash,
   resolveWidth,
@@ -29,14 +27,17 @@ export function renderAreaOnCanvas(
 
   const screenPts = area.points.map((p) => geoToScreen(map, p))
   const scale = getItemZoomScale(map, area)
-  const color = resolveColor(area.style?.color ?? 'ink')
+  const color = resolveColor(area.style?.color ?? DEFAULT_PALETTE.ink)
+  const fillColor = resolveColor(
+    area.style?.fillColor ?? area.style?.color ?? DEFAULT_PALETTE.ink,
+  )
   const baseLineWidth = resolveWidth(area.style?.width ?? 'm')
   const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
   const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
   const dash = resolveDash(area.style?.dash ?? 'dashed').map((d) => d * scale)
 
   ctx.save()
-  ctx.globalAlpha = area.style?.opacity ?? 1
+  ctx.globalAlpha = 1
 
   // 1. Polygon Fill & Stroke
   if (screenPts.length >= 3) {
@@ -47,13 +48,10 @@ export function renderAreaOnCanvas(
     }
     ctx.closePath()
 
-    // Fill with tint or style
-    const fillAlpha =
-      area.style?.fill === 'solid' ? 0.35 : area.style?.fill === 'none' ? 0 : 0.12
-    if (fillAlpha > 0) {
+    if (!isTransparentColor(fillColor)) {
       ctx.save()
-      ctx.fillStyle = color
-      ctx.globalAlpha = (area.style?.opacity ?? 1) * fillAlpha
+      ctx.fillStyle = fillColor
+      ctx.globalAlpha = (area.style?.opacity ?? 1) * 0.12
       ctx.fill()
       ctx.restore()
     }
@@ -87,8 +85,7 @@ export function renderAreaOnCanvas(
   // 3. Area badge label pill at centroid
   if (screenPts.length >= 3) {
     const realArea = polygonArea(area.points)
-    const text =
-      area.label ?? formatArea(realArea, area.unit ?? 'metric', options.translations)
+    const text = area.label ?? formatArea(realArea, area.unit ?? 'metric', options.translations)
 
     let sumX = 0
     let sumY = 0
@@ -111,7 +108,7 @@ export function renderAreaOnCanvas(
 
   // 4. Selected vertex handles
   if (options.isSelected) {
-    const handleColor = resolveColor('blue')
+    const handleColor = resolveColor(DEFAULT_PALETTE.blue)
     const handleSize = Math.max(4, 8 * scale)
     for (const pt of screenPts) {
       drawHandle(ctx, pt, handleColor, handleSize)

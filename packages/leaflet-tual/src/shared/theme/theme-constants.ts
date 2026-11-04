@@ -27,13 +27,13 @@ export const NOTE_SURFACES: Record<ColorName, { bg: string; text: string; border
 }
 
 export const DEFAULT_TOOL_STYLES: Record<string, Style> = {
-  freedraw: { color: 'ink', width: 'm', dash: 'solid' },
-  pen: { color: 'ink', width: 'm', dash: 'solid' },
-  arrow: { color: 'blue', width: 'm', dash: 'solid' },
-  ruler: { color: 'ink', width: 'm', dash: 'solid' },
-  area: { color: 'ink', fill: 'tint', width: 'm', dash: 'dashed' },
-  shape: { color: 'blue', fill: 'tint', width: 'm', dash: 'solid', size: 's', radius: 8 },
-  note: { color: 'yellow', fill: 'solid', width: 's', dash: 'solid', size: 'm', radius: 8 },
-  text: { color: 'ink', size: 'm' },
-  laser: { color: 'red', width: 'm' },
+  freedraw: { color: DEFAULT_PALETTE.ink, width: 'm', dash: 'solid' },
+  pen: { color: DEFAULT_PALETTE.ink, width: 'm', dash: 'solid' },
+  arrow: { color: DEFAULT_PALETTE.blue, width: 'm', dash: 'solid' },
+  ruler: { color: DEFAULT_PALETTE.ink, width: 'm', dash: 'solid' },
+  area: { color: DEFAULT_PALETTE.ink, width: 'm', dash: 'dashed' },
+  shape: { color: DEFAULT_PALETTE.blue, width: 'm', dash: 'solid', size: 's', radius: 8 },
+  note: { color: DEFAULT_PALETTE.yellow, width: 's', dash: 'solid', size: 'm', radius: 8 },
+  text: { color: DEFAULT_PALETTE.ink, size: 'm' },
+  laser: { color: DEFAULT_PALETTE.red, width: 'm' },
 }

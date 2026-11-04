@@ -1,7 +1,7 @@
 'use client'
 
 import type { ColorName } from '../../../core/index.js'
-import { DEFAULT_PALETTE, resolveColor } from '../../../core/index.js'
+import { DEFAULT_PALETTE } from '../../../core/index.js'
 import { useTranslation } from '../../features/i18n/index.js'
 import { ColorSwatch } from './ColorSwatch.js'
 import type { ColorPaletteGridProps } from './types.js'
@@ -33,7 +33,7 @@ export function ColorPaletteGrid({
       {header !== undefined && <div className="tual-popover-header">{header}</div>}
       <div className={variant === 'border' ? 'tual-border-color-row' : 'tual-palette'}>
         {colors.map((name) => {
-          const hex = variant === 'border' ? resolveColor(name) : DEFAULT_PALETTE[name]
+          const hex = DEFAULT_PALETTE[name]
           const fallbackLabel =
             variant === 'border'
               ? name.charAt(0).toUpperCase() + name.slice(1)
@@ -43,10 +43,10 @@ export function ColorPaletteGrid({
               key={name}
               variant={variant === 'border' ? 'border-circle' : 'palette-circle'}
               colorHex={hex}
-              selected={selectedColor === name}
+              selected={selectedColor === hex}
               title={t(name, undefined, fallbackLabel)}
               ariaLabel={t(name, undefined, name)}
-              onClick={() => onSelectColor(name)}
+              onClick={() => onSelectColor(hex)}
             />
           )
         })}

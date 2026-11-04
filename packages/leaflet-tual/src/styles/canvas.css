@@ -68,6 +68,7 @@
   cursor: pointer;
   user-select: none;
   box-sizing: border-box;
+  background-clip: padding-box;
   display: flex;
   flex-direction: column;
   aspect-ratio: 1 / 1;

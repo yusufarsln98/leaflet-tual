@@ -13,7 +13,7 @@ import {
   renderRulerOnCanvas,
   renderShapeOnCanvas,
 } from '../../../features/drawing-tools/index.js'
-import { resolveColor } from '../../theme/theme.js'
+import { DEFAULT_PALETTE, resolveColor } from '../../theme/theme.js'
 import { snapAngle } from '../../geometry/coordinates.js'
 import { isClickGesture, resolveShapePlacement } from './shape-drawing.js'
 import { isArrowKind, isShapeKind } from '../../../entities/index.js'
@@ -78,7 +78,7 @@ export function drawCanvasScene(
       const gy = selectionBounds.minY - pad
       const gw = selectionBounds.width + pad * 2
       const gh = selectionBounds.height + pad * 2
-      const handleColor = resolveColor('blue')
+      const handleColor = resolveColor(DEFAULT_PALETTE.blue)
 
       ctx.save()
       ctx.strokeStyle = handleColor

@@ -148,7 +148,7 @@ describe('Laser Pointer presentation component', () => {
     const { result } = renderHook(() =>
       useLaserPointer({
         active: true,
-        color: 'red',
+        color: '#E5484D',
         duration: 500,
         redraw,
       }),
@@ -195,7 +195,7 @@ describe('Laser Pointer presentation component', () => {
     )
 
     // Default pointer color is red
-    expect(result.current.getLaserState().color).toBe('red')
+    expect(result.current.getLaserState().color).toBe('#E5484D')
 
     // 1. Mouse down at (10, 10) -> starts drawing
     act(() => {
@@ -354,7 +354,7 @@ describe('Laser Pointer presentation component', () => {
       ],
       pointerPos: { x: 50, y: 50 },
       active: true,
-      color: 'red',
+      color: '#E5484D',
     }
 
     renderLaserOnCanvas(mockCtx, laserState, LASER_LIFETIME_MS)
@@ -405,7 +405,7 @@ describe('Laser Pointer presentation component', () => {
       ],
       pointerPos: { x: 50, y: 50 },
       active: true,
-      color: 'red',
+      color: '#E5484D',
     }
 
     renderLaserOnCanvas(mockCtx, laserState, LASER_LIFETIME_MS)

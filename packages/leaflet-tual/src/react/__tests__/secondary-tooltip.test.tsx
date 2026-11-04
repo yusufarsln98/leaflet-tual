@@ -46,12 +46,11 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(screen.queryByTitle('Underline')).toBeNull()
     expect(screen.queryByTitle('Bulleted List')).toBeNull()
 
-    // Test updating fill to 'none' via Color dropdown
     const colorBtn = screen.getByTitle('Color')
     fireEvent.click(colorBtn)
     const noFillBtn = screen.getByText('No fill')
     fireEvent.click(noFillBtn)
-    expect(result.current.selected[0].style?.fill).toBe('none')
+    expect(result.current.selected[0].style?.fillColor).toBe('transparent')
 
     // Test Border Popover
     const borderBtn = screen.getByTitle('Border & Stroke')
@@ -81,7 +80,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(screen.getByText('Colors')).toBeDefined()
     const purpleOption = screen.getByText('#8E4EC6')
     fireEvent.click(purpleOption)
-    expect(result.current.selected[0].style?.strokeColor).toBe('purple')
+    expect(result.current.selected[0].style?.strokeColor).toBe('#8E4EC6')
 
     // Test updating label position
     const labelPositionBtn = screen.getByTitle('Label Position')
@@ -118,9 +117,9 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     fireEvent.click(screen.getByTitle('Red'))
 
     expect(result.current.selected[0].style).toMatchObject({
-      color: 'red',
-      fillColor: 'red',
-      strokeColor: 'red',
+      color: '#E5484D',
+      fillColor: '#E5484D',
+      strokeColor: '#E5484D',
     })
   })
 
@@ -423,7 +422,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
         type: 'note',
         at: { lat: 41.05, lng: 28.05 },
         text: 'Note for color test',
-        style: { color: 'yellow' },
+        style: { color: '#F5C518' },
       })
       noteId = n.id
       result.current.select(n.id)
@@ -492,7 +491,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
         at: { lat: 41.05, lng: 28.05 },
         width: 100,
         height: 100,
-        style: { color: 'blue', fill: 'solid', opacity: 0.6 },
+        style: { color: '#2F6FEB', opacity: 0.6 },
       })
       shapeId = s.id
       result.current.select(s.id)
@@ -522,11 +521,11 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     })
 
     const shapeItem = result.current.items.find((it): it is ShapeItem => it.id === shapeId)
-    expect(shapeItem?.style?.color).toBe('#1B4CC0')
+    expect(shapeItem?.style?.color).toBe('#2F6FEB')
     expect(shapeItem?.style?.opacity).toBe(0.4)
   })
 
-  it('displays tinted shape initial opacity (50%) in the color editor modal', () => {
+  it('displays the default shape opacity (50%) in the color editor modal', () => {
     const { result } = renderHook(() =>
       useLeafletTual({
         defaultValue: emptyDoc(),
@@ -540,7 +539,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
         at: { lat: 41.05, lng: 28.05 },
         width: 100,
         height: 100,
-        style: { color: 'blue', fill: 'tint' },
+        style: { color: '#2F6FEB' },
       })
       result.current.select(s.id)
     })
@@ -558,7 +557,6 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       fireEvent.click(customTab)
     })
 
-    // Tinted shape renders at 50% opacity
     const opacityInput = screen.getByLabelText('Opacity percentage') as HTMLInputElement
     expect(opacityInput.value).toBe('50')
   })
@@ -590,7 +588,6 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       fireEvent.click(colorBtn)
     })
 
-    // Theme tab is active. Click a theme color (e.g. Red: #8F2323)
     const redBtn = screen.getByTitle('Red')
     act(() => {
       fireEvent.click(redBtn)

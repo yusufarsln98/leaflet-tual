@@ -2,7 +2,6 @@
 
 import { useRef, useState } from 'react'
 import type L from 'leaflet'
-import type { ColorName, Style } from '../../../../core/index.js'
 import { PropertyRow, useOutsideDismiss } from '../../../ui/index.js'
 import { ColorDropdown } from '../../SecondaryTooltip/color/ColorDropdown.js'
 
@@ -10,15 +9,14 @@ export interface ColorFieldRowProps {
   map?: L.Map
   label: string
   title: string
-  mode: 'stroke' | 'fill'
-  currentColor: ColorName | string
+  currentColor: string
   currentOpacity?: number
-  currentFill?: Style['fill']
   colorHex: string
   value?: string
   noFill?: boolean
-  onSelectColor: (color: ColorName | string, hex?: string, opacity?: number) => void
-  onSelectFillMode?: (fill: NonNullable<Style['fill']>) => void
+  allowNoFill?: boolean
+  onSelectColor: (hex: string, opacity?: number) => void
+  onSelectNoFill?: () => void
 }
 
 /**
@@ -30,15 +28,14 @@ export function ColorFieldRow({
   map,
   label,
   title,
-  mode,
   currentColor,
   currentOpacity,
-  currentFill,
   colorHex,
   value,
   noFill = false,
+  allowNoFill = false,
   onSelectColor,
-  onSelectFillMode,
+  onSelectNoFill,
 }: ColorFieldRowProps) {
   const [isOpen, setIsOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -65,12 +62,12 @@ export function ColorFieldRow({
             <ColorDropdown
               map={map}
               title={title}
-              mode={mode}
               currentColor={currentColor}
               currentOpacity={currentOpacity}
-              currentFill={currentFill}
+              allowNoFill={allowNoFill}
+              noFillSelected={noFill}
               onSelectColor={onSelectColor}
-              onSelectFillMode={onSelectFillMode}
+              onSelectNoFill={onSelectNoFill}
               onClose={() => setIsOpen(false)}
             />
           </div>

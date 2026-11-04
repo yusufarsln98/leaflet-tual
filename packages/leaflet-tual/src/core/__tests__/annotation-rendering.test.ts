@@ -63,7 +63,7 @@ describe('v2 Canvas annotation rendering', () => {
         kind: 'curved',
         from: { lat: 41, lng: 28 },
         to: { lat: 41.5, lng: 28.5 },
-        style: { color: 'blue', width: 'm' },
+        style: { color: '#2F6FEB', width: 'm' },
         createdAt: Date.now(),
       },
       { isSelected: true },
@@ -129,10 +129,64 @@ describe('v2 Canvas annotation rendering', () => {
       at: { lat: 41.1, lng: 28.1 },
       width: 200,
       height: 200,
-      style: { color: 'red', fill: 'solid' },
+      style: { color: '#E5484D' },
       createdAt: Date.now(),
     })
     expect(ctx.fill).toHaveBeenCalled()
+    expect(ctx.stroke).toHaveBeenCalled()
+  })
+
+  it('keeps the border opaque so translucent fill cannot bleed through it', () => {
+    const ctx = createMockCtx()
+    const map = createMockMap()
+    let currentAlpha = 1
+    const fillAlphas: number[] = []
+    const strokeAlphas: number[] = []
+
+    Object.defineProperty(ctx, 'globalAlpha', {
+      get: () => currentAlpha,
+      set: (value: number) => {
+        currentAlpha = value
+      },
+      configurable: true,
+    })
+    ctx.fill = vi.fn(() => {
+      fillAlphas.push(currentAlpha)
+    })
+    ctx.stroke = vi.fn(() => {
+      strokeAlphas.push(currentAlpha)
+    })
+
+    renderShapeOnCanvas(ctx, map, {
+      id: 'translucent-shape',
+      type: 'shape',
+      kind: 'circle',
+      at: { lat: 41.1, lng: 28.1 },
+      width: 200,
+      height: 200,
+      style: { color: '#E5484D', opacity: 0.25 },
+      createdAt: Date.now(),
+    })
+
+    expect(fillAlphas).toEqual([0.25])
+    expect(strokeAlphas).toEqual([1])
+  })
+
+  it('skips the shape fill when fillColor is transparent', () => {
+    const ctx = createMockCtx()
+    const map = createMockMap()
+    renderShapeOnCanvas(ctx, map, {
+      id: 'shape-no-fill',
+      type: 'shape',
+      kind: 'square',
+      at: { lat: 41.1, lng: 28.1 },
+      width: 100,
+      height: 100,
+      style: { color: '#E5484D', fillColor: 'transparent' },
+      createdAt: Date.now(),
+    })
+
+    expect(ctx.fill).not.toHaveBeenCalled()
     expect(ctx.stroke).toHaveBeenCalled()
   })
 
@@ -168,7 +222,7 @@ describe('v2 Canvas annotation rendering', () => {
       width: 200,
       height: 200,
       label: 'Outside label',
-      style: { color: 'blue' as const, fill: 'solid' as const },
+      style: { color: '#2F6FEB' as const },
       createdAt: Date.now(),
     }
 
@@ -198,7 +252,7 @@ describe('v2 Canvas annotation rendering', () => {
       width: 200,
       height: 200,
       label: 'Solid Label',
-      style: { color: 'blue', dash: 'dashed' },
+      style: { color: '#2F6FEB', dash: 'dashed' },
       createdAt: Date.now(),
     })
 
@@ -231,7 +285,7 @@ describe('v2 Canvas annotation rendering', () => {
       width: 200,
       height: 200,
       label: 'Opaque Label',
-      style: { color: 'blue', opacity: 0.25 },
+      style: { color: '#2F6FEB', opacity: 0.25 },
       createdAt: Date.now(),
     })
 
@@ -284,7 +338,7 @@ describe('v2 Canvas annotation rendering', () => {
         { lat: 41.1, lng: 28.1 },
         { lat: 41.2, lng: 28.2 },
       ],
-      style: { color: 'green', width: 'l' },
+      style: { color: '#30A46C', width: 'l' },
       createdAt: Date.now(),
     })
     expect(ctx.stroke).toHaveBeenCalled()
@@ -308,7 +362,7 @@ describe('v2 Canvas annotation rendering', () => {
             out: { lat: 41.3, lng: 28.25 },
           },
         ],
-        style: { color: 'blue', width: 'm' },
+        style: { color: '#2F6FEB', width: 'm' },
         createdAt: Date.now(),
       },
       { isSelected: true },
@@ -326,7 +380,7 @@ describe('v2 Canvas annotation rendering', () => {
       from: { lat: 41, lng: 28 },
       to: { lat: 41.5, lng: 28.5 },
       unit: 'metric',
-      style: { color: 'ink' },
+      style: { color: '#1D1D1B' },
       createdAt: Date.now(),
     })
     expect(ctx.stroke).toHaveBeenCalled()
@@ -346,7 +400,7 @@ describe('v2 Canvas annotation rendering', () => {
         { lat: 41, lng: 28.01 },
       ],
       unit: 'metric',
-      style: { color: 'ink', fill: 'tint' },
+      style: { color: '#1D1D1B' },
       createdAt: Date.now(),
     })
     expect(ctx.stroke).toHaveBeenCalled()
@@ -364,7 +418,7 @@ describe('v2 Canvas annotation rendering', () => {
       at: { lat: 41, lng: 28 },
       width: 100,
       height: 100,
-      style: { color: 'ink', fill: 'solid' },
+      style: { color: '#1D1D1B' },
       createdAt: Date.now(),
     })
     expect(ctx.strokeStyle).toBe('#1D1D1B')

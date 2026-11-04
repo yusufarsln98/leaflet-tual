@@ -1,6 +1,6 @@
 import type { CSSProperties, PointerEvent } from 'react'
 import type L from 'leaflet'
-import type { ColorName, Controller, ScreenPoint } from '../../../core/index.js'
+import type { Controller, ScreenPoint } from '../../../core/index.js'
 import type { LaserState } from '../../../features/drawing-tools/laser/types.js'
 
 export type { LaserPoint, LaserState } from '../../../features/drawing-tools/laser/types.js'
@@ -9,7 +9,7 @@ export interface LaserPointerProps {
   controller?: Controller
   map?: L.Map
   active?: boolean
-  color?: ColorName | string
+  color?: string
   duration?: number
   className?: string
   style?: CSSProperties
@@ -21,7 +21,7 @@ export interface LaserPointerProps {
 export interface UseLaserPointerOptions {
   controller?: Controller
   active?: boolean
-  color?: ColorName | string
+  color?: string
   duration?: number
   redraw: () => void
 }

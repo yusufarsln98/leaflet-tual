@@ -4,6 +4,7 @@ import { memo, useRef, useState } from 'react'
 import L from 'leaflet'
 import type { Controller, Item, ShapeItem, Style } from '../../../core/index.js'
 import {
+  DEFAULT_PALETTE,
   getSecondaryTooltipAnchor,
   resolveColor,
   resolveItemStyle,
@@ -74,7 +75,11 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
   const isTextOrNote = isNote || selectedItem.type === 'text'
   const resolvedStyle = isShape || isNote ? resolveItemStyle(selectedItem) : undefined
   const colorHex =
-    resolvedStyle?.strokeColor ?? resolveColor(style.color ?? (isShape || isArrow ? 'blue' : 'ink'))
+    resolvedStyle?.strokeColor ??
+    resolveColor(
+      style.color ??
+        (isShape || isArrow ? DEFAULT_PALETTE.blue : DEFAULT_PALETTE.ink),
+    )
   const hasTypography = isTextOrNote || isShape || isArrow
   const hasBorder = selectedItem.type !== 'text'
 

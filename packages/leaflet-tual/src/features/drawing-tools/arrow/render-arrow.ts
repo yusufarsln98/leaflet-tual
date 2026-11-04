@@ -8,6 +8,7 @@ import {
   getQuadraticBezierPoint,
 } from '../../../shared/geometry/geo.js'
 import {
+  DEFAULT_PALETTE,
   resolveColor,
   resolveDash,
   resolveSize,
@@ -35,7 +36,9 @@ export function renderArrowOnCanvas(
   if (dist < 1) return
 
   const scale = getItemZoomScale(map, arrow)
-  const color = resolveColor(arrow.style?.strokeColor ?? arrow.style?.color ?? 'ink')
+  const color = resolveColor(
+    arrow.style?.strokeColor ?? arrow.style?.color ?? DEFAULT_PALETTE.ink,
+  )
   const baseLineWidth = resolveWidth(arrow.style?.width ?? 'm')
   const isHoveredOnly = Boolean(options.isHovered && !options.isSelected)
   const lineWidth = Math.max(0.5, (baseLineWidth + (isHoveredOnly ? 0.75 : 0)) * scale)
@@ -167,7 +170,7 @@ export function renderArrowOnCanvas(
 
   // Draw selection handles
   if (options.isSelected) {
-    const handleColor = resolveColor('blue')
+    const handleColor = resolveColor(DEFAULT_PALETTE.blue)
     const handleSize = Math.max(4, 8 * scale)
 
     // Curved arrows get a dashed guide from start → control point → end.

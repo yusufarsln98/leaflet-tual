@@ -9,8 +9,13 @@
   - Made the build copy step idempotent so `dist/styles/` always contains the stylesheet partials at the paths referenced by `dist/styles.css`.
   - Consumers can now import `leaflet-tual/styles.css` in Vite/Webpack without aliasing it to the package source.
 
+- **Simplified Color & Fill API**:
+  - Removed the `fill` and `fillOpacity` style fields. Fill is controlled by `fillColor` plus `opacity`; use `fillColor: 'transparent'` for no fill.
+  - Colors are now hex strings only. RGB, HSL and named-color style values are no longer accepted.
+  - Unified the theme color presets with the default palette and updated the showcase presets to hex values.
+
 - **Shape Theme Opacity**:
-  - Raised the default opacity for tinted shape themes from 25% to 50%.
+  - Raised the default shape opacity from 25% to 50%.
   - Theme color presets now apply 50% opacity to shapes, while explicitly customized shape opacity values remain unchanged.
 
 - **Inline Label Editor Dark Mode Contrast**:

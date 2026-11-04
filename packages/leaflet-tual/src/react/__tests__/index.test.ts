@@ -51,6 +51,8 @@ import {
   polygonCentroid,
   formatArea,
   resolveColor,
+  isHexColor,
+  isTransparentColor,
   renderArrowOnCanvas,
   renderFreedrawOnCanvas,
   renderShapeOnCanvas,
@@ -177,6 +179,8 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(polygonCentroid).toBeDefined()
     expect(formatArea).toBeDefined()
     expect(resolveColor).toBeDefined()
+    expect(isHexColor).toBeDefined()
+    expect(isTransparentColor).toBeDefined()
     expect(renderArrowOnCanvas).toBeDefined()
     expect(renderFreedrawOnCanvas).toBeDefined()
     expect(renderShapeOnCanvas).toBeDefined()

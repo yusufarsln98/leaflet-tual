@@ -256,7 +256,7 @@ describe('v2 Shape label editing & edit(id) action', () => {
           weight: 'bold',
           fontStyle: 'italic',
           underline: true,
-          color: 'red',
+          color: '#E5484D',
         },
       })
       result.current.select(shape.id)

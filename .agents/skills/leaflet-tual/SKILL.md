@@ -55,7 +55,7 @@ That gives you the finished product: toolbar, style popovers, pages, and undo/re
 
 1. **Store geography, never pixels.** Every persisted coordinate is a `GeoPoint` (`{ lat, lng }`). Never put screen `{ x, y }` in an item.
 2. **Do geometry in world space.** Aspect locks, 45° snapping, circle radii, curve offsets, hit tests and resizing run in a zoom-independent plane (`toWorld` / `fromWorld`), never in current-zoom pixels. Squares stay square and curves keep their shape at every zoom level and latitude.
-3. **Use the built-in style values.** Colors are palette names, widths are `'s' | 'm' | 'l'`, text sizes are `'s' | 'm' | 'l' | 'xl'`. Do not store hex colors or pixel sizes in items.
+3. **Use hex colors and explicit sizes.** Colors are hex strings like `#2F6FEB`; transparency is a separate `opacity` value. Widths are `'s' | 'm' | 'l'`, text sizes are `'s' | 'm' | 'l' | 'xl'`.
 4. **Change the look through `tokens`** (section 5), not by overriding library internals with CSS selectors.
 5. **Change the toolbar through the `toolbar` prop** (section 6).
 6. **One document, one change callback.** State is a plain JSON `Doc`. Save from `onChange` only when `info.committed` is `true`.
@@ -85,15 +85,14 @@ export interface Page {
   order?: string[]                            // array order is z-order (last on top)
 }
 
-export type ColorName =
-  | 'ink' | 'gray' | 'taupe' | 'red' | 'orange'
-  | 'yellow' | 'green' | 'blue' | 'purple' | 'pink'
-
 export interface Style {
-  color?: ColorName
-  width?: 's' | 'm' | 'l'
-  dash?: 'solid' | 'dashed' | 'dotted'
-  fill?: 'none' | 'tint' | 'solid'            // fill uses the same color
+  color?: string
+  fillColor?: string
+  strokeColor?: string
+  textColor?: string
+  opacity?: number
+  width?: 's' | 'm' | 'l' | number
+  dash?: 'solid' | 'dashed' | 'dotted' | 'none'
   size?: 's' | 'm' | 'l' | 'xl'               // text and note font size
   weight?: 'regular' | 'bold'
   fontStyle?: 'normal' | 'italic'
@@ -195,7 +194,7 @@ export type Item =
 export type NewItem = DistributiveOmit<Item, 'id' | 'createdAt'> & { id?: string }
 ```
 
-Unset style fields fall back to the defaults for that item's tool. Default look: free draw, pen, arrow, ruler and shapes use `ink` at width `'m'`, with shapes using `fill: 'solid'` and areas using `fill: 'tint'` with dashed border. Notes are `yellow` at size `'l'`. Arrowheads are a filled triangle.
+Unset style fields fall back to the defaults for that item's tool. Shapes are blue at 50% opacity, areas use ink with a dashed border, and notes are yellow. Set `fillColor: 'transparent'` to remove a fill. Arrowheads are a filled triangle.
 
 | Helper            | Purpose                                                         |
 | ----------------- | --------------------------------------------------------------- |
@@ -234,7 +233,9 @@ Every label, tooltip, placeholder, and unit is managed through clean translation
 
 Configure globally via `setDefaultTranslations(tokens)` (see `DEFAULT_TRANSLATION_TOKENS` and `TRANSLATION_KEYS`) or dynamically via `tual.setTranslations(patch)`.
 
-### Palette
+### Default palette constants
+
+Use the hex values directly in `Style`. The named `DEFAULT_PALETTE` constants are convenience values, not style inputs.
 
 | Name     | Light     | Dark      | Used for                          |
 | -------- | --------- | --------- | --------------------------------- |
@@ -354,7 +355,7 @@ const tual = useLeafletTual({
   theme: 'system',         // 'light' | 'dark' | 'system'
   translations: {},        // Partial<TranslationTokens>
   tool: 'select',          // initial tool
-  style: { color: 'ink', width: 'm' },     // initial drawing defaults
+  style: { color: '#1D1D1B', width: 'm' },
 })
 ```
 
@@ -442,10 +443,10 @@ tual.add({
   from: { lat: 41.0082, lng: 28.9784 },
   to: { lat: 41.0256, lng: 28.9742 },
   label: 'Route',
-  style: { color: 'blue', width: 'l' },
+  style: { color: '#2F6FEB', width: 'l' },
 })
 
-tual.add({ type: 'note', at: { lat: 41.015, lng: 28.97 }, text: 'Meet here', style: { color: 'yellow' } })
+tual.add({ type: 'note', at: { lat: 41.015, lng: 28.97 }, text: 'Meet here', style: { color: '#F5C518' } })
 ```
 
 ### Custom translation tokens
@@ -508,7 +509,7 @@ tual.destroy()
 | `freedraw` |                                                                                        | F   | Smoothed freehand stroke.                                        |
 | `pen`      |                                                                                        | P   | Bezier path: click anchors, drag handles, click first anchor to close, `Enter` to finish. |
 | `arrow`    | `linear` · `curved` · `elbow` · `s-curve`                                              | L   | Drag from start to end. Heads are set in `heads`.                |
-| `shape`    | `square` · `circle` · `star` · `actor` · `triangle` · `diamond` · `hexagon` · `marker` | S   | Drag a box, or click to place a default-sized shape. Fill via `style.fill`. |
+| `shape`    | `square` · `circle` · `star` · `actor` · `triangle` · `diamond` · `hexagon` · `marker` | S   | Drag a box, or click to place a default-sized shape. Fill via `style.fillColor` and `style.opacity`. |
 | `ruler`    |                                                                                        | R   | Drag to measure a geodesic distance.                             |
 | `area`     |                                                                                        | A   | Drag to measure a rectangle area, or click vertices to draft a polygon area (`Enter` or double-click to finish). |
 | `laser`    |                                                                                        | K   | Ephemeral laser pointer with decaying glowing trail for live presentations. |
@@ -549,5 +550,5 @@ Pure functions. Those that take no map work anywhere.
 | `polygonArea(points)`                     | Geodesic area in square meters (Chamberlain-Duquette spherical excess).|
 | `polygonCentroid(points)`                 | Geometric centroid of polygon vertices (`GeoPoint`).                  |
 | `formatArea(sqMeters, unit = 'metric')`   | `"1.5 km²"`, `"250 m²"` or `"12.5 ac"`, `"3.2 sq mi"`.               |
-| `resolveColor(name)`                      | Palette name to hex color.                                            |
+| `resolveColor(hex)`                       | Validates a hex color and returns the fallback ink color when invalid. |
 

@@ -3,6 +3,7 @@ import type { RefObject } from 'react'
 import type L from 'leaflet'
 import type { Controller, GeoPoint, Item, ScreenPoint } from '../../../../../core/index.js'
 import {
+  DEFAULT_PALETTE,
   findResizeGestureUnderPointer,
   getItemBounds,
   hitTest,
@@ -177,7 +178,11 @@ export function processPointerDown(e: React.MouseEvent, ctx: PointerDownContext)
       height: 180,
       baseZoom: map.getZoom(),
       text: 'New note',
-      style: { color: 'yellow', fillColor: 'yellow', size: 'm' },
+      style: {
+        color: DEFAULT_PALETTE.yellow,
+        fillColor: DEFAULT_PALETTE.yellow,
+        size: 'm',
+      },
     })
     controller.select(note.id)
     controller.setTool('select')

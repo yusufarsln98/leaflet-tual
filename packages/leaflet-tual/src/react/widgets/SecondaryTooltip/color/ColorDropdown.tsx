@@ -2,7 +2,6 @@
 
 import type L from 'leaflet'
 import { useEffect, useState } from 'react'
-import type { ColorName } from '../../../../core/index.js'
 import { PRESET_COLORS } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import {
@@ -16,26 +15,26 @@ export { PRESET_COLORS } from '../../../../core/index.js'
 
 export interface ColorDropdownProps {
   title?: string
-  mode: 'stroke' | 'fill'
   allowCustom?: boolean
+  allowNoFill?: boolean
   currentColor?: string
   currentOpacity?: number
-  currentFill?: 'none' | 'tint' | 'solid'
+  noFillSelected?: boolean
   map?: L.Map
-  onSelectColor: (color: ColorName | string, hex?: string, opacity?: number) => void
-  onSelectFillMode?: (mode: 'none' | 'tint' | 'solid') => void
+  onSelectColor: (hex: string, opacity?: number) => void
+  onSelectNoFill?: () => void
   onClose?: () => void
 }
 
 export function ColorDropdown({
-  mode,
   allowCustom = true,
+  allowNoFill = false,
   currentColor,
   currentOpacity = 1,
-  currentFill = 'solid',
+  noFillSelected = false,
   map,
   onSelectColor,
-  onSelectFillMode,
+  onSelectNoFill,
 }: ColorDropdownProps) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'theme' | 'custom'>('theme')
@@ -75,23 +74,17 @@ export function ColorDropdown({
         <ColorSwatchList
           variant="color-dropdown"
           items={PRESET_COLORS.map((c) => ({
-            name: c.name,
             hex: c.hex,
             title: t(c.name, undefined, c.name),
           }))}
-          selectedColor={activeColor}
-          showNoFill={Boolean(mode === 'fill' && onSelectFillMode)}
-          noFillSelected={mode === 'fill' && currentFill === 'none'}
+          selectedColor={noFillSelected ? undefined : activeColor}
+          showNoFill={allowNoFill && Boolean(onSelectNoFill)}
+          noFillSelected={noFillSelected}
           noFillLabel={t('noFill')}
-          onSelectNoFill={
-            mode === 'fill' && onSelectFillMode ? () => onSelectFillMode('none') : undefined
-          }
-          onSelectColor={(name, hex) => {
-            if (mode === 'fill' && onSelectFillMode && currentFill === 'none') {
-              onSelectFillMode('solid')
-            }
+          onSelectNoFill={onSelectNoFill}
+          onSelectColor={(hex) => {
             setActiveColor(hex)
-            onSelectColor(name, hex, activeOpacity)
+            onSelectColor(hex, activeOpacity)
           }}
         />
       ) : (
@@ -102,7 +95,7 @@ export function ColorDropdown({
           onSelectColor={(hex, opacity) => {
             setActiveColor(hex)
             setActiveOpacity(opacity)
-            onSelectColor(hex, hex, opacity)
+            onSelectColor(hex, opacity)
           }}
         />
       )}

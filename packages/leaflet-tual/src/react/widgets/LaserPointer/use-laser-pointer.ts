@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { LASER_LIFETIME_MS } from '../../../features/drawing-tools/laser/render-laser.js'
 import { createLaserTracker, type LaserTracker } from '../../../shared/drawing/gestures/laser-tracker.js'
+import { DEFAULT_PALETTE } from '../../../shared/theme/index.js'
 import type { UseLaserPointerOptions, UseLaserPointerReturn } from './types.js'
 
 export function useLaserPointer({
@@ -17,7 +18,7 @@ export function useLaserPointer({
         ? controller.tool === 'laser'
         : true
 
-  const resolvedColor = colorProp ?? 'red'
+  const resolvedColor = colorProp ?? DEFAULT_PALETTE.red
   const redrawRef = useRef(redraw)
   redrawRef.current = redraw
 
