@@ -1,13 +1,15 @@
 'use client'
 
 import type { RefObject } from 'react'
-import type { LeafletTualController, ToolbarPosition } from 'leaflet-tual/react'
+import type { Controller } from 'leaflet-tual/react'
 import { PanelLeftClose, SlidersHorizontal } from 'lucide-react'
 import type { ShowcasePreset } from '../../../data/presets'
-import { WorkbenchConfigurationSelects } from './workbench-configuration-selects'
+import {
+  WorkbenchConfigurationSelects,
+  type WorkbenchToolbarPosition,
+} from './workbench-configuration-selects'
 import { WorkbenchQuickActions } from './workbench-quick-actions'
 import { WorkbenchFeatureToggles } from './workbench-feature-toggles'
-import { WorkbenchAnnotationsList } from './workbench-annotations-list'
 import { WorkbenchLiveJson } from './workbench-live-json'
 
 interface WorkbenchDrawerProps {
@@ -18,18 +20,12 @@ interface WorkbenchDrawerProps {
   onTileLayerChange: (id: string) => void
   activePreset: ShowcasePreset
   onSelectPreset: (id: string) => void
-  controller: LeafletTualController
+  controller: Controller
   onResetScenario: () => void
-  canvasTheme: 'default' | 'homepage'
-  onCanvasThemeChange: (theme: 'default' | 'homepage') => void
-  toolbarPosition: ToolbarPosition
-  onToolbarPositionChange: (pos: ToolbarPosition) => void
+  toolbarPosition: WorkbenchToolbarPosition
+  onToolbarPositionChange: (pos: WorkbenchToolbarPosition) => void
   readOnly: boolean
   onToggleReadOnly: (val: boolean) => void
-  collapsible: boolean
-  onCollapsibleChange: (val: boolean) => void
-  showToolLabels: boolean
-  onShowToolLabelsChange: (val: boolean) => void
   copied: boolean
   onCopyJson: () => void
 }
@@ -44,20 +40,14 @@ export function WorkbenchDrawer({
   onSelectPreset,
   controller,
   onResetScenario,
-  canvasTheme,
-  onCanvasThemeChange,
   toolbarPosition,
   onToolbarPositionChange,
   readOnly,
   onToggleReadOnly,
-  collapsible,
-  onCollapsibleChange,
-  showToolLabels,
-  onShowToolLabelsChange,
   copied,
   onCopyJson,
 }: WorkbenchDrawerProps) {
-  const selected = controller.selectedItem
+  const selected = controller.selected[0]
 
   return (
     <aside
@@ -89,14 +79,12 @@ export function WorkbenchDrawer({
 
       {/* Scrollable Drawer Content */}
       <div className="p-4 flex-1 overflow-y-auto flex flex-col gap-3.5 scrollbar-thin">
-        {/* Basemap, Scenario, Theme, Toolbar Selects */}
+        {/* Basemap, Scenario, Toolbar Selects */}
         <WorkbenchConfigurationSelects
           tileLayerId={tileLayerId}
           onTileLayerChange={onTileLayerChange}
           activePreset={activePreset}
           onSelectPreset={onSelectPreset}
-          canvasTheme={canvasTheme}
-          onCanvasThemeChange={onCanvasThemeChange}
           toolbarPosition={toolbarPosition}
           onToolbarPositionChange={onToolbarPositionChange}
         />
@@ -112,10 +100,6 @@ export function WorkbenchDrawer({
         <WorkbenchFeatureToggles
           readOnly={readOnly}
           onToggleReadOnly={onToggleReadOnly}
-          collapsible={collapsible}
-          onCollapsibleChange={onCollapsibleChange}
-          showToolLabels={showToolLabels}
-          onShowToolLabelsChange={onShowToolLabelsChange}
         />
 
         {/* Selected Item Details */}
@@ -131,16 +115,13 @@ export function WorkbenchDrawer({
                 Label: &quot;{selected.label}&quot;
               </div>
             )}
-            {'start' in selected && selected.start && (
+            {'from' in selected && selected.from && (
               <div className="text-text-muted text-[10px]">
-                Pos: {selected.start.lat.toFixed(4)}, {selected.start.lng.toFixed(4)}
+                Pos: {selected.from.lat.toFixed(4)}, {selected.from.lng.toFixed(4)}
               </div>
             )}
           </div>
         )}
-
-        {/* Annotations List */}
-        <WorkbenchAnnotationsList controller={controller} readOnly={readOnly} />
 
         {/* Live JSON State in Sidebar */}
         <WorkbenchLiveJson
@@ -152,4 +133,3 @@ export function WorkbenchDrawer({
     </aside>
   )
 }
-

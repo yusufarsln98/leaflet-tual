@@ -26,7 +26,7 @@ export function renderTable(table: Table, key: string): React.ReactNode {
           {bodyRows.map((row: TableRow, ri: number) => (
             <tr key={`${key}-tr-${ri}`} className="hover:bg-bg-sidebar/30 transition-colors">
               {row.children.map((cell: TableCell, ci: number) => {
-                const cellText = nodeText(cell as unknown as RootContent)
+                const cellText = nodeText(cell)
                 const isFirstCol = ci === 0
                 const isRequired = cellText.trim() === 'Yes'
                 const isOptional = cellText.trim() === 'No'

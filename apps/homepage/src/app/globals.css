@@ -34,5 +34,6 @@
 @import '../styles/top-layer.css';
 @import '../styles/prism.css';
 @import 'leaflet/dist/leaflet.css';
+@import 'leaflet-tual/styles.css';
 @import '../styles/canvas-theme.css';
 

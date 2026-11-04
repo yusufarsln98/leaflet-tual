@@ -1,10 +1,13 @@
 import type { RootContent, Text, Paragraph, Blockquote, ParsedCallout } from './types'
 
 /** Extract plain text from an AST node */
-export function nodeText(node: RootContent): string {
-  if ('value' in node) return (node as Text).value
-  if ('children' in node) {
-    return (node as { children: RootContent[] }).children.map(nodeText).join('')
+export function nodeText(node: unknown): string {
+  if (!node || typeof node !== 'object') return ''
+  if ('value' in node && typeof (node as { value: unknown }).value === 'string') {
+    return (node as { value: string }).value
+  }
+  if ('children' in node && Array.isArray((node as { children: unknown }).children)) {
+    return (node as { children: unknown[] }).children.map(nodeText).join('')
   }
   return ''
 }
@@ -13,7 +16,7 @@ export function nodeText(node: RootContent): string {
 export function parseCallout(node: Blockquote): ParsedCallout | null {
   const firstChild = node.children[0]
   if (!firstChild || firstChild.type !== 'paragraph') return null
-  const text = nodeText(firstChild as unknown as RootContent)
+  const text = nodeText(firstChild)
   const match = text.match(/^\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*\n?(.*)/)
   if (!match) return null
 
@@ -28,7 +31,7 @@ export function parseCallout(node: Blockquote): ParsedCallout | null {
 
   const boldChild = firstPara.children.find((c) => c.type === 'strong')
   if (boldChild) {
-    titleText = nodeText(boldChild as unknown as RootContent)
+    titleText = nodeText(boldChild)
   }
 
   const bodyNodes: RootContent[] = []
@@ -69,7 +72,7 @@ export function parseCallout(node: Blockquote): ParsedCallout | null {
   }
 
   for (let i = 1; i < node.children.length; i++) {
-    bodyNodes.push(node.children[i] as unknown as RootContent)
+    bodyNodes.push(node.children[i])
   }
 
   return {

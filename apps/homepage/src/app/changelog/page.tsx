@@ -11,10 +11,9 @@ export default async function Page() {
   const ast = parseMarkdown(markdown)
 
   // Skip the top H1 (# leaflet-tual) if it exists, since we have our own page header
-  const contentNodes =
-    ast.children[0]?.type === 'heading' && (ast.children[0] as any).depth === 1
-      ? ast.children.slice(1)
-      : ast.children
+  const firstNode = ast.children[0]
+  const isTopH1 = firstNode?.type === 'heading' && 'depth' in firstNode && firstNode.depth === 1
+  const contentNodes = isTopH1 ? ast.children.slice(1) : ast.children
 
   return (
     <>

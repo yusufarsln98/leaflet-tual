@@ -2,45 +2,33 @@
 
 import { MapContainer, TileLayer, ZoomControl } from 'react-leaflet'
 import {
-  type ArrowRenderTheme,
   LeafletTual,
-  type LeafletTualController,
-  type LeafletTualStyles,
-  type ToolbarPosition,
+  type Controller,
 } from 'leaflet-tual/react'
 import type { FreeTileLayer } from '../../../data/tiles'
 import type { ShowcasePreset } from '../../../data/presets'
 import { MapViewSynchronizer } from './map-view-synchronizer'
+import type { WorkbenchToolbarPosition } from './workbench-configuration-selects'
 
 interface WorkbenchMapViewProps {
   activePreset: ShowcasePreset
   activeTile: FreeTileLayer
-  controller: LeafletTualController
-  canvasTheme: 'default' | 'homepage'
-  arrowTheme: ArrowRenderTheme
-  canvasStyles: LeafletTualStyles
-  strokeColors: string[]
+  controller: Controller
   readOnly: boolean
-  collapsible: boolean
-  toolbarPosition: ToolbarPosition
-  showToolLabels: boolean
+  toolbarPosition: WorkbenchToolbarPosition
+  theme: 'light' | 'dark'
 }
 
 export function WorkbenchMapView({
   activePreset,
   activeTile,
   controller,
-  canvasTheme,
-  arrowTheme,
-  canvasStyles,
-  strokeColors,
   readOnly,
-  collapsible,
   toolbarPosition,
-  showToolLabels,
+  theme,
 }: WorkbenchMapViewProps) {
   return (
-    <div className="w-full h-full relative bg-bg-app" data-canvas-theme={canvasTheme}>
+    <div className="w-full h-full relative bg-bg-app">
       <MapContainer
         center={activePreset.center}
         zoom={activePreset.zoom}
@@ -59,14 +47,9 @@ export function WorkbenchMapView({
         />
         <LeafletTual
           controller={controller}
-          annotationTheme={canvasTheme === 'default' ? undefined : arrowTheme}
-          styles={canvasTheme === 'default' ? undefined : canvasStyles}
-          strokeColors={canvasTheme === 'default' ? undefined : strokeColors}
           readOnly={readOnly}
-          collapsible={collapsible}
-          toolbarPosition={toolbarPosition}
-          showToolLabels={showToolLabels}
-          autoMinimizeNotesZoom={12}
+          theme={theme}
+          toolbar={{ position: toolbarPosition }}
         />
       </MapContainer>
     </div>

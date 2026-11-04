@@ -56,7 +56,7 @@ export const PILLARS: PillarItem[] = [
     badge: 'State Management',
     stat: 'Undo / Redo',
     description:
-      'Control state via createLeafletTualController (or useLeafletTual in React) with built-in undo/redo history, or connect your own state store via controlled items.',
+      'Control state via createLeafletTual (or useLeafletTual in React) with built-in undo/redo history, or connect your own state store via controlled Doc values.',
     iconName: 'Zap',
   },
   {

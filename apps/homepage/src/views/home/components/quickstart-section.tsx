@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { CODE_SAMPLES } from '../../../data/code-samples'
 import { DocCodeBlock } from '../../../components/mdx-renderer/doc-code-block'
 import { PlateMarks } from './plate-marks'

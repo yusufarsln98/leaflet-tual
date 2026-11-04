@@ -1,5 +1,5 @@
 import React from 'react'
-import type { List, ListItem, Paragraph, RootContent } from './types'
+import type { List, ListItem, RootContent } from './types'
 import { renderInline } from './render-inline'
 
 export function renderList(
@@ -18,7 +18,9 @@ export function renderList(
   return (
     <Tag
       key={key}
-      className={`${list.ordered ? 'list-decimal' : 'list-disc'} list-outside pl-5 text-text-secondary space-y-2 text-sm leading-relaxed marker:text-text-muted`}
+      className={`${
+        list.ordered ? 'list-decimal' : 'list-disc'
+      } list-outside pl-5 text-text-secondary space-y-2 text-sm leading-relaxed marker:text-text-muted`}
     >
       {list.children.map((item: ListItem, li: number) => (
         <li key={`${key}-li-${li}`} className="pl-1">
@@ -26,18 +28,14 @@ export function renderList(
             if (child.type === 'paragraph') {
               return (
                 <React.Fragment key={`${key}-li-${li}-${ci}`}>
-                  {renderInline(
-                    (child as Paragraph).children as RootContent[],
-                    `${key}-li-${li}-${ci}-`,
-                  )}
+                  {renderInline(child.children, `${key}-li-${li}-${ci}-`)}
                 </React.Fragment>
               )
             }
-            return renderBlockFn(child as unknown as RootContent, ci, scrollToSection, sectionId)
+            return renderBlockFn(child, ci, scrollToSection, sectionId)
           })}
         </li>
       ))}
     </Tag>
   )
 }
-

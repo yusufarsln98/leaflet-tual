@@ -17,9 +17,9 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com;
   style-src 'self' 'unsafe-inline';
-  img-src 'self' blob: data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.basemaps.cartocdn.com https://unpkg.com;
+  img-src 'self' blob: data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://server.arcgisonline.com https://*.basemaps.cartocdn.com https://basemaps.cartocdn.com https://unpkg.com;
   font-src 'self' data:;
-  connect-src 'self' https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.basemaps.cartocdn.com https://va.vercel-scripts.com https://vitals.vercel-insights.com;
+  connect-src 'self' https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://server.arcgisonline.com https://*.basemaps.cartocdn.com https://basemaps.cartocdn.com https://va.vercel-scripts.com https://vitals.vercel-insights.com;
   frame-ancestors 'self';
   form-action 'self';
   base-uri 'self';
@@ -70,6 +70,7 @@ const nextConfig: NextConfig = {
       'leaflet-tual$': path.resolve(__dirname, '../../packages/leaflet-tual/src/index.ts'),
       'leaflet-tual/core': path.resolve(__dirname, '../../packages/leaflet-tual/src/index.ts'),
       'leaflet-tual/react': path.resolve(__dirname, '../../packages/leaflet-tual/src/react.ts'),
+      'leaflet-tual/styles.css': path.resolve(__dirname, '../../packages/leaflet-tual/src/styles.css'),
     }
     config.resolve.extensionAlias = {
       '.js': ['.ts', '.tsx', '.js'],

@@ -1,5 +1,5 @@
 import React from 'react'
-import type { RootContent, Text, Strong, Emphasis, InlineCode, Link } from './types'
+import type { RootContent, Text, Strong, Emphasis, InlineCode, Link, Image, Delete } from './types'
 
 import { isSafeUrl } from '@/lib/url'
 
@@ -47,11 +47,11 @@ export function renderInline(nodes: RootContent[], keyPrefix = ''): React.ReactN
       case 'delete':
         return (
           <del key={key}>
-            {renderInline((node as { children: RootContent[] }).children, `${key}-`)}
+            {renderInline((node as Delete).children as RootContent[], `${key}-`)}
           </del>
         )
       case 'image': {
-        const img = node as unknown as { url: string; alt?: string; title?: string }
+        const img = node as Image
         return (
           <img
             key={key}
