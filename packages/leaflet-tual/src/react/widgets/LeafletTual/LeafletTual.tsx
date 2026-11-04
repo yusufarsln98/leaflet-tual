@@ -3,23 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import { useMap } from 'react-leaflet'
-import type { Controller, InternalController, Item } from '../../../core/index.js'
-import { hitTest, isItemInViewport } from '../../../core/index.js'
-import { isTualUiTarget } from '../../../shared/dom/ui-guard.js'
+import type { Controller, InternalController } from '../../../core/index.js'
 import { useLeafletTual } from '../../features/use-leaflet-tual.js'
-import { useLeafletSync } from '../../features/use-leaflet-sync.js'
-import { useControllerState } from '../../features/use-controller-state.js'
 import { TranslationProvider } from '../../features/i18n/index.js'
-
-import { Toolbar } from '../Toolbar/Toolbar.js'
-import { SecondaryTooltip } from '../SecondaryTooltip/SecondaryTooltip.js'
-import { ContextMenu, type ContextMenuPosition } from '../ContextMenu/index.js'
-import { Sidebar, SidebarTriggerBar } from '../Sidebar/index.js'
-import { LaserPointer } from '../LaserPointer/index.js'
 import type { LeafletTualProps } from '../../types/index.js'
-import { InlineShapeLabelEditor, NoteOverlayView, TextOverlayView } from './overlays/index.js'
-import { drawCanvasScene, type CanvasGesture, useCanvasGestures } from './gestures/index.js'
-import { useKeyboardShortcuts, useMapInteractions, useMiddleClickPan, useThemeResolver } from './hooks/index.js'
+import { type CanvasGesture, useCanvasGestures } from './gestures/index.js'
+import {
+  useCanvasScene,
+  useContextMenuCoordinator,
+  useKeyboardShortcuts,
+  useMapInteractions,
+  useMiddleClickPan,
+  useThemeResolver,
+} from './hooks/index.js'
+import { LeafletTualOverlays, LeafletTualWidgets } from './components/index.js'
 
 function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps }) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -53,38 +50,35 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     }
   }, [props.controller, props.translations])
 
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const [currentZoom, setCurrentZoom] = useState(() => map.getZoom())
   const [activeGesture, setActiveGesture] = useState<CanvasGesture | null>(null)
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const isShiftPressedRef = useRef(false)
 
-  const redraw = useCallback(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    drawCanvasScene(
-      canvas,
-      map,
-      controller,
-      activeGesture,
-      isShiftPressedRef.current,
-      hoveredItemId,
-    )
-  }, [activeGesture, controller, hoveredItemId, map])
-
-  useLeafletSync(map, () => {
-    setCurrentZoom(map.getZoom())
-    redraw()
+  const { canvasRef, currentZoom } = useCanvasScene({
+    map,
+    controller,
+    activeGesture,
+    hoveredItemId,
+    isShiftPressedRef,
   })
-
-  useControllerState(controller, redraw)
-
-  useEffect(() => {
-    redraw()
-  }, [redraw])
 
   useMapInteractions(map, controller)
   useMiddleClickPan(map, containerRef)
+
+  const {
+    contextMenuPos,
+    setContextMenuPos,
+    openContextMenu,
+    closeContextMenu,
+    handleContextMenu,
+    handleOverlayContextMenu,
+    handleSidebarItemContextMenu,
+  } = useContextMenuCoordinator({
+    map,
+    controller,
+    canvasRef,
+  })
 
   const gestures = useCanvasGestures({
     canvasRef,
@@ -94,6 +88,8 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     setActiveGesture,
     isShiftPressedRef,
     setHoveredItemId,
+    onOpenContextMenu: openContextMenu,
+    onCloseContextMenu: closeContextMenu,
   })
 
   useEffect(() => {
@@ -115,63 +111,28 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     gestures.finishArea,
   )
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [contextMenuPos, setContextMenuPos] = useState<ContextMenuPosition | null>(null)
-
   useEffect(() => {
-    if (!isSidebarOpen && controller.tool === 'select') {
+    if (!isSidebarOpen && (controller.tool === 'select' || controller.tool === 'laser')) {
       map.dragging?.enable()
     }
   }, [isSidebarOpen, controller.tool, map])
 
-  const handleContextMenu = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (controller.readOnly) return
-      const target = e.target as Element | null
-      if (isTualUiTarget(target)) {
-        return
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen((open) => {
+      const next = !open
+      if (!next && (controller.tool === 'select' || controller.tool === 'laser')) {
+        map.dragging?.enable()
       }
-      const canvas = canvasRef.current
-      const rect = canvas?.getBoundingClientRect()
-      const pt = rect
-        ? { x: e.clientX - rect.left, y: e.clientY - rect.top }
-        : { x: e.clientX, y: e.clientY }
+      return next
+    })
+  }, [controller.tool, map])
 
-      const isOverlayItem = target?.closest?.('.tual-note-card, .tual-text-item')
-      if (!isOverlayItem) {
-        const hitItem = [...controller.items]
-          .reverse()
-          .find((item) => hitTest(item, pt, 12, map))
-        if (hitItem) {
-          if (!controller.selection.includes(hitItem.id)) {
-            controller.select(hitItem.id)
-          }
-        } else if (controller.selection.length === 0) {
-          setContextMenuPos(null)
-          return
-        }
-      }
-
-      e.preventDefault()
-      e.stopPropagation()
-      controller.edit(null)
-      setContextMenuPos(pt)
-    },
-    [controller, map],
-  )
-
-  const handleSidebarItemContextMenu = useCallback(
-    (_item: Item, e: React.MouseEvent) => {
-      if (!canvasRef.current) return
-      const rect = canvasRef.current.getBoundingClientRect()
-      const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top }
-      controller.edit(null)
-      setContextMenuPos(pt)
-    },
-    [controller],
-  )
-
-  const showToolbar = props.toolbar !== false && (!props.readOnly || Boolean(props.toolbar))
+  const closeSidebar = useCallback(() => {
+    setIsSidebarOpen(false)
+    if (controller.tool === 'select' || controller.tool === 'laser') {
+      map.dragging?.enable()
+    }
+  }, [controller.tool, map])
 
   return (
     <TranslationProvider translations={controller.translations}>
@@ -197,115 +158,33 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           }}
         />
 
-        {/* Laser Presentation Overlay */}
-        <LaserPointer controller={controller} map={map} />
+        <LeafletTualOverlays
+          map={map}
+          controller={controller}
+          currentZoom={currentZoom}
+          isSidebarOpen={isSidebarOpen}
+          contextMenuPos={contextMenuPos}
+          activeGesture={activeGesture}
+          onOpenSidebar={() => setIsSidebarOpen(true)}
+          onOverlayContextMenu={handleOverlayContextMenu}
+        />
 
-        {/* Inline Shape & Arrow Label Editors */}
-        {controller.items.map((item) =>
-          (item.type === 'shape' || item.type === 'arrow') && controller.editingId === item.id ? (
-            <InlineShapeLabelEditor key={item.id} map={map} item={item} controller={controller} />
-          ) : null,
-        )}
-
-        {/* Floating Contextual Secondary Tooltip above single selected shape / item (hidden on multi-select, marquee drag, context menu, or sidebar) */}
-        {!isSidebarOpen &&
-          !contextMenuPos &&
-          activeGesture?.type !== 'marquee' &&
-          controller.selected.length === 1 &&
-          !controller.readOnly && (
-            <SecondaryTooltip
-              map={map}
-              controller={controller}
-              sidebarOpen={isSidebarOpen}
-              onOpenSidebar={() => setIsSidebarOpen(true)}
-            />
-          )}
-
-        {/* Note overlays */}
-        {controller.items.map((item) =>
-          item.type === 'note' && isItemInViewport(map, item, 100) ? (
-            <NoteOverlayView
-              key={item.id}
-              map={map}
-              note={item}
-              controller={controller}
-              currentZoom={currentZoom}
-            />
-          ) : null,
-        )}
-
-        {/* Text overlays */}
-        {controller.items.map((item) =>
-          item.type === 'text' && isItemInViewport(map, item, 100) ? (
-            <TextOverlayView
-              key={item.id}
-              map={map}
-              textItem={item}
-              controller={controller}
-              currentZoom={currentZoom}
-            />
-          ) : null,
-        )}
-
-        {/* Floating Toolbar */}
-        {showToolbar && (
-          <Toolbar
-            controller={controller}
-            map={map}
-            currentZoom={currentZoom}
-            {...(typeof props.toolbar === 'object' ? props.toolbar : {})}
-          />
-        )}
-
-        {/* Floating Sidebar & Zoom Trigger Tooltip */}
-        {showToolbar && (
-          <SidebarTriggerBar
-            controller={controller}
-            map={map}
-            currentZoom={currentZoom}
-            sidebarOpen={isSidebarOpen}
-            onToggleSidebar={() =>
-              setIsSidebarOpen((open) => {
-                const next = !open
-                if (!next && controller.tool === 'select') {
-                  map.dragging?.enable()
-                }
-                return next
-              })
-            }
-          />
-        )}
+        <LeafletTualWidgets
+          map={map}
+          controller={controller}
+          currentZoom={currentZoom}
+          isSidebarOpen={isSidebarOpen}
+          contextMenuPos={contextMenuPos}
+          resolvedScheme={resolvedScheme}
+          toolbarProps={props.toolbar}
+          readOnly={props.readOnly}
+          onToggleSidebar={toggleSidebar}
+          onCloseSidebar={closeSidebar}
+          onCloseContextMenu={closeContextMenu}
+          onOpenSidebar={() => setIsSidebarOpen(true)}
+          onSidebarItemContextMenu={handleSidebarItemContextMenu}
+        />
       </div>
-
-      {/* Right Properties & Layers Sidebar — own overlay layer so it sits above Leaflet controls (e.g. attribution) */}
-      {isSidebarOpen && !controller.readOnly && (
-        <div className="tual tual-sidebar-layer" data-theme={resolvedScheme}>
-          <Sidebar
-            controller={controller}
-            map={map}
-            onClose={() => {
-              setIsSidebarOpen(false)
-              if (controller.tool === 'select') {
-                map.dragging?.enable()
-              }
-            }}
-            onItemContextMenu={handleSidebarItemContextMenu}
-          />
-        </div>
-      )}
-
-      {/* Right-click Context Menu for single item, multi-selection, or sidebar item */}
-      {contextMenuPos && !controller.readOnly && (
-        <div className="tual tual-context-menu-layer" data-theme={resolvedScheme}>
-          <ContextMenu
-            map={map}
-            controller={controller}
-            position={contextMenuPos}
-            onClose={() => setContextMenuPos(null)}
-            onOpenSidebar={() => setIsSidebarOpen(true)}
-          />
-        </div>
-      )}
     </TranslationProvider>
   )
 }

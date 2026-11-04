@@ -86,6 +86,8 @@ import {
   TextField,
   Divider,
   ICONS,
+  useLeafletDomGuard,
+  disableTualDomPropagation,
 } from '../../react.js'
 
 import pkg from '../../../package.json'
@@ -93,7 +95,7 @@ import pkg from '../../../package.json'
 describe('leaflet-tual v2 package contract exports', () => {
   it('exports VERSION constant matching package.json', () => {
     expect(VERSION).toBe(pkg.version)
-    expect(VERSION).toBe('2.0.0')
+    expect(VERSION).toBe('2.0.1')
   })
 
   it('creates unique ids with prefix', () => {
@@ -118,6 +120,8 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(useControllerStore).toBeDefined()
     expect(createController).toBeDefined()
     expect(getPageItems).toBeDefined()
+    expect(useLeafletDomGuard).toBeDefined()
+    expect(disableTualDomPropagation).toBeDefined()
     expect(emptyDoc).toBeDefined()
     expect(parseDoc).toBeDefined()
     expect(DocError).toBeDefined()

@@ -86,6 +86,61 @@ describe('Laser Pointer presentation component', () => {
 
     fireEvent.pointerUp(canvas, { clientX: 120, clientY: 130 })
     expect(onPointerUp).toHaveBeenCalledTimes(1)
+    expect(mockMap.dragging?.enable).toHaveBeenCalled()
+  })
+
+  it('allows wheel zoom and middle-click pan while laser tool is active', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    act(() => {
+      result.current.setTool('laser')
+    })
+
+    const onWheel = vi.fn()
+    const { container } = render(
+      <div onWheel={onWheel}>
+        <LaserPointer map={mockMap} controller={result.current} />
+      </div>,
+    )
+    const canvas = container.querySelector('canvas.tual-laser-canvas') as HTMLCanvasElement
+
+    // 1. Wheel events bubble to parent container (enabling scroll zoom)
+    fireEvent.wheel(canvas, { deltaY: 100 })
+    expect(onWheel).toHaveBeenCalledTimes(1)
+
+    // 2. Middle-click (mouse wheel button: 1) does not disable map dragging or capture laser
+    const onPointerDown = vi.fn()
+    const { container: c2 } = render(
+      <LaserPointer map={mockMap} controller={result.current} onPointerDown={onPointerDown} />,
+    )
+    const canvas2 = c2.querySelector('canvas.tual-laser-canvas') as HTMLCanvasElement
+    vi.mocked(mockMap.dragging!.disable).mockClear()
+
+    fireEvent.pointerDown(canvas2, { clientX: 100, clientY: 100, button: 1 })
+    expect(onPointerDown).not.toHaveBeenCalled()
+    expect(mockMap.dragging?.disable).not.toHaveBeenCalled()
+  })
+
+  it('allows panning with mouse wheel drag (middle-click) in LeafletTual when laser tool is active', () => {
+    let currentTool = 'select'
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    const { container } = render(<LeafletTual map={mockMap} controller={result.current} />)
+
+    act(() => {
+      result.current.setTool('laser')
+      currentTool = 'laser'
+    })
+    expect(currentTool).toBe('laser')
+
+    const laserCanvas = container.querySelector('canvas.tual-laser-canvas') as HTMLCanvasElement
+    expect(laserCanvas).not.toBeNull()
+
+    // Middle-click (button: 1) drag on laser canvas
+    fireEvent.mouseDown(laserCanvas, { clientX: 100, clientY: 100, button: 1 })
+    fireEvent.mouseMove(window, { clientX: 160, clientY: 140 })
+    fireEvent.mouseUp(window, { clientX: 160, clientY: 140, button: 1 })
+
+    // Map panBy was invoked with the inverse delta
+    expect(mockMap.panBy).toHaveBeenCalledWith([-60, -40], { animate: false })
   })
 
   it('hook useLaserPointer manages trail, lifetime and decay correctly', () => {

@@ -1,25 +1,17 @@
 import { useCallback, useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import type L from 'leaflet'
-import type { Controller, Item, ScreenPoint } from '../../../../core/index.js'
+import type { Controller, ScreenPoint } from '../../../../core/index.js'
+import { getCanvasPoint as getCanvasScreenPoint } from '../../../../core/index.js'
+import type { CanvasGesture, PendingClickSelection } from './types.js'
+import { usePenDraft, useAreaDraft } from './drafts/index.js'
 import {
-  getCanvasPoint as getCanvasScreenPoint,
-  hitTest,
-  hitTestPenHandle,
-  isClickGesture,
-  screenToGeo,
-} from '../../../../core/index.js'
-import { updateCanvasHoverCursor } from './canvas-cursor.js'
-import {
-  applyGestureMouseMove,
-  commitGestureMouseUp,
-  commitPendingClickSelection,
+  processPointerDown,
+  processMouseMove,
+  processMouseUp,
+  processDoubleClick,
   useCanvasNativeListeners,
-} from './canvas-gesture-handlers.js'
-import type { CanvasGesture, PendingClickSelection } from './gesture-types.js'
-import { findResizeGestureUnderPointer } from './use-canvas-resize-handles.js'
-import { usePenDraft } from './use-pen-draft.js'
-import { useAreaDraft } from './use-area-draft.js'
+} from './handlers/index.js'
 
 export interface CanvasGesturesOptions {
   canvasRef: RefObject<HTMLCanvasElement | null>
@@ -29,9 +21,9 @@ export interface CanvasGesturesOptions {
   setActiveGesture: (g: CanvasGesture | null) => void
   isShiftPressedRef: RefObject<boolean>
   setHoveredItemId?: (id: string | null) => void
+  onOpenContextMenu: (pt: { x: number; y: number }) => void
+  onCloseContextMenu: () => void
 }
-
-const UI_DOUBLE_CLICK_GUARD_MS = 500
 
 export function useCanvasGestures({
   canvasRef,
@@ -41,11 +33,14 @@ export function useCanvasGestures({
   setActiveGesture,
   isShiftPressedRef,
   setHoveredItemId,
+  onOpenContextMenu,
+  onCloseContextMenu,
 }: CanvasGesturesOptions) {
   const activeGestureRef = useRef<CanvasGesture | null>(activeGesture)
   const lastUiMouseDownRef = useRef(0)
   const pendingClickRef = useRef<PendingClickSelection | null>(null)
   const hoveredItemIdRef = useRef<string | null>(null)
+  const wasTualActionRef = useRef(false)
 
   const updateHoveredId = useCallback(
     (nextId: string | null) => {
@@ -90,290 +85,106 @@ export function useCanvasGestures({
 
   const handlePointerDown = useCallback(
     (e: React.MouseEvent) => {
-      if (controller.readOnly || e.button !== 0) return
-      pendingClickRef.current = null
-      isShiftPressedRef.current = e.shiftKey
-      const pt = getCanvasPoint(e)
-      const geo = screenToGeo(map, pt)
-
-      const resize = findResizeGestureUnderPointer(map, controller.selected, pt, geo)
-      if (resize) {
-        e.preventDefault()
-        e.stopPropagation()
-        map.dragging?.disable()
-        setGesture(resize)
-        return
-      }
-
-      if (controller.tool === 'select') {
-        const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 12, map))
-        if (hitItem) {
-          const isSel = controller.selection.includes(hitItem.id)
-
-          if (!e.shiftKey && hitItem.type === 'pen') {
-            const hitHandle = hitTestPenHandle(map, hitItem, pt)
-            if (hitHandle) {
-              if (!isSel) controller.select([hitItem.id])
-              e.preventDefault()
-              e.stopPropagation()
-              map.dragging?.disable()
-              setGesture({
-                type: 'edit-pen',
-                penId: hitItem.id,
-                pointIndex: hitHandle.pointIndex,
-                handle: hitHandle.type,
-                startGeo: geo,
-                initialPoints: hitItem.points,
-              })
-              return
-            }
-          }
-
-          if (!isSel || e.shiftKey) {
-            updateHoveredId(hitItem.id)
-            pendingClickRef.current = {
-              itemId: hitItem.id,
-              shiftKey: e.shiftKey,
-              startPt: { x: e.clientX, y: e.clientY },
-              canvasStartPt: pt,
-              startGeo: geo,
-            }
-            if (e.shiftKey) {
-              e.preventDefault()
-              e.stopPropagation()
-              map.dragging?.disable()
-            }
-            return
-          }
-
-          const draggableItems = controller.selection
-            .map((id) => controller.items.find((i) => i.id === id))
-            .filter((i): i is Item => i !== undefined && !i.locked)
-          if (draggableItems.length === 0) {
-            pendingClickRef.current = {
-              itemId: hitItem.id,
-              shiftKey: false,
-              startPt: { x: e.clientX, y: e.clientY },
-              canvasStartPt: pt,
-              startGeo: geo,
-            }
-            return
-          }
-
-          map.dragging?.disable()
-          setGesture({
-            type: 'drag-item',
-            itemIds: draggableItems.map((i) => i.id),
-            startPt: pt,
-            startGeo: geo,
-            initialItems: draggableItems,
-          })
-          e.preventDefault()
-          e.stopPropagation()
-        } else if (e.shiftKey) {
-          e.preventDefault()
-          e.stopPropagation()
-          map.dragging?.disable()
-          setGesture({
-            type: 'marquee',
-            startPt: pt,
-            startGeo: geo,
-            currentPt: pt,
-            currentGeo: geo,
-          })
-        } else if (controller.selection.length > 0 || controller.editingId) {
-          pendingClickRef.current = {
-            itemId: null,
-            shiftKey: false,
-            startPt: { x: e.clientX, y: e.clientY },
-          }
-        }
-        return
-      }
-
-      if (controller.tool === 'note') {
-        const note = controller.add({
-          type: 'note',
-          at: geo,
-          width: 180,
-          height: 180,
-          baseZoom: map.getZoom(),
-          text: 'New note',
-          style: { color: 'yellow', fillColor: 'yellow', size: 'm' },
-        })
-        controller.select(note.id)
-        controller.setTool('select')
-        return
-      }
-
-      if (controller.tool === 'text') {
-        const text = controller.add({ type: 'text', at: geo, text: 'New text' })
-        controller.select(text.id)
-        controller.setTool('select')
-        return
-      }
-
-      if (controller.tool === 'pen') {
-        e.preventDefault()
-        e.stopPropagation()
-        map.dragging?.disable()
-        handlePenPointerDown(pt, geo)
-        return
-      }
-
-      if (controller.tool === 'area') {
-        if (activeGestureRef.current?.type === 'area-draft') {
-          e.preventDefault()
-          e.stopPropagation()
-          map.dragging?.disable()
-          handleAreaPointerDown(pt, geo)
-          return
-        }
-      }
-
-      setGesture({
-        type: 'draw',
-        tool: controller.tool,
-        variant: controller.variant,
-        startPt: pt,
-        startGeo: geo,
-        currentPt: pt,
-        currentGeo: geo,
-        freedrawPoints: controller.tool === 'freedraw' ? [geo] : undefined,
+      processPointerDown(e, {
+        map,
+        controller,
+        isShiftPressedRef,
+        pendingClickRef,
+        activeGestureRef,
+        wasTualActionRef,
+        getCanvasPoint,
+        setGesture,
+        updateHoveredId,
+        handlePenPointerDown,
+        handleAreaPointerDown,
       })
     },
-    [controller, getCanvasPoint, handlePenPointerDown, isShiftPressedRef, map, setGesture],
+    [
+      activeGestureRef,
+      controller,
+      getCanvasPoint,
+      handleAreaPointerDown,
+      handlePenPointerDown,
+      isShiftPressedRef,
+      map,
+      setGesture,
+      updateHoveredId,
+    ],
   )
 
   const handleDoubleClick = useCallback(
     (e: MouseEvent) => {
-      if (Date.now() - lastUiMouseDownRef.current < UI_DOUBLE_CLICK_GUARD_MS) {
-        lastUiMouseDownRef.current = 0
-        e.preventDefault()
-        e.stopPropagation()
-        return
-      }
-      if (!controller.readOnly && controller.tool === 'pen') {
-        e.preventDefault()
-        e.stopPropagation()
-        finishPen(false)
-        return
-      }
-      if (!controller.readOnly && controller.tool === 'area') {
-        e.preventDefault()
-        e.stopPropagation()
-        finishArea()
-        return
-      }
-      if (Date.now() - penFinishedAtRef.current < UI_DOUBLE_CLICK_GUARD_MS) {
-        e.preventDefault()
-        e.stopPropagation()
-        return
-      }
-      if (Date.now() - areaFinishedAtRef.current < UI_DOUBLE_CLICK_GUARD_MS) {
-        e.preventDefault()
-        e.stopPropagation()
-        return
-      }
-      if (controller.readOnly || controller.tool !== 'select') return
-      const pt = getCanvasPoint(e)
-      const hit = [...controller.items].reverse().find((item) => hitTest(item, pt, 16, map))
-      if (
-        hit &&
-        !hit.locked &&
-        (hit.type === 'shape' || hit.type === 'arrow' || hit.type === 'text')
-      ) {
-        e.preventDefault()
-        e.stopPropagation()
-        controller.select(hit.id)
-        controller.edit(hit.id)
-      }
+      processDoubleClick(e, {
+        map,
+        controller,
+        lastUiMouseDownRef,
+        penFinishedAtRef,
+        areaFinishedAtRef,
+        getCanvasPoint,
+        finishPen,
+        finishArea,
+      })
     },
-    [controller, finishPen, getCanvasPoint, map, penFinishedAtRef],
+    [
+      areaFinishedAtRef,
+      controller,
+      finishArea,
+      finishPen,
+      getCanvasPoint,
+      map,
+      penFinishedAtRef,
+    ],
   )
 
-  useCanvasNativeListeners(canvasRef, handleDoubleClick, lastUiMouseDownRef)
+  useCanvasNativeListeners({
+    canvasRef,
+    map,
+    controller,
+    handleDoubleClick,
+    lastUiMouseDownRef,
+    wasTualActionRef,
+    onOpenContextMenu,
+    onCloseContextMenu,
+  })
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      const pending = pendingClickRef.current
-      if (pending && !isClickGesture(pending.startPt, { x: e.clientX, y: e.clientY })) {
-        pendingClickRef.current = null
-        if (pending.shiftKey && pending.canvasStartPt && pending.startGeo) {
-          const pt = getCanvasPoint(e)
-          const geo = screenToGeo(map, pt)
-          const marqueeGesture: CanvasGesture = {
-            type: 'marquee',
-            startPt: pending.canvasStartPt,
-            startGeo: pending.startGeo,
-            currentPt: pt,
-            currentGeo: geo,
-          }
-          setGesture(marqueeGesture)
-          applyGestureMouseMove(controller, map, marqueeGesture, pt, geo, true, setGesture)
-          return
-        }
-      }
-      const gesture = activeGestureRef.current
-      if (!gesture) {
-        if (controller.tool === 'select' && canvasRef.current && e.target === canvasRef.current) {
-          const pt = getCanvasPoint(e)
-          updateCanvasHoverCursor(canvasRef.current, map, controller, pt)
-          const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 12, map))
-          updateHoveredId(hitItem?.id ?? null)
-        } else {
-          updateHoveredId(null)
-        }
-        return
-      }
-      updateHoveredId(null)
-      isShiftPressedRef.current = e.shiftKey
-      const pt = getCanvasPoint(e)
-      const geo = screenToGeo(map, pt)
-      const shiftKey = Boolean(e.shiftKey)
-      applyGestureMouseMove(controller, map, gesture, pt, geo, shiftKey, setGesture)
+      processMouseMove(e, {
+        canvasRef,
+        map,
+        controller,
+        activeGestureRef,
+        pendingClickRef,
+        isShiftPressedRef,
+        getCanvasPoint,
+        setGesture,
+        updateHoveredId,
+      })
     },
-    [canvasRef, controller, getCanvasPoint, isShiftPressedRef, map, setGesture, updateHoveredId],
+    [
+      canvasRef,
+      controller,
+      getCanvasPoint,
+      isShiftPressedRef,
+      map,
+      setGesture,
+      updateHoveredId,
+    ],
   )
 
   const handleMouseUp = useCallback(
     (e?: MouseEvent) => {
-      if (e && e.button !== 0) return
-      const pending = pendingClickRef.current
-      pendingClickRef.current = null
-      if (pending && (!e || isClickGesture(pending.startPt, { x: e.clientX, y: e.clientY }))) {
-        commitPendingClickSelection(controller, pending, map)
-      }
-      const gesture = activeGestureRef.current
-      if (!gesture) return
-      if (gesture.type === 'pen-draft') {
-        setGesture({ ...gesture, dragging: false, activeIndex: null })
-        return
-      }
-      if (gesture.type === 'area-draft') {
-        return
-      }
-      const currentPt = 'currentPt' in gesture ? gesture.currentPt : { x: 0, y: 0 }
-      const currentGeo = 'currentGeo' in gesture ? gesture.currentGeo : { lat: 0, lng: 0 }
-      const endPt = e ? getCanvasPoint(e) : currentPt
-      const endGeo = e ? screenToGeo(map, endPt) : currentGeo
-      const shiftKey = Boolean(e ? e.shiftKey : isShiftPressedRef.current)
-
-      if (gesture.type === 'draw' && gesture.tool === 'area') {
-        if (isClickGesture(gesture.startPt, endPt)) {
-          setGesture({
-            type: 'area-draft',
-            points: [gesture.startGeo],
-            currentPt: endPt,
-            currentGeo: endGeo,
-          })
-          return
-        }
-      }
-      commitGestureMouseUp(controller, map, gesture, endPt, endGeo, shiftKey)
-      setGesture(null)
+      processMouseUp(e, {
+        map,
+        controller,
+        activeGestureRef,
+        pendingClickRef,
+        isShiftPressedRef,
+        getCanvasPoint,
+        setGesture,
+      })
     },
-    [canvasRef, controller, getCanvasPoint, isShiftPressedRef, map, setGesture],
+    [controller, getCanvasPoint, isShiftPressedRef, map, setGesture],
   )
 
   const cancelGesture = useCallback(() => {

@@ -6,13 +6,15 @@ import {
   distanceToCubicBezier,
   distanceToQuadraticBezier,
   distanceToSegment,
+  getCubicBezierPoint,
+  getQuadraticBezierPoint,
 } from './distances/index.js'
 import { getPenSegments } from '../../features/drawing-tools/pen/pen-geometry.js'
 
 export function hitTest(
   item: Item,
   point: ScreenPoint | GeoPoint,
-  tolerance = 10,
+  tolerance = 0,
   map?: L.Map | null,
 ): boolean {
   const project = (geo: GeoPoint): ScreenPoint => {
@@ -28,25 +30,76 @@ export function hitTest(
     case 'ruler': {
       const start = project(item.from)
       const end = project(item.to)
+      const scale = map && item.baseZoom != null ? Math.pow(2, map.getZoom() - item.baseZoom) : 1
+      const baseLineWidth = item.style?.width === 'l' ? 5 : item.style?.width === 's' ? 2 : 3.5
+      const lineWidth = Math.max(1, baseLineWidth * scale)
+      const strokeRadius = lineWidth / 2 + Math.max(0, tolerance)
+
+      if (item.type === 'arrow') {
+        const heads = item.heads ?? { start: 'none', end: 'triangle' }
+        const headBase = item.style?.width === 'l' ? 18 : item.style?.width === 's' ? 10 : 14
+        const headSize = Math.max(4, headBase * scale)
+        if (heads.start && heads.start !== 'none') {
+          if (Math.hypot(pt.x - start.x, pt.y - start.y) <= headSize + tolerance) {
+            return true
+          }
+        }
+        if (heads.end && heads.end !== 'none') {
+          if (Math.hypot(pt.x - end.x, pt.y - end.y) <= headSize + tolerance) {
+            return true
+          }
+        }
+      }
+
+      if (item.type === 'arrow' && item.label) {
+        let labelCenter: ScreenPoint
+        if (item.kind === 'curved') {
+          const via = project(item.via ?? defaultVia(item.from, item.to))
+          labelCenter = getQuadraticBezierPoint(start, via, end, 0.5)
+        } else if (item.kind === 'elbow') {
+          const corner: ScreenPoint = { x: end.x, y: start.y }
+          labelCenter = { x: (corner.x + end.x) / 2, y: (corner.y + end.y) / 2 }
+        } else if (item.kind === 's-curve') {
+          const midX = start.x + (end.x - start.x) * 0.5
+          labelCenter = getCubicBezierPoint(
+            start,
+            { x: midX, y: start.y },
+            { x: midX, y: end.y },
+            end,
+            0.5,
+          )
+        } else {
+          labelCenter = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
+        }
+        const fontSize = 12 * scale
+        const halfW = (item.label.length * fontSize * 0.55 + 8) / 2
+        const halfH = (fontSize + 6) / 2
+        if (
+          Math.abs(pt.x - labelCenter.x) <= halfW + tolerance &&
+          Math.abs(pt.y - labelCenter.y) <= halfH + tolerance
+        ) {
+          return true
+        }
+      }
       if (item.type === 'arrow' && item.kind === 'curved') {
         const via = project(item.via ?? defaultVia(item.from, item.to))
-        return distanceToQuadraticBezier(pt, start, via, end) <= tolerance
+        return distanceToQuadraticBezier(pt, start, via, end) <= strokeRadius
       }
       if (item.type === 'arrow' && item.kind === 'elbow') {
         const corner: ScreenPoint = { x: end.x, y: start.y }
         return (
-          distanceToSegment(pt, start, corner) <= tolerance ||
-          distanceToSegment(pt, corner, end) <= tolerance
+          distanceToSegment(pt, start, corner) <= strokeRadius ||
+          distanceToSegment(pt, corner, end) <= strokeRadius
         )
       }
       if (item.type === 'arrow' && item.kind === 's-curve') {
         const midX = start.x + (end.x - start.x) * 0.5
         return (
           distanceToCubicBezier(pt, start, { x: midX, y: start.y }, { x: midX, y: end.y }, end) <=
-          tolerance
+          strokeRadius
         )
       }
-      return distanceToSegment(pt, start, end) <= tolerance
+      return distanceToSegment(pt, start, end) <= strokeRadius
     }
     case 'shape':
     case 'note': {
@@ -56,12 +109,40 @@ export function hitTest(
       const h = item.type === 'shape' ? item.height : (item.height ?? item.width ?? 180)
       const halfW = (w * scale) / 2
       const halfH = (h * scale) / 2
-      return (
-        pt.x >= center.x - halfW - tolerance &&
-        pt.x <= center.x + halfW + tolerance &&
-        pt.y >= center.y - halfH - tolerance &&
-        pt.y <= center.y + halfH + tolerance
-      )
+
+      if (
+        pt.x < center.x - halfW - tolerance ||
+        pt.x > center.x + halfW + tolerance ||
+        pt.y < center.y - halfH - tolerance ||
+        pt.y > center.y + halfH + tolerance
+      ) {
+        return false
+      }
+
+      if (item.type === 'shape') {
+        if (item.kind === 'circle') {
+          const dx = (pt.x - center.x) / (halfW + tolerance)
+          const dy = (pt.y - center.y) / (halfH + tolerance)
+          return dx * dx + dy * dy <= 1
+        }
+        if (item.kind === 'diamond') {
+          const dx = Math.abs(pt.x - center.x) / (halfW + tolerance)
+          const dy = Math.abs(pt.y - center.y) / (halfH + tolerance)
+          return dx + dy <= 1
+        }
+        if (item.kind === 'triangle') {
+          const p1 = { x: center.x, y: center.y - halfH }
+          const p2 = { x: center.x + halfW, y: center.y + halfH }
+          const p3 = { x: center.x - halfW, y: center.y + halfH }
+          const d1 = (pt.x - p2.x) * (p1.y - p2.y) - (p1.x - p2.x) * (pt.y - p2.y)
+          const d2 = (pt.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (pt.y - p3.y)
+          const d3 = (pt.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (pt.y - p1.y)
+          const hasNeg = d1 < -tolerance || d2 < -tolerance || d3 < -tolerance
+          const hasPos = d1 > tolerance || d2 > tolerance || d3 > tolerance
+          return !(hasNeg && hasPos)
+        }
+      }
+      return true
     }
     case 'freedraw': {
       if (item.points.length === 0) return false

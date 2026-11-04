@@ -8,7 +8,7 @@ export function setupMapInteractions(
   if (!map) return () => {}
 
   const isDrawingTool =
-    (controller.tool !== 'select' && !controller.readOnly) || controller.tool === 'laser'
+    controller.tool !== 'select' && controller.tool !== 'laser' && !controller.readOnly
   if (isDrawingTool) {
     map.dragging?.disable()
     map.doubleClickZoom?.disable()

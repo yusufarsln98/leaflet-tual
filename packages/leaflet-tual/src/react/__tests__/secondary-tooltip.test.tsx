@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, renderHook, act, within } from '@testing-library/react'
 import { SecondaryTooltip } from '../widgets/SecondaryTooltip/SecondaryTooltip.js'
 import { useLeafletTual } from '../features/use-leaflet-tual.js'
-import type { NoteItem, TextItem } from '../../core/index.js'
+import type { NoteItem, ShapeItem, TextItem } from '../../core/index.js'
 import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 
@@ -473,7 +473,138 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     })
 
     noteItem = result.current.items.find((it): it is NoteItem => it.id === noteId)
-    expect(noteItem?.style?.fillColor).toBe('rgba(255, 85, 0, 0.75)')
+    expect(noteItem?.style?.fillColor).toBe('#FF5500')
+    expect(noteItem?.style?.opacity).toBe(0.75)
+  })
+
+  it('displays shape initial opacity in the color editor modal', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    let shapeId = ''
+    act(() => {
+      const s = result.current.add({
+        type: 'shape',
+        kind: 'circle',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
+        style: { color: 'blue', fill: 'solid', opacity: 0.6 },
+      })
+      shapeId = s.id
+      result.current.select(s.id)
+    })
+
+    const map = createMockMap()
+    render(<SecondaryTooltip map={map} controller={result.current} />)
+
+    const colorBtn = screen.getByTitle('Color')
+    act(() => {
+      fireEvent.click(colorBtn)
+    })
+
+    // Click Custom tab
+    const customTab = screen.getByRole('button', { name: 'Custom' })
+    act(() => {
+      fireEvent.click(customTab)
+    })
+
+    // Opacity input should show initial opacity (60%)
+    const opacityInput = screen.getByLabelText('Opacity percentage') as HTMLInputElement
+    expect(opacityInput.value).toBe('60')
+
+    // Change opacity to 40%
+    act(() => {
+      fireEvent.change(opacityInput, { target: { value: '40' } })
+    })
+
+    const shapeItem = result.current.items.find((it): it is ShapeItem => it.id === shapeId)
+    expect(shapeItem?.style?.color).toBe('#1B4CC0')
+    expect(shapeItem?.style?.opacity).toBe(0.4)
+  })
+
+  it('displays tinted shape initial opacity (25%) in the color editor modal', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    act(() => {
+      const s = result.current.add({
+        type: 'shape',
+        kind: 'circle',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
+        style: { color: 'blue', fill: 'tint' },
+      })
+      result.current.select(s.id)
+    })
+
+    const map = createMockMap()
+    render(<SecondaryTooltip map={map} controller={result.current} />)
+
+    const colorBtn = screen.getByTitle('Color')
+    act(() => {
+      fireEvent.click(colorBtn)
+    })
+
+    const customTab = screen.getByRole('button', { name: 'Custom' })
+    act(() => {
+      fireEvent.click(customTab)
+    })
+
+    // Tinted shape renders at 25% opacity
+    const opacityInput = screen.getByLabelText('Opacity percentage') as HTMLInputElement
+    expect(opacityInput.value).toBe('25')
+  })
+
+  it('preserves shape opacity in custom tab after selecting a theme color', () => {
+    const { result } = renderHook(() =>
+      useLeafletTual({
+        defaultValue: emptyDoc(),
+      }),
+    )
+
+    act(() => {
+      const s = result.current.add({
+        type: 'shape',
+        kind: 'circle',
+        at: { lat: 41.05, lng: 28.05 },
+        width: 100,
+        height: 100,
+        style: { color: '#2F6FEB', opacity: 0.25 },
+      })
+      result.current.select(s.id)
+    })
+
+    const map = createMockMap()
+    render(<SecondaryTooltip map={map} controller={result.current} />)
+
+    const colorBtn = screen.getByTitle('Color')
+    act(() => {
+      fireEvent.click(colorBtn)
+    })
+
+    // Theme tab is active. Click a theme color (e.g. Red: #8F2323)
+    const redBtn = screen.getByTitle('Red')
+    act(() => {
+      fireEvent.click(redBtn)
+    })
+
+    // Now switch to Custom tab
+    const customTab = screen.getByRole('button', { name: 'Custom' })
+    act(() => {
+      fireEvent.click(customTab)
+    })
+
+    // Opacity in custom tab MUST still be 25%!
+    const opacityInput = screen.getByLabelText('Opacity percentage') as HTMLInputElement
+    expect(opacityInput.value).toBe('25')
   })
 
   it('does not render inline bold, italic, underline, or bullets buttons for shape labels in secondary tooltip', () => {

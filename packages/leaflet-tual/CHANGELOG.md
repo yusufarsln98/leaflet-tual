@@ -1,5 +1,26 @@
 # leaflet-tual
 
+## 2.0.1
+
+### Patch Changes
+
+- **Event Propagation & UI Isolation**:
+  - Implemented `useLeafletDisableClick` and `useLeafletDomGuard` to cleanly isolate Leaflet Tual overlay widgets (Toolbar, ContextMenu, Sidebar, Popovers, Tooltips, and canvas overlays) from underlying Leaflet map listeners and third-party plugins.
+  - Right-click (`contextmenu`) on drawn annotations and UI widgets no longer propagates to the Leaflet map container, while right-clicking empty canvas space continues to fall back to map context menu events.
+  - Eliminated magic property mutations (`_leaflet_disable_click`) embedded across components.
+
+- **Laser Pointer Interactions**:
+  - Panning and zooming are no longer disabled when the laser pointer tool is selected.
+  - Restored mouse wheel zooming over the laser pointer canvas.
+  - Enabled middle-click drag panning with the mouse wheel while the laser tool is active, restricting laser trail generation to the primary mouse button (`button === 0`).
+  - Correctly restored `map.dragging` on pointer up.
+
+- **React 19 Compatibility & Codebase Refactoring**:
+  - Replaced deprecated `MutableRefObject<T>` references with React 19's `RefObject<T>`.
+  - Reorganized the `gestures/` module into single-responsibility subdirectories (`drafts/`, `handlers/`, `types.ts`, and a lean coordinator `use-canvas-gestures.ts`).
+  - Reorganized the `Sidebar/` module into structured subpackages (`components/`, `hooks/`, `sections/`, `utils/`, `types.ts`).
+  - Decomposed `LeafletTual.tsx` into dedicated coordinator hooks (`useCanvasScene`, `useContextMenuCoordinator`) and decomposed subcomponents (`LeafletTualOverlays`, `LeafletTualWidgets`).
+
 ## 2.0.0
 
 ### Major Changes
@@ -116,7 +137,7 @@
 
   - **5 Vector Arrow Styles**: Linear, curved (quadratic Bézier with draggable midpoint control handle), bi-directional, orthogonal elbow / step, and s-curve.
   - **Customizable Arrowheads & Styling**: Closed triangle, open arrowhead, dual heads, dashed line patterns, custom stroke widths, and color swatches.
-  - **Integrated Label Badges**: Centered label pills with inline editing mode and keyboard `Enter` shortcuts.
+  - **Integrated Label Badges**: Centered label pills with inline editing mode activated via double-click.
 
   #### Geometric Shape Primitives
 
@@ -140,7 +161,7 @@
   - **Decoupled Controller (`createLeafletTualController` & `useLeafletTual`)**: Manage state in either uncontrolled mode (with built-in 50-step undo/redo history) or controlled mode (`items` + `onItemsChange`).
   - **Flexible Floating Toolbar (`<CanvasToolbar>`)**: Built-in floating toolbar with 8 positioning presets, geometric 16px SVG icons, collapsible trigger, or completely decoupled outside the map container.
   - **Read-Only Mode (`readOnly`)**: Strip edit handles and toolbars for presentation or dashboard embedding while keeping Leaflet map pan, zoom, and click interactions completely unobstructed.
-  - **Keyboard Shortcuts**: Built-in hotkeys for tools (`V` Select, `P` Free Draw, `A` Linear Arrow, `C` Curved Arrow, `B` Bi-directional, `E` Elbow, `S` S-Curve, `R` Ruler, `N` Note, `T` Text), `Enter` (edit label), `Escape` (cancel/deselect), and `Delete` / `Backspace` (remove item).
+  - **Keyboard Shortcuts**: Built-in hotkeys for tools (`V` Select, `P` Free Draw, `A` Linear Arrow, `C` Curved Arrow, `B` Bi-directional, `E` Elbow, `S` S-Curve, `R` Ruler, `N` Note, `T` Text), `Escape` (cancel/deselect), and `Delete` / `Backspace` (remove item).
 
   #### Pure Geometry & GIS Utilities Exported
 

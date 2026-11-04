@@ -1,12 +1,13 @@
+export * from './types.js'
 export * from './use-canvas-gestures.js'
-export * from './use-canvas-drawing.js'
-export * from './use-canvas-resize-handles.js'
-export * from './canvas-gesture-handlers.js'
-export * from './canvas-cursor.js'
-export * from './gesture-types.js'
-export * from './use-pen-draft.js'
-export * from './use-area-draft.js'
+export * from './drafts/index.js'
+export * from './handlers/index.js'
+
+// Backward-compatible re-exports for canvas and gesture operations
 export {
+  drawCanvasScene,
+  findResizeGestureUnderPointer,
+  updateCanvasHoverCursor,
   getShapeScreenHandles,
   hitTestArrowHandle,
   hitTestRulerHandle,

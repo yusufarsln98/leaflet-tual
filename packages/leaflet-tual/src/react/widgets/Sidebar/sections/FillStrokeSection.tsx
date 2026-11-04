@@ -66,22 +66,26 @@ export function FillStrokeSection({
     label: value === 'none' ? t('noBorder') : t(value),
   }))
 
-  const handleStrokeColor = (color: ColorName | string) => {
+  const handleStrokeColor = (color: ColorName | string, op?: number) => {
+    const patch: Partial<Style> = {
+      ...(op !== undefined ? { opacity: op } : {}),
+    }
     if (isShape) {
-      onUpdateStyle({ strokeColor: color, ...(style.color ? {} : { color }) })
+      onUpdateStyle({ strokeColor: color, ...(style.color ? {} : { color }), ...patch })
     } else if (isNote) {
-      onUpdateStyle({ strokeColor: color })
+      onUpdateStyle({ strokeColor: color, ...patch })
     } else if (isArrow) {
-      onUpdateStyle({ color, strokeColor: color })
+      onUpdateStyle({ color, strokeColor: color, ...patch })
     } else {
-      onUpdateStyle({ color })
+      onUpdateStyle({ color, ...patch })
     }
   }
 
-  const handleFillColor = (color: ColorName | string) => {
+  const handleFillColor = (color: ColorName | string, op?: number) => {
     onUpdateStyle({
       color,
       fillColor: color,
+      ...(op !== undefined ? { opacity: op } : {}),
       ...(isNote ? {} : { strokeColor: style.strokeColor ?? color }),
       ...(fillMode === 'none' ? { fill: 'solid' as const } : {}),
     })
@@ -100,8 +104,9 @@ export function FillStrokeSection({
         title={isText ? t('textColor') : t('stroke')}
         mode="stroke"
         currentColor={strokeColorKey}
+        currentOpacity={opacity}
         colorHex={strokeHex}
-        onSelectColor={handleStrokeColor}
+        onSelectColor={(color, _hex, op) => handleStrokeColor(color, op)}
       />
 
       {isBoxItem && (
@@ -138,11 +143,12 @@ export function FillStrokeSection({
           title={t('fill')}
           mode="fill"
           currentColor={fillColorKey}
+          currentOpacity={opacity}
           currentFill={fillMode}
           colorHex={fillHex}
           value={hasNoFill ? t('noFill') : undefined}
           noFill={hasNoFill}
-          onSelectColor={handleFillColor}
+          onSelectColor={(color, _hex, op) => handleFillColor(color, op)}
           onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
         />
       )}

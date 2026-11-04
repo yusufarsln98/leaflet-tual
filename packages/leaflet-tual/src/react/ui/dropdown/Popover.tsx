@@ -1,6 +1,6 @@
 'use client'
 
-import { useWheelGuard } from './use-wheel-guard.js'
+import { useLeafletDomGuard } from '../dom/use-leaflet-dom-guard.js'
 import type { PopoverHeaderProps, PopoverProps } from './types.js'
 
 const VARIANT_CLASSES: Record<NonNullable<PopoverProps['variant']>, string> = {
@@ -35,12 +35,12 @@ export function Popover({
   onClick,
   ...rest
 }: PopoverProps) {
-  const guardRef = useWheelGuard<HTMLDivElement>()
+  const guardRef = useLeafletDomGuard<HTMLDivElement>()
   const classes = [VARIANT_CLASSES[variant], className ?? ''].filter(Boolean).join(' ')
 
   return (
     <div
-      ref={wheelGuard ? guardRef : undefined}
+      ref={stopEvents || wheelGuard ? guardRef : undefined}
       className={classes}
       style={style}
       onPointerDown={(e) => {
@@ -57,6 +57,15 @@ export function Popover({
         if (stopEvents) e.stopPropagation()
         onClick?.(e)
       }}
+      onDoubleClick={(e) => {
+        if (stopEvents) e.stopPropagation()
+      }}
+      onContextMenu={(e) => {
+        if (stopEvents) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      }}
       {...rest}
     >
       {header !== undefined && <PopoverHeader>{header}</PopoverHeader>}
@@ -64,4 +73,3 @@ export function Popover({
     </div>
   )
 }
-

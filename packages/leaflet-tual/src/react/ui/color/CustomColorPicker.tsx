@@ -71,6 +71,7 @@ function DragTrack({
 
 export function CustomColorPicker({
   currentColor,
+  currentOpacity,
   map,
   onSelectColor,
 }: CustomColorPickerProps) {
@@ -81,7 +82,7 @@ export function CustomColorPicker({
   const [hue, setHue] = useState(initialH)
   const [sat, setSat] = useState(initialS)
   const [val, setVal] = useState(initialV)
-  const [opacity, setOpacity] = useState(parsed.a)
+  const [opacity, setOpacity] = useState(currentOpacity ?? parsed.a)
   const [hexInput, setHexInput] = useState(() => rgbToHex(parsed.r, parsed.g, parsed.b))
 
   useEffect(() => {
@@ -90,9 +91,9 @@ export function CustomColorPicker({
     setHue(h)
     setSat(s)
     setVal(v)
-    setOpacity(p.a)
+    setOpacity(currentOpacity ?? p.a)
     setHexInput(rgbToHex(p.r, p.g, p.b))
-  }, [currentColor])
+  }, [currentColor, currentOpacity])
 
   const [currentR, currentG, currentB] = hsvToRgb(hue, sat, val)
 
@@ -101,7 +102,7 @@ export function CustomColorPicker({
       const [r, g, b] = hsvToRgb(h, s, v)
       const hex = rgbToHex(r, g, b)
       setHexInput(hex)
-      onSelectColor(a < 1 ? `rgba(${r}, ${g}, ${b}, ${a})` : hex, hex)
+      onSelectColor(hex, a)
     },
     [onSelectColor],
   )

@@ -1,6 +1,11 @@
 import type L from 'leaflet'
 import type { ArrowItem, LabelPosition, ShapeItem } from '../../../entities/index.js'
-import { defaultVia, geoToScreen, getQuadraticBezierPoint } from '../../geometry/index.js'
+import {
+  defaultVia,
+  geoToScreen,
+  getCubicBezierPoint,
+  getQuadraticBezierPoint,
+} from '../../geometry/index.js'
 import { getItemZoomScale } from '../../geometry/zoom.js'
 
 /** Screen-space height of the shape label pill (10px text + 2px padding per side). */
@@ -27,6 +32,42 @@ export function getShapeLabelY(
   return cy
 }
 
+export function getArrowLabelCenter(
+  map: L.Map,
+  arrow: ArrowItem,
+): { x: number; y: number } {
+  const start = geoToScreen(map, arrow.from)
+  const end = geoToScreen(map, arrow.to)
+
+  if (arrow.kind === 'curved') {
+    const viaGeo = arrow.via ?? defaultVia(arrow.from, arrow.to)
+    const viaScreen = geoToScreen(map, viaGeo)
+    const pt = getQuadraticBezierPoint(start, viaScreen, end, 0.5)
+    return { x: Math.round(pt.x), y: Math.round(pt.y) }
+  }
+
+  if (arrow.kind === 'elbow') {
+    const corner = { x: end.x, y: start.y }
+    return {
+      x: Math.round((corner.x + end.x) / 2),
+      y: Math.round((corner.y + end.y) / 2),
+    }
+  }
+
+  if (arrow.kind === 's-curve') {
+    const c1 = { x: start.x + (end.x - start.x) * 0.5, y: start.y }
+    const c2 = { x: start.x + (end.x - start.x) * 0.5, y: end.y }
+    const pt = getCubicBezierPoint(start, c1, c2, end, 0.5)
+    return { x: Math.round(pt.x), y: Math.round(pt.y) }
+  }
+
+  // linear or fallback
+  return {
+    x: Math.round((start.x + end.x) / 2),
+    y: Math.round((start.y + end.y) / 2),
+  }
+}
+
 export function getLabelAnchor(
   map: L.Map,
   target: ShapeItem | ArrowItem,
@@ -41,14 +82,9 @@ export function getLabelAnchor(
       center.y + halfH,
       center.y,
     )
-    return { x: center.x, y: cy }
+    return { x: Math.round(center.x), y: Math.round(cy) }
   }
 
-  const start = geoToScreen(map, target.from)
-  const end = geoToScreen(map, target.to)
-  const viaGeo = target.via ?? defaultVia(target.from, target.to)
-  const viaScreen = geoToScreen(map, viaGeo)
-  const mid = getQuadraticBezierPoint(start, viaScreen, end, 0.5)
-  return { x: mid.x, y: mid.y }
+  return getArrowLabelCenter(map, target)
 }
 

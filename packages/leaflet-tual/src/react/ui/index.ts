@@ -7,6 +7,4 @@ export * from './input/index.js'
 export * from './color/index.js'
 export * from './collapsible/index.js'
 export * from './resize-handles/index.js'
-
-
-
+export * from './dom/index.js'

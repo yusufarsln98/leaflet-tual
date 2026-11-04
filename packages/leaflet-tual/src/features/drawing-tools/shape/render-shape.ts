@@ -57,7 +57,10 @@ export function renderShapeOnCanvas(
     ctx.fill()
   } else if (visual.fill === 'tint') {
     ctx.save()
-    ctx.globalAlpha = visual.opacity * (isHoveredOnly ? 0.36 : 0.25)
+    ctx.globalAlpha =
+      shape.style?.opacity !== undefined
+        ? visual.opacity
+        : visual.opacity * (isHoveredOnly ? 0.36 : 0.25)
     ctx.fillStyle = visual.fillColor
     ctx.fill()
     ctx.restore()
@@ -77,6 +80,8 @@ export function renderShapeOnCanvas(
   }
 
   if (shape.label && !options.isEditing) {
+    ctx.save()
+    ctx.globalAlpha = 1
     const labelY = getShapeLabelY(shape.labelPosition ?? 'center', minY, maxY, cy)
     drawLabelPill(ctx, { x: cx, y: labelY }, shape.label, {
       textColor: visual.text.color,
@@ -89,6 +94,7 @@ export function renderShapeOnCanvas(
       paddingX: Math.max(3, 4 * scale),
       paddingY: Math.max(1.5, 2 * scale),
     })
+    ctx.restore()
   }
 
   if (options.isSelected) {

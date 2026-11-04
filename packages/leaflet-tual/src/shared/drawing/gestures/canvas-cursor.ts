@@ -2,6 +2,7 @@ import type L from 'leaflet'
 import type { Controller } from '../../../core/types.js'
 import type { ScreenPoint } from '../../types/index.js'
 import {
+  getItemBounds,
   hitTest,
   hitTestAreaHandle,
   hitTestArrowHandle,
@@ -49,12 +50,19 @@ export function updateCanvasHoverCursor(
     }
   }
 
-  const hitSelected = controller.selected.some((i) => hitTest(i, pt, 12, map))
+  const hitSelected = controller.selected.some((i) => {
+    if (hitTest(i, pt, 0, map)) return true
+    if (controller.selected.length === 1 && !i.locked) {
+      const b = getItemBounds(map, i)
+      return pt.x >= b.minX && pt.x <= b.maxX && pt.y >= b.minY && pt.y <= b.maxY
+    }
+    return false
+  })
   if (hitSelected) {
     canvas.style.cursor = 'move'
     return
   }
 
-  const hit = controller.items.some((i) => hitTest(i, pt, 12, map))
+  const hit = controller.items.some((i) => hitTest(i, pt, 0, map))
   canvas.style.cursor = hit ? 'pointer' : 'default'
 }

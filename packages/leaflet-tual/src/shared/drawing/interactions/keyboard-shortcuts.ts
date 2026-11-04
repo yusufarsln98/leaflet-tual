@@ -103,16 +103,6 @@ export function setupKeyboardShortcuts(
         handlers.onFinishArea()
         return
       }
-      const [item] = controller.selected
-      if (
-        controller.selected.length === 1 &&
-        !item.locked &&
-        (item.type === 'shape' || item.type === 'arrow' || item.type === 'text')
-      ) {
-        e.preventDefault()
-        controller.edit(item.id)
-        return
-      }
     }
 
     if (e.key === 'Escape') {

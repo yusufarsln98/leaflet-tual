@@ -1,51 +1,21 @@
 'use client'
 
-import { useState } from 'react'
-import type { Controller, Item } from '../../../core/index.js'
-import { getItemPreview, getPageItems } from '../../../core/index.js'
-import { useTranslation } from '../../features/i18n/index.js'
-import { ConfirmPopover, ICONS } from '../../ui/index.js'
-
-export interface SidebarLayerTreeProps {
-  controller: Controller
-  onItemContextMenu?: (item: Item, e: React.MouseEvent) => void
-}
-
-function getItemIcon(item: Item) {
-  switch (item.type) {
-    case 'shape':
-      return (ICONS[item.kind] ?? ICONS.square)()
-    case 'arrow':
-      return (ICONS[item.kind] ?? ICONS['linear'])()
-    case 'freedraw':
-      return ICONS.pencil()
-    case 'pen':
-      return ICONS.pen()
-    case 'text':
-      return ICONS.text()
-    case 'note':
-      return ICONS.note()
-    case 'ruler':
-      return ICONS.ruler()
-    case 'area':
-      return ICONS.area()
-  }
-}
+import { getItemPreview, getPageItems } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
+import { ConfirmPopover, ICONS } from '../../../ui/index.js'
+import type { SidebarLayerTreeProps } from '../types.js'
+import { useLayerTree } from '../hooks/use-layer-tree.js'
+import { getItemIcon, getItemTypeName } from '../utils/layer-tree-utils.js'
 
 export function SidebarLayerTree({ controller, onItemContextMenu }: SidebarLayerTreeProps) {
   const { t } = useTranslation(controller)
-  const [collapsedPages, setCollapsedPages] = useState<Record<string, boolean>>({})
-
-  const togglePage = (pageId: string) => {
-    setCollapsedPages((prev) => ({ ...prev, [pageId]: !prev[pageId] }))
-  }
-
-  const getItemTypeName = (item: Item): string => {
-    if (item.type === 'shape') {
-      return t(item.kind, undefined, item.kind)
-    }
-    return t(item.type, undefined, item.type)
-  }
+  const {
+    collapsedPages,
+    togglePage,
+    handlePageClick,
+    handleItemClick,
+    handleItemContextMenu,
+  } = useLayerTree({ controller, onItemContextMenu })
 
   const pages = controller.doc.pages
 
@@ -62,13 +32,7 @@ export function SidebarLayerTree({ controller, onItemContextMenu }: SidebarLayer
               type="button"
               className="tual-sidebar-tree-group-header"
               data-active={isPageActive}
-              onClick={() => {
-                if (!isPageActive) {
-                  controller.pages.select(page.id)
-                } else {
-                  togglePage(page.id)
-                }
-              }}
+              onClick={() => handlePageClick(page.id, isPageActive)}
             >
               <span
                 className="tual-sidebar-tree-chevron"
@@ -87,7 +51,7 @@ export function SidebarLayerTree({ controller, onItemContextMenu }: SidebarLayer
               <div className="tual-sidebar-tree-items">
                 {items.map((item) => {
                   const isSelected = isPageActive && controller.selection.includes(item.id)
-                  const typeName = getItemTypeName(item)
+                  const typeName = getItemTypeName(item, t)
                   const preview = getItemPreview(item)
 
                   return (
@@ -97,25 +61,10 @@ export function SidebarLayerTree({ controller, onItemContextMenu }: SidebarLayer
                       aria-selected={isSelected}
                       className="tual-sidebar-tree-item"
                       data-selected={isSelected}
-                      onClick={() => {
-                        if (!isPageActive) {
-                          controller.pages.select(page.id)
-                        }
-                        controller.select(item.id)
-                        controller.fit(item.id)
-                      }}
-                      onContextMenu={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        if (!isPageActive) {
-                          controller.pages.select(page.id)
-                        }
-                        if (!controller.selection.includes(item.id)) {
-                          controller.select(item.id)
-                        }
-                        controller.edit(null)
-                        onItemContextMenu?.(item, e)
-                      }}
+                      onClick={() => handleItemClick(page.id, item.id, isPageActive)}
+                      onContextMenu={(e) =>
+                        handleItemContextMenu(item, page.id, isPageActive, e)
+                      }
                     >
                       <span className="tual-sidebar-tree-icon">{getItemIcon(item)}</span>
                       <span className="tual-sidebar-tree-label">{typeName}</span>
@@ -140,3 +89,4 @@ export function SidebarLayerTree({ controller, onItemContextMenu }: SidebarLayer
     </div>
   )
 }
+

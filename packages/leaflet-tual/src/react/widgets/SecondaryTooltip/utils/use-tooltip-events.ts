@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import type { RefObject } from 'react'
 import type L from 'leaflet'
 import type { Controller } from '../../../../core/index.js'
+import { disableTualDomPropagation } from '../../../../shared/dom/ui-guard.js'
 import { useOutsideDismiss } from '../../../ui/index.js'
 
 export interface UseTooltipEventsOptions {
@@ -24,13 +25,7 @@ export function useTooltipEvents({
   onClosePopover,
 }: UseTooltipEventsOptions) {
   useEffect(() => {
-    const el = tooltipRef.current
-    if (!el) return
-    const stop = (event: Event) => event.stopPropagation()
-    el.addEventListener('dblclick', stop)
-    return () => {
-      el.removeEventListener('dblclick', stop)
-    }
+    return disableTualDomPropagation(tooltipRef.current)
   }, [selectedItemId, tooltipRef])
 
   useEffect(() => {
@@ -49,4 +44,3 @@ export function useTooltipEvents({
 
   useOutsideDismiss(tooltipRef, Boolean(activePopover), onClosePopover)
 }
-

@@ -13,10 +13,7 @@ import { useControllerState, useOverlayMapSync } from '../../features/index.js'
 import { TranslationProvider, useTranslation } from '../../features/i18n/index.js'
 import { PillButton } from '../../ui/index.js'
 import { useTooltipEvents } from './utils/index.js'
-import {
-  TypographyDropdown,
-  TextFormattingControls,
-} from './typography/index.js'
+import { TypographyDropdown, TextFormattingControls } from './typography/index.js'
 import { ColorSwatchControls } from './color/index.js'
 import { SecondaryTooltipExtras } from './popovers/index.js'
 
@@ -59,12 +56,7 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
     el.style.top = `${pos.y}px`
   })
 
-  if (
-    controller.selected.length !== 1 ||
-    !selectedItem ||
-    controller.readOnly ||
-    sidebarOpen
-  ) {
+  if (controller.selected.length !== 1 || !selectedItem || controller.readOnly || sidebarOpen) {
     return null
   }
 
@@ -80,21 +72,18 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
   const isSquareShape = isShape && (selectedItem as ShapeItem).kind === 'square'
   const isNote = selectedItem.type === 'note'
   const isTextOrNote = isNote || selectedItem.type === 'text'
-  const resolvedStyle =
-    isShape || isNote ? resolveItemStyle(selectedItem) : undefined
+  const resolvedStyle = isShape || isNote ? resolveItemStyle(selectedItem) : undefined
   const colorHex =
-    resolvedStyle?.strokeColor ??
-    resolveColor(style.color ?? (isShape || isArrow ? 'blue' : 'ink'))
+    resolvedStyle?.strokeColor ?? resolveColor(style.color ?? (isShape || isArrow ? 'blue' : 'ink'))
   const hasTypography = isTextOrNote || isShape || isArrow
   const hasBorder = selectedItem.type !== 'text'
 
-
   const currentText =
     selectedItem.type === 'note' || selectedItem.type === 'text'
-      ? (selectedItem.text ?? '')
+      ? selectedItem.text ?? ''
       : selectedItem.type === 'shape' || selectedItem.type === 'arrow'
-        ? (selectedItem.label ?? '')
-        : ''
+      ? selectedItem.label ?? ''
+      : ''
 
   const handleUpdateText = (newText: string, newStyle: Partial<Style>) => {
     if (selectedItem.type === 'note' || selectedItem.type === 'text') {
@@ -111,118 +100,123 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
       <div
         ref={tooltipRef}
         className={`tual-secondary-tooltip ${className ?? ''}`}
-      style={{
-        position: 'absolute',
-        left: leftPos,
-        top: topPos,
-        transform: 'translateX(-50%)',
-        zIndex: 500,
-      }}
-      onPointerDown={(e) => {
-        if (e.button === 0) {
+        style={{
+          position: 'absolute',
+          left: leftPos,
+          top: topPos,
+          transform: 'translateX(-50%)',
+          zIndex: 500,
+        }}
+        onPointerDown={(e) => {
+          if (e.button === 0) {
+            e.stopPropagation()
+            map?.dragging?.disable()
+          }
+        }}
+        onMouseDown={(e) => {
+          if (e.button === 0) {
+            e.stopPropagation()
+            map?.dragging?.disable()
+          }
+        }}
+        onClick={(e) => e.stopPropagation()}
+        onDoubleClick={(e) => e.stopPropagation()}
+        onContextMenu={(e) => {
+          e.preventDefault()
           e.stopPropagation()
-          map?.dragging?.disable()
-        }
-      }}
-      onMouseDown={(e) => {
-        if (e.button === 0) {
-          e.stopPropagation()
-          map?.dragging?.disable()
-        }
-      }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {hasTypography && (
-        <div style={{ position: 'relative' }}>
-          <PillButton
-            variant="secondary"
-            title={t('textSizeAndStyle', undefined, 'Text style')}
-            onClick={() => toggle('typography')}
-            leading={
-              <span
-                style={{
-                  color: 'var(--tual-text-secondary)',
-                  fontWeight: 500,
-                  fontSize: 13,
-                  marginRight: 4,
-                  letterSpacing: -0.2,
-                }}
-              >
-                Aa
-              </span>
-            }
-            label={<span style={{ fontWeight: 500, margin: '0 2px' }}>{typographyLabel}</span>}
-            trailing={
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 16 16"
-                fill="none"
-                style={{ opacity: 0.6, marginLeft: 2 }}
-              >
-                <path
-                  d="M4 6L8 10L12 6"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            }
-          />
-          {activePopover === 'typography' && (
-            <TypographyDropdown
-              currentSize={style.size}
-              currentFontSize={style.fontSize}
-              currentWeight={style.weight}
-              currentFontStyle={style.fontStyle}
-              currentUnderline={Boolean(style.underline || style.textDecoration === 'underline')}
-              currentAlign={style.align}
-              onUpdateStyle={updateStyle}
-              onClose={() => setActivePopover(null)}
+        }}
+      >
+        {hasTypography && (
+          <div style={{ position: 'relative' }}>
+            <PillButton
+              variant="secondary"
+              title={t('textSizeAndStyle', undefined, 'Text style')}
+              onClick={() => toggle('typography')}
+              leading={
+                <span
+                  style={{
+                    color: 'var(--tual-text-secondary)',
+                    fontWeight: 500,
+                    fontSize: 13,
+                    marginRight: 4,
+                    letterSpacing: -0.2,
+                  }}
+                >
+                  Aa
+                </span>
+              }
+              label={<span style={{ fontWeight: 500, margin: '0 2px' }}>{typographyLabel}</span>}
+              trailing={
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  style={{ opacity: 0.6, marginLeft: 2 }}
+                >
+                  <path
+                    d="M4 6L8 10L12 6"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              }
             />
-          )}
-        </div>
-      )}
+            {activePopover === 'typography' && (
+              <TypographyDropdown
+                currentSize={style.size}
+                currentFontSize={style.fontSize}
+                currentWeight={style.weight}
+                currentFontStyle={style.fontStyle}
+                currentUnderline={Boolean(style.underline || style.textDecoration === 'underline')}
+                currentAlign={style.align}
+                onUpdateStyle={updateStyle}
+                onClose={() => setActivePopover(null)}
+              />
+            )}
+          </div>
+        )}
 
-      <ColorSwatchControls
-        map={map}
-        isNote={isNote}
-        isShape={isShape}
-        isArrow={isArrow}
-        style={style}
-        colorHex={colorHex}
-        resolvedStyle={resolvedStyle}
-        activePopover={activePopover}
-        onToggle={toggle}
-        onClose={() => setActivePopover(null)}
-        onUpdateStyle={updateStyle}
-      />
-
-      {isTextOrNote && (
-        <TextFormattingControls
+        <ColorSwatchControls
+          map={map}
+          isNote={isNote}
+          isShape={isShape}
+          isArrow={isArrow}
           style={style}
-          currentText={currentText}
+          colorHex={colorHex}
+          resolvedStyle={resolvedStyle}
+          activePopover={activePopover}
+          onToggle={toggle}
+          onClose={() => setActivePopover(null)}
           onUpdateStyle={updateStyle}
-          onUpdateText={handleUpdateText}
         />
-      )}
 
-      <SecondaryTooltipExtras
-        isNote={isNote}
-        isShape={isShape}
-        hasBorder={hasBorder}
-        isSquareShape={isSquareShape}
-        style={style}
-        selectedItem={selectedItem}
-        controller={controller}
-        activePopover={activePopover}
-        sidebarOpen={sidebarOpen}
-        onOpenSidebar={onOpenSidebar}
-        onToggle={toggle}
-        onClose={() => setActivePopover(null)}
-        onUpdateStyle={updateStyle}
-      />
+        {isTextOrNote && (
+          <TextFormattingControls
+            style={style}
+            currentText={currentText}
+            onUpdateStyle={updateStyle}
+            onUpdateText={handleUpdateText}
+          />
+        )}
+
+        <SecondaryTooltipExtras
+          isNote={isNote}
+          isShape={isShape}
+          hasBorder={hasBorder}
+          isSquareShape={isSquareShape}
+          style={style}
+          selectedItem={selectedItem}
+          controller={controller}
+          activePopover={activePopover}
+          sidebarOpen={sidebarOpen}
+          onOpenSidebar={onOpenSidebar}
+          onToggle={toggle}
+          onClose={() => setActivePopover(null)}
+          onUpdateStyle={updateStyle}
+        />
       </div>
     </TranslationProvider>
   )

@@ -1,9 +1,9 @@
 'use client'
 
-import { useTranslation } from '../../features/i18n/index.js'
-import { Divider, DropdownItem, DropdownMenu, Popover } from '../../ui/index.js'
-import type { ZoomMenuPopoverProps } from './types.js'
-import { ZOOM_PRESETS } from './zoom-utils.js'
+import { useTranslation } from '../../../features/i18n/index.js'
+import { Divider, DropdownItem, DropdownMenu, Popover } from '../../../ui/index.js'
+import type { ZoomMenuPopoverProps } from '../types.js'
+import { ZOOM_PRESETS } from '../utils/zoom-utils.js'
 
 export function ZoomMenuPopover({
   controller,

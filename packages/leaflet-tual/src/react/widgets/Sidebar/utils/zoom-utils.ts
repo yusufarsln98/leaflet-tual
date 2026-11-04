@@ -3,4 +3,5 @@ export {
   ZOOM_PRESETS,
   getZoomPercent,
   zoomPercentToLevel,
-} from '../../../core/index.js'
+} from '../../../../core/index.js'
+

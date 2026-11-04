@@ -38,7 +38,8 @@ export interface ColorSwatchListProps {
 
 export interface CustomColorPickerProps {
   currentColor?: string
+  currentOpacity?: number
   map?: L.Map
-  onSelectColor: (color: string, hex: string) => void
+  onSelectColor: (hex: string, opacity: number) => void
 }
 
