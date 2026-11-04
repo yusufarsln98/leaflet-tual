@@ -44,7 +44,7 @@ export function useCanvasNativeListeners({
       const rect = canvas.getBoundingClientRect()
       const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top }
 
-      const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 12, map))
+      const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 0, map))
 
       if (hitItem) {
         // HIT an item: this is a Tual context menu action!

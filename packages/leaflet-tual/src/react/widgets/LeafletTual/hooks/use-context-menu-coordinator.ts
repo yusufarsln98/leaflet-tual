@@ -72,7 +72,7 @@ export function useContextMenuCoordinator({
         return
       }
 
-      const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 12, map))
+      const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 0, map))
       if (hitItem) {
         e.preventDefault()
         e.stopPropagation()

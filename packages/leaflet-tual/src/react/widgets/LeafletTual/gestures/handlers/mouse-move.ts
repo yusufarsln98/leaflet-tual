@@ -59,7 +59,7 @@ export function processMouseMove(e: MouseEvent, ctx: MouseMoveContext): void {
     if (controller.tool === 'select' && canvasRef.current && e.target === canvasRef.current) {
       const pt = getCanvasPoint(e)
       updateCanvasHoverCursor(canvasRef.current, map, controller, pt)
-      const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 12, map))
+      const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 0, map))
       updateHoveredId(hitItem?.id ?? null)
     } else {
       updateHoveredId(null)

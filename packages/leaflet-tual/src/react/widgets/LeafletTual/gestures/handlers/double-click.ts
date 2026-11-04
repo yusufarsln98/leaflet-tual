@@ -64,7 +64,7 @@ export function processDoubleClick(e: MouseEvent, ctx: DoubleClickContext): void
   if (controller.readOnly || controller.tool !== 'select') return
 
   const pt = getCanvasPoint(e)
-  const hit = [...controller.items].reverse().find((item) => hitTest(item, pt, 16, map))
+  const hit = [...controller.items].reverse().find((item) => hitTest(item, pt, 0, map))
 
   if (
     hit &&

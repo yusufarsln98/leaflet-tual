@@ -52,6 +52,7 @@ export function createMockCanvasContext(): CanvasRenderingContext2D {
     clearRect: vi.fn(),
     scale: vi.fn(),
     translate: vi.fn(),
+    rotate: vi.fn(),
     setTransform: vi.fn(),
     save: vi.fn(),
     restore: vi.fn(),

@@ -4,6 +4,7 @@ import type L from 'leaflet'
 import type { Controller, GeoPoint, Item, ScreenPoint } from '../../../../../core/index.js'
 import {
   findResizeGestureUnderPointer,
+  getItemBounds,
   hitTest,
   hitTestPenHandle,
   screenToGeo,
@@ -31,7 +32,16 @@ function handleSelectToolPointerDown(
   ctx: PointerDownContext,
 ): void {
   const { controller, map, setGesture, updateHoveredId, pendingClickRef, wasTualActionRef } = ctx
-  const hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 12, map))
+  let hitItem = [...controller.items].reverse().find((item) => hitTest(item, pt, 0, map))
+  if (!hitItem && controller.selection.length === 1) {
+    const sel = controller.selected[0]
+    if (!sel.locked) {
+      const b = getItemBounds(map, sel)
+      if (pt.x >= b.minX && pt.x <= b.maxX && pt.y >= b.minY && pt.y <= b.maxY) {
+        hitItem = sel
+      }
+    }
+  }
 
   if (hitItem) {
     wasTualActionRef.current = true
