@@ -5,8 +5,13 @@ import type { DrawKind, MeasureKind, ToolId } from '../../../core/index.js'
 import { useControllerState } from '../../features/index.js'
 import { TranslationProvider } from '../../features/i18n/index.js'
 import type { ToolbarProps } from '../../types/index.js'
-import { Divider, useOutsideDismiss } from '../../ui/index.js'
-import { PageSwitcher, ToolbarDrawGroup, ToolbarItemButton, ToolbarMeasureGroup } from './controls/index.js'
+import { Divider, useLeafletDomGuard, useOutsideDismiss } from '../../ui/index.js'
+import {
+  PageSwitcher,
+  ToolbarDrawGroup,
+  ToolbarItemButton,
+  ToolbarMeasureGroup,
+} from './controls/index.js'
 
 const ALL_TOOLS: ToolId[] = [
   'select',
@@ -33,7 +38,9 @@ export const Toolbar = memo(function Toolbar({
 }: ToolbarProps) {
   useControllerState(controller)
 
-  const [activePopover, setActivePopover] = useState<'pages' | 'draw' | 'measure' | ToolId | null>(null)
+  const [activePopover, setActivePopover] = useState<'pages' | 'draw' | 'measure' | ToolId | null>(
+    null,
+  )
   const toolbarRef = useRef<HTMLDivElement>(null)
   const lastDrawToolRef = useRef<DrawKind>('freedraw')
   const lastMeasureToolRef = useRef<MeasureKind>('ruler')
@@ -50,6 +57,7 @@ export const Toolbar = memo(function Toolbar({
 
   const closePopover = useCallback(() => setActivePopover(null), [])
   useOutsideDismiss(toolbarRef, activePopover !== null, closePopover)
+  useLeafletDomGuard(toolbarRef)
 
   return (
     <TranslationProvider translations={controller.translations}>
@@ -59,6 +67,7 @@ export const Toolbar = memo(function Toolbar({
         data-orientation={orientation}
         className="tual-toolbar"
         onClick={(e) => {
+          e.stopPropagation()
           if (e.target === e.currentTarget) closePopover()
         }}
       >

@@ -8,6 +8,7 @@ import { useTranslation } from '../../../features/i18n/index.js'
 import { getLabelAnchor } from '../../../../shared/drawing/canvas/shape-label.js'
 import { getItemZoomScale } from '../../../../shared/geometry/zoom.js'
 import { useOverlayMapSync } from '../../../features/use-overlay-map-sync.js'
+import { useLeafletDomGuard } from '../../../ui/index.js'
 import { applyStyleShortcutKeyDown } from './use-note-editor-keys.js'
 
 export interface InlineShapeLabelEditorProps {
@@ -28,6 +29,8 @@ export const InlineShapeLabelEditor = memo(function InlineShapeLabelEditor({
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  useLeafletDomGuard(containerRef)
+
   const { x: midX, y: midY } = getLabelAnchor(map, target)
 
   useOverlayMapSync(map, () => {
@@ -37,6 +40,14 @@ export const InlineShapeLabelEditor = memo(function InlineShapeLabelEditor({
     el.style.left = `${anchor.x}px`
     el.style.top = `${anchor.y}px`
   })
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const anchor = getLabelAnchor(map, target)
+    el.style.left = `${anchor.x}px`
+    el.style.top = `${anchor.y}px`
+  }, [map, target])
 
   useEffect(() => {
     setValue(target.label ?? '')
@@ -101,16 +112,25 @@ export const InlineShapeLabelEditor = memo(function InlineShapeLabelEditor({
       className={`tual-inline-label-editor ${className ?? ''}`}
       style={{
         position: 'absolute',
-        left: midX,
-        top: midY,
+        left: `${midX}px`,
+        top: `${midY}px`,
         transform: 'translate(-50%, -50%)',
-        zIndex: 100,
+        zIndex: 800,
         pointerEvents: isEditing ? 'auto' : 'none',
       }}
       onPointerDown={(e) => {
         if (isEditing) e.stopPropagation()
       }}
       onMouseDown={(e) => {
+        if (isEditing) e.stopPropagation()
+      }}
+      onClick={(e) => {
+        if (isEditing) e.stopPropagation()
+      }}
+      onDoubleClick={(e) => {
+        if (isEditing) e.stopPropagation()
+      }}
+      onContextMenu={(e) => {
         if (isEditing) e.stopPropagation()
       }}
     >

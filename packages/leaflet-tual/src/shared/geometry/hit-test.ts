@@ -6,6 +6,8 @@ import {
   distanceToCubicBezier,
   distanceToQuadraticBezier,
   distanceToSegment,
+  getCubicBezierPoint,
+  getQuadraticBezierPoint,
 } from './distances/index.js'
 import { getPenSegments } from '../../features/drawing-tools/pen/pen-geometry.js'
 
@@ -28,6 +30,35 @@ export function hitTest(
     case 'ruler': {
       const start = project(item.from)
       const end = project(item.to)
+      if (item.type === 'arrow' && item.label) {
+        let labelCenter: ScreenPoint
+        if (item.kind === 'curved') {
+          const via = project(item.via ?? defaultVia(item.from, item.to))
+          labelCenter = getQuadraticBezierPoint(start, via, end, 0.5)
+        } else if (item.kind === 'elbow') {
+          const corner: ScreenPoint = { x: end.x, y: start.y }
+          labelCenter = { x: (corner.x + end.x) / 2, y: (corner.y + end.y) / 2 }
+        } else if (item.kind === 's-curve') {
+          const midX = start.x + (end.x - start.x) * 0.5
+          labelCenter = getCubicBezierPoint(
+            start,
+            { x: midX, y: start.y },
+            { x: midX, y: end.y },
+            end,
+            0.5,
+          )
+        } else {
+          labelCenter = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
+        }
+        const halfW = Math.max(30, (item.label.length * 8 + 24) / 2)
+        const halfH = 14
+        if (
+          Math.abs(pt.x - labelCenter.x) <= halfW + tolerance &&
+          Math.abs(pt.y - labelCenter.y) <= halfH + tolerance
+        ) {
+          return true
+        }
+      }
       if (item.type === 'arrow' && item.kind === 'curved') {
         const via = project(item.via ?? defaultVia(item.from, item.to))
         return distanceToQuadraticBezier(pt, start, via, end) <= tolerance

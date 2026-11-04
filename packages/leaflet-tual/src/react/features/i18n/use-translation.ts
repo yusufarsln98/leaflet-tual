@@ -33,6 +33,7 @@ export function useTranslation(controller?: Controller): TranslationContextValue
       tokens: defaults,
       t: createTranslator(defaults),
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tick forces recomputation when controller emits 'translations'
   }, [controller?.translations, contextValue, tick])
 }
 

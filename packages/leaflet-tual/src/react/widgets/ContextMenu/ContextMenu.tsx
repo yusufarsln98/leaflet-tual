@@ -4,7 +4,14 @@ import { useRef } from 'react'
 import { clampPositionToContainer } from '../../../core/index.js'
 import { useControllerState } from '../../features/index.js'
 import { TranslationProvider, useTranslation } from '../../features/i18n/index.js'
-import { Divider, DropdownItem, DropdownMenu, ICONS, useOutsideDismiss, useWheelGuard } from '../../ui/index.js'
+import {
+  Divider,
+  DropdownItem,
+  DropdownMenu,
+  ICONS,
+  useLeafletDomGuard,
+  useOutsideDismiss,
+} from '../../ui/index.js'
 import type { ContextMenuProps } from './types.js'
 
 const MENU_WIDTH = 216
@@ -21,10 +28,10 @@ export function ContextMenu({
 }: ContextMenuProps) {
   const { t } = useTranslation(controller)
   const menuRef = useRef<HTMLDivElement>(null)
-  const wheelGuardRef = useWheelGuard<HTMLDivElement>()
 
   useControllerState(controller)
   useOutsideDismiss(menuRef, Boolean(position), onClose)
+  useLeafletDomGuard(menuRef)
 
   if (!position || controller.readOnly || controller.selected.length === 0) {
     return null
@@ -51,10 +58,7 @@ export function ContextMenu({
   return (
     <TranslationProvider translations={controller.translations}>
       <div
-        ref={(node) => {
-          menuRef.current = node
-          ;(wheelGuardRef as React.MutableRefObject<HTMLDivElement | null>).current = node
-        }}
+        ref={menuRef}
         role="menu"
         aria-label={t('moreOptions')}
         className={`tual-popover tual-context-menu ${className ?? ''}`}
@@ -91,7 +95,6 @@ export function ContextMenu({
             <DropdownItem
               leading={<span className="tual-option-icon">{ICONS.edit()}</span>}
               label={t('editLabel')}
-              meta="Enter"
               onClick={() => {
                 controller.edit(singleItem.id)
                 onClose()
@@ -158,9 +161,7 @@ export function ContextMenu({
         <DropdownMenu layout="list">
           <DropdownItem
             leading={
-              <span className="tual-option-icon">
-                {anyLocked ? ICONS.unlock() : ICONS.lock()}
-              </span>
+              <span className="tual-option-icon">{anyLocked ? ICONS.unlock() : ICONS.lock()}</span>
             }
             label={anyLocked ? t('unlock') : t('lock')}
             onClick={() => {

@@ -1,22 +1,22 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import type L from 'leaflet'
-import type { Controller, GeoPoint, PenPoint, ScreenPoint } from '../../../../core/index.js'
+import type { Controller, GeoPoint, PenPoint, ScreenPoint } from '../../../../../core/index.js'
 import {
   DRAFT_THRESHOLDS,
   geoToScreen,
   isDoubleClickTiming,
   isPointNearPoint,
-} from '../../../../core/index.js'
-import type { CanvasGesture } from './gesture-types.js'
+} from '../../../../../core/index.js'
+import type { CanvasGesture } from '../types.js'
 
 export interface UsePenDraftOptions {
   map: L.Map
   controller: Controller
-  activeGestureRef: React.MutableRefObject<CanvasGesture | null>
+  activeGestureRef: RefObject<CanvasGesture | null>
   setGesture: (g: CanvasGesture | null) => void
 }
 
-export { updatePenDraftOnMove } from '../../../../core/index.js'
+export { updatePenDraftOnMove } from '../../../../../core/index.js'
 
 export function usePenDraft({
   map,

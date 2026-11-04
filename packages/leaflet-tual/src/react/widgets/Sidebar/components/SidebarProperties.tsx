@@ -1,15 +1,10 @@
 'use client'
 
-import type L from 'leaflet'
-import type { Controller, Item, Style } from '../../../core/index.js'
-import { useTranslation } from '../../features/i18n/index.js'
-import { FillStrokeSection } from './sections/FillStrokeSection.js'
-import { TypographySection } from './sections/TypographySection.js'
-
-export interface SidebarPropertiesProps {
-  controller: Controller
-  map?: L.Map
-}
+import type { Item, Style } from '../../../../core/index.js'
+import { useTranslation } from '../../../features/i18n/index.js'
+import { FillStrokeSection } from '../sections/FillStrokeSection.js'
+import { TypographySection } from '../sections/TypographySection.js'
+import type { SidebarPropertiesProps } from '../types.js'
 
 export function SidebarProperties({ controller, map }: SidebarPropertiesProps) {
   const { t } = useTranslation(controller)
@@ -50,3 +45,4 @@ export function SidebarProperties({ controller, map }: SidebarPropertiesProps) {
     </div>
   )
 }
+

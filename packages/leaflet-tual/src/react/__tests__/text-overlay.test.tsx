@@ -63,7 +63,7 @@ describe('v2 Text Overlay Component', () => {
     container.removeEventListener('dblclick', onParentDoubleClick)
   })
 
-  it('starts editing selected text on Enter', () => {
+  it('does not start editing selected text on Enter key (double-click is the convention)', () => {
     const { result } = renderHook(() => {
       const controller = useLeafletTual({ defaultValue: emptyDoc() })
       useKeyboardShortcuts(controller, () => {})
@@ -87,7 +87,7 @@ describe('v2 Text Overlay Component', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     })
 
-    expect(result.current.editingId).toBe(textId)
+    expect(result.current.editingId).toBeNull()
   })
 
   it('renders underline text decoration and supports shortcuts and bullets in textarea', () => {

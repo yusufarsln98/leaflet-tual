@@ -13,6 +13,7 @@ import {
 import { getItemZoomScale } from '../../../../shared/geometry/zoom.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { useControllerStore } from '../../../features/use-controller-store.js'
+import { useLeafletDisableClick } from '../../../ui/index.js'
 import { useOverlayMapSync } from '../../../features/use-overlay-map-sync.js'
 import { handleTextEditorKeyDown, startOverlayDrag } from './use-note-editor-keys.js'
 
@@ -22,6 +23,7 @@ export interface TextOverlayViewProps {
   controller: Controller
   currentZoom?: number
   className?: string
+  onContextMenu?: (e: React.MouseEvent) => void
 }
 
 export const TextOverlayView = memo(function TextOverlayView({
@@ -29,9 +31,12 @@ export const TextOverlayView = memo(function TextOverlayView({
   textItem,
   controller,
   className,
+  onContextMenu,
 }: TextOverlayViewProps) {
   const { t } = useTranslation(controller)
   const containerRef = useRef<HTMLDivElement>(null)
+  useLeafletDisableClick(containerRef)
+  useLeafletDisableClick(containerRef)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const isSelected = useControllerStore(controller, (s) => s.selection.includes(textItem.id))
@@ -197,11 +202,14 @@ export const TextOverlayView = memo(function TextOverlayView({
         opacity: textItem.style?.opacity ?? 1,
       }}
       onPointerDown={handlePointerDown}
-      onContextMenu={() => {
+      onContextMenu={(e) => {
         if (isReadOnly) return
+        e.preventDefault()
+        e.stopPropagation()
         if (!controller.selection.includes(textItem.id)) {
           controller.select(textItem.id)
         }
+        onContextMenu?.(e)
       }}
     >
       {textItem.text || placeholder}

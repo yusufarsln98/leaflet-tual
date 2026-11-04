@@ -8,7 +8,7 @@ import { getItemZoomScale } from '../../../../shared/geometry/zoom.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { useControllerStore } from '../../../features/use-controller-store.js'
 import { useOverlayMapSync } from '../../../features/use-overlay-map-sync.js'
-import { ResizeHandles } from '../../../ui/index.js'
+import { ResizeHandles, useLeafletDisableClick } from '../../../ui/index.js'
 import { handleNoteKeyDown, startOverlayDrag } from './use-note-editor-keys.js'
 import { startNoteResize } from './use-note-resize.js'
 
@@ -18,6 +18,7 @@ export interface NoteOverlayViewProps {
   controller: Controller
   currentZoom?: number
   className?: string
+  onContextMenu?: (e: React.MouseEvent) => void
 }
 
 export const NoteOverlayView = memo(function NoteOverlayView({
@@ -25,9 +26,12 @@ export const NoteOverlayView = memo(function NoteOverlayView({
   note,
   controller,
   className,
+  onContextMenu,
 }: NoteOverlayViewProps) {
   const { t } = useTranslation(controller)
   const cardRef = useRef<HTMLDivElement>(null)
+  useLeafletDisableClick(cardRef)
+  useLeafletDisableClick(cardRef)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const isDraggingRef = useRef(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -147,11 +151,16 @@ export const NoteOverlayView = memo(function NoteOverlayView({
         opacity: visual.opacity,
       }}
       onPointerDown={handlePointerDown}
-      onContextMenu={() => {
+      onClick={(e) => e.stopPropagation()}
+      onDoubleClick={(e) => e.stopPropagation()}
+      onContextMenu={(e) => {
         if (isReadOnly) return
+        e.preventDefault()
+        e.stopPropagation()
         if (!controller.selection.includes(note.id)) {
           controller.select(note.id)
         }
+        onContextMenu?.(e)
       }}
     >
       <textarea

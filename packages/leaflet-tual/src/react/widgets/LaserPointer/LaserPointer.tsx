@@ -24,11 +24,8 @@ const LaserPointerInner = memo(function LaserPointerInner({
 }: LaserPointerProps & { map: L.Map }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
-  const isLaserActive = activeProp !== undefined
-    ? activeProp
-    : controller
-      ? controller.tool === 'laser'
-      : true
+  const isLaserActive =
+    activeProp !== undefined ? activeProp : controller ? controller.tool === 'laser' : true
 
   const laserRef = useRef<ReturnType<typeof useLaserPointer> | null>(null)
 
@@ -71,16 +68,18 @@ const LaserPointerInner = memo(function LaserPointerInner({
     redraw()
   }, [redraw, isLaserActive])
 
-  // Global pointer up to catch releases outside the canvas
+  // Global pointer up to catch releases outside the canvas and re-enable dragging
   useEffect(() => {
     const onWindowPointerUp = () => {
       laser.handleLaserPointerUp()
+      map.dragging?.enable()
     }
     window.addEventListener('pointerup', onWindowPointerUp)
     return () => {
       window.removeEventListener('pointerup', onWindowPointerUp)
+      map.dragging?.enable()
     }
-  }, [laser])
+  }, [laser, map])
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -109,9 +108,10 @@ const LaserPointerInner = memo(function LaserPointerInner({
     (e: React.PointerEvent<HTMLCanvasElement>) => {
       if (!isLaserActive) return
       laser.handleLaserPointerUp()
+      map.dragging?.enable()
       onPointerUp?.(e)
     },
-    [isLaserActive, laser, onPointerUp],
+    [isLaserActive, laser, map, onPointerUp],
   )
 
   const handlePointerLeave = useCallback(() => {
@@ -119,9 +119,7 @@ const LaserPointerInner = memo(function LaserPointerInner({
     laser.handleLaserPointerLeave()
   }, [isLaserActive, laser])
 
-  const combinedClassName = className
-    ? `tual-laser-canvas ${className}`
-    : 'tual-laser-canvas'
+  const combinedClassName = className ? `tual-laser-canvas ${className}` : 'tual-laser-canvas'
 
   return (
     <canvas
@@ -141,6 +139,15 @@ const LaserPointerInner = memo(function LaserPointerInner({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerLeave}
+      onClick={(e) => {
+        if (isLaserActive) e.stopPropagation()
+      }}
+      onContextMenu={(e) => {
+        if (isLaserActive) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      }}
     />
   )
 })

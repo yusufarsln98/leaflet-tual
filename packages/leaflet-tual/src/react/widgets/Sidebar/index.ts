@@ -1,6 +1,6 @@
-export * from './types.js'
 export * from './Sidebar.js'
-export * from './SidebarTriggerBar.js'
-export * from './SidebarLayerTree.js'
-export * from './SidebarProperties.js'
-
+export * from './components/index.js'
+export * from './sections/index.js'
+export * from './hooks/index.js'
+export * from './utils/index.js'
+export * from './types.js'
