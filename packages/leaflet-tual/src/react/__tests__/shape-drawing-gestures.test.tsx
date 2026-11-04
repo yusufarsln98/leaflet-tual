@@ -219,6 +219,66 @@ describe('v2 shape drawing gestures', () => {
     expect(neResult.at.lng).toBeCloseTo(17.5, 6)
   })
 
+  it('locks aspect ratio and preserves reference anchor position when shift is held during resize', () => {
+    const map = createMockMap({
+      latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: lat * 10 }),
+      containerPointToLatLng: ([x, y]: [number, number]) => ({ lat: y / 10, lng: x / 10 }),
+    })
+    const initialAt = { lat: 15, lng: 15 } // screen center (150, 150)
+    const shape: ShapeItem = {
+      id: 'shape-1',
+      type: 'shape',
+      kind: 'square',
+      at: initialAt,
+      width: 100,
+      height: 100,
+      baseZoom: 14,
+      createdAt: 1,
+    }
+    // Initial bounds: left=100, right=200, top=100, bottom=200
+
+    // South-east with shift (lockAspect=true):
+    // Drag SE to (250, 200). dx=150, dy=100 -> clamped to size 150.
+    // NW anchor at (100, 100) MUST stay at (100, 100)!
+    // New bounds: left=100, right=250, top=100, bottom=250 -> width=150, height=150, center=(175, 175)
+    const seResult = resizeShape(map, shape, initialAt, 100, 100, { x: 250, y: 200 }, 'se', true)
+    expect(seResult.width).toBe(150)
+    expect(seResult.height).toBe(150)
+    expect(seResult.at.lat).toBeCloseTo(17.5, 6)
+    expect(seResult.at.lng).toBeCloseTo(17.5, 6)
+    // Check that rendered NW anchor (center - width/2, center - height/2) is exactly (100, 100):
+    const seNWX = seResult.at.lng * 10 - seResult.width / 2
+    const seNWY = seResult.at.lat * 10 - seResult.height / 2
+    expect(seNWX).toBeCloseTo(100, 6)
+    expect(seNWY).toBeCloseTo(100, 6)
+
+    // North-west with shift (lockAspect=true):
+    // Drag NW to (50, 80). dx=-150, dy=-120 -> size 150.
+    // SE anchor at (200, 200) MUST stay at (200, 200)!
+    // New bounds: left=50, right=200, top=50, bottom=200 -> width=150, height=150, center=(125, 125)
+    const nwResult = resizeShape(map, shape, initialAt, 100, 100, { x: 50, y: 80 }, 'nw', true)
+    expect(nwResult.width).toBe(150)
+    expect(nwResult.height).toBe(150)
+    expect(nwResult.at.lat).toBeCloseTo(12.5, 6)
+    expect(nwResult.at.lng).toBeCloseTo(12.5, 6)
+    const nwSEX = nwResult.at.lng * 10 + nwResult.width / 2
+    const nwSEY = nwResult.at.lat * 10 + nwResult.height / 2
+    expect(nwSEX).toBeCloseTo(200, 6)
+    expect(nwSEY).toBeCloseTo(200, 6)
+
+    // Edge handle 'e' with shift (lockAspect=true):
+    // Drag E to 300. dx=200 -> width=200, height=200.
+    // West edge at 100 MUST stay at 100!
+    // Center Y stays 150, top=50, bottom=250. Center X=(100+300)/2=200.
+    const eResult = resizeShape(map, shape, initialAt, 100, 100, { x: 300, y: 150 }, 'e', true)
+    expect(eResult.width).toBe(200)
+    expect(eResult.height).toBe(200)
+    expect(eResult.at.lat).toBeCloseTo(15, 6)
+    expect(eResult.at.lng).toBeCloseTo(20, 6)
+    const eWestEdge = eResult.at.lng * 10 - eResult.width / 2
+    expect(eWestEdge).toBeCloseTo(100, 6)
+  })
+
   it('resizes a selected shape from its handle without creating another shape', () => {
     const { canvas, controller } = setup({
       latLngToContainerPoint: ([lat, lng]: [number, number]) => ({ x: lng * 10, y: (100 - lat) * 10 }),

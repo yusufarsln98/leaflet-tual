@@ -1,5 +1,4 @@
 import type { NoteItem, ShapeItem, Style } from '../../entities/index.js'
-import { parseColorString } from './color-utils.js'
 import {
   resolveColor,
   resolveDash,
@@ -43,11 +42,6 @@ export interface ResolvedItemStyle {
 const NOTE_DEFAULT_FONT_SIZE = 16
 const SHAPE_LABEL_DEFAULT_FONT_SIZE = 12
 
-function withAlpha(color: string, alpha: number): string {
-  const { r, g, b, a } = parseColorString(color)
-  return `rgba(${r}, ${g}, ${b}, ${a * alpha})`
-}
-
 export function resolveItemStyle(item: BoxItem): ResolvedItemStyle {
   const style = item.style ?? {}
   const context: BoxContext = item.type === 'note' ? 'note' : 'shape'
@@ -64,12 +58,7 @@ export function resolveItemStyle(item: BoxItem): ResolvedItemStyle {
   const fillColor = noteColors
     ? noteColors.bg
     : resolveColor(style.fillColor ?? baseColor)
-  const backgroundColor =
-    fill === 'none'
-      ? 'transparent'
-      : fill === 'tint'
-        ? withAlpha(fillColor, 0.25)
-        : fillColor
+  const backgroundColor = fill === 'none' ? 'transparent' : fillColor
   const strokeColor = noteColors
     ? style.strokeColor
       ? resolveColor(style.strokeColor)
@@ -99,7 +88,7 @@ export function resolveItemStyle(item: BoxItem): ResolvedItemStyle {
     dash,
     dashArray: resolveDash(dash),
     radius: style.radius ?? 8,
-    opacity: style.opacity ?? 1,
+    opacity: style.opacity ?? (isNote ? 1 : (fill === 'tint' ? 0.25 : 1)),
     text: {
       color: noteColors ? noteColors.text : resolveColor(style.textColor ?? 'ink'),
       fontSize,

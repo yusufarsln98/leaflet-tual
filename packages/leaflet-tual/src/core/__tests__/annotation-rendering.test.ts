@@ -208,6 +208,39 @@ describe('v2 Canvas annotation rendering', () => {
     expect(ctx.setLineDash).toHaveBeenCalledWith([])
   })
 
+  it('never applies shape opacity to label pill', () => {
+    const map = createMockMap()
+    const alphaValues: number[] = []
+    const ctx = createMockCtx()
+    // Track globalAlpha assignments
+    let currentAlpha = 1
+    Object.defineProperty(ctx, 'globalAlpha', {
+      get: () => currentAlpha,
+      set: (val: number) => {
+        currentAlpha = val
+        alphaValues.push(val)
+      },
+      configurable: true,
+    })
+
+    renderShapeOnCanvas(ctx, map, {
+      id: 'opacity-shape',
+      type: 'shape',
+      kind: 'circle',
+      at: { lat: 41.1, lng: 28.1 },
+      width: 200,
+      height: 200,
+      label: 'Opaque Label',
+      style: { color: 'blue', opacity: 0.25 },
+      createdAt: Date.now(),
+    })
+
+    // The shape itself sets globalAlpha to 0.25
+    expect(alphaValues).toContain(0.25)
+    // But drawLabelPill sets globalAlpha to 1 so the label is never transparent
+    expect(alphaValues[alphaValues.length - 1]).toBe(1)
+  })
+
   it('renders freehand (freedraw) drawings', () => {
     const ctx = createMockCtx()
     const map = createMockMap()

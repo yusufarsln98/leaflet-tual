@@ -12,11 +12,12 @@ export interface ColorFieldRowProps {
   title: string
   mode: 'stroke' | 'fill'
   currentColor: ColorName | string
+  currentOpacity?: number
   currentFill?: Style['fill']
   colorHex: string
   value?: string
   noFill?: boolean
-  onSelectColor: (color: ColorName | string) => void
+  onSelectColor: (color: ColorName | string, hex?: string, opacity?: number) => void
   onSelectFillMode?: (fill: NonNullable<Style['fill']>) => void
 }
 
@@ -31,6 +32,7 @@ export function ColorFieldRow({
   title,
   mode,
   currentColor,
+  currentOpacity,
   currentFill,
   colorHex,
   value,
@@ -56,9 +58,7 @@ export function ColorFieldRow({
             className={noFill ? 'tual-no-fill-swatch' : 'tual-sidebar-color-swatch'}
             style={noFill ? undefined : { backgroundColor: colorHex }}
           />
-          <span className="tual-sidebar-color-hex">
-            {value ?? colorHex.toUpperCase()}
-          </span>
+          <span className="tual-sidebar-color-hex">{value ?? colorHex.toUpperCase()}</span>
         </button>
         {isOpen && (
           <div className="tual-sidebar-popover-anchor">
@@ -67,6 +67,7 @@ export function ColorFieldRow({
               title={title}
               mode={mode}
               currentColor={currentColor}
+              currentOpacity={currentOpacity}
               currentFill={currentFill}
               onSelectColor={onSelectColor}
               onSelectFillMode={onSelectFillMode}
@@ -78,4 +79,3 @@ export function ColorFieldRow({
     </PropertyRow>
   )
 }
-

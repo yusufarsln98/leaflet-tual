@@ -1,7 +1,7 @@
 'use client'
 
 import type L from 'leaflet'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ColorName } from '../../../../core/index.js'
 import { PRESET_COLORS } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
@@ -19,9 +19,10 @@ export interface ColorDropdownProps {
   mode: 'stroke' | 'fill'
   allowCustom?: boolean
   currentColor?: string
+  currentOpacity?: number
   currentFill?: 'none' | 'tint' | 'solid'
   map?: L.Map
-  onSelectColor: (color: ColorName | string, hex: string) => void
+  onSelectColor: (color: ColorName | string, hex?: string, opacity?: number) => void
   onSelectFillMode?: (mode: 'none' | 'tint' | 'solid') => void
   onClose?: () => void
 }
@@ -30,6 +31,7 @@ export function ColorDropdown({
   mode,
   allowCustom = true,
   currentColor,
+  currentOpacity = 1,
   currentFill = 'solid',
   map,
   onSelectColor,
@@ -37,6 +39,18 @@ export function ColorDropdown({
 }: ColorDropdownProps) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<'theme' | 'custom'>('theme')
+  const [activeColor, setActiveColor] = useState(currentColor)
+  const [activeOpacity, setActiveOpacity] = useState(currentOpacity)
+
+  useEffect(() => {
+    setActiveColor(currentColor)
+  }, [currentColor])
+
+  useEffect(() => {
+    if (currentOpacity !== undefined) {
+      setActiveOpacity(currentOpacity)
+    }
+  }, [currentOpacity])
 
   return (
     <Popover
@@ -65,7 +79,7 @@ export function ColorDropdown({
             hex: c.hex,
             title: t(c.name, undefined, c.name),
           }))}
-          selectedColor={currentColor}
+          selectedColor={activeColor}
           showNoFill={Boolean(mode === 'fill' && onSelectFillMode)}
           noFillSelected={mode === 'fill' && currentFill === 'none'}
           noFillLabel={t('noFill')}
@@ -76,14 +90,20 @@ export function ColorDropdown({
             if (mode === 'fill' && onSelectFillMode && currentFill === 'none') {
               onSelectFillMode('solid')
             }
-            onSelectColor(name, hex)
+            setActiveColor(hex)
+            onSelectColor(name, hex, activeOpacity)
           }}
         />
       ) : (
         <CustomColorPicker
-          currentColor={currentColor}
+          currentColor={activeColor}
+          currentOpacity={activeOpacity}
           map={map}
-          onSelectColor={onSelectColor}
+          onSelectColor={(hex, opacity) => {
+            setActiveColor(hex)
+            setActiveOpacity(opacity)
+            onSelectColor(hex, hex, opacity)
+          }}
         />
       )}
     </Popover>

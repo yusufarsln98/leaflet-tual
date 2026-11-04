@@ -1,7 +1,7 @@
 'use client'
 
 import type L from 'leaflet'
-import type { ColorName, ResolvedItemStyle, Style } from '../../../../core/index.js'
+import type { ResolvedItemStyle, Style } from '../../../../core/index.js'
 import { resolveColor } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { ColorSwatch } from '../../../ui/index.js'
@@ -39,8 +39,7 @@ export function ColorSwatchControls({
   if (isNote) {
     const textColor = resolvedStyle?.text.color ?? resolveColor(style.textColor ?? 'ink')
     const backgroundColor =
-      resolvedStyle?.fillColor ??
-      resolveColor(style.fillColor ?? style.color ?? 'yellow')
+      resolvedStyle?.fillColor ?? resolveColor(style.fillColor ?? style.color ?? 'yellow')
 
     return (
       <>
@@ -76,8 +75,15 @@ export function ColorSwatchControls({
               title={t('color')}
               mode="fill"
               currentColor={style.fillColor ?? style.color ?? 'yellow'}
+              currentOpacity={style.opacity}
               currentFill={style.fill}
-              onSelectColor={(c: ColorName | string) => onUpdateStyle({ color: c, fillColor: c })}
+              onSelectColor={(c, _hex, opacity) => {
+                onUpdateStyle({
+                  color: c,
+                  fillColor: c,
+                  ...(opacity !== undefined ? { opacity } : {}),
+                })
+              }}
               onSelectFillMode={(mode) => onUpdateStyle({ fill: mode })}
               onClose={onClose}
             />
@@ -86,6 +92,10 @@ export function ColorSwatchControls({
       </>
     )
   }
+
+  const shapeOrArrowColor = style.color ?? (isShape || isArrow ? 'blue' : 'ink')
+  const itemColor = isShape ? (style.fillColor ?? shapeOrArrowColor) : shapeOrArrowColor
+  const itemOpacity = style.opacity ?? (isShape ? 0.25 : 1)
 
   return (
     <div style={{ position: 'relative' }}>
@@ -101,13 +111,14 @@ export function ColorSwatchControls({
           map={map}
           title={t('color')}
           mode={isShape ? 'fill' : 'stroke'}
-          currentColor={style.color}
+          currentColor={itemColor}
+          currentOpacity={itemOpacity}
           currentFill={style.fill}
-          onSelectColor={(c) => {
-            const nextStyle: Partial<Style> = { color: c }
-            // Shapes paint both fill and stroke from their primary color, while
-            // arrows only have a stroke. Mirror the color into those dedicated
-            // fields so their defaults cannot override the user's selection.
+          onSelectColor={(c, _hex, opacity) => {
+            const nextStyle: Partial<Style> = {
+              color: c,
+              ...(opacity !== undefined ? { opacity } : {}),
+            }
             if (isShape) {
               nextStyle.fillColor = c
               nextStyle.strokeColor = c

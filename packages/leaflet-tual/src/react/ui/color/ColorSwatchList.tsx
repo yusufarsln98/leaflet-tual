@@ -1,6 +1,7 @@
 'use client'
 
 import type { ColorSwatchListProps } from './types.js'
+import { parseColorString, rgbToHex } from '../../../core/index.js'
 
 export function ColorSwatchList({
   items,
@@ -12,6 +13,20 @@ export function ColorSwatchList({
   onSelectNoFill,
   onSelectColor,
 }: ColorSwatchListProps) {
+  const parsedSelected = selectedColor ? parseColorString(selectedColor) : null
+  const selectedHex = parsedSelected
+    ? rgbToHex(parsedSelected.r, parsedSelected.g, parsedSelected.b).toLowerCase()
+    : null
+
+  const isItemActive = (item: { name: string; hex: string }) => {
+    if (noFillSelected) return false
+    return (
+      selectedColor === item.name ||
+      selectedColor?.toLowerCase() === item.hex.toLowerCase() ||
+      selectedHex === item.hex.toLowerCase()
+    )
+  }
+
   if (variant === 'border-flyout') {
     return (
       <div className="tual-border-palette-list">
@@ -20,7 +35,7 @@ export function ColorSwatchList({
             key={item.name}
             type="button"
             className="tual-border-palette-item"
-            data-selected={selectedColor === item.name || selectedColor === item.hex}
+            data-selected={isItemActive(item)}
             title={item.title ?? item.name}
             onClick={() => onSelectColor(item.name, item.hex)}
           >
@@ -51,8 +66,7 @@ export function ColorSwatchList({
       )}
 
       {items.map((item) => {
-        const isSelected =
-          (selectedColor === item.name || selectedColor === item.hex) && !noFillSelected
+        const isSelected = isItemActive(item)
         return (
           <button
             key={item.name}
