@@ -95,7 +95,7 @@ export function ColorSwatchControls({
 
   const shapeOrArrowColor = style.color ?? (isShape || isArrow ? 'blue' : 'ink')
   const itemColor = isShape ? (style.fillColor ?? shapeOrArrowColor) : shapeOrArrowColor
-  const itemOpacity = style.opacity ?? (isShape ? 0.25 : 1)
+  const itemOpacity = style.opacity ?? (isShape ? 0.5 : 1)
 
   return (
     <div style={{ position: 'relative' }}>

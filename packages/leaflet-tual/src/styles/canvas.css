@@ -41,8 +41,9 @@
 }
 
 .tual-label-input {
-  background: var(--tual-surface);
-  color: var(--tual-text);
+  /* Matches the always-light label pills rendered on the canvas. */
+  background: #ffffff;
+  color: #1d1d1b;
   border: 1px solid var(--tual-border-focus);
   border-radius: 3px;
   font-family: inherit;

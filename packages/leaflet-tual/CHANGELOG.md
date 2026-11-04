@@ -4,6 +4,19 @@
 
 ### Patch Changes
 
+- **Stylesheet Packaging**:
+  - Pointed the `leaflet-tual/styles.css` export at the published `dist/styles.css` bundle instead of `src/styles.css`, and stopped shipping only `src/styles.css` without its relative `styles/` imports.
+  - Made the build copy step idempotent so `dist/styles/` always contains the stylesheet partials at the paths referenced by `dist/styles.css`.
+  - Consumers can now import `leaflet-tual/styles.css` in Vite/Webpack without aliasing it to the package source.
+
+- **Shape Theme Opacity**:
+  - Raised the default opacity for tinted shape themes from 25% to 50%.
+  - Theme color presets now apply 50% opacity to shapes, while explicitly customized shape opacity values remain unchanged.
+
+- **Inline Label Editor Dark Mode Contrast**:
+  - Restored the white label-pill background in the inline shape/arrow label editor to match the canvas label rendering.
+  - Dark text in the editor — which intentionally mirrors the canvas label text color — is now readable in dark themes instead of rendering dark-on-dark.
+
 - **Label Typography & Inline Editor Synchronization**:
   - Synchronized font family between normal canvas label pill rendering and the inline shape/arrow label editor (`InlineShapeLabelEditor`). Canvas text now dynamically resolves the container's computed `fontFamily` (with fallback to default sans-serif font stack), matching the input element's font face and eliminating font face jumping when entering or exiting edit mode.
   - Aligned font sizing (`baseFontSize * scale` without rounding or clamping), font weight, text colors, `line-height: 1`, border radius (3px), and zoom-scaled padding (`paddingX`, `paddingY`) between canvas pills and edit-mode inputs for seamless pixel alignment.

@@ -231,8 +231,8 @@ describe('v2 Sidebar and SidebarTriggerBar', () => {
 
     const opacityInput = screen.getByLabelText('Opacity') as HTMLInputElement
     expect(opacityInput.step).toBe('0.1')
-    fireEvent.change(opacityInput, { target: { value: '0.5' } })
-    expect(result.current.items[0].style?.opacity).toBe(0.5)
+    fireEvent.change(opacityInput, { target: { value: '0.6' } })
+    expect(result.current.items[0].style?.opacity).toBe(0.6)
 
     // Delete item from inside the sidebar using the close button and confirm popover
     const deleteTriggerBtn = screen.getByTitle('Delete')

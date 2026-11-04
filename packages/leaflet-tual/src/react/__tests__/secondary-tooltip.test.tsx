@@ -526,7 +526,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(shapeItem?.style?.opacity).toBe(0.4)
   })
 
-  it('displays tinted shape initial opacity (25%) in the color editor modal', () => {
+  it('displays tinted shape initial opacity (50%) in the color editor modal', () => {
     const { result } = renderHook(() =>
       useLeafletTual({
         defaultValue: emptyDoc(),
@@ -558,9 +558,9 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
       fireEvent.click(customTab)
     })
 
-    // Tinted shape renders at 25% opacity
+    // Tinted shape renders at 50% opacity
     const opacityInput = screen.getByLabelText('Opacity percentage') as HTMLInputElement
-    expect(opacityInput.value).toBe('25')
+    expect(opacityInput.value).toBe('50')
   })
 
   it('preserves shape opacity in custom tab after selecting a theme color', () => {

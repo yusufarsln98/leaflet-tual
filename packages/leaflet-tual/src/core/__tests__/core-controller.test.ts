@@ -86,6 +86,7 @@ describe('v2 Controller state machine', () => {
     })
     expect(shape.style?.color).toBe('blue')
     expect(shape.style?.fill).toBe('tint')
+    expect(resolveItemStyle(shape as ShapeItem).opacity).toBe(0.5)
 
     const note = c.add({
       type: 'note',

@@ -46,12 +46,11 @@
       },
       "default": "./dist/react.js"
     },
-    "./styles.css": "./src/styles.css",
+    "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "src/styles.css",
     "README.md"
   ],
   "author": "Yusuf Arslan",
@@ -86,7 +85,7 @@
     "react-leaflet"
   ],
   "scripts": {
-    "build": "tsup && cp src/styles.css dist/styles.css && cp -r src/styles dist/styles",
+    "build": "tsup && cp src/styles.css dist/styles.css && rm -rf dist/styles && cp -r src/styles dist/styles",
     "dev": "tsup --watch",
     "lint": "eslint src --ext ts,tsx",
     "typecheck": "tsc --noEmit",

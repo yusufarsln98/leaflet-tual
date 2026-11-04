@@ -156,6 +156,7 @@ export const InlineShapeLabelEditor = memo(function InlineShapeLabelEditor({
         readOnly={!isEditing}
         style={{
           color: textColor,
+          backgroundColor: '#FFFFFF',
           fontFamily: 'inherit',
           fontSize: `${fontSize}px`,
           fontWeight: weight,

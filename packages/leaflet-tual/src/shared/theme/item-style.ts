@@ -88,7 +88,7 @@ export function resolveItemStyle(item: BoxItem): ResolvedItemStyle {
     dash,
     dashArray: resolveDash(dash),
     radius: style.radius ?? 8,
-    opacity: style.opacity ?? (isNote ? 1 : (fill === 'tint' ? 0.25 : 1)),
+    opacity: style.opacity ?? (isNote ? 1 : (fill === 'tint' ? 0.5 : 1)),
     text: {
       color: noteColors ? noteColors.text : resolveColor(style.textColor ?? 'ink'),
       fontSize,
