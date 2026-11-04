@@ -241,6 +241,38 @@ describe('v2 Canvas annotation rendering', () => {
     expect(alphaValues[alphaValues.length - 1]).toBe(1)
   })
 
+  it('sets matching font attributes and font family on label pill', () => {
+    const map = createMockMap()
+    let assignedFont = ''
+    const ctx = createMockCtx()
+    Object.defineProperty(ctx, 'font', {
+      get: () => assignedFont,
+      set: (val: string) => {
+        assignedFont = val
+      },
+      configurable: true,
+    })
+
+    renderShapeOnCanvas(
+      ctx,
+      map,
+      {
+        id: 'font-shape',
+        type: 'shape',
+        kind: 'square',
+        at: { lat: 41.1, lng: 28.1 },
+        width: 100,
+        height: 100,
+        label: 'Font Test',
+        style: { fontSize: 16, weight: 'bold', fontStyle: 'italic' },
+        createdAt: Date.now(),
+      },
+      { fontFamily: 'CustomSans, sans-serif' },
+    )
+
+    expect(assignedFont).toBe('italic 700 16px CustomSans, sans-serif')
+  })
+
   it('renders freehand (freedraw) drawings', () => {
     const ctx = createMockCtx()
     const map = createMockMap()

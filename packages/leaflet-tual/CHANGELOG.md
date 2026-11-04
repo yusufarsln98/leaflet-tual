@@ -1,5 +1,23 @@
 # leaflet-tual
 
+## 2.0.2
+
+### Patch Changes
+
+- **Label Typography & Inline Editor Synchronization**:
+  - Synchronized font family between normal canvas label pill rendering and the inline shape/arrow label editor (`InlineShapeLabelEditor`). Canvas text now dynamically resolves the container's computed `fontFamily` (with fallback to default sans-serif font stack), matching the input element's font face and eliminating font face jumping when entering or exiting edit mode.
+  - Aligned font sizing (`baseFontSize * scale` without rounding or clamping), font weight, text colors, `line-height: 1`, border radius (3px), and zoom-scaled padding (`paddingX`, `paddingY`) between canvas pills and edit-mode inputs for seamless pixel alignment.
+
+- **Label Opacity Isolation**:
+  - Ensured label pills on shapes and canvas annotations never inherit shape fill or stroke opacity (`ctx.globalAlpha = 1`), keeping labels consistently opaque and readable regardless of shape transparency.
+
+- **Color Modal Opacity Synchronization**:
+  - Selecting a theme color preset in the secondary tooltip now preserves the current opacity value when switching to the Custom tab.
+  - Cleaned up item styles and demo presets to use standard hex colors with numeric opacity properties, removing deprecated RGB string conversions.
+
+- **Shape Shift-Resize Anchor Stability**:
+  - Fixed an issue where holding `Shift` to constrain proportions during shape resizing caused the opposite reference anchor to shift away from its starting position. Proportional expansion now firmly anchors to the opposing corner or side.
+
 ## 2.0.1
 
 ### Patch Changes

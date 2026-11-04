@@ -16,6 +16,7 @@ export function renderShapeOnCanvas(
     isSelected?: boolean
     isHovered?: boolean
     isEditing?: boolean
+    fontFamily?: string
   } = {},
 ) {
   const scale = getItemZoomScale(map, shape)
@@ -93,6 +94,7 @@ export function renderShapeOnCanvas(
       underline: visual.text.textDecoration === 'underline',
       paddingX: Math.max(3, 4 * scale),
       paddingY: Math.max(1.5, 2 * scale),
+      fontFamily: options.fontFamily,
     })
     ctx.restore()
   }

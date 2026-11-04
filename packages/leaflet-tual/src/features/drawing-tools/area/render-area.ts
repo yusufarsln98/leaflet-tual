@@ -22,6 +22,7 @@ export function renderAreaOnCanvas(
     isSelected?: boolean
     isHovered?: boolean
     translations?: Partial<TranslationTokens>
+    fontFamily?: string
   } = {},
 ) {
   if (area.points.length < 2) return
@@ -104,6 +105,7 @@ export function renderAreaOnCanvas(
       fontSize: 10 * scale,
       paddingX: 5 * scale,
       paddingY: 2.5 * scale,
+      fontFamily: options.fontFamily,
     })
   }
 

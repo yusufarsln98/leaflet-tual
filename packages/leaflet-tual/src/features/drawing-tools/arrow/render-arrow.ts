@@ -26,6 +26,7 @@ export function renderArrowOnCanvas(
     isSelected?: boolean
     isHovered?: boolean
     isEditing?: boolean
+    fontFamily?: string
   } = {},
 ) {
   const start = geoToScreen(map, arrow.from)
@@ -160,6 +161,7 @@ export function renderArrowOnCanvas(
       underline: Boolean(arrow.style?.underline || arrow.style?.textDecoration === 'underline'),
       paddingX: Math.max(3, 4 * scale),
       paddingY: Math.max(1.5, 2 * scale),
+      fontFamily: options.fontFamily,
     })
   }
 

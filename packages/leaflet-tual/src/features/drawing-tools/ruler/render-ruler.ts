@@ -22,6 +22,7 @@ export function renderRulerOnCanvas(
     isSelected?: boolean
     isHovered?: boolean
     translations?: Partial<TranslationTokens>
+    fontFamily?: string
   } = {},
 ) {
   const start = geoToScreen(map, ruler.from)
@@ -83,6 +84,7 @@ export function renderRulerOnCanvas(
     fontSize: 10 * scale,
     paddingX: 4 * scale,
     paddingY: 2 * scale,
+    fontFamily: options.fontFamily,
   })
 
   if (options.isSelected) {

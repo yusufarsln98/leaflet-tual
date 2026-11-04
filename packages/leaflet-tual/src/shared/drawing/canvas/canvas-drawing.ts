@@ -47,6 +47,16 @@ export function drawCanvasScene(
   const hoveredIds: string[] = !activeGesture && hoveredItemId ? [hoveredItemId] : []
   const hoveredSet = new Set(hoveredIds)
 
+  let fontFamily: string | undefined
+  if (typeof window !== 'undefined' && canvas?.ownerDocument) {
+    try {
+      const computed = window.getComputedStyle(canvas).fontFamily
+      if (computed) fontFamily = computed
+    } catch {
+      // fallback
+    }
+  }
+
   for (const item of items) {
     if (!isItemInViewport(map, item, 100)) continue
     const isItemSelected = selectionSet.has(item.id)
@@ -55,6 +65,7 @@ export function drawCanvasScene(
       isHovered: hoveredSet.has(item.id) || (isMultiSelected && isItemSelected),
       isEditing: controller.editingId === item.id,
       translations: controller.translations,
+      fontFamily,
     })
   }
 
