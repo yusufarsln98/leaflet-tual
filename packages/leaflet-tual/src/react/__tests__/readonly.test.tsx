@@ -40,4 +40,30 @@ describe('v2 ReadOnly mode', () => {
     )
     expect(screen.getByTitle(/Select/i)).toBeDefined()
   })
+
+  it('syncs the readOnly prop to an external controller and marks the container', () => {
+    const map = createMockMap()
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    const { container } = render(
+      <LeafletTual map={map} controller={result.current} readOnly={true} />,
+    )
+
+    expect(result.current.readOnly).toBe(true)
+    expect(container.querySelector('.tual-container')?.getAttribute('data-readonly')).toBe('true')
+  })
+
+  it('hides the default toolbar when setReadOnly is called imperatively', () => {
+    const map = createMockMap()
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    const { container } = render(<LeafletTual map={map} controller={result.current} />)
+
+    expect(container.querySelector('.tual-toolbar')).not.toBeNull()
+
+    act(() => {
+      result.current.setReadOnly(true)
+    })
+
+    expect(container.querySelector('.tual-toolbar')).toBeNull()
+    expect(container.querySelector('.tual-container')?.getAttribute('data-readonly')).toBe('true')
+  })
 })
