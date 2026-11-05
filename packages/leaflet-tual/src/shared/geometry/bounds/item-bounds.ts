@@ -2,8 +2,43 @@ import type L from 'leaflet'
 import type { Bounds, GeoPoint, ScreenPoint } from '../../types/index.js'
 import type { Item } from '../../../entities/item/types.js'
 import { getPenGeometryPoints } from '../../../features/drawing-tools/pen/pen-geometry.js'
-import { geoToScreen } from '../coordinates.js'
-import { getItemZoomScale } from '../zoom.js'
+import { fromWorld, geoToScreen, toWorld } from '../coordinates.js'
+import { BASE_ZOOM, getItemZoomScale } from '../zoom.js'
+
+const WORLD_CIRCUMFERENCE = 2 * Math.PI * 6378137
+
+function pixelBounds(
+  origin: GeoPoint,
+  minX: number,
+  minY: number,
+  maxX: number,
+  maxY: number,
+  baseZoom: number,
+): Bounds {
+  const world = toWorld(origin)
+  const metersPerPixel = WORLD_CIRCUMFERENCE / (256 * 2 ** baseZoom)
+  const a = fromWorld({
+    x: world.x + minX * metersPerPixel,
+    y: world.y + minY * metersPerPixel,
+  })
+  const b = fromWorld({
+    x: world.x + maxX * metersPerPixel,
+    y: world.y + maxY * metersPerPixel,
+  })
+  return {
+    minLat: Math.min(a.lat, b.lat),
+    maxLat: Math.max(a.lat, b.lat),
+    minLng: Math.min(a.lng, b.lng),
+    maxLng: Math.max(a.lng, b.lng),
+  }
+}
+
+function centeredPixelBox(item: Item, width: number, height: number): Bounds {
+  if (!('at' in item)) return { minLat: 0, maxLat: 0, minLng: 0, maxLng: 0 }
+  const w = Math.max(1, width)
+  const h = Math.max(1, height)
+  return pixelBounds(item.at, -w / 2, -h / 2, w / 2, h / 2, item.baseZoom ?? BASE_ZOOM)
+}
 
 export interface ScreenBounds {
   cx: number
@@ -37,28 +72,19 @@ export function bounds(item: Item): Bounds {
     case 'area':
       return pointsBounds(item.points)
     case 'shape':
-    case 'note': {
-      const delta = 0.001
-      return {
-        minLat: item.at.lat - delta,
-        maxLat: item.at.lat + delta,
-        minLng: item.at.lng - delta,
-        maxLng: item.at.lng + delta,
-      }
-    }
+      return centeredPixelBox(item, item.width ?? 96, item.height ?? 96)
+    case 'note':
+      return centeredPixelBox(
+        item,
+        item.width ?? item.height ?? 180,
+        item.height ?? item.width ?? 180,
+      )
     case 'freedraw':
       return pointsBounds(item.points)
     case 'pen':
       return pointsBounds(getPenGeometryPoints(item))
-    case 'text': {
-      const delta = 0.0005
-      return {
-        minLat: item.at.lat - delta,
-        maxLat: item.at.lat + delta,
-        minLng: item.at.lng - delta,
-        maxLng: item.at.lng + delta,
-      }
-    }
+    case 'text':
+      return pixelBounds(item.at, 0, -12, 100, 24, item.baseZoom ?? BASE_ZOOM)
     default:
       return { minLat: 0, maxLat: 0, minLng: 0, maxLng: 0 }
   }
@@ -181,4 +207,3 @@ export function findItemsInMarquee(
   }
   return matched
 }
-

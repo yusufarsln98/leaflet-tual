@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type RefObject } from 'react'
 import type React from 'react'
 import type L from 'leaflet'
 import type { Controller, InternalController, Item } from '../../../../core/index.js'
-import { useLeafletDisableClick, useWheelGuard } from '../../../ui/index.js'
+import { useLeafletDomGuard } from '../../../ui/index.js'
 import type { ContextMenuPosition } from '../../ContextMenu/index.js'
 
 export interface UseSidebarInteractionsOptions {
@@ -18,8 +18,7 @@ export function useSidebarInteractions({
   onClose,
   onItemContextMenu,
 }: UseSidebarInteractionsOptions) {
-  const guardRef = useWheelGuard<HTMLElement>()
-  useLeafletDisableClick(guardRef)
+  const guardRef = useLeafletDomGuard<HTMLElement>()
   const [internalMenuPos, setInternalMenuPos] = useState<ContextMenuPosition | null>(null)
 
   useEffect(() => {
@@ -99,4 +98,3 @@ export function useSidebarInteractions({
     closeInternalMenu,
   }
 }
-

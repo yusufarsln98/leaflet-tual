@@ -62,7 +62,7 @@ export function SidebarLayerTree({ controller, onItemContextMenu }: SidebarLayer
                       className="tual-sidebar-tree-item"
                       data-selected={isSelected}
                       onClick={() => handleItemClick(page.id, item.id, isPageActive)}
-                      onContextMenu={(e) =>
+                      onContextMenuCapture={(e) =>
                         handleItemContextMenu(item, page.id, isPageActive, e)
                       }
                     >
@@ -89,4 +89,3 @@ export function SidebarLayerTree({ controller, onItemContextMenu }: SidebarLayer
     </div>
   )
 }
-
