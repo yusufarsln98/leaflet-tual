@@ -73,6 +73,37 @@ describe('v3 Controller state machine', () => {
     expect(c.pages.list.length).toBe(1)
   })
 
+  it('syncs the active page items when selecting a page', () => {
+    const c = createController()
+    const page1Id = c.pages.active
+    const page1Item = c.add({
+      type: 'text',
+      at: { lat: 41, lng: 28 },
+      text: 'Page 1 text',
+    })
+
+    const page2Id = c.pages.add('Phase 2')
+    expect(c.items).toEqual([])
+
+    const page2Item = c.add({
+      type: 'text',
+      at: { lat: 41.1, lng: 28.1 },
+      text: 'Page 2 text',
+    })
+
+    c.pages.select(page1Id)
+    expect(c.pages.active).toBe(page1Id)
+    expect(c.items.map((item) => item.id)).toEqual([page1Item.id])
+    expect(c.itemMap[page1Item.id]).toBeDefined()
+    expect(c.itemMap[page2Item.id]).toBeUndefined()
+
+    c.pages.select(page2Id)
+    expect(c.pages.active).toBe(page2Id)
+    expect(c.items.map((item) => item.id)).toEqual([page2Item.id])
+    expect(c.itemMap[page2Item.id]).toBeDefined()
+    expect(c.itemMap[page1Item.id]).toBeUndefined()
+  })
+
   it('uses proper initial default colors for newly created shapes and notes', () => {
     const c = createController()
     expect(c.style.color).toBe('#2F6FEB')

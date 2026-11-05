@@ -94,6 +94,10 @@ export function createPageManager(ctx: PageManagerContext): ControllerPages {
       }
 
       doc.activePageId = id
+      // Re-derive the active page items in the controller store before any
+      // listeners run, otherwise the canvas keeps rendering the previous page
+      // until the next committed edit.
+      ctx.setDoc(doc)
       ctx.clearSelection()
 
       if (map && target.view) {
