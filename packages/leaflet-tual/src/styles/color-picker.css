@@ -5,11 +5,11 @@
   top: auto;
   left: 0;
   width: 156px;
-  padding: 6px;
-  border-radius: var(--tual-radius-popover, 12px);
-  background-color: var(--tual-surface);
+  padding: 4px;
+  border-radius: var(--tual-radius-lg);
+  background-color: var(--tual-bg);
   border: 1px solid var(--tual-border);
-  box-shadow: var(--tual-shadow-popover);
+  box-shadow: var(--tual-shadow-popup);
 }
 
 .tual-color-popover-with-tabs {
@@ -31,23 +31,23 @@
   border: none;
   background: transparent;
   padding: 3px 6px;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
   height: 24px;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   cursor: pointer;
   transition: all 0.12s ease;
 }
 
 .tual-color-tab:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-color-tab[data-active='true'] {
-  background-color: var(--tual-surface-active-neutral);
-  color: var(--tual-text);
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
   font-weight: 500;
 }
 
@@ -64,7 +64,7 @@
   position: relative;
   width: 100%;
   height: 80px;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   overflow: hidden;
   cursor: crosshair;
   user-select: none;
@@ -152,9 +152,9 @@
   display: flex;
   align-items: center;
   height: 26px;
-  background: var(--tual-surface);
+  background: var(--tual-bg);
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-input, 6px);
+  border-radius: var(--tual-radius-sm);
   overflow: hidden;
   padding: 0 6px;
   font-family: inherit;
@@ -162,8 +162,13 @@
   box-sizing: border-box;
 }
 
+.tual-color-inputs-bar:hover {
+  border-color: var(--tual-border-divider);
+}
+
 .tual-color-inputs-bar:focus-within {
   border-color: var(--tual-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-border-focus) 26%, transparent);
 }
 
 .tual-color-hex-field {
@@ -172,12 +177,17 @@
   height: 100%;
   border: none;
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
   outline: none;
   padding: 0;
+}
+
+.tual-color-hex-field::placeholder {
+  color: var(--tual-fg-muted);
+  opacity: 1;
 }
 
 .tual-color-input-divider {
@@ -200,7 +210,7 @@
   height: 100%;
   border: none;
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -219,7 +229,7 @@
 .tual-color-percent-sign {
   margin-left: 1px;
   font-size: 11px;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   pointer-events: none;
 }
 
@@ -253,9 +263,9 @@
   height: 24px;
   min-height: 24px;
   border: none;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-family: inherit;
   font-size: 12px;
   cursor: pointer;
@@ -265,26 +275,27 @@
 }
 
 .tual-color-row:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-color-row[data-active='true'] {
-  background-color: var(--tual-surface-active-neutral);
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
   font-weight: 500;
 }
 
 .tual-color-swatch-box {
   width: 14px;
   height: 14px;
-  border-radius: var(--tual-radius-swatch, 4px);
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: var(--tual-radius-sm);
+  border: 1px solid var(--tual-border);
   flex-shrink: 0;
 }
 
 .tual-no-fill-swatch {
   width: 14px;
   height: 14px;
-  border-radius: var(--tual-radius-swatch, 4px);
+  border-radius: var(--tual-radius-sm);
   border: 1.5px dashed var(--tual-border);
   flex-shrink: 0;
 }
@@ -297,42 +308,16 @@
   white-space: nowrap;
 }
 
-/* Palette grid */
-.tual-palette {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  padding: 2px 0;
-}
-
-.tual-swatch {
-  width: 18px;
-  height: 18px;
-  border-radius: var(--tual-radius-swatch, 4px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: transform 0.1s ease;
-}
-
-.tual-swatch:hover {
-  transform: scale(1.1);
-}
-
-.tual-swatch[data-selected='true'] {
-  outline: 2px solid var(--tual-accent);
-  outline-offset: 1px;
-}
-
 /* Nested Palette in Border Popover */
 .tual-border-nested-palette {
   position: absolute;
   top: 0;
   left: calc(100% + 6px);
-  background: var(--tual-surface);
+  background-color: var(--tual-bg);
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-popover, 12px);
-  box-shadow: var(--tual-shadow-popover);
-  width: 136px;
+  border-radius: var(--tual-radius-lg);
+  box-shadow: var(--tual-shadow-popup);
+  width: 156px;
   padding: 4px;
   box-sizing: border-box;
   display: flex;
@@ -358,14 +343,15 @@
   background: transparent;
   font-size: 11px;
   font-weight: 500;
-  color: var(--tual-text-secondary);
+  color: var(--tual-fg-muted);
   cursor: pointer;
   padding: 1px 4px;
-  border-radius: 3px;
+  border-radius: var(--tual-radius-sm);
 }
 
 .tual-border-palette-tab[data-active='true'] {
-  color: var(--tual-text);
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
   font-weight: 600;
 }
 
@@ -374,61 +360,13 @@
   background: transparent;
   font-size: 13px;
   cursor: pointer;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   padding: 0;
   line-height: 1;
 }
 
 .tual-border-palette-close:hover {
-  color: var(--tual-text);
-}
-
-.tual-border-palette-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-.tual-border-palette-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 5px;
-  height: 24px;
-  border-radius: var(--tual-radius-btn, 6px);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  font-size: 11px;
-  transition: background-color 0.12s;
-  box-sizing: border-box;
-}
-
-.tual-border-palette-item:hover {
-  background: var(--tual-surface-hover);
-}
-
-.tual-border-palette-item[data-selected='true'] {
-  background: var(--tual-surface-active-neutral);
-  font-weight: 500;
-}
-
-.tual-border-palette-swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: var(--tual-radius-swatch, 4px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-}
-
-.tual-border-palette-hex {
-  font-size: 11px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: var(--tual-text);
+  color: var(--tual-fg);
 }
 
 .tual-border-custom-panel {
@@ -441,20 +379,38 @@
   flex: 1;
   font-size: 11px;
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-input, 6px);
+  border-radius: var(--tual-radius-sm);
   padding: 3px 5px;
   outline: none;
-  background: var(--tual-surface);
-  color: var(--tual-text);
+  background: var(--tual-bg);
+  color: var(--tual-fg);
+}
+
+.tual-border-custom-input:focus {
+  border-color: var(--tual-border-focus);
 }
 
 .tual-border-custom-apply {
   border: none;
   background: var(--tual-accent);
-  color: #ffffff;
+  color: var(--tual-accent-fg);
   font-size: 11px;
   font-weight: 500;
   padding: 0 6px;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   cursor: pointer;
+}
+
+.tual-border-custom-apply:hover {
+  background: var(--tual-accent-hover);
+  color: var(--tual-accent-fg);
+}
+
+.tual-color-tab:focus-visible,
+.tual-color-row:focus-visible,
+.tual-border-palette-tab:focus-visible,
+.tual-border-palette-close:focus-visible,
+.tual-border-custom-apply:focus-visible {
+  outline: 2px solid var(--tual-border-focus);
+  outline-offset: -2px;
 }

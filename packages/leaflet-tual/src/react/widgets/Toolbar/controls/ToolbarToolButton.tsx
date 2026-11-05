@@ -1,7 +1,6 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { Button, ICONS } from '../../../ui/index.js'
 
 export interface ToolbarToolButtonProps {
   label: string
@@ -9,68 +8,66 @@ export interface ToolbarToolButtonProps {
   isActive: boolean
   hasVariants?: boolean
   isPopoverOpen?: boolean
+  disabled?: boolean
   chevronLabel?: string
   chevronTitle?: string
+  children?: ReactNode
   onSelect: () => void
   onToggleVariants?: () => void
 }
 
+/**
+ * A single square toolbar control. Tools with variants get a small,
+ * non-intrusive corner affordance instead of a second full-width button.
+ */
 export function ToolbarToolButton({
   label,
   icon,
   isActive,
   hasVariants,
   isPopoverOpen,
+  disabled,
   chevronLabel,
   chevronTitle,
+  children,
   onSelect,
   onToggleVariants,
 }: ToolbarToolButtonProps) {
-  if (!hasVariants) {
-    return (
-      <Button
-        variant="toolbar"
-        active={isActive}
-        title={label}
-        aria-label={label}
-        onClick={onSelect}
-      >
-        {icon}
-      </Button>
-    )
-  }
-
   return (
-    <>
-      <Button
-        variant="toolbar"
-        active={isActive}
-        title={label}
-        aria-label={label}
-        onClick={onSelect}
-      >
-        {icon}
-      </Button>
+    <div
+      className="tual-tool"
+      data-active={isActive || undefined}
+      data-has-variants={hasVariants || undefined}
+    >
       <button
         type="button"
-        className="tual-btn tual-chevron-btn"
-        data-open={isPopoverOpen || undefined}
-        aria-expanded={isPopoverOpen}
-        aria-haspopup="true"
-        aria-label={chevronLabel ?? `${label} options`}
-        title={chevronTitle}
-        onClick={(e) => {
-          e.stopPropagation()
-          if (onToggleVariants) {
-            onToggleVariants()
-          } else {
-            onSelect()
-          }
-        }}
+        className="tual-btn"
+        data-active={isActive}
+        title={label}
+        aria-label={label}
+        disabled={disabled}
+        onClick={onSelect}
       >
-        <span className="tual-btn-chevron">{ICONS['chevron-down-sm'](14)}</span>
+        {icon}
       </button>
-    </>
+
+      {hasVariants && (
+        <button
+          type="button"
+          className="tual-btn-variants"
+          data-open={isPopoverOpen || undefined}
+          aria-expanded={isPopoverOpen}
+          aria-haspopup="true"
+          aria-label={chevronLabel ?? `${label} options`}
+          title={chevronTitle}
+          onClick={(e) => {
+            e.stopPropagation()
+            onToggleVariants?.()
+          }}
+        />
+      )}
+
+      {children}
+    </div>
   )
 }
-

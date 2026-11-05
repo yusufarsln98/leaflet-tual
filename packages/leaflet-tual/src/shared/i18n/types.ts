@@ -17,24 +17,7 @@ export interface TranslationTokens {
   redo: string
 
   // Toolbar Chrome & Actions
-  zoomLevel: string
-  zoomIn: string
-  zoomOut: string
   fitSelection: string
-  toggleSidebar: string
-
-  // Sidebar
-  properties: string
-  closeSidebar: string
-  nothingSelected: string
-  clickElementToEdit: string
-  fillAndStroke: string
-  stroke: string
-  thickness: string
-  opacity: string
-  typography: string
-  confirmDelete: string
-  cancel: string
 
   // Pages
   page: string
@@ -53,7 +36,6 @@ export interface TranslationTokens {
   linear: string
   curved: string
   elbow: string
-  sCurve: string
   square: string
   circle: string
   star: string
@@ -66,23 +48,17 @@ export interface TranslationTokens {
   // Styling & Secondary tooltip
   color: string
   textColor: string
-  backgroundColor: string
   colors: string
   strokeWidth: string
-  strokeDash: string
-  borderStyle: string
   borderColor: string
   borderAndStroke: string
   cornerRadius: string
   noBorder: string
-  fill: string
   noFill: string
   none: string
-  tint: string
   solid: string
   dashed: string
   dotted: string
-  fontSize: string
   fontWeight: string
   fontSizePx: string
   weight: string
@@ -94,10 +70,6 @@ export interface TranslationTokens {
   textSizeAndStyle: string
   theme: string
   custom: string
-  heading1: string
-  heading2: string
-  body: string
-  caption: string
   regular: string
   medium: string
   semibold: string
@@ -107,8 +79,11 @@ export interface TranslationTokens {
   italic: string
   underline: string
   bulletedList: string
-  thin: string
-  thick: string
+  sizeSmall: string
+  sizeMedium: string
+  sizeLarge: string
+  sizeExtraLarge: string
+  sizeHuge: string
   labelPosition: string
   top: string
   bottom: string
@@ -125,7 +100,6 @@ export interface TranslationTokens {
   editLabel: string
   lock: string
   unlock: string
-  selectAll: string
 
   // Palette colors
   ink: string

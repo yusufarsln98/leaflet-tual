@@ -8,7 +8,7 @@ import type { TextItem } from '../../core/index.js'
 import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 Text Overlay Component', () => {
+describe('v3 Text Overlay Component', () => {
   it('renders text annotation on map', () => {
     const map = createMockMap()
     const controller = createController()
@@ -18,14 +18,7 @@ describe('v2 Text Overlay Component', () => {
       text: 'Bosphorus Strait',
     }) as TextItem
 
-    render(
-      <TextOverlayView
-        map={map}
-        textItem={text}
-        controller={controller}
-        currentZoom={14}
-      />,
-    )
+    render(<TextOverlayView map={map} textItem={text} controller={controller} currentZoom={14} />)
 
     expect(screen.getByText('Bosphorus Strait')).toBeDefined()
   })
@@ -40,12 +33,7 @@ describe('v2 Text Overlay Component', () => {
     }) as TextItem
 
     const { container } = render(
-      <TextOverlayView
-        map={map}
-        textItem={text}
-        controller={controller}
-        currentZoom={14}
-      />,
+      <TextOverlayView map={map} textItem={text} controller={controller} currentZoom={14} />,
     )
 
     const onParentDoubleClick = vi.fn()
@@ -61,6 +49,27 @@ describe('v2 Text Overlay Component', () => {
     expect(onParentDoubleClick).not.toHaveBeenCalled()
 
     container.removeEventListener('dblclick', onParentDoubleClick)
+  })
+
+  it('keeps the text editor on a white background with dark text regardless of the theme', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const text = controller.add({
+      type: 'text',
+      at: { lat: 41, lng: 28 },
+      text: 'Dark theme text',
+      style: { color: '#F2F0EC' },
+    }) as TextItem
+
+    const { container } = render(
+      <TextOverlayView map={map} textItem={text} controller={controller} currentZoom={14} />,
+    )
+
+    fireEvent.doubleClick(screen.getByText('Dark theme text'))
+
+    const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+    expect(textarea.style.backgroundColor).toBe('rgb(255, 255, 255)')
+    expect(textarea.style.color).toBe('rgb(29, 29, 27)')
   })
 
   it('does not start editing selected text on Enter key (double-click is the convention)', () => {
@@ -105,12 +114,7 @@ describe('v2 Text Overlay Component', () => {
     }) as TextItem
 
     const { container } = render(
-      <TextOverlayView
-        map={map}
-        textItem={text}
-        controller={controller}
-        currentZoom={14}
-      />,
+      <TextOverlayView map={map} textItem={text} controller={controller} currentZoom={14} />,
     )
 
     const textEl = screen.getByText('• First line')
@@ -152,12 +156,7 @@ describe('v2 Text Overlay Component', () => {
     controller.select(text.id)
 
     const { container } = render(
-      <TextOverlayView
-        map={map}
-        textItem={text}
-        controller={controller}
-        currentZoom={14}
-      />,
+      <TextOverlayView map={map} textItem={text} controller={controller} currentZoom={14} />,
     )
 
     const placeholderEl = screen.getByText('Double-click to type')

@@ -6,7 +6,7 @@ import type { NoteItem, ShapeItem, TextItem } from '../../core/index.js'
 import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 SecondaryTooltip contextual toolbar', () => {
+describe('v3 SecondaryTooltip contextual toolbar', () => {
   it('renders contextual tooltip on selected square shape with single color, radius, dash, and no edit label', () => {
     const { result } = renderHook(() =>
       useLeafletTual({
@@ -38,7 +38,7 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     expect(screen.getByTitle('Border & Stroke')).toBeDefined()
     expect(screen.getByTitle('Label Position')).toBeDefined()
     expect(screen.queryByTitle('Edit Label')).toBeNull()
-    expect(screen.getByTitle('More Options')).toBeDefined()
+    expect(screen.queryByTitle('More Options')).toBeNull()
 
     // Bold, Italic, Underline, Bullets must not appear in secondary tooltip for shapes / labels
     expect(screen.queryByTitle('Bold')).toBeNull()
@@ -84,12 +84,14 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
 
     // Test updating label position
     const labelPositionBtn = screen.getByTitle('Label Position')
+    expect(labelPositionBtn.querySelector('.lucide-square-minus')).not.toBeNull()
     fireEvent.click(labelPositionBtn)
     expect(screen.getByText('Label Position')).toBeDefined()
     const topBtn = screen.getByText('Top')
     fireEvent.click(topBtn)
     const sel = result.current.selected[0]
     expect(sel?.type === 'shape' ? sel.labelPosition : undefined).toBe('top')
+    expect(labelPositionBtn.querySelector('.lucide-square-padding-top')).not.toBeNull()
   })
 
   it('applies the selected color to a shape fill and stroke', () => {
@@ -243,6 +245,10 @@ describe('v2 SecondaryTooltip contextual toolbar', () => {
     act(() => {
       fireEvent.click(typoBtn)
     })
+
+    expect(
+      screen.getAllByText('Medium').some((el) => el.closest('.tual-typo-row')),
+    ).toBe(true)
 
     const headingBtn = screen.getByText('Extra large')
     expect(headingBtn).toBeDefined()

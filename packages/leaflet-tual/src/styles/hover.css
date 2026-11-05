@@ -1,0 +1,26 @@
+/* Interactive state math is derived in tokens.css:
+   - unselected hover: mix ink into the surface
+   - active/selected hover: mix active ink into the active surface
+   Apps do not need to provide hover colors. */
+
+.tual-btn[data-active='true']:hover:not(:disabled),
+.tual-btn.tual-active:hover:not(:disabled),
+.tual-tool[data-active='true'] > .tual-btn:hover:not(:disabled),
+.tual-page-pill[data-active='true']:hover,
+.tual-page-pill[aria-expanded='true']:hover,
+.tual-secondary-pill-btn[data-active='true']:hover,
+.tual-secondary-pill-btn[aria-expanded='true']:hover,
+.tual-secondary-swatch-btn[data-active='true']:hover,
+.tual-secondary-icon-btn[data-active='true']:hover,
+.tual-variant-item[data-active='true']:hover,
+.tual-option-row[data-active='true']:hover,
+.tual-select-menu-item[data-active='true']:hover,
+.tual-page-row[data-active='true']:hover,
+.tual-color-row[data-active='true']:hover,
+.tual-typo-row[data-selected='true']:hover,
+.tual-border-dash-btn[data-active='true']:hover,
+.tual-color-tab[data-active='true']:hover,
+.tual-pill-tab[data-active='true']:hover,
+.tual-typo-tab[data-active='true']:hover {
+  background-color: var(--tual-hover-surface-active);
+}

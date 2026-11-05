@@ -1,13 +1,7 @@
-import React from 'react'
 import type L from 'leaflet'
 import { vi } from 'vitest'
-import {
-  Toolbar,
-  useLeafletTual,
-  type ToolbarProps,
-} from '../index.js'
 
-export class MockPointerEvent extends MouseEvent {
+class MockPointerEvent extends MouseEvent {
   pointerId = 1
   pointerType = 'mouse'
   isPrimary = true
@@ -16,35 +10,6 @@ export class MockPointerEvent extends MouseEvent {
 if (typeof window.PointerEvent === 'undefined') {
   window.PointerEvent = MockPointerEvent as unknown as typeof PointerEvent
   ;(globalThis as unknown as Record<string, unknown>).PointerEvent = MockPointerEvent
-}
-
-export type TestToolbarHarnessProps = Partial<ToolbarProps>
-
-export const TestToolbarHarness: React.FC<TestToolbarHarnessProps> = (props) => {
-  const controller = useLeafletTual({
-    defaultValue: {
-      activePageId: 'p1',
-      pages: [
-        {
-          id: 'p1',
-          name: 'Page 1',
-          items: {
-            'arrow-1': {
-              id: 'arrow-1',
-              type: 'arrow',
-              kind: 'linear',
-              from: { lat: 41.0, lng: 28.9 },
-              to: { lat: 41.02, lng: 28.95 },
-              style: { color: '#2F6FEB', width: 'm' },
-              createdAt: 1,
-            },
-          },
-          order: ['arrow-1'],
-        },
-      ],
-    },
-  })
-  return React.createElement(Toolbar, { controller, ...props })
 }
 
 export function createMockMap(overrides: Partial<Record<string, unknown>> = {}): L.Map {
@@ -70,13 +35,21 @@ export function createMockMap(overrides: Partial<Record<string, unknown>> = {}):
     on: vi.fn(),
     off: vi.fn(),
     dragging: {
-      enable: vi.fn(() => { draggingState.enabled = true }),
-      disable: vi.fn(() => { draggingState.enabled = false }),
+      enable: vi.fn(() => {
+        draggingState.enabled = true
+      }),
+      disable: vi.fn(() => {
+        draggingState.enabled = false
+      }),
       enabled: () => draggingState.enabled,
     },
     scrollWheelZoom: {
-      enable: vi.fn(() => { scrollWheelZoomState.enabled = true }),
-      disable: vi.fn(() => { scrollWheelZoomState.enabled = false }),
+      enable: vi.fn(() => {
+        scrollWheelZoomState.enabled = true
+      }),
+      disable: vi.fn(() => {
+        scrollWheelZoomState.enabled = false
+      }),
       enabled: () => scrollWheelZoomState.enabled,
     },
     doubleClickZoom: {
@@ -85,8 +58,12 @@ export function createMockMap(overrides: Partial<Record<string, unknown>> = {}):
       enabled: () => true,
     },
     boxZoom: {
-      enable: vi.fn(() => { boxZoomState.enabled = true }),
-      disable: vi.fn(() => { boxZoomState.enabled = false }),
+      enable: vi.fn(() => {
+        boxZoomState.enabled = true
+      }),
+      disable: vi.fn(() => {
+        boxZoomState.enabled = false
+      }),
       enabled: () => boxZoomState.enabled,
     },
     ...overrides,

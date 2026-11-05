@@ -2,6 +2,7 @@ import type { ColorName, Style } from '../../entities/item/types.js'
 import { DEFAULT_PALETTE, NOTE_SURFACES } from './theme-constants.js'
 
 export { DEFAULT_PALETTE, DEFAULT_TOOL_STYLES, NOTE_SURFACES } from './theme-constants.js'
+export * from './tokens.js'
 
 const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i
 
@@ -92,38 +93,5 @@ export function resolveDash(dash: 'solid' | 'dashed' | 'dotted' | 'none' = 'soli
   if (dash === 'dashed') return [6, 6]
   if (dash === 'dotted') return [2, 4]
   return []
-}
-
-export type ResolvedTheme = 'light' | 'dark'
-export type ThemeMode = 'light' | 'dark' | 'system'
-
-/**
- * Detects whether the user's OS or browser prefers dark mode.
- */
-export function getSystemTheme(): ResolvedTheme {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'light'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-/**
- * Resolves an input theme preference ('light' | 'dark' | 'system') to either 'light' or 'dark'.
- */
-export function resolveTheme(theme: ThemeMode = 'system'): ResolvedTheme {
-  if (theme === 'dark') return 'dark'
-  if (theme === 'light') return 'light'
-  return getSystemTheme()
-}
-
-/**
- * Subscribes to OS/browser prefers-color-scheme changes.
- */
-export function subscribeSystemTheme(onChange: (scheme: ResolvedTheme) => void): () => void {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return () => {}
-  }
-  const mq = window.matchMedia('(prefers-color-scheme: dark)')
-  const handler = (e: MediaQueryListEvent) => onChange(e.matches ? 'dark' : 'light')
-  mq.addEventListener?.('change', handler)
-  return () => mq.removeEventListener?.('change', handler)
 }
 

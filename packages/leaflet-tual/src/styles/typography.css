@@ -5,11 +5,11 @@
   top: auto;
   left: 0;
   width: 195px;
-  padding: 8px;
-  border-radius: var(--tual-radius-popover, 12px);
-  background-color: var(--tual-surface);
+  padding: 6px;
+  border-radius: var(--tual-radius-lg);
+  background-color: var(--tual-bg);
   border: 1px solid var(--tual-border);
-  box-shadow: var(--tual-shadow-popover);
+  box-shadow: var(--tual-shadow-popup);
   box-sizing: border-box;
 }
 
@@ -28,12 +28,12 @@
 .tual-typo-tab {
   padding: 3px 8px;
   height: 24px;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   border: none;
   cursor: pointer;
   transition: background-color 0.12s ease;
@@ -44,13 +44,13 @@
 
 .tual-pill-tab:hover,
 .tual-typo-tab:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-pill-tab[data-active='true'],
 .tual-typo-tab[data-active='true'] {
-  background-color: var(--tual-surface-active-neutral);
-  color: var(--tual-text);
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
   font-weight: 500;
 }
 
@@ -69,7 +69,7 @@
   width: 100%;
   padding: 4px 6px;
   min-height: 28px;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -80,11 +80,18 @@
 }
 
 .tual-typo-row:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-typo-row[data-selected='true'] {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
+}
+
+.tual-typo-row[data-selected='true'] .tual-typo-name,
+.tual-typo-row[data-selected='true'] .tual-typo-px,
+.tual-typo-row[data-selected='true'] .tual-typo-check {
+  color: inherit;
 }
 
 .tual-typo-row-label {
@@ -95,7 +102,7 @@
 }
 
 .tual-typo-name {
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -120,7 +127,7 @@
 .tual-typo-px {
   font-size: 13px;
   font-weight: 400;
-  color: var(--tual-text-secondary);
+  color: var(--tual-fg-muted);
   line-height: 1;
 }
 
@@ -150,17 +157,22 @@
   display: flex;
   align-items: center;
   height: 28px;
-  background: var(--tual-surface);
+  background: var(--tual-bg);
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-input, 6px);
+  border-radius: var(--tual-radius-sm);
   padding: 0 6px;
   font-family: inherit;
   font-size: 13px;
   box-sizing: border-box;
 }
 
+.tual-typo-field:hover {
+  border-color: var(--tual-border-divider);
+}
+
 .tual-typo-field:focus-within {
   border-color: var(--tual-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-border-focus) 26%, transparent);
 }
 
 .tual-typo-size-field {
@@ -173,7 +185,7 @@
   height: 100%;
   border: none;
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -190,7 +202,7 @@
 
 .tual-typo-field-unit {
   font-size: 12px;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   margin-left: 2px;
   pointer-events: none;
 }
@@ -210,12 +222,12 @@
   padding: 0;
   background: transparent;
   border: none;
-  color: var(--tual-text-secondary);
+  color: var(--tual-fg-muted);
   cursor: pointer;
 }
 
 .tual-number-step-btn:hover:not(:disabled) {
-  color: var(--tual-text);
+  color: var(--tual-fg);
 }
 
 .tual-number-step-btn:disabled {
@@ -238,9 +250,9 @@
   justify-content: center;
   padding: 0 6px;
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-btn, 6px);
-  background: var(--tual-surface);
-  color: var(--tual-text);
+  border-radius: var(--tual-radius-sm);
+  background: var(--tual-bg);
+  color: var(--tual-fg);
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -249,11 +261,21 @@
 }
 
 .tual-typo-style-btn:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-typo-style-btn[data-active='true'] {
-  background-color: var(--tual-surface-active-neutral);
-  border-color: var(--tual-border-hover);
+  background-color: var(--tual-bg-active);
+  border-color: var(--tual-border-focus);
+  color: var(--tual-fg-active);
   font-weight: 600;
+}
+
+.tual-pill-tab:focus-visible,
+.tual-typo-tab:focus-visible,
+.tual-typo-row:focus-visible,
+.tual-typo-style-btn:focus-visible,
+.tual-number-step-btn:focus-visible {
+  outline: 2px solid var(--tual-border-focus);
+  outline-offset: -2px;
 }

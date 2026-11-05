@@ -22,7 +22,6 @@ describe('i18n core translations and tokens', () => {
     expect(DEFAULT_TRANSLATION_TOKENS.undo).toBe('Undo')
     expect(DEFAULT_TRANSLATION_TOKENS.redo).toBe('Redo')
     expect(DEFAULT_TRANSLATION_TOKENS.pageDefault).toBe('Page {n}')
-    expect(DEFAULT_TRANSLATION_TOKENS.properties).toBe('Properties')
     expect(DEFAULT_TRANSLATION_TOKENS.theme).toBe('Theme')
     expect(DEFAULT_TRANSLATION_TOKENS.custom).toBe('Custom')
     expect(DEFAULT_TRANSLATION_TOKENS.hexColor).toBe('Hex color')

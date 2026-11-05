@@ -17,11 +17,11 @@ export const LEGEND: LegendLayer[] = [
   {
     id: 'arrows',
     label: 'Vector Arrows',
-    sublabel: '5 styles: linear, curved, bi-dir, elbow, s-curve',
-    count: '5 styles',
+    sublabel: '4 styles: linear, curved, bi-dir, elbow',
+    count: '4 styles',
     swatchColor: DEFAULT_PALETTE.blue,
     icon: MoveRight,
-    chips: ['Curved Bézier', 'Linear', 'Bi-directional', 'Elbow (90°)', 'S-Curve'],
+    chips: ['Curved Bézier', 'Linear', 'Bi-directional', 'Elbow (90°)'],
     description:
       'Parametric Bézier curves with interactive tangent handles, angle snapping, and configurable arrowheads.',
   },

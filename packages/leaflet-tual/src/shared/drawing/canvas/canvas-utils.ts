@@ -17,6 +17,23 @@ export function drawHandle(
   ctx.restore()
 }
 
+/** Soft accent halo used by every annotation type on hover. */
+export const HOVER_GLOW_COLOR = 'rgba(47, 111, 235, 0.5)'
+
+export function applyHoverGlow(ctx: CanvasRenderingContext2D, scale = 1): void {
+  ctx.shadowColor = HOVER_GLOW_COLOR
+  ctx.shadowBlur = 10 * Math.max(0.75, scale)
+  ctx.shadowOffsetX = 0
+  ctx.shadowOffsetY = 0
+}
+
+export function clearHoverGlow(ctx: CanvasRenderingContext2D): void {
+  ctx.shadowColor = 'transparent'
+  ctx.shadowBlur = 0
+  ctx.shadowOffsetX = 0
+  ctx.shadowOffsetY = 0
+}
+
 export const DEFAULT_LABEL_FONT_FAMILY =
   'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
 

@@ -1,6 +1,6 @@
 ---
 name: leaflet-tual
-description: Rules, data model, theming, component usage and controller API for leaflet-tual v2, an opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, area, laser pointer, pages) for Leaflet maps. Use when adding, theming or debugging map annotations.
+description: Rules, data model, theming, component usage and controller API for leaflet-tual v3, an opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, area, laser pointer, pages) for Leaflet maps. Use when adding, theming or debugging map annotations.
 ---
 
 # leaflet-tual
@@ -9,7 +9,7 @@ Draw on a map the way you draw on a design canvas. Everything you place is store
 
 The design is decided for you:
 
-- **Strict styles.** Colors, sizes and dashes come from fixed sets (`'blue'`, `'m'`, `'dashed'`). There are no free-form hex values or pixel numbers. Drawings stay consistent and adapt to dark mode automatically.
+- **Strict styles.** Colors, sizes and dashes come from fixed sets (`'blue'`, `'m'`, `'dashed'`). There are no free-form hex values or pixel numbers. Drawings stay consistent across maps and applications.
 - **An adjustable toolbar.** One `toolbar` prop controls which tools appear, their order, position and extras.
 - **A framework-agnostic core.** The React bindings are a separate, opt-in import.
 
@@ -112,7 +112,7 @@ interface Base {
   readonly createdAt: number
 }
 
-export type ArrowKind = 'linear' | 'curved' | 'elbow' | 's-curve'
+export type ArrowKind = 'linear' | 'curved' | 'elbow'
 export type Head = 'triangle' | 'open' | 'none'
 export type ShapeKind =
   | 'square' | 'circle' | 'star' | 'actor'
@@ -206,9 +206,43 @@ Unset style fields fall back to the defaults for that item's tool. Shapes are bl
 
 ## 5. Theming & Internationalization
 
-### Color scheme
+### Theme tokens
 
-Leaflet-tual supports `'light'`, `'dark'`, and `'system'` (default) theme modes via the `theme` prop (`<LeafletTual theme="dark" />`), options (`useLeafletTual({ theme })`, `createLeafletTual(map, { theme })`), or dynamically via `tual.setTheme(theme)`. When set to `'system'`, it automatically adapts to `prefers-color-scheme: dark` live. Only the theme of the tooltips, menus, popovers, and toolbar changes; changing the theme of shapes and items is disabled so drawn annotations always maintain their fixed palette and appearance.
+The toolbar, popovers, menus and contextual tooltip are themed with `themeTokens`; annotation items keep their own fixed palette. Pass plain values or CSS variable references so the chrome follows your app theme:
+
+```tsx
+<LeafletTual
+  themeTokens={{
+    surface: 'var(--app-panel)',
+    surfaceActive: 'var(--app-accent)',
+    text: 'var(--app-text)',
+    textActive: 'var(--app-accent-contrast)',
+    accent: 'var(--app-accent)',
+    border: 'var(--app-border)',
+    divider: 'var(--app-border-muted)',
+    radius: '6px',
+    controlSize: '30px',
+  }}
+/>
+```
+
+| Token | Purpose |
+| --- | --- |
+| `surface` | Floating panel background |
+| `surfaceActive` | Active/pressed control background |
+| `surfaceMuted` | Recessed surfaces and read-only fields |
+| `text` | Primary icons and text |
+| `textMuted` | Secondary labels, placeholders and shortcuts |
+| `textActive` | Icons/text on an active surface |
+| `accent` | Focus rings, check marks and selection handles |
+| `border` / `divider` / `focus` | Outer borders, internal dividers, focus rings |
+| `radius` / `radiusSm` / `radiusLg` | Island, compact-control and popover radii |
+| `shadow` / `shadowPopup` | Floating-bar and popover shadows |
+| `controlSize` / `groupGap` / `iconSize` | Square control size, gap between islands, icon size |
+| `fontFamily` / `fontSize` / `lineHeight` | Chrome typography |
+| `variables` | Escape hatch for extra CSS custom properties |
+
+`themeTokens` is also accepted by `createLeafletTual(map, { themeTokens })` and external `<Toolbar themeTokens={...} />`.
 
 ### Internationalization (i18n)
 
@@ -263,26 +297,29 @@ Notes and text-on-fill use a soft surface derived from the color, with automatic
 
 ## 6. Toolbar
 
-Default layout, one floating row:
+Default layout, a stack of Leaflet-style control islands:
 
-`[Page ▾] │ Select · Text · Note · Draw ▾ · Arrow ▾ · Shapes ▾ · Measure ▾ · Laser`
+`[Select · Text · Note · Draw · Arrow · Shapes · Measure · Laser]  [Undo · Redo · Fit]  [Pages]`
 
-Zoom controls and undo/redo live in the zoom menu next to the sidebar toggle.
+The toolbar position controls its orientation: **top/bottom** toolbars lay out **horizontally**, while **left/right** toolbars lay out **vertically**. Every edge supports start, center and end alignment, so the toolbar can sit in any corner or edge center.
 
-- The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors, drag from an anchor to shape its curve). Both tools live in one toolbar group; its icon shows the last-used drawing tool. **Pen** supports clicking to add anchors, dragging to pull mirrored control handles, clicking the first anchor to close, `Enter` or a double-click to finish an open path, and `Escape` to cancel. After drawing, use the Select tool to drag anchors or control handles and reshape the path; dragging one control handle mirrors the opposite one.
-- The **Measure ▾** popover groups **Ruler** (geodesic distance measurement) and **Area** (geodesic polygon area measurement with draggable vertices). Clicking or dragging creates a measurement; `Enter` or double-click finishes an area polygon.
+Undo/redo/fit and the page switcher are built into the toolbar as separate islands. Item properties are edited from the contextual toolbar and the right-click menu.
+
+- The **Draw** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors, drag from an anchor to shape its curve). Both tools live in one toolbar group; its icon shows the last-used drawing tool. **Pen** supports clicking to add anchors, dragging to pull mirrored control handles, clicking the first anchor to close, `Enter` or a double-click to finish an open path, and `Escape` to cancel. After drawing, use the Select tool to drag anchors or control handles and reshape the path; dragging one control handle mirrors the opposite one.
+- The **Measure** popover groups **Ruler** (geodesic distance measurement) and **Area** (geodesic polygon area measurement with draggable vertices). Clicking or dragging creates a measurement; `Enter` or double-click finishes an area polygon.
 - The **Laser** tool (`<LaserPointer>`) provides an ephemeral presentation pointer with a fading glowing trail that does not modify the document.
 
-Buttons with a chevron open an options popover. A plain click activates the tool with its last-used variant, and the icon updates to match.
+Tools with variants show a small corner triangle. A plain click activates the tool with its last-used variant; the corner triangle opens the variant popover and the icon updates to match.
 
 Everything about the toolbar is controlled by the `toolbar` prop:
 
 ```tsx
 <LeafletTual
   toolbar={{
-    position: 'bottom',
+    position: 'top-left', // default; horizontal along the top edge
     tools: ['select', 'freedraw', 'pen', 'arrow', 'shape', 'ruler', 'area', 'laser', 'note'],
-    pages: false,
+    pages: true,
+    history: true,
   }}
 />
 ```
@@ -292,29 +329,40 @@ type DrawKind = 'freedraw' | 'pen'
 type MeasureKind = 'ruler' | 'area'
 type ToolId = 'select' | 'text' | 'note' | DrawKind | 'arrow' | 'shape' | MeasureKind | 'laser'
 
+type ToolbarPosition =
+  | 'inline'
+  | 'top-left' | 'top' | 'top-right'
+  | 'left-top' | 'left' | 'left-bottom'
+  | 'right-top' | 'right' | 'right-bottom'
+  | 'bottom-left' | 'bottom' | 'bottom-right'
+  | 'center'
+  // 'top-center', 'left-center', 'right-center' and 'bottom-center' are aliases for the edge centers
+
 interface ToolbarOptions {
-  position?: 'top-left' | 'top' | 'top-right' | 'left' | 'right'
-           | 'bottom-left' | 'bottom' | 'bottom-right'        // default 'top-left'
-  orientation?: 'horizontal' | 'vertical'                      // default 'horizontal'
+  position?: ToolbarPosition                              // default 'top-left'; use 'inline' outside the map
+  orientation?: 'horizontal' | 'vertical'                 // only used by 'inline' toolbars
   tools?: ToolId[]            // which tools to show and in what order; default: all
-  pages?: boolean             // page switcher, default true
+  pages?: boolean             // page switcher island, default true
+  history?: boolean           // undo/redo/fit island, default true
 }
 ```
 
 Pass `toolbar={false}` to hide the built-in toolbar.
 
-**External toolbar.** To place the toolbar outside the map, hide the built-in one and render `<Toolbar>` with the same controller. It accepts the same options as `ToolbarOptions`:
+**External toolbar.** To place the toolbar outside the map, hide the built-in one and render `<Toolbar>` with the same controller. It accepts the same options plus `themeTokens`:
 
 ```tsx
 const tual = useLeafletTual()
 
-<Toolbar controller={tual} orientation="vertical" tools={['select', 'freedraw', 'pen', 'arrow']} />
+<Toolbar controller={tual} position="inline" history={false} tools={['select', 'freedraw', 'pen', 'arrow']} themeTokens={{ radius: '6px' }} />
 <MapContainer>
   <LeafletTual controller={tual} toolbar={false} />
 </MapContainer>
 ```
 
 **No UI at all.** `useLeafletTual()` (or the core `createLeafletTual`) works without any toolbar. Drive tools and styles from your own controls with `setTool` and `setStyle`.
+
+**Reusable chrome controls.** The controls used by the built-in toolbar, popovers and contextual tooltip are exported from `leaflet-tual/react` for custom panels: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Popover`, `DropdownMenu`, `DropdownItem`, `ConfirmPopover`, `Select`, `NumberField`, `TextField`, `ColorSwatch`, `ColorSwatchList`, `ColorSwatchControls`, `CustomColorPicker`, `ColorDropdown`, `TypographyDropdown`, `TextFormattingControls`, `LabelPositionDropdown`, `BorderPopover`, `useOutsideDismiss`, `useWheelGuard`, `useLeafletDomGuard`, `useLeafletDisableClick`, `disableMapInteractions`, `createLeafletControl`, and `createControlContainer`. Wrap a custom panel with `useLeafletDomGuard()` or give it the `tual-panel` class to isolate it from map gestures.
 
 ---
 
@@ -328,7 +376,7 @@ All props are optional.
 | `value`             | `Doc`                                   | Controlled document.                                                                  |
 | `defaultValue`      | `Doc`                                   | Uncontrolled initial document.                                                        |
 | `onChange`          | `(doc, info) => void`                   | The single change callback. See below.                                               |
-| `theme`             | `'light' \| 'dark' \| 'system'`          | Color scheme. Default `'system'`.                                                     |
+| `themeTokens`       | `Partial<ThemeTokens>`                  | Chrome theme for the toolbar, popovers, menus and contextual tooltip.                |
 | `toolbar`           | `false \| ToolbarOptions`               | Toolbar configuration (section 6).                                                    |
 | `readOnly`          | `boolean`                               | No drawing, editing or selection. Hides the toolbar unless `toolbar` is set.          |
 | `translations`      | `Partial<TranslationTokens>`            | Localize every tooltip, placeholder and menu string.                                  |
@@ -352,7 +400,6 @@ const tual = useLeafletTual({
   value,                   // Doc, controlled
   onChange,                // same signature as the component prop
   readOnly: false,
-  theme: 'system',         // 'light' | 'dark' | 'system'
   translations: {},        // Partial<TranslationTokens>
   tool: 'select',          // initial tool
   style: { color: '#1D1D1B', width: 'm' },
@@ -370,7 +417,6 @@ State (values that re-render your component):
 | `style`               | `Style`                         | Current drawing defaults.                       |
 | `selection`           | `string[]`                      | Selected item ids.                              |
 | `selected`            | `Item[]`                        | Selected items.                                 |
-| `theme`               | `'light' \| 'dark' \| 'system'` | Active theme preference.                        |
 | `readOnly`            | `boolean`                       |                                                 |
 | `canUndo` / `canRedo` | `boolean`                       |                                                 |
 | `translations`        | `TranslationTokens`             | Current resolved translation tokens.            |
@@ -379,7 +425,6 @@ Actions:
 
 | Method                         | Description                                                                                         |
 | ------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `setTheme(theme)`              | Update theme (`'light' \| 'dark' \| 'system'`) dynamically.                                         |
 | `setTranslations(patch)`       | Update translation tokens dynamically.                                                              |
 | `setTool(tool, variant?)`      | Activate a tool. `setTool('shape', 'star')`, `setTool('arrow', 'curved')`.                          |
 | `setStyle(patch)`              | **Selection-aware.** Changes the selected items, or the drawing defaults when nothing is selected.  |
@@ -485,7 +530,6 @@ import 'leaflet-tual/styles.css'
 const map = L.map('map').setView([41.01, 28.97], 13)
 const tual = createLeafletTual(map, {
   defaultValue: emptyDoc(),
-  toolbar: { position: 'top-left' },
   onChange: (doc, info) => info.committed && save(doc),
 })
 
@@ -508,7 +552,7 @@ tual.destroy()
 | `note`     |                                                                                        | N   | Click to place a sticky note and edit it.                        |
 | `freedraw` |                                                                                        | F   | Smoothed freehand stroke.                                        |
 | `pen`      |                                                                                        | P   | Bezier path: click anchors, drag handles, click first anchor to close, `Enter` to finish. |
-| `arrow`    | `linear` · `curved` · `elbow` · `s-curve`                                              | L   | Drag from start to end. Heads are set in `heads`.                |
+| `arrow`    | `linear` · `curved` · `elbow`                                                          | L   | Drag from start to end. Heads are set in `heads`.                |
 | `shape`    | `square` · `circle` · `star` · `actor` · `triangle` · `diamond` · `hexagon` · `marker` | S   | Drag a box, or click to place a default-sized shape. Fill via `style.fillColor` and `style.opacity`. |
 | `ruler`    |                                                                                        | R   | Drag to measure a geodesic distance.                             |
 | `area`     |                                                                                        | A   | Drag to measure a rectangle area, or click vertices to draft a polygon area (`Enter` or double-click to finish). |

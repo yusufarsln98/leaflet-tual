@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { LeafletTual } from '../index.js'
@@ -5,21 +7,48 @@ import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 import { BorderPopover } from '../widgets/SecondaryTooltip/popovers/BorderPopover.js'
 
-describe('Theme prop & custom select dropdowns', () => {
+const tokensCss = readFileSync(resolve(process.cwd(), 'src/styles/tokens.css'), 'utf8')
+
+const BASE_TOKEN_DECLARATION =
+  /--tual-(?:bg|fg|accent|border|danger|radius|shadow|control-size|toolbar-gap|icon-size|font|font-size|line-height)\s*:/
+
+describe('Theme tokens & custom select dropdowns', () => {
   beforeEach(() => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
   })
 
-  it('sets data-theme on LeafletTual root container from theme prop or system preference', () => {
+  it('applies theme tokens to the LeafletTual root container', () => {
     const map = createMockMap()
-    const { container, rerender } = render(
-      <LeafletTual map={map} defaultValue={emptyDoc()} theme="dark" />,
+    const { container } = render(
+      <LeafletTual
+        map={map}
+        defaultValue={emptyDoc()}
+        themeTokens={{
+          surface: '#fefefe',
+          text: '#101010',
+          border: 'rgba(0,0,0,0.3)',
+          focus: '#ff0000',
+          radius: '8px',
+          variables: { '--tual-app-extra': '42px' },
+        }}
+      />,
     )
-    const root = container.querySelector('.tual')
-    expect(root?.getAttribute('data-theme')).toBe('dark')
+    const root = container.querySelector('.tual') as HTMLElement
+    expect(root?.style.getPropertyValue('--tual-bg')).toBe('#fefefe')
+    expect(root?.style.getPropertyValue('--tual-fg')).toBe('#101010')
+    expect(root?.style.getPropertyValue('--tual-border')).toBe('rgba(0,0,0,0.3)')
+    expect(root?.style.getPropertyValue('--tual-focus-color')).toBe('#ff0000')
+    expect(root?.style.getPropertyValue('--tual-radius')).toBe('8px')
+    expect(root?.style.getPropertyValue('--tual-app-extra')).toBe('42px')
+  })
 
-    rerender(<LeafletTual map={map} defaultValue={emptyDoc()} theme="light" />)
-    expect(root?.getAttribute('data-theme')).toBe('light')
+  it('keeps base tokens out of nested .tual scopes so the context menu inherits themeTokens', () => {
+    const tualBlocks = [...tokensCss.matchAll(/\.tual\s*\{([^}]*)\}/g)]
+
+    expect(tualBlocks.length).toBeGreaterThan(0)
+    for (const [, body] of tualBlocks) {
+      expect(body).not.toMatch(BASE_TOKEN_DECLARATION)
+    }
   })
 
   it('renders custom select menu for stroke width and corner radius in BorderPopover', () => {

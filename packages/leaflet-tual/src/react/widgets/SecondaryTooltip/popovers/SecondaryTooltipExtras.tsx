@@ -15,8 +15,6 @@ export interface SecondaryTooltipExtrasProps {
   selectedItem: Item
   controller: Controller
   activePopover: string | null
-  sidebarOpen?: boolean
-  onOpenSidebar?: () => void
   onToggle: (name: string) => void
   onClose: () => void
   onUpdateStyle: (patch: Partial<Style>) => void
@@ -31,13 +29,12 @@ export function SecondaryTooltipExtras({
   selectedItem,
   controller,
   activePopover,
-  sidebarOpen = false,
-  onOpenSidebar,
   onToggle,
   onClose,
   onUpdateStyle,
 }: SecondaryTooltipExtrasProps) {
   const { t } = useTranslation()
+  const labelPosition = isShape ? (selectedItem as ShapeItem).labelPosition ?? 'center' : 'center'
 
   return (
     <>
@@ -47,7 +44,7 @@ export function SecondaryTooltipExtras({
             variant="secondary-icon"
             label={t('borderAndStroke')}
             active={activePopover === 'border'}
-            icon={ICONS.strokeWidth()}
+            icon={ICONS.lineStyle()}
             onClick={() => onToggle('border')}
           />
           {activePopover === 'border' && (
@@ -75,12 +72,12 @@ export function SecondaryTooltipExtras({
             variant="secondary-icon"
             label={t('labelPosition')}
             active={activePopover === 'labelPosition'}
-            icon={ICONS.center()}
+            icon={ICONS[labelPosition]()}
             onClick={() => onToggle('labelPosition')}
           />
           {activePopover === 'labelPosition' && (
             <LabelPositionDropdown
-              currentPosition={(selectedItem as ShapeItem).labelPosition}
+              currentPosition={labelPosition}
               onSelectPosition={(p) =>
                 controller.update(selectedItem.id, { labelPosition: p })
               }
@@ -102,19 +99,6 @@ export function SecondaryTooltipExtras({
         }}
       />
 
-      {!sidebarOpen && (
-        <>
-          <IconButton
-            variant="secondary-icon"
-            label={t('moreOptions')}
-            icon={ICONS.moreVertical()}
-            onClick={() => {
-              onClose()
-              onOpenSidebar?.()
-            }}
-          />
-        </>
-      )}
     </>
   )
 }

@@ -12,7 +12,7 @@ export const ALPINE_PRESET: ShowcasePreset = {
     {
       id: 'flight-path-rescue',
       type: 'arrow',
-      kind: 's-curve',
+      kind: 'curved',
       from: { lat: 45.902, lng: 6.84 },
       to: { lat: 45.938, lng: 6.91 },
       style: { color: '#2F6FEB', strokeColor: '#2F6FEB', width: 'l', dash: 'solid', opacity: 1 },

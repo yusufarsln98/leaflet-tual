@@ -3,11 +3,12 @@
 import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 import {
+  disableMapInteractions,
   disableTualDomPropagation,
   type DisableDomPropagationOptions,
 } from '../../../shared/dom/ui-guard.js'
 
-export { disableTualDomPropagation, type DisableDomPropagationOptions }
+export { disableMapInteractions, disableTualDomPropagation, type DisableDomPropagationOptions }
 
 /**
  * Hook that isolates a DOM container from propagating events (clicks, mousedown,

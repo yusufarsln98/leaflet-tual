@@ -26,6 +26,8 @@ interface WorkbenchDrawerProps {
   onToolbarPositionChange: (pos: WorkbenchToolbarPosition) => void
   readOnly: boolean
   onToggleReadOnly: (val: boolean) => void
+  applyTheme: boolean
+  onToggleApplyTheme: (val: boolean) => void
   copied: boolean
   onCopyJson: () => void
 }
@@ -44,6 +46,8 @@ export function WorkbenchDrawer({
   onToolbarPositionChange,
   readOnly,
   onToggleReadOnly,
+  applyTheme,
+  onToggleApplyTheme,
   copied,
   onCopyJson,
 }: WorkbenchDrawerProps) {
@@ -100,6 +104,8 @@ export function WorkbenchDrawer({
         <WorkbenchFeatureToggles
           readOnly={readOnly}
           onToggleReadOnly={onToggleReadOnly}
+          applyTheme={applyTheme}
+          onToggleApplyTheme={onToggleApplyTheme}
         />
 
         {/* Selected Item Details */}

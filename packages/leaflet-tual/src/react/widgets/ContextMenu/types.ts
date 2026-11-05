@@ -11,6 +11,5 @@ export interface ContextMenuProps {
   controller: Controller
   position: ContextMenuPosition | null
   onClose: () => void
-  onOpenSidebar?: () => void
   className?: string
 }

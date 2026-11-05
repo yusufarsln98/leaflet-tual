@@ -6,7 +6,6 @@ import { parseColorString, rgbToHex } from '../../../core/index.js'
 export function ColorSwatchList({
   items,
   selectedColor,
-  variant = 'color-dropdown',
   showNoFill = false,
   noFillSelected = false,
   noFillLabel = 'No fill',
@@ -21,29 +20,6 @@ export function ColorSwatchList({
   const isItemActive = (item: { hex: string }) => {
     if (noFillSelected) return false
     return selectedHex === item.hex.toLowerCase()
-  }
-
-  if (variant === 'border-flyout') {
-    return (
-      <div className="tual-border-palette-list">
-        {items.map((item) => (
-          <button
-            key={item.hex}
-            type="button"
-            className="tual-border-palette-item"
-            data-selected={isItemActive(item)}
-            title={item.title ?? item.hex}
-            onClick={() => onSelectColor(item.hex)}
-          >
-            <div
-              className="tual-border-palette-swatch"
-              style={{ backgroundColor: item.hex }}
-            />
-            <span className="tual-border-palette-hex">{item.hex.toUpperCase()}</span>
-          </button>
-        ))}
-      </div>
-    )
   }
 
   return (
@@ -72,10 +48,7 @@ export function ColorSwatchList({
             data-active={isSelected}
             onClick={() => onSelectColor(item.hex)}
           >
-            <div
-              className="tual-color-swatch-box"
-              style={{ backgroundColor: item.hex }}
-            />
+            <div className="tual-color-swatch-box" style={{ backgroundColor: item.hex }} />
             <span className="tual-color-label">{item.hex.toUpperCase()}</span>
             {isSelected && <span className="tual-check">✓</span>}
           </button>
@@ -84,4 +57,3 @@ export function ColorSwatchList({
     </div>
   )
 }
-

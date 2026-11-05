@@ -3,7 +3,7 @@ import type {
   ChangeInfo,
   Controller,
   Doc,
-  Theme,
+  ThemeTokens,
   ToolbarOptions,
   TranslationTokens,
 } from '../../core/types.js'
@@ -15,7 +15,7 @@ export interface LeafletTualProps {
   onChange?: (doc: Doc, info: ChangeInfo) => void
   onGesture?: (doc: Doc, info: ChangeInfo) => void
   readOnly?: boolean
-  theme?: Theme
+  themeTokens?: Partial<ThemeTokens>
   toolbar?: boolean | ToolbarOptions
   translations?: Partial<TranslationTokens>
   map?: L.Map
@@ -24,5 +24,5 @@ export interface LeafletTualProps {
 export interface ToolbarProps extends ToolbarOptions {
   controller: Controller
   map?: L.Map
-  currentZoom?: number
+  themeTokens?: Partial<ThemeTokens>
 }

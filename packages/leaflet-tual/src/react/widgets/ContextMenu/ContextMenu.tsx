@@ -23,7 +23,6 @@ export function ContextMenu({
   controller,
   position,
   onClose,
-  onOpenSidebar,
   className,
 }: ContextMenuProps) {
   const { t } = useTranslation(controller)
@@ -157,7 +156,7 @@ export function ContextMenu({
 
         <Divider variant="popover" />
 
-        {/* Lock, Fit Selection & Properties */}
+        {/* Lock & Fit Selection */}
         <DropdownMenu layout="list">
           <DropdownItem
             leading={
@@ -184,16 +183,6 @@ export function ContextMenu({
               onClose()
             }}
           />
-          {isSingle && onOpenSidebar && (
-            <DropdownItem
-              leading={<span className="tual-option-icon">{ICONS.sidebar()}</span>}
-              label={t('properties')}
-              onClick={() => {
-                onOpenSidebar()
-                onClose()
-              }}
-            />
-          )}
         </DropdownMenu>
 
         <Divider variant="popover" />

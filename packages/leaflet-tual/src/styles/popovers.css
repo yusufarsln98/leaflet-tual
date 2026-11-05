@@ -4,10 +4,10 @@
   position: absolute;
   top: 100%;
   margin-top: 5px;
-  background-color: var(--tual-surface);
+  background-color: var(--tual-bg);
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-popover, 12px);
-  box-shadow: var(--tual-shadow-popover);
+  border-radius: var(--tual-radius-lg);
+  box-shadow: var(--tual-shadow-popup);
   padding: 4px;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@
 .tual-popover[data-compact='true'],
 .tual-popover-compact,
 .tual-radius-popover {
-  border-radius: var(--tual-radius-popover-compact, 8px);
+  border-radius: var(--tual-radius);
 }
 
 /* Popover Section Header */
@@ -30,7 +30,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--tual-text-secondary);
+  color: var(--tual-fg-muted);
   padding: 2px 6px;
   margin-bottom: 2px;
 }
@@ -56,27 +56,32 @@
   height: 28px;
   min-height: 28px;
   padding: 0 8px;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   background: transparent;
   border: none;
   cursor: pointer;
   font-family: inherit;
   font-size: 13px;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   gap: 24px;
-  transition: background-color 0.12s ease;
+  transition: background-color 0.1s ease;
   width: 100%;
   box-sizing: border-box;
   text-align: left;
 }
 
 .tual-variant-item:hover:not(:disabled) {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-variant-item[data-active='true'] {
-  background-color: var(--tual-surface-active-neutral);
-  color: var(--tual-text);
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
+}
+
+.tual-variant-item[data-active='true'] .tual-variant-icon,
+.tual-variant-item[data-active='true'] .tual-variant-shortcut {
+  color: inherit;
 }
 
 .tual-variant-left {
@@ -93,7 +98,7 @@
   flex-shrink: 0;
   width: 15px;
   height: 15px;
-  color: var(--tual-text);
+  color: var(--tual-fg);
 }
 
 .tual-variant-label {
@@ -105,7 +110,7 @@
 .tual-variant-shortcut {
   font-size: 12px;
   font-weight: 400;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   flex-shrink: 0;
   margin-left: auto;
 }
@@ -123,27 +128,32 @@
   justify-content: space-between;
   height: 28px;
   padding: 0 8px;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   background: transparent;
   border: none;
   cursor: pointer;
   font-family: inherit;
   font-size: 13px;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   gap: 12px;
-  transition: background-color 0.12s ease;
+  transition: background-color 0.1s ease;
   width: 100%;
   text-align: left;
   box-sizing: border-box;
 }
 
 .tual-option-row:hover:not(:disabled) {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-option-row[data-active='true'] {
-  background-color: var(--tual-surface-active-neutral);
-  color: var(--tual-text);
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
+}
+
+.tual-option-row[data-active='true'] .tual-option-meta {
+  color: inherit;
+  opacity: 0.75;
 }
 
 .tual-option-icon {
@@ -177,7 +187,6 @@
 
 .tual-context-menu {
   min-width: 210px;
-  padding: 5px;
   animation: tualContextMenuIn 0.1s ease-out;
 }
 
@@ -194,27 +203,27 @@
 
 .tual-option-meta {
   font-size: 12px;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   margin-left: auto;
 }
 
 .tual-option-danger {
-  color: #ef4444;
+  color: var(--tual-danger);
 }
 .tual-option-danger:hover {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: var(--tual-danger-surface);
+  color: var(--tual-danger);
 }
 
 .tual-check {
-  color: var(--tual-accent);
+  color: inherit;
   font-weight: 600;
   margin-left: auto;
 }
 
 /* Page Popover List & Rows */
 .tual-page-popover {
-  min-width: 180px;
+  min-width: 190px;
 }
 
 .tual-page-list {
@@ -227,27 +236,41 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 6px;
-  height: 26px;
-  border-radius: var(--tual-radius-btn, 6px);
+  padding: 0 8px;
+  height: 28px;
+  border-radius: var(--tual-radius-sm);
   cursor: pointer;
-  transition: background-color 0.12s ease;
+  transition: background-color 0.1s ease;
   user-select: none;
   position: relative;
   box-sizing: border-box;
 }
 
 .tual-page-row:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
+}
+
+.tual-page-row[data-active='true'] {
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
 }
 
 .tual-page-title {
   font-size: 13px;
-  font-weight: 450;
-  color: var(--tual-text);
+  font-weight: 400;
+  color: var(--tual-fg);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.tual-page-row[data-active='true'] .tual-page-title,
+.tual-page-row[data-active='true'] .tual-popover-action-btn {
+  color: var(--tual-fg-active);
+}
+
+.tual-page-row[data-active='true'] .tual-popover-action-btn:hover {
+  background-color: color-mix(in srgb, var(--tual-fg-active) 14%, transparent);
 }
 
 .tual-page-row-actions {
@@ -260,7 +283,7 @@
 .tual-page-check {
   display: inline-flex;
   align-items: center;
-  color: var(--tual-accent);
+  color: inherit;
 }
 
 .tual-popover-action-btn {
@@ -269,63 +292,58 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: 4px;
+  border-radius: var(--tual-radius-sm);
   background: transparent;
   border: none;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition: background-color 0.1s ease, color 0.1s ease;
 }
 
 .tual-popover-action-btn:hover {
-  background-color: var(--tual-surface-hover);
-  color: var(--tual-text);
+  background-color: var(--tual-bg-hover);
+  color: var(--tual-fg);
 }
 
+/* Shell styling comes from .tual-popover so this menu cannot drift. */
 .tual-page-action-menu {
-  position: absolute;
   top: 100%;
   right: 0;
   margin-top: 3px;
-  background-color: var(--tual-surface);
-  border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-btn, 6px);
-  box-shadow: var(--tual-shadow-popover);
-  padding: 3px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
   z-index: 800;
   min-width: 90px;
 }
 
 .tual-action-menu-item {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
+  height: 28px;
   text-align: left;
-  padding: 3px 6px;
-  font-size: 12px;
+  padding: 0 8px;
+  font-size: 13px;
   font-family: inherit;
-  font-weight: 450;
-  color: var(--tual-text);
+  font-weight: 400;
+  color: var(--tual-fg);
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--tual-radius-sm);
   cursor: pointer;
-  transition: background-color 0.12s ease;
+  transition: background-color 0.1s ease;
+  box-sizing: border-box;
 }
 
 .tual-action-menu-item:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-action-menu-item-danger {
-  color: #ef4444;
+  color: var(--tual-danger);
 }
 
 .tual-action-menu-item-danger:hover {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: var(--tual-danger-surface);
+  color: var(--tual-danger);
 }
 
 .tual-page-rename-input {
@@ -333,9 +351,9 @@
   font-family: inherit;
   padding: 3px 6px;
   border: 1px solid var(--tual-border-focus);
-  border-radius: var(--tual-radius-btn, 6px);
-  background: var(--tual-surface);
-  color: var(--tual-text);
+  border-radius: var(--tual-radius-sm);
+  background: var(--tual-bg);
+  color: var(--tual-fg);
   width: 100%;
   outline: none;
   box-sizing: border-box;
@@ -344,7 +362,7 @@
 .tual-popover-divider {
   width: 100%;
   height: 1px;
-  background-color: var(--tual-divider);
+  background-color: var(--tual-border-divider);
   margin: 3px 0;
 }
 
@@ -354,10 +372,10 @@
   gap: 5px;
   padding: 0 6px;
   height: 26px;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: var(--tual-radius-sm);
   border: none;
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -369,13 +387,13 @@
 }
 
 .tual-page-add-btn:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-page-add-icon {
   display: inline-flex;
   align-items: center;
-  color: var(--tual-text);
+  color: var(--tual-fg);
 }
 
 /* Confirm Popover */
@@ -390,10 +408,10 @@
   justify-content: center;
   width: 14px;
   height: 14px;
-  border-radius: 3px;
+  border-radius: var(--tual-radius-sm);
   background: transparent;
   border: none;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.12s ease, color 0.12s ease;
@@ -407,7 +425,7 @@
 .tual-confirm-trigger-btn:hover,
 .tual-confirm-trigger-btn[data-active='true'] {
   opacity: 1;
-  color: #ef4444;
+  color: var(--tual-danger);
 }
 
 .tual-confirm-popover-portal {
@@ -416,10 +434,10 @@
 
 .tual-confirm-popover {
   position: relative;
-  background: var(--tual-surface);
+  background: var(--tual-bg);
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-popover-compact, 8px);
-  box-shadow: var(--tual-shadow-popover);
+  border-radius: var(--tual-radius-lg);
+  box-shadow: var(--tual-shadow-popup);
   padding: 6px 8px;
   min-width: 128px;
   z-index: 1000;
@@ -431,7 +449,7 @@
 .tual-confirm-message {
   font-size: 11px;
   font-weight: 500;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   line-height: 14px;
 }
 
@@ -447,56 +465,62 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
+  height: 22px;
   min-width: unset;
-  padding: 0 6px;
-  border-radius: 4px;
+  padding: 0 8px;
+  border-radius: var(--tual-radius-sm);
   font-family: inherit;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
-  border: none;
+  border: 1px solid var(--tual-border);
   line-height: 1;
   box-sizing: border-box;
   user-select: none;
-  transition:
-    background-color 0.12s ease,
-    color 0.12s ease;
+  transition: background-color 0.1s ease;
 }
 
 .tual-confirm-cancel-btn {
-  background: transparent;
-  color: var(--tual-text-secondary);
+  background: var(--tual-bg);
+  color: var(--tual-fg);
 }
 .tual-confirm-cancel-btn:hover:not(:disabled) {
-  background-color: var(--tual-surface-hover);
-  color: var(--tual-text);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-confirm-delete-btn {
-  background: #ef4444;
-  color: #ffffff;
+  background: var(--tual-danger);
+  border-color: var(--tual-danger);
+  color: var(--tual-danger-fg);
 }
 .tual-confirm-delete-btn:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--tual-danger-hover);
+  border-color: var(--tual-danger-hover);
 }
 
+.tual-variant-item:focus-visible,
+.tual-option-row:focus-visible,
+.tual-popover-action-btn:focus-visible,
+.tual-page-row:focus-visible,
+.tual-page-add-btn:focus-visible,
+.tual-action-menu-item:focus-visible,
+.tual-confirm-trigger-btn:focus-visible,
 .tual-confirm-cancel-btn:focus-visible,
 .tual-confirm-delete-btn:focus-visible {
-  outline: 2px solid var(--tual-accent, #2563eb);
-  outline-offset: 1px;
+  outline: 2px solid var(--tual-border-focus);
+  outline-offset: -2px;
 }
 
-/* Standard Micro-Tooltips (Hover Labels in this Design System) */
+/* Micro-Tooltips */
 .tual-tooltip,
 .tual-micro-tooltip {
   position: absolute;
-  background-color: var(--tual-surface, #ffffff);
-  color: var(--tual-text, #111827);
-  border: 1px solid var(--tual-border-solid, #e5e7eb);
-  border-radius: var(--tual-radius-tooltip, 6px);
-  padding: 4px 8px;
-  box-shadow: var(--tual-shadow-tooltip, 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04));
+  background-color: var(--tual-bg);
+  color: var(--tual-fg);
+  border: 1px solid var(--tual-border);
+  border-radius: var(--tual-radius);
+  padding: 3px 6px;
+  box-shadow: var(--tual-shadow-popup);
   font-size: 12px;
   line-height: 16px;
   font-family: inherit;
@@ -512,24 +536,6 @@
 
 .tual-tooltip-shortcut,
 .tual-micro-tooltip-shortcut {
-  color: var(--tual-text-tertiary, #9ca3af);
+  color: var(--tual-fg-muted);
   font-size: 11px;
-}
-
-/* Dark Variant (High-Contrast Alternative) */
-.tual-tooltip[data-variant='dark'],
-.tual-micro-tooltip[data-variant='dark'],
-.tual-tooltip-dark {
-  background-color: #18181b;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--tual-radius-tooltip, 6px);
-  padding: 4px 8px;
-  box-shadow: var(--tual-shadow-tooltip-dark, 0 4px 12px rgba(0, 0, 0, 0.15));
-}
-
-.tual-tooltip[data-variant='dark'] .tual-tooltip-shortcut,
-.tual-micro-tooltip[data-variant='dark'] .tual-micro-tooltip-shortcut,
-.tual-tooltip-dark .tual-tooltip-shortcut {
-  color: #a1a1aa;
 }

@@ -3,14 +3,18 @@
 interface WorkbenchFeatureTogglesProps {
   readOnly: boolean
   onToggleReadOnly: (val: boolean) => void
+  applyTheme: boolean
+  onToggleApplyTheme: (val: boolean) => void
 }
 
 export function WorkbenchFeatureToggles({
   readOnly,
   onToggleReadOnly,
+  applyTheme,
+  onToggleApplyTheme,
 }: WorkbenchFeatureTogglesProps) {
   return (
-    <div className="flex items-center justify-between p-2.5 rounded-lg bg-bg-pane border border-border-primary text-xs font-mono shadow-2xs">
+    <div className="flex flex-col gap-2 p-2.5 rounded-lg bg-bg-pane border border-border-primary text-xs font-mono shadow-2xs">
       <label className="flex items-center gap-2 cursor-pointer text-text-secondary hover:text-text-primary">
         <input
           type="checkbox"
@@ -19,6 +23,16 @@ export function WorkbenchFeatureToggles({
           className="rounded border-border-primary text-accent focus:ring-accent"
         />
         <span>Read-Only</span>
+      </label>
+
+      <label className="flex items-center gap-2 cursor-pointer text-text-secondary hover:text-text-primary">
+        <input
+          type="checkbox"
+          checked={applyTheme}
+          onChange={(e) => onToggleApplyTheme(e.target.checked)}
+          className="rounded border-border-primary text-accent focus:ring-accent"
+        />
+        <span>Apply App Theme</span>
       </label>
     </div>
   )

@@ -163,7 +163,8 @@ export const TextOverlayView = memo(function TextOverlayView({
             rows={1}
             className="tual-text-editor-input"
             style={{
-              color: 'inherit',
+              color: DEFAULT_PALETTE.ink,
+              backgroundColor: '#FFFFFF',
               fontSize: 'inherit',
               fontWeight: weight,
               fontStyle,
@@ -204,7 +205,7 @@ export const TextOverlayView = memo(function TextOverlayView({
       style={{
         left: pt.x,
         top: pt.y,
-        color: isEmpty ? 'var(--tual-text-muted, #9ca3af)' : color,
+        color: isEmpty ? 'var(--tual-fg-muted, #555555)' : color,
         fontSize,
         fontWeight: weight,
         fontStyle: isEmpty ? 'normal' : fontStyle,

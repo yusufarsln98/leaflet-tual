@@ -4,7 +4,7 @@ import { useLeafletTual } from '../features/use-leaflet-tual.js'
 import { useControllerStore } from '../features/use-controller-store.js'
 import { emptyDoc } from '../../core/index.js'
 
-describe('v2 Lifecycle callbacks and real-time streaming', () => {
+describe('v3 Lifecycle callbacks and real-time streaming', () => {
   it('calls onChange with Doc and ChangeInfo including patches when items are committed', () => {
     const handleChange = vi.fn()
     const handleGesture = vi.fn()

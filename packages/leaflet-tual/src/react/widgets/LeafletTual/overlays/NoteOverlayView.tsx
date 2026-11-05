@@ -126,15 +126,15 @@ export const NoteOverlayView = memo(function NoteOverlayView({
     if (isReadOnly || e.button !== 0) return
     if ((e.target as HTMLElement).closest('textarea, .tual-note-handle')) return
     e.stopPropagation()
-    const wasSelected = controller.selection.includes(note.id)
-    if (!wasSelected) {
+    if (!controller.selection.includes(note.id)) {
       controller.select(note.id)
-      return
     }
+    if (note.locked) return
     isDraggingRef.current = true
     const currentCenter = geoToScreen(map, note.at)
     startOverlayDrag(e, note.id, currentCenter, map, controller, () => {
       isDraggingRef.current = false
+      if (controller.tool === 'select') map.doubleClickZoom?.enable()
     })
   }
 
@@ -143,6 +143,7 @@ export const NoteOverlayView = memo(function NoteOverlayView({
       ref={cardRef}
       className={`tual-note-card ${className ?? ''}`}
       data-selected={isSelected}
+      data-draggable={!isReadOnly && !note.locked}
       style={{
         position: 'absolute',
         left: center.x,

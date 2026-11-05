@@ -1,9 +1,10 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import { useMap } from 'react-leaflet'
 import type { Controller, InternalController } from '../../../core/index.js'
+import { themeTokensToCssVariables } from '../../../shared/theme/index.js'
 import { useLeafletTual } from '../../features/use-leaflet-tual.js'
 import { TranslationProvider } from '../../features/i18n/index.js'
 import type { LeafletTualProps } from '../../types/index.js'
@@ -14,7 +15,6 @@ import {
   useKeyboardShortcuts,
   useMapInteractions,
   useMiddleClickPan,
-  useThemeResolver,
 } from './hooks/index.js'
 import { LeafletTualOverlays, LeafletTualWidgets } from './components/index.js'
 
@@ -26,23 +26,15 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     onChange: props.onChange,
     onGesture: props.onGesture,
     readOnly: props.readOnly,
-    theme: props.theme,
     translations: props.translations,
   })
 
   const controller: Controller = props.controller ?? internalController
-  const resolvedScheme = useThemeResolver(props.theme ?? controller.theme)
 
   useEffect(() => {
     const internal = controller as InternalController
     internal._setMap?.(map)
   }, [controller, map])
-
-  useEffect(() => {
-    if (props.controller && props.theme !== undefined && props.controller.theme !== props.theme) {
-      props.controller.setTheme(props.theme)
-    }
-  }, [props.controller, props.theme])
 
   useEffect(() => {
     if (props.controller && props.translations) {
@@ -52,7 +44,6 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
 
   const [activeGesture, setActiveGesture] = useState<CanvasGesture | null>(null)
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const isShiftPressedRef = useRef(false)
 
   const { canvasRef, currentZoom } = useCanvasScene({
@@ -83,7 +74,6 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     closeContextMenu,
     handleContextMenu,
     handleOverlayContextMenu,
-    handleSidebarItemContextMenu,
   } = useContextMenuCoordinator({
     map,
     controller,
@@ -108,7 +98,6 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     if (!controller.readOnly) return
     cancelGesture()
     setContextMenuPos(null)
-    setIsSidebarOpen(false)
     if (canvasRef.current) canvasRef.current.style.cursor = 'default'
   }, [canvasRef, cancelGesture, controller.readOnly, setContextMenuPos])
 
@@ -131,37 +120,15 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     gestures.finishArea,
   )
 
-  useEffect(() => {
-    if (!isSidebarOpen && (controller.tool === 'select' || controller.tool === 'laser')) {
-      map.dragging?.enable()
-    }
-  }, [isSidebarOpen, controller.tool, map])
-
-  const toggleSidebar = useCallback(() => {
-    setIsSidebarOpen((open) => {
-      const next = !open
-      if (!next && (controller.tool === 'select' || controller.tool === 'laser')) {
-        map.dragging?.enable()
-      }
-      return next
-    })
-  }, [controller.tool, map])
-
-  const closeSidebar = useCallback(() => {
-    setIsSidebarOpen(false)
-    if (controller.tool === 'select' || controller.tool === 'laser') {
-      map.dragging?.enable()
-    }
-  }, [controller.tool, map])
+  const tokenStyles = props.themeTokens ? themeTokensToCssVariables(props.themeTokens) : undefined
 
   return (
     <TranslationProvider translations={controller.translations}>
       <div
         ref={containerRef}
         className="tual tual-container"
-        data-theme={resolvedScheme}
         data-readonly={controller.readOnly}
-        style={{ zIndex: 650 }}
+        style={{ zIndex: 650, ...tokenStyles }}
         onContextMenu={handleContextMenu}
       >
         <canvas
@@ -183,27 +150,18 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           map={map}
           controller={controller}
           currentZoom={currentZoom}
-          isSidebarOpen={isSidebarOpen}
           contextMenuPos={contextMenuPos}
           activeGesture={activeGesture}
-          onOpenSidebar={() => setIsSidebarOpen(true)}
           onOverlayContextMenu={handleOverlayContextMenu}
         />
 
         <LeafletTualWidgets
           map={map}
           controller={controller}
-          currentZoom={currentZoom}
-          isSidebarOpen={isSidebarOpen}
           contextMenuPos={contextMenuPos}
-          resolvedScheme={resolvedScheme}
           toolbarProps={props.toolbar}
           readOnly={props.readOnly ?? controller.readOnly}
-          onToggleSidebar={toggleSidebar}
-          onCloseSidebar={closeSidebar}
           onCloseContextMenu={closeContextMenu}
-          onOpenSidebar={() => setIsSidebarOpen(true)}
-          onSidebarItemContextMenu={handleSidebarItemContextMenu}
         />
       </div>
     </TranslationProvider>

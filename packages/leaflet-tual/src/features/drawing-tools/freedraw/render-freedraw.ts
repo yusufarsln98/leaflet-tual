@@ -8,7 +8,7 @@ import {
   resolveDash,
   resolveWidth,
 } from '../../../shared/theme/index.js'
-import { drawHandle } from '../../../shared/drawing/canvas/canvas-utils.js'
+import { applyHoverGlow, clearHoverGlow, drawHandle } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
 
 export function renderFreedrawOnCanvas(
@@ -38,6 +38,8 @@ export function renderFreedrawOnCanvas(
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
 
+  if (isHoveredOnly) applyHoverGlow(ctx, scale)
+
   ctx.beginPath()
   ctx.moveTo(screenPoints[0].x, screenPoints[0].y)
 
@@ -56,6 +58,8 @@ export function renderFreedrawOnCanvas(
   }
 
   ctx.stroke()
+
+  if (isHoveredOnly) clearHoverGlow(ctx)
 
   if (options.isSelected) {
     const handleColor = resolveColor(DEFAULT_PALETTE.blue)

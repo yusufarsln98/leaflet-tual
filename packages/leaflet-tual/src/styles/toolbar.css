@@ -1,299 +1,375 @@
-/* Floating Toolbars */
+/* Leaflet-style floating toolbar islands */
 
 .tual-toolbar {
   position: absolute;
   display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 0 4px;
-  height: 36px;
-  background-color: var(--tual-surface);
-  border: 1px solid var(--tual-toolbar-border, var(--tual-border));
-  border-radius: var(--tual-radius-toolbar, 12px);
-  box-shadow: var(--tual-shadow-floating);
-  pointer-events: auto;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--tual-toolbar-gap);
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  pointer-events: none;
   z-index: 700;
   box-sizing: border-box;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
 .tual-toolbar[data-orientation='vertical'] {
   flex-direction: column;
-  height: auto;
-  width: 36px;
-  padding: 4px 0;
 }
 
-/* Positions */
-.tual-toolbar[data-position='top-left'] {
-  top: 14px;
-  left: 14px;
+/* Positions: the edge sets the orientation, the alignment places it along that edge */
+.tual-toolbar[data-position='inline'] {
+  position: static;
 }
-.tual-toolbar[data-position='top'] {
-  top: 14px;
+.tual-toolbar[data-edge='top'][data-align='start'] {
+  top: 10px;
+  left: 10px;
+}
+.tual-toolbar[data-edge='top'][data-align='center'] {
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
 }
-.tual-toolbar[data-position='top-right'] {
-  top: 14px;
-  right: 14px;
+.tual-toolbar[data-edge='top'][data-align='end'] {
+  top: 10px;
+  right: 10px;
 }
-.tual-toolbar[data-position='left'] {
+.tual-toolbar[data-edge='right'][data-align='start'] {
+  top: 10px;
+  right: 10px;
+}
+.tual-toolbar[data-edge='right'][data-align='center'] {
   top: 50%;
-  left: 14px;
+  right: 10px;
   transform: translateY(-50%);
 }
-.tual-toolbar[data-position='right'] {
-  top: 50%;
-  right: 14px;
-  transform: translateY(-50%);
+.tual-toolbar[data-edge='right'][data-align='end'] {
+  right: 10px;
+  bottom: 10px;
 }
-.tual-toolbar[data-position='bottom-left'] {
-  bottom: 14px;
-  left: 14px;
+.tual-toolbar[data-edge='bottom'][data-align='start'] {
+  bottom: 10px;
+  left: 10px;
 }
-.tual-toolbar[data-position='bottom'] {
-  bottom: 14px;
+.tual-toolbar[data-edge='bottom'][data-align='center'] {
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
 }
-.tual-toolbar[data-position='bottom-right'] {
-  bottom: 14px;
-  right: 14px;
+.tual-toolbar[data-edge='bottom'][data-align='end'] {
+  right: 10px;
+  bottom: 10px;
+}
+.tual-toolbar[data-edge='left'][data-align='start'] {
+  top: 10px;
+  left: 10px;
+}
+.tual-toolbar[data-edge='left'][data-align='center'] {
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+}
+.tual-toolbar[data-edge='left'][data-align='end'] {
+  bottom: 10px;
+  left: 10px;
+}
+.tual-toolbar[data-edge='center'][data-align='center'] {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-/* Internal Toolbar Vertical Separator */
-.tual-separator {
-  width: 1px;
-  height: 16px;
-  background-color: var(--tual-border);
-  margin: 0 3px;
-  flex-shrink: 0;
-}
-
-.tual-toolbar[data-orientation='vertical'] .tual-separator {
-  width: 16px;
-  height: 1px;
-  margin: 3px 0;
-}
-
-/* Tool Group container for split buttons and their popovers */
-.tual-tool-group {
+/* A toolbar island — one bordered bar per logical group */
+.tual-tool-group,
+.tual-bar {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 1px;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  background-color: var(--tual-bg);
+  border: 1px solid var(--tual-border);
+  border-radius: var(--tual-radius);
+  box-shadow: var(--tual-shadow);
+  pointer-events: auto;
+  box-sizing: border-box;
+}
+
+.tual-bar {
+  flex-direction: column;
+  /* Include the island border so children never paint over it. */
+  width: calc(var(--tual-control-size) + 2px);
+}
+
+.tual-bar[data-orientation='horizontal'] {
+  flex-direction: row;
+  width: auto;
 }
 
 .tual-toolbar[data-orientation='vertical'] .tual-tool-group {
   flex-direction: column;
+  /* Include the island border so children never paint over it. */
+  width: calc(var(--tual-control-size) + 2px);
 }
 
-/* Tool group with variants hover states:
-   When hovering either the tool button or the chevron, both buttons receive a background
-   different from the toolbar background, and the directly hovered button is darker. */
-.tual-tool-group[data-has-variants='true']:hover
-  .tual-btn:not([data-active='true']):not([data-open='true']),
-.tual-tool-group:has(.tual-chevron-btn):hover
-  .tual-btn:not([data-active='true']):not([data-open='true']) {
-  background-color: var(--tual-surface-hover);
-}
+/* Adjacent controls stay seamless. Borders are reserved for the island edge;
+   explicit separators remain available via .tual-separator. */
 
-.tual-tool-group[data-has-variants='true'] .tual-btn:not([data-active='true']):hover,
-.tual-tool-group:has(.tual-chevron-btn) .tual-btn:not([data-active='true']):hover {
-  background-color: color-mix(in srgb, var(--tual-text) 14%, var(--tual-surface));
-}
-
-.tual-tool-group[data-has-variants='true']:hover .tual-chevron-btn .tual-btn-chevron,
-.tual-tool-group:has(.tual-chevron-btn):hover .tual-chevron-btn .tual-btn-chevron {
-  opacity: 0.85;
-}
-
-.tual-tool-group[data-has-variants='true'] .tual-chevron-btn:hover .tual-btn-chevron,
-.tual-tool-group:has(.tual-chevron-btn) .tual-chevron-btn:hover .tual-btn-chevron {
-  opacity: 1;
-}
-
-/* Toolbar Interactive Button */
+/* Toolbar buttons */
 .tual-btn {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
-  min-width: 28px;
-  height: 28px;
-  background: transparent;
-  color: var(--tual-text);
+  padding: 0;
+  width: var(--tual-control-size);
+  min-width: var(--tual-control-size);
+  height: var(--tual-control-size);
+  background: var(--tual-bg);
+  color: var(--tual-fg);
   border: none;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: 0;
   cursor: pointer;
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 450;
-  line-height: 20px;
-  transition:
-    background-color 0.12s ease,
-    color 0.12s ease;
+  font-size: var(--tual-font-size);
+  line-height: var(--tual-control-size);
+  text-align: center;
   user-select: none;
   flex-shrink: 0;
   box-sizing: border-box;
+  transition:
+    background-color 0.1s ease,
+    color 0.1s ease;
 }
 
-/* Tool buttons that open a variants dropdown are wider than square */
-.tual-btn[data-has-variants='true'] {
-  width: auto;
-  min-width: 36px;
-  gap: 1px;
-  padding: 0 3px 0 5px;
+.tual-toolbar .tual-btn svg,
+.tual-bar .tual-btn svg {
+  width: var(--tual-icon-size);
+  height: var(--tual-icon-size);
+  display: block;
+  flex-shrink: 0;
 }
 
 .tual-btn:hover:not(:disabled) {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
-/* Active Tool state (e.g. Select cursor, Sidebar toggle) */
 .tual-btn[data-active='true'],
 .tual-btn.tual-active {
-  background-color: var(--tual-active-bg);
-  color: var(--tual-active-fg);
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
 }
 
-/* Open/Pressed Dropdown Trigger */
 .tual-btn[data-open='true'],
 .tual-btn[aria-expanded='true'] {
-  background-color: var(--tual-surface-active-neutral);
-  color: var(--tual-text);
-  font-weight: 500;
+  background-color: var(--tual-bg-hover);
+  color: var(--tual-fg);
 }
 
 .tual-btn:disabled {
-  opacity: 0.35;
+  background-color: transparent;
+  color: var(--tual-fg-disabled);
   cursor: not-allowed;
 }
 
-/* Chevron indicator inside tool button */
-.tual-btn-chevron {
-  display: inline-flex;
+.tual-btn:focus-visible,
+.tual-page-pill:focus-visible,
+.tual-btn-variants:focus-visible {
+  outline: 2px solid var(--tual-border-focus);
+  outline-offset: -2px;
+}
+
+/* A tool button with an optional variant affordance in its corner */
+.tual-tool {
+  position: relative;
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: var(--tual-control-size);
+  height: var(--tual-control-size);
   flex-shrink: 0;
-  color: var(--tual-text);
-  opacity: 0.6;
-  pointer-events: none;
-}
-.tual-btn:hover .tual-btn-chevron {
-  opacity: 0.9;
 }
 
-/* Split button chevron trigger */
-.tual-btn.tual-chevron-btn {
-  width: 14px;
-  min-width: 14px;
-  height: 28px;
-  padding: 0;
-  border-radius: var(--tual-radius-pill, 999px);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tual-chevron-btn .tual-btn-chevron {
+.tual-tool > .tual-btn {
   width: 100%;
   height: 100%;
-  opacity: 0.7;
+  min-width: 0;
 }
 
-.tual-chevron-btn:hover .tual-btn-chevron,
-.tual-chevron-btn[data-open='true'] .tual-btn-chevron,
-.tual-chevron-btn[aria-expanded='true'] .tual-btn-chevron {
-  opacity: 1;
+/* Match the island's rounded corners without clipping popovers */
+.tual-toolbar[data-orientation='vertical'] .tual-tool-group > :first-child > .tual-btn,
+.tual-toolbar[data-orientation='vertical'] .tual-tool-group > :first-child > .tual-page-pill {
+  border-top-left-radius: calc(var(--tual-radius) - 1px);
+  border-top-right-radius: calc(var(--tual-radius) - 1px);
+}
+.tual-toolbar[data-orientation='vertical'] .tual-tool-group > :last-child > .tual-btn,
+.tual-toolbar[data-orientation='vertical'] .tual-tool-group > :last-child > .tual-page-pill {
+  border-bottom-left-radius: calc(var(--tual-radius) - 1px);
+  border-bottom-right-radius: calc(var(--tual-radius) - 1px);
+}
+.tual-toolbar[data-orientation='horizontal'] .tual-tool-group > :first-child > .tual-btn,
+.tual-toolbar[data-orientation='horizontal'] .tual-tool-group > :first-child > .tual-page-pill {
+  border-top-left-radius: calc(var(--tual-radius) - 1px);
+  border-bottom-left-radius: calc(var(--tual-radius) - 1px);
+}
+.tual-toolbar[data-orientation='horizontal'] .tual-tool-group > :last-child > .tual-btn,
+.tual-toolbar[data-orientation='horizontal'] .tual-tool-group > :last-child > .tual-page-pill {
+  border-top-right-radius: calc(var(--tual-radius) - 1px);
+  border-bottom-right-radius: calc(var(--tual-radius) - 1px);
 }
 
-/* Page Switcher Pill */
+.tual-tool[data-active='true'] > .tual-btn {
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
+}
+
+.tual-tool[data-active='true'] > .tual-btn-variants {
+  color: var(--tual-fg-active);
+}
+
+.tual-btn-variants {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  z-index: 3;
+  display: block;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--tual-fg);
+  cursor: pointer;
+  box-shadow: none;
+}
+
+/* A small filled corner triangle marks controls that open a variant menu. */
+.tual-btn-variants::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  height: 6px;
+  background-color: currentColor;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+/* Page switcher */
 .tual-page-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 0 6px;
-  height: 28px;
+  justify-content: center;
+  gap: 2px;
+  padding: 0;
+  width: var(--tual-control-size);
+  height: var(--tual-control-size);
   background-color: transparent;
   border: none;
-  border-radius: var(--tual-radius-btn, 6px);
+  border-radius: 0;
   cursor: pointer;
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 450;
-  color: var(--tual-text);
-  transition: background-color 0.12s ease;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tual-fg);
   user-select: none;
   flex-shrink: 0;
+  position: relative;
 }
 
 .tual-page-pill:hover {
-  background-color: var(--tual-surface-hover);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-page-pill[data-active='true'],
 .tual-page-pill[aria-expanded='true'] {
-  background-color: var(--tual-surface-active-neutral);
-  color: var(--tual-text);
-  font-weight: 500;
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
+}
+
+.tual-page-pill svg {
+  width: var(--tual-icon-size);
+  height: var(--tual-icon-size);
 }
 
 .tual-page-badge {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: var(--tual-surface-recessed);
-  color: var(--tual-text-secondary);
-  font-size: 11px;
-  font-weight: 600;
+  min-width: 9px;
+  height: 9px;
+  padding: 0 1px;
+  border-radius: 2px;
+  background-color: var(--tual-bg-active);
+  color: var(--tual-fg-active);
+  font-size: 7px;
+  font-weight: 700;
   line-height: 1;
 }
 
-.tual-page-name {
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+.tual-page-name,
 .tual-page-chevron {
-  display: inline-flex;
-  align-items: center;
-  color: var(--tual-text);
-  opacity: 0.65;
+  display: none;
 }
 
-/* Sidebar Trigger Bar & Zoom Pill */
-.tual-sidebar-trigger-bar {
-  top: 14px;
-  right: 14px;
+/* Popovers opened from toolbar controls */
+.tual-toolbar-popover {
+  position: absolute;
+  z-index: 760;
+  margin-top: 0;
+  min-width: 140px;
+  width: max-content;
 }
 
-.tual-zoom-pill {
-  height: 28px;
-  padding: 0 6px;
-  border-radius: var(--tual-radius-btn, 6px);
-  font-size: 13px;
-  font-weight: 450;
-  gap: 3px;
+.tual-toolbar[data-orientation='vertical'] .tual-toolbar-popover {
+  top: 0;
+  left: calc(100% + 6px);
 }
 
-.tual-zoom-pill[data-active='true'],
-.tual-zoom-pill[aria-expanded='true'] {
-  background-color: var(--tual-surface-active-neutral);
-  font-weight: 500;
+.tual-toolbar[data-orientation='vertical'][data-edge='right'] .tual-toolbar-popover {
+  left: auto;
+  right: calc(100% + 6px);
 }
 
-.tual-zoom-menu-anchor {
-  position: relative;
-  display: inline-flex;
+.tual-toolbar[data-orientation='horizontal'] .tual-toolbar-popover {
+  top: calc(100% + 6px);
+  left: 0;
+}
+
+.tual-toolbar[data-orientation='horizontal'][data-edge='bottom'] .tual-toolbar-popover {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.tual-toolbar[data-orientation='horizontal'][data-align='center'] .tual-toolbar-popover {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tual-toolbar[data-orientation='horizontal'][data-align='end'] .tual-toolbar-popover {
+  left: auto;
+  right: 0;
+}
+
+/* Internal toolbar divider kept for custom compositions */
+.tual-separator {
+  width: 1px;
+  height: 100%;
+  background-color: var(--tual-border-divider);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.tual-toolbar[data-orientation='vertical'] .tual-separator {
+  width: 100%;
+  height: 1px;
+  margin: 0;
 }

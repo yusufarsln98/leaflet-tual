@@ -11,8 +11,6 @@ import {
   SegmentedControl,
 } from '../../../ui/index.js'
 
-export { PRESET_COLORS } from '../../../../core/index.js'
-
 export interface ColorDropdownProps {
   title?: string
   allowCustom?: boolean

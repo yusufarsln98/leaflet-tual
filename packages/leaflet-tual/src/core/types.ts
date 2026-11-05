@@ -2,6 +2,7 @@ import type L from 'leaflet'
 import type { StoreApi } from 'zustand/vanilla'
 import type { Doc, Item, NewItem, Style } from '../entities/index.js'
 import type { TranslationTokens } from '../shared/i18n/index.js'
+import type { ThemeTokens } from '../shared/theme/index.js'
 import type {
   ArrowKind,
   DrawKind,
@@ -26,8 +27,7 @@ export type {
   ToolVariantFor,
 }
 export type { TranslationTokens, TranslationToken, Translator } from '../shared/i18n/index.js'
-
-export type Theme = 'light' | 'dark' | 'system'
+export type { ThemeTokens } from '../shared/theme/index.js'
 
 export type ChangeReason =
   | 'create'
@@ -57,7 +57,6 @@ export interface ControllerState {
   style: Style
   selection: string[]
   selected: Item[]
-  theme: Theme
   readOnly: boolean
   canUndo: boolean
   canRedo: boolean
@@ -88,7 +87,6 @@ export interface Controller {
   readonly style: Style
   readonly selection: string[]
   readonly selected: Item[]
-  readonly theme: Theme
   readonly readOnly: boolean
   readonly canUndo: boolean
   readonly canRedo: boolean
@@ -100,7 +98,6 @@ export interface Controller {
   getItem(id: string): Item | undefined
   getTranslations(): TranslationTokens
   setTranslations(patch: Partial<TranslationTokens>): void
-  setTheme(theme: Theme): void
   subscribe(handler: (doc: Doc) => void): () => void
   setTool<T extends ToolId = ToolId>(tool: T, variant?: ToolVariantFor<T> | null): void
   setStyle(patch: Partial<Style>): void
@@ -124,7 +121,7 @@ export interface Controller {
   load(doc: Doc): void
   setReadOnly(v: boolean): void
   on(
-    event: 'change' | 'gesture' | 'select' | 'tool' | 'page' | 'state' | 'translations' | 'theme',
+    event: 'change' | 'gesture' | 'select' | 'tool' | 'page' | 'state' | 'translations',
     handler: (...args: unknown[]) => void,
   ): () => void
 }
@@ -134,21 +131,44 @@ export interface InternalController extends Controller {
   _setMap?: (m: L.Map | null) => void
 }
 
+export type ToolbarOrientation = 'horizontal' | 'vertical'
+
+/**
+ * Toolbar anchor. The first segment is the map edge: `top`/`bottom` lay the
+ * toolbar out horizontally, while `left`/`right` lay it out vertically.
+ * The optional second segment aligns it along that edge (`left`, `center`,
+ * `right`, or the equivalent `top`/`bottom` for vertical edges).
+ */
 export type ToolbarPosition =
+  | 'inline'
   | 'top-left'
   | 'top'
+  | 'top-center'
   | 'top-right'
-  | 'left'
+  | 'right-top'
   | 'right'
+  | 'right-center'
+  | 'right-bottom'
   | 'bottom-left'
   | 'bottom'
+  | 'bottom-center'
   | 'bottom-right'
+  | 'left-top'
+  | 'left'
+  | 'left-center'
+  | 'left-bottom'
+  | 'center'
 
 export interface ToolbarOptions {
   position?: ToolbarPosition
-  orientation?: 'horizontal' | 'vertical'
+  /**
+   * @deprecated Orientation is derived from `position`. This is only used by
+   * `position: 'inline'` toolbars rendered outside the map.
+   */
+  orientation?: ToolbarOrientation
   tools?: ToolId[]
   pages?: boolean
+  history?: boolean
 }
 
 export interface CreateLeafletTualOptions {
@@ -157,7 +177,7 @@ export interface CreateLeafletTualOptions {
   onChange?: (doc: Doc, info: ChangeInfo) => void
   onGesture?: (doc: Doc, info: ChangeInfo) => void
   readOnly?: boolean
-  theme?: Theme
+  themeTokens?: Partial<ThemeTokens>
   tool?: ToolId
   variant?: ToolVariant | null
   style?: Partial<Style>

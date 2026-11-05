@@ -13,7 +13,7 @@ import {
   fromWorld,
 } from '../index.js'
 
-describe('v2 geometry utilities & world space math', () => {
+describe('v3 geometry utilities & world space math', () => {
   it('round-trips toWorld and fromWorld accurately', () => {
     const geo = { lat: 41.0082, lng: 28.9784 }
     const world = toWorld(geo)

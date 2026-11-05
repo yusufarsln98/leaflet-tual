@@ -6,7 +6,7 @@ import { emptyDoc } from '../../core/index.js'
 import { createMockCanvasContext } from '../../core/__tests__/test-utils.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 bezier pen tool gestures', () => {
+describe('v3 bezier pen tool gestures', () => {
   beforeEach(() => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
       createMockCanvasContext() as never,

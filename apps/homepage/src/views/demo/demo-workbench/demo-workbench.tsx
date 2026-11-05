@@ -16,8 +16,9 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
   const { theme: siteTheme } = useTheme()
   const [activePreset, setActivePreset] = useState<ShowcasePreset>(SHOWCASE_PRESETS[0])
   const [customTileId, setCustomTileId] = useState<string | null>(null)
-  const [toolbarPosition, setToolbarPosition] = useState<WorkbenchToolbarPosition>('top')
+  const [toolbarPosition, setToolbarPosition] = useState<WorkbenchToolbarPosition>('right')
   const [readOnly, setReadOnly] = useState<boolean>(false)
+  const [applyTheme, setApplyTheme] = useState<boolean>(true)
   const [copied, setCopied] = useState<boolean>(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(
     initialDrawerOpen !== undefined ? initialDrawerOpen : mode === 'fullscreen',
@@ -135,6 +136,8 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
           onToolbarPositionChange={setToolbarPosition}
           readOnly={readOnly}
           onToggleReadOnly={handleToggleReadOnly}
+          applyTheme={applyTheme}
+          onToggleApplyTheme={setApplyTheme}
           copied={copied}
           onCopyJson={handleCopyJson}
         />
@@ -146,7 +149,7 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
           controller={controller}
           readOnly={readOnly}
           toolbarPosition={toolbarPosition}
-          theme={siteTheme}
+          applyTheme={applyTheme}
         />
       </div>
     </div>

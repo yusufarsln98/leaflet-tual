@@ -36,12 +36,6 @@ export function useLeafletTual(options: CreateLeafletTualOptions = {}): Controll
     }
   }, [options.translations, controller])
 
-  useEffect(() => {
-    if (options.theme !== undefined && options.theme !== controller.theme) {
-      controller.setTheme(options.theme)
-    }
-  }, [options.theme, controller])
-
   return controller
 }
 

@@ -12,7 +12,7 @@ import {
   resolveDash,
   resolveWidth,
 } from '../../../shared/theme/index.js'
-import { drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
+import { applyHoverGlow, clearHoverGlow, drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
 
 export function renderRulerOnCanvas(
@@ -45,6 +45,8 @@ export function renderRulerOnCanvas(
   ctx.setLineDash(dash)
   ctx.lineCap = 'round'
 
+  if (isHoveredOnly) applyHoverGlow(ctx, scale)
+
   // Main segment
   ctx.beginPath()
   ctx.moveTo(start.x, start.y)
@@ -72,6 +74,8 @@ export function renderRulerOnCanvas(
 
   drawTick(start)
   drawTick(end)
+
+  if (isHoveredOnly) clearHoverGlow(ctx)
 
   // Distance label
   const realMeters = distance(ruler.from, ruler.to)

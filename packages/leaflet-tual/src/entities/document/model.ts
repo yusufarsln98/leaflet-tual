@@ -144,19 +144,3 @@ export function parseDoc(input: unknown): Doc {
     pages: docObj.pages as Page[],
   }
 }
-
-export function getItemPreview(item: Item): string | null {
-  switch (item.type) {
-    case 'text':
-      return item.text?.trim() || null
-    case 'note':
-      return (item.title?.trim() || item.text?.trim()) ?? null
-    case 'shape':
-    case 'arrow':
-    case 'ruler':
-    case 'area':
-      return item.label?.trim() || null
-    default:
-      return null
-  }
-}

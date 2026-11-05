@@ -73,11 +73,11 @@ export function resolveTypographyLabel(
   t?: (token: string, params?: Record<string, string | number>, fallback?: string) => string,
 ): string {
   if (style.fontSize) return `${style.fontSize}px`
-  if (style.size === 'huge') return t ? t('huge', undefined, 'Huge') : 'Huge'
-  if (style.size === 'xl') return t ? t('extraLarge', undefined, 'Extra large') : 'Extra large'
-  if (style.size === 'l') return t ? t('large', undefined, 'Large') : 'Large'
-  if (style.size === 's') return t ? t('small', undefined, 'Small') : 'Small'
-  return t ? t('medium', undefined, 'Medium') : 'Medium'
+  if (style.size === 'huge') return t ? t('sizeHuge', undefined, 'Huge') : 'Huge'
+  if (style.size === 'xl') return t ? t('sizeExtraLarge', undefined, 'Extra large') : 'Extra large'
+  if (style.size === 'l') return t ? t('sizeLarge', undefined, 'Large') : 'Large'
+  if (style.size === 's') return t ? t('sizeSmall', undefined, 'Small') : 'Small'
+  return t ? t('sizeMedium', undefined, 'Medium') : 'Medium'
 }
 
 export function formatBulletInput(val: string, forceBullets = false): string {

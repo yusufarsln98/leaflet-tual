@@ -12,9 +12,8 @@ import {
   LASER_LIFETIME_MS,
   Toolbar,
   ToolbarMeasureGroup,
+  ToolbarHistoryControls,
   ContextMenu,
-  Sidebar,
-  SidebarTriggerBar,
   useLeafletTual,
   useLeafletSync,
   useControllerStore,
@@ -80,18 +79,33 @@ import {
   DropdownMenu,
   DropdownItem,
   ColorSwatch,
-  ColorPaletteGrid,
   ColorSwatchList,
+  ColorDropdown,
+  ColorSwatchControls,
   CustomColorPicker,
+  TypographyDropdown,
+  TextFormattingControls,
+  LabelPositionDropdown,
+  BorderPopover,
+  useTooltipEvents,
   NumberField,
   TextField,
   Divider,
   ICONS,
   useLeafletDomGuard,
   disableTualDomPropagation,
+  disableMapInteractions,
+  createLeafletControl,
+  createControlContainer,
+  applyTheme,
+  getThemeTokens,
+  createTheme,
+  themeTokensToCssVariables,
+  DEFAULT_THEME_TOKENS,
+  useControllerState,
 } from '../../react.js'
 
-describe('leaflet-tual v2 package contract exports', () => {
+describe('leaflet-tual v3 package contract exports', () => {
   it('creates unique ids with prefix', () => {
     const id1 = createId('arrow')
     const id2 = createId('arrow')
@@ -106,9 +120,8 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(useLaserPointer).toBeDefined()
     expect(Toolbar).toBeDefined()
     expect(ToolbarMeasureGroup).toBeDefined()
+    expect(ToolbarHistoryControls).toBeDefined()
     expect(ContextMenu).toBeDefined()
-    expect(Sidebar).toBeDefined()
-    expect(SidebarTriggerBar).toBeDefined()
     expect(useLeafletTual).toBeDefined()
     expect(useLeafletSync).toBeDefined()
     expect(useControllerStore).toBeDefined()
@@ -116,13 +129,22 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(getPageItems).toBeDefined()
     expect(useLeafletDomGuard).toBeDefined()
     expect(disableTualDomPropagation).toBeDefined()
+    expect(disableMapInteractions).toBeDefined()
+    expect(createLeafletControl).toBeDefined()
+    expect(createControlContainer).toBeDefined()
+    expect(applyTheme).toBeDefined()
+    expect(getThemeTokens).toBeDefined()
+    expect(createTheme).toBeDefined()
+    expect(themeTokensToCssVariables).toBeDefined()
+    expect(DEFAULT_THEME_TOKENS).toBeDefined()
+    expect(useControllerState).toBeDefined()
     expect(emptyDoc).toBeDefined()
     expect(parseDoc).toBeDefined()
     expect(DocError).toBeDefined()
   })
 
   it('exports tool variant constants and type guards', () => {
-    expect(ALL_ARROW_KINDS).toEqual(['linear', 'curved', 'elbow', 's-curve'])
+    expect(ALL_ARROW_KINDS).toEqual(['linear', 'curved', 'elbow'])
     expect(ALL_SHAPE_KINDS).toEqual([
       'square',
       'circle',
@@ -137,6 +159,7 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(ALL_MEASURE_KINDS).toEqual(['ruler', 'area'])
 
     expect(isArrowKind('curved')).toBe(true)
+    expect(isArrowKind('s-curve')).toBe(false)
     expect(isArrowKind('circle')).toBe(false)
     expect(isShapeKind('star')).toBe(true)
     expect(isShapeKind('curved')).toBe(false)
@@ -198,13 +221,22 @@ describe('leaflet-tual v2 package contract exports', () => {
     expect(DropdownMenu).toBeDefined()
     expect(DropdownItem).toBeDefined()
     expect(ColorSwatch).toBeDefined()
-    expect(ColorPaletteGrid).toBeDefined()
     expect(ColorSwatchList).toBeDefined()
     expect(CustomColorPicker).toBeDefined()
     expect(NumberField).toBeDefined()
     expect(TextField).toBeDefined()
     expect(Divider).toBeDefined()
     expect(ICONS).toBeDefined()
+  })
+
+  it('exports reusable property controls for custom panels', () => {
+    expect(ColorDropdown).toBeDefined()
+    expect(ColorSwatchControls).toBeDefined()
+    expect(TypographyDropdown).toBeDefined()
+    expect(TextFormattingControls).toBeDefined()
+    expect(LabelPositionDropdown).toBeDefined()
+    expect(BorderPopover).toBeDefined()
+    expect(useTooltipEvents).toBeDefined()
   })
 
   it('exports translation and internationalization utilities', () => {
