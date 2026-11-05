@@ -1,10 +1,17 @@
 # leaflet-tual
 
+## 2.0.4
+
+### Patch Changes
+
+- 28e50b0: Fix read-only mode swallowing map interactions. The canvas, note and text overlays, and inline label editor are now click-through in read-only, entering read-only cancels active gestures and resets transient tool/edit state, and the laser pointer no longer re-enables map dragging globally while inactive.
+
 ## 2.0.3
 
 ### Patch Changes
 
 - **Sidebar Context Menu Isolation**:
+
   - Right-clicking the sidebar no longer propagates to the Leaflet map container, so external map context menus no longer open over the sidebar.
   - Sidebar item right-clicks still open the item context menu through a capture-phase handler.
 
@@ -18,31 +25,38 @@
 ### Patch Changes
 
 - **Stylesheet Packaging**:
+
   - Pointed the `leaflet-tual/styles.css` export at the published `dist/styles.css` bundle instead of `src/styles.css`, and stopped shipping only `src/styles.css` without its relative `styles/` imports.
   - Made the build copy step idempotent so `dist/styles/` always contains the stylesheet partials at the paths referenced by `dist/styles.css`.
   - Consumers can now import `leaflet-tual/styles.css` in Vite/Webpack without aliasing it to the package source.
 
 - **Simplified Color & Fill API**:
+
   - Removed the `fill` and `fillOpacity` style fields. Fill is controlled by `fillColor` plus `opacity`; use `fillColor: 'transparent'` for no fill.
   - Colors are now hex strings only. RGB, HSL and named-color style values are no longer accepted.
   - Unified the theme color presets with the default palette and updated the showcase presets to hex values.
 
 - **Shape Theme Opacity**:
+
   - Raised the default shape opacity from 25% to 50%.
   - Theme color presets now apply 50% opacity to shapes, while explicitly customized shape opacity values remain unchanged.
 
 - **Inline Label Editor Dark Mode Contrast**:
+
   - Restored the white label-pill background in the inline shape/arrow label editor to match the canvas label rendering.
   - Dark text in the editor — which intentionally mirrors the canvas label text color — is now readable in dark themes instead of rendering dark-on-dark.
 
 - **Label Typography & Inline Editor Synchronization**:
+
   - Synchronized font family between normal canvas label pill rendering and the inline shape/arrow label editor (`InlineShapeLabelEditor`). Canvas text now dynamically resolves the container's computed `fontFamily` (with fallback to default sans-serif font stack), matching the input element's font face and eliminating font face jumping when entering or exiting edit mode.
   - Aligned font sizing (`baseFontSize * scale` without rounding or clamping), font weight, text colors, `line-height: 1`, border radius (3px), and zoom-scaled padding (`paddingX`, `paddingY`) between canvas pills and edit-mode inputs for seamless pixel alignment.
 
 - **Label Opacity Isolation**:
+
   - Ensured label pills on shapes and canvas annotations never inherit shape fill or stroke opacity (`ctx.globalAlpha = 1`), keeping labels consistently opaque and readable regardless of shape transparency.
 
 - **Color Modal Opacity Synchronization**:
+
   - Selecting a theme color preset in the secondary tooltip now preserves the current opacity value when switching to the Custom tab.
   - Cleaned up item styles and demo presets to use standard hex colors with numeric opacity properties, removing deprecated RGB string conversions.
 
@@ -54,11 +68,13 @@
 ### Patch Changes
 
 - **Event Propagation & UI Isolation**:
+
   - Implemented `useLeafletDisableClick` and `useLeafletDomGuard` to cleanly isolate Leaflet Tual overlay widgets (Toolbar, ContextMenu, Sidebar, Popovers, Tooltips, and canvas overlays) from underlying Leaflet map listeners and third-party plugins.
   - Right-click (`contextmenu`) on drawn annotations and UI widgets no longer propagates to the Leaflet map container, while right-clicking empty canvas space continues to fall back to map context menu events.
   - Eliminated magic property mutations (`_leaflet_disable_click`) embedded across components.
 
 - **Laser Pointer Interactions**:
+
   - Panning and zooming are no longer disabled when the laser pointer tool is selected.
   - Restored mouse wheel zooming over the laser pointer canvas.
   - Enabled middle-click drag panning with the mouse wheel while the laser tool is active, restricting laser trail generation to the primary mouse button (`button === 0`).
