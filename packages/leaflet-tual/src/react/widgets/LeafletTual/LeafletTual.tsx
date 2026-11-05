@@ -92,6 +92,12 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     onCloseContextMenu: closeContextMenu,
   })
 
+  const { cancelGesture } = gestures
+
+  useEffect(() => {
+    if (controller.readOnly) cancelGesture()
+  }, [controller.readOnly, cancelGesture])
+
   useEffect(() => {
     window.addEventListener('mousemove', gestures.handleMouseMove)
     window.addEventListener('mouseup', gestures.handleMouseUp)
@@ -140,6 +146,7 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
         ref={containerRef}
         className="tual tual-container"
         data-theme={resolvedScheme}
+        data-readonly={controller.readOnly}
         style={{ zIndex: 650 }}
         onContextMenu={handleContextMenu}
       >
@@ -147,7 +154,7 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           ref={canvasRef}
           className="tual-canvas"
           style={{
-            cursor: controller.tool !== 'select' ? 'crosshair' : 'default',
+            cursor: !controller.readOnly && controller.tool !== 'select' ? 'crosshair' : 'default',
           }}
           onMouseDown={(e) => {
             if (e.button === 0) setContextMenuPos(null)

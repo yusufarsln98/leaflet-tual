@@ -52,7 +52,7 @@ export class LeafletTualCore {
       canvas.className = 'leaflet-tual-canvas'
       canvas.style.position = 'absolute'
       canvas.style.inset = '0'
-      canvas.style.pointerEvents = 'auto'
+      canvas.style.pointerEvents = this.controller.readOnly ? 'none' : 'auto'
       container.appendChild(canvas)
       mapContainer.appendChild(container)
 
@@ -73,7 +73,12 @@ export class LeafletTualCore {
 
       // Controller listeners
       const unsubChange = this.controller.on('change', () => redraw())
-      const unsubState = this.controller.on('state', () => redraw())
+      const unsubState = this.controller.on('state', () => {
+        if (this._canvas) {
+          this._canvas.style.pointerEvents = this.controller.readOnly ? 'none' : 'auto'
+        }
+        redraw()
+      })
 
       redraw()
 

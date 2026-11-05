@@ -31,7 +31,6 @@ export const NoteOverlayView = memo(function NoteOverlayView({
   const { t } = useTranslation(controller)
   const cardRef = useRef<HTMLDivElement>(null)
   useLeafletDisableClick(cardRef)
-  useLeafletDisableClick(cardRef)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const isDraggingRef = useRef(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -97,7 +96,18 @@ export const NoteOverlayView = memo(function NoteOverlayView({
     el.style.transform = `translate(-50%, -50%) scale(${scale})`
   })
 
+  useEffect(() => {
+    if (!isReadOnly) return
+    const textarea = textareaRef.current
+    if (textarea && document.activeElement === textarea) {
+      textarea.blur()
+      map.dragging?.enable()
+      map.doubleClickZoom?.enable()
+    }
+  }, [isReadOnly, map])
+
   const handleFocus = () => {
+    if (isReadOnly) return
     setIsFocused(true)
     map.dragging?.disable()
     map.doubleClickZoom?.disable()
@@ -184,7 +194,7 @@ export const NoteOverlayView = memo(function NoteOverlayView({
         onBlur={handleBlur}
         onKeyDown={(e) => handleNoteKeyDown(e, note, controller, e.currentTarget.value)}
         onPointerDown={(e) => {
-          if (e.button !== 0) return
+          if (isReadOnly || e.button !== 0) return
           e.stopPropagation()
           controller.select(note.id)
         }}

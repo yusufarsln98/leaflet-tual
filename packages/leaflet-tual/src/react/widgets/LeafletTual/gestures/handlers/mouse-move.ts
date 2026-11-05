@@ -35,6 +35,11 @@ export function processMouseMove(e: MouseEvent, ctx: MouseMoveContext): void {
     updateHoveredId,
   } = ctx
 
+  if (controller.readOnly) {
+    updateHoveredId(null)
+    return
+  }
+
   const pending = pendingClickRef.current
   if (pending && !isClickGesture(pending.startPt, { x: e.clientX, y: e.clientY })) {
     pendingClickRef.current = null

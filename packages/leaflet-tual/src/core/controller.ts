@@ -403,7 +403,18 @@ export function createController(
 
     setReadOnly(v: boolean) {
       if (store.getState().readOnly === v) return
-      store.setState({ readOnly: v })
+      if (v) {
+        store.setState({
+          readOnly: true,
+          selection: [],
+          selected: [],
+          editingId: null,
+          tool: 'select',
+          variant: null,
+        })
+      } else {
+        store.setState({ readOnly: false })
+      }
       emit('state')
     },
 
