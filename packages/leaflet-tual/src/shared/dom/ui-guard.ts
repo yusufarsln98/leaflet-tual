@@ -1,11 +1,11 @@
 import L from 'leaflet'
 
 export const TUAL_UI_SELECTORS =
-  '.tual-secondary-tooltip, .tual-toolbar, .tual-popover, .tual-context-menu, .tual-sidebar, .tual-sidebar-trigger-bar, .tual-inline-label-editor, .tual-note-card, .tual-text-item'
+  '.tual-secondary-tooltip, .tual-toolbar, .tual-popover, .tual-context-menu, .tual-inline-label-editor, .tual-note-card, .tual-text-item, .tual-control, .tual-panel'
 
 /**
  * Checks whether an event target is inside a Tual floating UI element
- * (e.g. secondary tooltip, toolbar, popover, context menu, sidebar, or overlays).
+ * (e.g. secondary tooltip, toolbar, popover, context menu, or overlays).
  */
 export function isTualUiTarget(target: EventTarget | null | undefined): boolean {
   if (!target || !(target as Element).closest) return false
@@ -18,7 +18,7 @@ export interface DisableDomPropagationOptions {
 }
 
 /**
- * Completely isolates a Tual UI element or container from propagating DOM and Leaflet events
+ * Completely isolates a UI element or container from propagating DOM and Leaflet events
  * (clicks, mousedown, dblclick, wheel, and contextmenu) to parent elements and the Leaflet map.
  */
 export function disableTualDomPropagation(
@@ -78,3 +78,9 @@ export function disableTualDomPropagation(
     }
   }
 }
+
+/**
+ * Utility for clients to isolate any custom DOM element (sidebar, toolbar, panel)
+ * from Leaflet map interactions (clicks, drags, double-clicks, wheel zoom).
+ */
+export const disableMapInteractions = disableTualDomPropagation

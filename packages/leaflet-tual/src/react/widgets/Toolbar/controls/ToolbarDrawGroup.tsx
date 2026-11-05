@@ -27,9 +27,7 @@ export function ToolbarDrawGroup({
 }: ToolbarDrawGroupProps) {
   const { t } = useTranslation(controller)
   const activeDrawTool =
-    controller.tool === 'freedraw' || controller.tool === 'pen'
-      ? controller.tool
-      : null
+    controller.tool === 'freedraw' || controller.tool === 'pen' ? controller.tool : null
   const isActive = activeDrawTool !== null
   const hasVariants = availableDrawTools.length > 1
   const isPopoverOpen = activePopover === 'draw'
@@ -42,27 +40,21 @@ export function ToolbarDrawGroup({
   const label = `${drawName} (${shortcut})`
 
   return (
-    <div
-      className="tual-tool-group"
-      data-has-variants={hasVariants || undefined}
-      style={{ position: 'relative' }}
+    <ToolbarToolButton
+      label={label}
+      icon={previewTool === 'freedraw' ? ICONS.pencil() : ICONS[previewTool]()}
+      isActive={isActive}
+      hasVariants={hasVariants}
+      isPopoverOpen={isPopoverOpen}
+      chevronLabel={`${drawName} options`}
+      onSelect={() => {
+        controller.setTool(previewTool)
+        onClosePopover()
+      }}
+      onToggleVariants={() => {
+        onTogglePopover(!isPopoverOpen)
+      }}
     >
-      <ToolbarToolButton
-        label={label}
-        icon={previewTool === 'freedraw' ? ICONS.pencil() : ICONS[previewTool]()}
-        isActive={isActive}
-        hasVariants={hasVariants}
-        isPopoverOpen={isPopoverOpen}
-        chevronLabel={`${drawName} options`}
-        onSelect={() => {
-          controller.setTool(previewTool)
-          onClosePopover()
-        }}
-        onToggleVariants={() => {
-          onTogglePopover(!isPopoverOpen)
-        }}
-      />
-
       {hasVariants && isPopoverOpen && (
         <ToolVariantsPopover
           controller={controller}
@@ -73,6 +65,6 @@ export function ToolbarDrawGroup({
           className={popoverClassName}
         />
       )}
-    </div>
+    </ToolbarToolButton>
   )
 }

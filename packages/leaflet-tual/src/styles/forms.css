@@ -9,9 +9,9 @@
   gap: 5px;
   height: 26px;
   padding: 0 6px;
-  border-radius: var(--tual-radius-input, 6px);
+  border-radius: var(--tual-radius);
   border: 1px solid var(--tual-border);
-  background: var(--tual-surface);
+  background: var(--tual-bg);
   box-sizing: border-box;
   cursor: pointer;
   position: relative;
@@ -25,18 +25,21 @@
 }
 
 .tual-select-field:hover:not([data-disabled='true']) {
-  border-color: var(--tual-border-hover);
+  border-color: var(--tual-border-divider);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-select-field:focus-within,
 .tual-select-field[data-open='true'] {
   border-color: var(--tual-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-border-focus) 26%, transparent);
 }
 
 .tual-select-field[data-disabled='true'] {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
-  border-color: var(--tual-border-muted);
+  border-color: var(--tual-border-divider);
+  background-color: var(--tual-bg-subtle);
 }
 
 .tual-select-value {
@@ -48,7 +51,7 @@
   text-align: right;
   font-size: 12px;
   font-weight: 450;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   user-select: none;
   line-height: 18px;
 }
@@ -57,11 +60,20 @@
   text-align: left;
 }
 
+.tual-select-unit {
+  flex-shrink: 0;
+  color: var(--tual-fg-muted);
+  font-size: 11px;
+  line-height: 1;
+  user-select: none;
+  white-space: nowrap;
+}
+
 .tual-select-chevron {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--tual-text-secondary);
+  color: var(--tual-fg-muted);
   opacity: 0.7;
   flex-shrink: 0;
   user-select: none;
@@ -76,14 +88,14 @@
   flex: 1 1 60%;
   height: 28px;
   padding: 0 6px;
-  border-radius: var(--tual-radius-input, 6px);
+  border-radius: var(--tual-radius-sm);
 }
 
 .tual-select-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   flex-shrink: 0;
   width: 14px;
   height: 14px;
@@ -95,20 +107,13 @@
 }
 
 /* Custom Themed Dropdown Menu attached to .tual-select-field */
+/* Shell styling comes from .tual-popover so this menu cannot drift. */
 .tual-select-menu {
-  position: absolute;
   top: calc(100% + 4px);
   left: 0;
+  margin-top: 0;
   min-width: 100%;
   width: max-content;
-  background: var(--tual-surface);
-  border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-btn, 6px);
-  box-shadow: var(--tual-shadow-popover);
-  padding: 3px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
   z-index: 1000;
 }
 
@@ -116,18 +121,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
-  padding: 0 6px;
-  height: 26px;
-  min-height: 26px;
-  border-radius: 4px;
+  padding: 0 8px;
+  height: 28px;
+  min-height: 28px;
+  border-radius: var(--tual-radius-sm);
   border: none;
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 450;
+  font-size: 13px;
+  font-weight: 400;
   cursor: pointer;
   text-align: left;
   transition: background-color 0.1s ease;
@@ -136,13 +141,17 @@
 }
 
 .tual-select-menu-item:hover {
-  background: var(--tual-surface-hover);
+  background: var(--tual-bg-hover);
 }
 
 .tual-select-menu-item[data-active='true'] {
-  background: var(--tual-surface-active-neutral);
-  color: var(--tual-text);
-  font-weight: 500;
+  background: var(--tual-bg-active);
+  color: var(--tual-fg-active);
+}
+
+.tual-select-menu-item:focus-visible {
+  outline: 2px solid var(--tual-border-focus);
+  outline-offset: -2px;
 }
 
 /* Standalone .tual-select */
@@ -151,34 +160,43 @@
   height: 26px;
   padding: 0 18px 0 6px;
   border: 1px solid var(--tual-border);
-  border-radius: var(--tual-radius-input, 6px);
-  background-color: var(--tual-surface);
+  border-radius: var(--tual-radius-sm);
+  background-color: var(--tual-bg);
   font-family: inherit;
   font-size: 12px;
   font-weight: 450;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   outline: none;
   cursor: pointer;
   text-align: left;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  /* Draw the chevron with currentColor so it follows the text token. */
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
   background-repeat: no-repeat;
-  background-position: right 6px center;
+  background-position:
+    calc(100% - 10px) calc(50% - 1px),
+    calc(100% - 6px) calc(50% - 1px);
+  background-size: 5px 5px, 5px 5px;
   transition:
     background-color 0.12s ease,
-    border-color 0.12s ease;
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
   color-scheme: inherit;
   box-sizing: border-box;
 }
 
 .tual-select:hover:not(:disabled) {
-  border-color: var(--tual-border-hover);
+  border-color: var(--tual-border-divider);
+  background-color: var(--tual-bg-hover);
 }
 
 .tual-select:focus-visible {
   border-color: var(--tual-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-border-focus) 26%, transparent);
 }
 
 .tual-select-field .tual-select {
@@ -202,8 +220,8 @@
 }
 
 .tual-select option {
-  background-color: var(--tual-surface);
-  color: var(--tual-text);
+  background-color: var(--tual-bg);
+  color: var(--tual-fg);
   font-size: 12px;
   font-weight: 450;
   padding: 3px 6px;
@@ -216,27 +234,30 @@
   gap: 5px;
   height: 26px;
   padding: 0 6px;
-  border-radius: var(--tual-radius-input, 6px);
+  border-radius: var(--tual-radius-sm);
   border: 1px solid var(--tual-border);
-  background-color: var(--tual-surface);
-  transition: border-color 0.12s ease;
+  background-color: var(--tual-bg);
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
   box-sizing: border-box;
   flex: 1;
   min-width: 0;
 }
 
 .tual-prefix-field:hover {
-  border-color: var(--tual-border-hover);
+  border-color: var(--tual-border-divider);
 }
 
 .tual-prefix-field:focus-within {
   border-color: var(--tual-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-border-focus) 26%, transparent);
 }
 
 .tual-prefix-label {
   font-size: 11px;
   font-weight: 500;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   flex-shrink: 0;
   user-select: none;
 }
@@ -248,7 +269,7 @@
   height: 100%;
   border: none;
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-family: inherit;
   font-size: 12px;
   font-weight: 450;
@@ -271,20 +292,23 @@
   gap: 5px;
   height: 26px;
   padding: 0 6px;
-  border-radius: var(--tual-radius-input, 6px);
+  border-radius: var(--tual-radius-sm);
   border: 1px solid var(--tual-border);
-  background-color: var(--tual-surface);
-  transition: border-color 0.12s ease;
+  background-color: var(--tual-bg);
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
   box-sizing: border-box;
   width: 100%;
 }
 
 .tual-suffix-field:hover {
-  border-color: var(--tual-border-hover);
+  border-color: var(--tual-border-divider);
 }
 
 .tual-suffix-field:focus-within {
   border-color: var(--tual-border-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-border-focus) 26%, transparent);
 }
 
 .tual-suffix-input {
@@ -293,7 +317,7 @@
   height: 100%;
   border: none;
   background: transparent;
-  color: var(--tual-text);
+  color: var(--tual-fg);
   font-family: inherit;
   font-size: 12px;
   font-weight: 450;
@@ -310,7 +334,7 @@
 
 .tual-suffix-unit {
   font-size: 11px;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   flex-shrink: 0;
   user-select: none;
 }
@@ -323,10 +347,10 @@
   justify-content: space-between;
   height: 26px;
   padding: 0 6px;
-  border-radius: var(--tual-radius-input, 6px);
-  border: 1px solid var(--tual-border-muted);
-  background-color: #fafafa;
-  color: var(--tual-text-tertiary);
+  border-radius: var(--tual-radius-sm);
+  border: 1px solid var(--tual-border-divider);
+  background-color: var(--tual-bg-subtle);
+  color: var(--tual-fg-muted);
   font-size: 12px;
   font-weight: 400;
   box-sizing: border-box;
@@ -334,19 +358,22 @@
   user-select: none;
 }
 
-.tual[data-theme='dark'] .tual-field-readonly,
-.tual[data-theme='dark'] .tual-input-readonly {
-  background-color: #232328;
-}
-
 .tual-field-readonly input,
 .tual-input-readonly input {
   border: none;
   background: transparent;
-  color: var(--tual-text-tertiary);
+  color: var(--tual-fg-muted);
   font-family: inherit;
   font-size: 12px;
   padding: 0;
   outline: none;
   width: 100%;
+}
+
+.tual-prefix-input::placeholder,
+.tual-suffix-input::placeholder,
+.tual-field-readonly input::placeholder,
+.tual-input-readonly input::placeholder {
+  color: var(--tual-fg-muted);
+  opacity: 1;
 }

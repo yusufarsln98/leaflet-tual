@@ -6,10 +6,19 @@ import {
   distanceToCubicBezier,
   distanceToQuadraticBezier,
   distanceToSegment,
-  getCubicBezierPoint,
   getQuadraticBezierPoint,
 } from './distances/index.js'
 import { getPenSegments } from '../../features/drawing-tools/pen/pen-geometry.js'
+import { resolveWidth } from '../theme/theme.js'
+import { getItemZoomScale } from './zoom.js'
+
+const STROKE_HIT_PADDING = 4
+
+function getStrokeHitRadius(item: Item, map: L.Map | null | undefined, tolerance: number): number {
+  const scale = getItemZoomScale(map, item)
+  const lineWidth = Math.max(1, resolveWidth(item.style?.width ?? 'm') * scale)
+  return lineWidth / 2 + Math.max(0, tolerance) + STROKE_HIT_PADDING
+}
 
 export function hitTest(
   item: Item,
@@ -59,15 +68,6 @@ export function hitTest(
         } else if (item.kind === 'elbow') {
           const corner: ScreenPoint = { x: end.x, y: start.y }
           labelCenter = { x: (corner.x + end.x) / 2, y: (corner.y + end.y) / 2 }
-        } else if (item.kind === 's-curve') {
-          const midX = start.x + (end.x - start.x) * 0.5
-          labelCenter = getCubicBezierPoint(
-            start,
-            { x: midX, y: start.y },
-            { x: midX, y: end.y },
-            end,
-            0.5,
-          )
         } else {
           labelCenter = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 }
         }
@@ -90,13 +90,6 @@ export function hitTest(
         return (
           distanceToSegment(pt, start, corner) <= strokeRadius ||
           distanceToSegment(pt, corner, end) <= strokeRadius
-        )
-      }
-      if (item.type === 'arrow' && item.kind === 's-curve') {
-        const midX = start.x + (end.x - start.x) * 0.5
-        return (
-          distanceToCubicBezier(pt, start, { x: midX, y: start.y }, { x: midX, y: end.y }, end) <=
-          strokeRadius
         )
       }
       return distanceToSegment(pt, start, end) <= strokeRadius
@@ -146,24 +139,35 @@ export function hitTest(
     }
     case 'freedraw': {
       if (item.points.length === 0) return false
-      if (item.points.length === 1) {
-        const p = project(item.points[0])
-        return Math.hypot(pt.x - p.x, pt.y - p.y) <= tolerance
+      const hitRadius = getStrokeHitRadius(item, map, tolerance)
+      const screenPoints = item.points.map(project)
+      if (screenPoints.length === 1) {
+        return Math.hypot(pt.x - screenPoints[0].x, pt.y - screenPoints[0].y) <= hitRadius
       }
-      for (let i = 0; i < item.points.length - 1; i += 1) {
-        if (
-          distanceToSegment(pt, project(item.points[i]), project(item.points[i + 1])) <= tolerance
-        ) {
+      if (screenPoints.length === 2) {
+        return distanceToSegment(pt, screenPoints[0], screenPoints[1]) <= hitRadius
+      }
+
+      // Mirror the smoothed stroke rendered on the canvas so the hit target
+      // follows the visible curve instead of the raw pointer samples.
+      let segmentStart = screenPoints[0]
+      for (let i = 1; i < screenPoints.length - 1; i += 1) {
+        const control = screenPoints[i]
+        const next = screenPoints[i + 1]
+        const segmentEnd = { x: (control.x + next.x) / 2, y: (control.y + next.y) / 2 }
+        if (distanceToQuadraticBezier(pt, segmentStart, control, segmentEnd) <= hitRadius) {
           return true
         }
+        segmentStart = segmentEnd
       }
-      return false
+      return distanceToSegment(pt, segmentStart, screenPoints[screenPoints.length - 1]) <= hitRadius
     }
     case 'pen': {
       if (item.points.length === 0) return false
+      const hitRadius = getStrokeHitRadius(item, map, tolerance)
       if (item.points.length === 1) {
         const p = project(item.points[0].at)
-        return Math.hypot(pt.x - p.x, pt.y - p.y) <= tolerance
+        return Math.hypot(pt.x - p.x, pt.y - p.y) <= hitRadius
       }
       for (const seg of getPenSegments(item.points, item.closed)) {
         if (
@@ -173,7 +177,7 @@ export function hitTest(
             project(seg.control1),
             project(seg.control2),
             project(seg.to),
-          ) <= tolerance
+          ) <= hitRadius
         ) {
           return true
         }

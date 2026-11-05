@@ -5,7 +5,7 @@ import { NoteOverlayView } from '../widgets/LeafletTual/overlays/index.js'
 import { createController } from '../../core/controller.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 Note Overlay Component', () => {
+describe('v3 Note Overlay Component', () => {
   it('renders note text without title or collapse button and scales with zoom', () => {
     const map = createMockMap()
     const controller = createController()
@@ -199,6 +199,41 @@ describe('v2 Note Overlay Component', () => {
     updated = controller.items.find((i) => i.id === note.id) as NoteItem
     expect(updated.width).toBeDefined()
     expect(updated.height).toBeDefined()
+  })
+
+  it('starts moving the note from the card drag ring on the first drag', () => {
+    const map = createMockMap()
+    const controller = createController()
+    const note = controller.add({
+      type: 'note',
+      at: { lat: 41.0, lng: 28.0 },
+      width: 180,
+      height: 180,
+      text: 'Drag me',
+    }) as NoteItem
+
+    const { container } = render(
+      <NoteOverlayView
+        map={map}
+        note={note}
+        controller={controller}
+      />,
+    )
+
+    const card = container.querySelector('.tual-note-card') as HTMLElement
+    expect(card.getAttribute('data-draggable')).toBe('true')
+
+    // The note is not selected yet: the first drag should select and move it.
+    fireEvent.pointerDown(card, { button: 0, clientX: 100, clientY: 100 })
+    expect(controller.selection).toEqual([note.id])
+    expect(map.dragging?.enabled()).toBe(false)
+
+    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 160, clientY: 130 }))
+    window.dispatchEvent(new MouseEvent('pointerup', { clientX: 160, clientY: 130 }))
+
+    const updated = controller.items.find((i) => i.id === note.id) as NoteItem
+    expect(updated.at).not.toEqual(note.at)
+    expect(map.dragging?.enabled()).toBe(true)
   })
 
   it('hides vertical scrollbar while note is not focused, and shows on focus', () => {

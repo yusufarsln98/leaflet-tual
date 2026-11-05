@@ -12,7 +12,7 @@ export const CODE_SAMPLES: CodeSample[] = [
     title: 'React Quick Start',
     filename: 'MapCanvasView.tsx',
     description:
-      'Embed LeafletTual directly inside MapContainer with the v2 whiteboard toolkit and automatic dark/light theme.',
+      'Embed LeafletTual directly inside MapContainer with the v3 whiteboard toolkit with app-controlled theme tokens.',
     code: `import { MapContainer, TileLayer } from 'react-leaflet'
 import { LeafletTual } from 'leaflet-tual/react'
 import 'leaflet/dist/leaflet.css'
@@ -36,7 +36,7 @@ export function MapCanvasView() {
     title: 'Vanilla JS Core Engine',
     filename: 'map-canvas.ts',
     description:
-      'Mount the framework-agnostic v2 core directly onto a standard Leaflet L.Map instance with zero React peer dependencies.',
+      'Mount the framework-agnostic v3 core directly onto a standard Leaflet L.Map instance with zero React peer dependencies.',
     code: `import L from 'leaflet'
 import { createLeafletTual, emptyDoc } from 'leaflet-tual'
 import 'leaflet/dist/leaflet.css'
@@ -48,7 +48,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
 // Mount framework-agnostic whiteboard
 const tual = createLeafletTual(map, {
   defaultValue: emptyDoc(),
-  toolbar: { position: 'top-left' },
   onChange: (doc, info) => {
     if (info.committed) console.log('Saved doc:', doc)
   },
@@ -77,7 +76,7 @@ export function DecoupledApp() {
       {/* External Toolbar rendered outside the Map */}
       <header className="px-4 py-2 bg-slate-900 border-b border-slate-800 flex justify-between">
         <h1 className="text-white font-bold">Whiteboard Annotations</h1>
-        <Toolbar controller={tual} tools={['select', 'freedraw', 'pen', 'arrow', 'shape', 'note']} />
+        <Toolbar controller={tual} position="inline" history={false} tools={['select', 'freedraw', 'pen', 'arrow', 'shape', 'note']} />
       </header>
 
       {/* Map with embedded toolbar disabled */}

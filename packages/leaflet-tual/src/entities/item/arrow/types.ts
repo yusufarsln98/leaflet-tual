@@ -1,7 +1,7 @@
 import type { Base } from '../types.js'
 import type { GeoPoint } from '../../../shared/types/geo.js'
 
-export const ALL_ARROW_KINDS = ['linear', 'curved', 'elbow', 's-curve'] as const
+export const ALL_ARROW_KINDS = ['linear', 'curved', 'elbow'] as const
 export type ArrowKind = (typeof ALL_ARROW_KINDS)[number]
 
 export function isArrowKind(value: unknown): value is ArrowKind {

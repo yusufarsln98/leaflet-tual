@@ -12,7 +12,7 @@ import {
 } from '../../../core/index.js'
 import { useControllerState, useOverlayMapSync } from '../../features/index.js'
 import { TranslationProvider, useTranslation } from '../../features/i18n/index.js'
-import { PillButton } from '../../ui/index.js'
+import { ICONS, PillButton } from '../../ui/index.js'
 import { useTooltipEvents } from './utils/index.js'
 import { TypographyDropdown, TextFormattingControls } from './typography/index.js'
 import { ColorSwatchControls } from './color/index.js'
@@ -21,16 +21,12 @@ import { SecondaryTooltipExtras } from './popovers/index.js'
 export interface SecondaryTooltipProps {
   map: L.Map
   controller: Controller
-  sidebarOpen?: boolean
-  onOpenSidebar?: () => void
   className?: string
 }
 
 export const SecondaryTooltip = memo(function SecondaryTooltip({
   map,
   controller,
-  sidebarOpen = false,
-  onOpenSidebar,
   className,
 }: SecondaryTooltipProps) {
   const { t } = useTranslation(controller)
@@ -57,7 +53,7 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
     el.style.top = `${pos.y}px`
   })
 
-  if (controller.selected.length !== 1 || !selectedItem || controller.readOnly || sidebarOpen) {
+  if (controller.selected.length !== 1 || !selectedItem || controller.readOnly) {
     return null
   }
 
@@ -140,7 +136,7 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
               leading={
                 <span
                   style={{
-                    color: 'var(--tual-text-secondary)',
+                    color: 'var(--tual-fg-muted)',
                     fontWeight: 500,
                     fontSize: 13,
                     marginRight: 4,
@@ -152,21 +148,9 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
               }
               label={<span style={{ fontWeight: 500, margin: '0 2px' }}>{typographyLabel}</span>}
               trailing={
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  style={{ opacity: 0.6, marginLeft: 2 }}
-                >
-                  <path
-                    d="M4 6L8 10L12 6"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <span style={{ opacity: 0.6, marginLeft: 2, display: 'inline-flex' }}>
+                  {ICONS.chevronDown(12)}
+                </span>
               }
             />
             {activePopover === 'typography' && (
@@ -216,8 +200,6 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
           selectedItem={selectedItem}
           controller={controller}
           activePopover={activePopover}
-          sidebarOpen={sidebarOpen}
-          onOpenSidebar={onOpenSidebar}
           onToggle={toggle}
           onClose={() => setActivePopover(null)}
           onUpdateStyle={updateStyle}

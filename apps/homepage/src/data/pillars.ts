@@ -21,12 +21,12 @@ export const PILLARS: PillarItem[] = [
   },
   {
     id: 'arrow-engine',
-    title: '5 Vector Arrow Styles',
+    title: '4 Vector Arrow Styles',
     tag: 'Curved & Straight',
     badge: 'Vector Arrows',
-    stat: '5 Arrow Styles',
+    stat: '4 Arrow Styles',
     description:
-      'Draw linear, curved Bézier, bi-directional, orthogonal elbow, and s-curve arrows with interactive curvature handles and 45° angle snapping.',
+      'Draw linear, curved Bézier, bi-directional, and orthogonal elbow arrows with interactive curvature handles and 45° angle snapping.',
     iconName: 'Navigation',
   },
   {

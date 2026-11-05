@@ -9,7 +9,6 @@ import type {
   CreateLeafletTualOptions,
   InternalController,
   ReorderAction,
-  Theme,
   ToolId,
   ToolVariant,
   ToolVariantFor,
@@ -60,6 +59,14 @@ function derivePageData(doc: Doc, selection: string[]) {
   return { doc, items, itemMap, activePageId: doc.activePageId, selected }
 }
 
+function sameIds(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
 export function createController(
   options: CreateLeafletTualOptions = {},
   mapGetter?: () => L.Map | null,
@@ -87,7 +94,6 @@ export function createController(
     variant: initialVariant,
     style: { ...DEFAULT_TOOL_STYLES.shape, ...options.style },
     selection: [],
-    theme: options.theme ?? 'system',
     readOnly: Boolean(options.readOnly),
     canUndo: false,
     canRedo: false,
@@ -184,7 +190,9 @@ export function createController(
     getCurrentStyle: () => store.getState().style,
     getSelection: () => store.getState().selection,
     setSelection: (sel) => {
-      const derived = derivePageData(store.getState().doc, sel)
+      const state = store.getState()
+      if (state.editingId === null && sameIds(state.selection, sel)) return
+      const derived = derivePageData(state.doc, sel)
       store.setState({ selection: sel, selected: derived.selected, editingId: null })
       emit('select', derived.selected)
       emit('state')
@@ -225,9 +233,6 @@ export function createController(
     },
     get selected(): Item[] {
       return store.getState().selected
-    },
-    get theme(): Theme {
-      return store.getState().theme
     },
     get readOnly(): boolean {
       return store.getState().readOnly
@@ -271,17 +276,7 @@ export function createController(
       return this.on('change', fn as (...args: unknown[]) => void)
     },
 
-    setTheme(nextTheme: Theme) {
-      if (store.getState().theme === nextTheme) return
-      store.setState({ theme: nextTheme })
-      emit('theme', nextTheme)
-      emit('state')
-    },
-
-    setTool<T extends ToolId = ToolId>(
-      tool: T,
-      variant?: ToolVariantFor<T> | null,
-    ) {
+    setTool<T extends ToolId = ToolId>(tool: T, variant?: ToolVariantFor<T> | null) {
       let nextVariant: ToolVariant | null = null
       if (variant !== undefined) {
         nextVariant = variant ?? null
@@ -348,7 +343,9 @@ export function createController(
 
     select(ids: string[] | string | null) {
       const raw = ids === null ? [] : Array.isArray(ids) ? ids : [ids]
-      const derived = derivePageData(store.getState().doc, raw)
+      const state = store.getState()
+      if (state.editingId === null && sameIds(state.selection, raw)) return
+      const derived = derivePageData(state.doc, raw)
       store.setState({ selection: raw, selected: derived.selected, editingId: null })
       emit('select', derived.selected)
       emit('state')
@@ -357,6 +354,7 @@ export function createController(
     selectAll() {
       const state = store.getState()
       const allIds = Object.keys(state.itemMap)
+      if (state.editingId === null && sameIds(state.selection, allIds)) return
       const derived = derivePageData(state.doc, allIds)
       store.setState({ selection: allIds, selected: derived.selected, editingId: null })
       emit('select', derived.selected)
@@ -364,9 +362,11 @@ export function createController(
     },
 
     edit(id: string | null) {
-      const currentSelection = store.getState().selection
+      const state = store.getState()
+      const currentSelection = state.selection
       const nextSelection = id && !currentSelection.includes(id) ? [id] : currentSelection
-      const derived = derivePageData(store.getState().doc, nextSelection)
+      if (state.editingId === id && sameIds(currentSelection, nextSelection)) return
+      const derived = derivePageData(state.doc, nextSelection)
       store.setState({ editingId: id, selection: nextSelection, selected: derived.selected })
       emit('state')
     },
@@ -422,7 +422,7 @@ export function createController(
     },
 
     on(
-      event: 'change' | 'gesture' | 'select' | 'tool' | 'page' | 'state' | 'translations' | 'theme',
+      event: 'change' | 'gesture' | 'select' | 'tool' | 'page' | 'state' | 'translations',
       handler: Listener,
     ) {
       if (!listeners[event]) listeners[event] = new Set()

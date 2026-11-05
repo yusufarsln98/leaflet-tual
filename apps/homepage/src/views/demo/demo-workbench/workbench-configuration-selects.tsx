@@ -91,12 +91,26 @@ export function WorkbenchConfigurationSelects({
             onChange={(e) => onToolbarPositionChange(e.target.value as WorkbenchToolbarPosition)}
             className="w-full pl-3 pr-8 py-2 rounded-lg bg-bg-pane border border-border-primary text-text-primary text-xs font-mono focus:outline-none focus:ring-1 focus:ring-accent cursor-pointer transition-colors shadow-2xs appearance-none"
           >
-            <option value="top-left">Top Left</option>
-            <option value="top">Top Center</option>
-            <option value="top-right">Top Right</option>
-            <option value="bottom-left">Bottom Left</option>
-            <option value="bottom">Bottom Center</option>
-            <option value="bottom-right">Bottom Right</option>
+            <optgroup label="Top edge · horizontal">
+              <option value="top-left">Top Left</option>
+              <option value="top">Top Center</option>
+              <option value="top-right">Top Right</option>
+            </optgroup>
+            <optgroup label="Left edge · vertical">
+              <option value="left-top">Left Top</option>
+              <option value="left">Left Center</option>
+              <option value="left-bottom">Left Bottom</option>
+            </optgroup>
+            <optgroup label="Right edge · vertical">
+              <option value="right-top">Right Top</option>
+              <option value="right">Right Center</option>
+              <option value="right-bottom">Right Bottom</option>
+            </optgroup>
+            <optgroup label="Bottom edge · horizontal">
+              <option value="bottom-left">Bottom Left</option>
+              <option value="bottom">Bottom Center</option>
+              <option value="bottom-right">Bottom Right</option>
+            </optgroup>
           </select>
           <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
         </div>

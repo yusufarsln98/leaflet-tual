@@ -49,7 +49,6 @@ export function ColorSwatchControls({
       <>
         <div style={{ position: 'relative' }}>
           <ColorSwatch
-            variant="secondary-button"
             colorHex={textColor}
             title={t('textColor')}
             selected={activePopover === 'textColor'}
@@ -67,7 +66,6 @@ export function ColorSwatchControls({
         </div>
         <div style={{ position: 'relative' }}>
           <ColorSwatch
-            variant="secondary-button"
             colorHex={backgroundColor}
             noFill={noFill}
             title={t('color')}
@@ -115,7 +113,6 @@ export function ColorSwatchControls({
   return (
     <div style={{ position: 'relative' }}>
       <ColorSwatch
-        variant="secondary-button"
         colorHex={colorHex}
         noFill={noFill}
         title={t('color')}

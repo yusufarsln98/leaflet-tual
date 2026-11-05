@@ -7,7 +7,7 @@ import { createMockCanvasContext } from '../../core/__tests__/test-utils.js'
 import { resizeShape } from '../widgets/LeafletTual/gestures/index.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 shape drawing gestures', () => {
+describe('v3 shape drawing gestures', () => {
   beforeEach(() => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
       createMockCanvasContext() as never,

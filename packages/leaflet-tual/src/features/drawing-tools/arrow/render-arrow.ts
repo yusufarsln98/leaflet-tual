@@ -1,12 +1,7 @@
 import type L from 'leaflet'
 import type { ArrowItem } from '../../../entities/index.js'
 import type { ScreenPoint } from '../../../shared/types/index.js'
-import {
-  defaultVia,
-  geoToScreen,
-  getCubicBezierPoint,
-  getQuadraticBezierPoint,
-} from '../../../shared/geometry/geo.js'
+import { defaultVia, geoToScreen, getQuadraticBezierPoint } from '../../../shared/geometry/geo.js'
 import {
   DEFAULT_PALETTE,
   resolveColor,
@@ -15,9 +10,9 @@ import {
   resolveWeight,
   resolveWidth,
 } from '../../../shared/theme/index.js'
-import { drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
+import { applyHoverGlow, clearHoverGlow, drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
-import { drawArrowHead, trimCubicBezier, trimQuadBezier } from './arrow-geometry.js'
+import { drawArrowHead, trimQuadBezier } from './arrow-geometry.js'
 
 export function renderArrowOnCanvas(
   ctx: CanvasRenderingContext2D,
@@ -54,6 +49,8 @@ export function renderArrowOnCanvas(
   ctx.setLineDash(dash)
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
+
+  if (isHoveredOnly) applyHoverGlow(ctx, scale)
 
   let startAngle = Math.atan2(start.y - end.y, start.x - end.x)
   let endAngle = Math.atan2(end.y - start.y, end.x - start.x)
@@ -120,27 +117,6 @@ export function renderArrowOnCanvas(
     ctx.lineTo(corner.x, corner.y)
     ctx.lineTo(ex, ey)
     ctx.stroke()
-  } else if (arrow.kind === 's-curve') {
-    const c1: ScreenPoint = { x: start.x + (end.x - start.x) * 0.5, y: start.y }
-    const c2: ScreenPoint = { x: start.x + (end.x - start.x) * 0.5, y: end.y }
-    startAngle = Math.atan2(start.y - c1.y, start.x - c1.x)
-    endAngle = Math.atan2(end.y - c2.y, end.x - c2.x)
-    labelCenter = getCubicBezierPoint(start, c1, c2, end, 0.5)
-
-    const approxLen =
-      Math.hypot(c1.x - start.x, c1.y - start.y) +
-      Math.hypot(c2.x - c1.x, c2.y - c1.y) +
-      Math.hypot(end.x - c2.x, end.y - c2.y)
-
-    const t0 = startOffset > 0 && approxLen > 0 ? Math.min(0.45, startOffset / approxLen) : 0
-    const t1 = endOffset > 0 && approxLen > 0 ? Math.max(0.55, 1 - endOffset / approxLen) : 1
-
-    if (t0 < t1) {
-      const { q0, q1, q2, q3 } = trimCubicBezier(start, c1, c2, end, t0, t1)
-      ctx.moveTo(q0.x, q0.y)
-      ctx.bezierCurveTo(q1.x, q1.y, q2.x, q2.y, q3.x, q3.y)
-      ctx.stroke()
-    }
   }
 
   // Draw arrowheads
@@ -150,6 +126,8 @@ export function renderArrowOnCanvas(
   if (heads.end && heads.end !== 'none') {
     drawArrowHead(ctx, end, endAngle, heads.end, color, headSize, lineWidth)
   }
+
+  if (isHoveredOnly) clearHoverGlow(ctx)
 
   // Draw label
   if (arrow.label && !options.isEditing) {

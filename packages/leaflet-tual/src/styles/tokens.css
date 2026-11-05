@@ -1,63 +1,121 @@
-/* Design Tokens - Minimalist Canvas / Claude-Style Light Theme */
+/* leaflet-tual chrome tokens — plain Leaflet-compatible controls */
 
+/*
+ * Base tokens live on :root only. A scoped theme (themeTokens or CSS variable
+ * overrides on a wrapper) can then cascade through every nested .tual surface
+ * instead of being reset by the next .tual element.
+ */
+:root {
+  /* Surfaces */
+  --tual-bg: #ffffff;
+  --tual-bg-active: #e6e6e6;
+  --tual-bg-subtle: #f8f9fa;
+
+  /* Foreground */
+  --tual-fg: #222222;
+  --tual-fg-muted: #555555;
+  --tual-fg-active: #111111;
+
+  /* Accent */
+  --tual-accent: #3388ff;
+
+  /* Lines */
+  --tual-border: rgba(0, 0, 0, 0.16);
+  --tual-border-divider: rgba(0, 0, 0, 0.12);
+
+  /* Status */
+  --tual-danger: #dc2626;
+  --tual-danger-fg: #ffffff;
+
+  /* Annotation overlays (fixed, independent of the chrome theme) */
+  --tual-label-bg: #ffffff;
+  --tual-label-fg: #1d1d1b;
+  --tual-selection-handle-bg: #ffffff;
+
+  /* Geometry & elevation */
+  --tual-radius: 4px;
+  --tual-radius-sm: 2px;
+  --tual-radius-lg: 4px;
+  --tual-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  --tual-shadow-popup: 0 3px 8px rgba(0, 0, 0, 0.12);
+  --tual-control-size: 30px;
+  --tual-toolbar-gap: 6px;
+  --tual-icon-size: 16px;
+
+  /* Type */
+  --tual-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --tual-font-size: 13px;
+  --tual-line-height: 1.35;
+}
+
+/*
+ * Derived tokens are recomputed at every .tual boundary, so nested layers
+ * (context menu, portalled popovers, custom controls) follow the base tokens
+ * inherited from their nearest themed ancestor.
+ */
 :root,
 .tual {
-  /* Backgrounds & Surfaces */
-  --tual-canvas-bg: #f2f2f2;
-  --tual-surface: #ffffff;
-  --tual-surface-recessed: #f3f4f6;
-  --tual-surface-hover: #f4f4f5;
-  --tual-surface-active-neutral: #eaeaea;
-  --tual-active-bg: #dce8fa;
-  --tual-active-fg: #1d4ed8;
+  /* Derived interactive states. Apps never provide hover colors. */
+  --tual-hover-surface: color-mix(in oklab, var(--tual-fg) 8%, var(--tual-bg));
+  --tual-hover-surface-active: color-mix(
+    in oklab,
+    var(--tual-fg-active) 14%,
+    var(--tual-bg-active)
+  );
+  --tual-bg-hover: var(--tual-hover-surface);
 
-  /* Text & Foreground Hierarchy */
-  --tual-text: #111827;
-  --tual-text-secondary: #6b7280;
-  --tual-text-tertiary: #9ca3af;
-  --tual-muted: #9ca3af;
-  --tual-accent: #2563eb;
-  --tual-handle: #2563eb;
+  /* Focus rings follow the accent unless an explicit focus token overrides them. */
+  --tual-border-focus: var(--tual-accent);
 
-  /* Borders & Dividers */
-  --tual-border: rgba(0, 0, 0, 0.13);
-  --tual-border-solid: #d4d4d8;
-  --tual-border-hover: #a1a1aa;
-  --tual-border-focus: #2563eb;
-  --tual-border-muted: #f3f4f6;
-  --tual-divider: #eeeeee;
-  --tual-toolbar-border: rgba(0, 0, 0, 0.16);
+  /* Disabled controls keep their surface and border; only the icon fades. */
+  --tual-fg-disabled: color-mix(in srgb, var(--tual-fg-muted) 55%, transparent);
 
-  /* Elevation & Shadows */
-  --tual-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --tual-shadow-floating: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --tual-shadow-popover: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
-  --tual-shadow-tooltip: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --tual-shadow-tooltip-dark: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --tual-shadow-thumb: 0 1px 2px rgba(0, 0, 0, 0.06);
+  /* Status */
+  --tual-danger-hover: color-mix(in srgb, var(--tual-danger) 85%, #000000);
+  --tual-danger-surface: color-mix(in srgb, var(--tual-danger) 12%, transparent);
 
-  /* Border Radii */
-  --tual-radius-toolbar: 12px;
-  --tual-radius-popover: 12px;
-  --tual-radius-popover-compact: 8px;
-  --tual-radius-tooltip: 6px;
-  --tual-radius-track: 8px;
-  --tual-radius-row: 8px;
-  --tual-radius-btn: 6px;
-  --tual-radius-input: 6px;
-  --tual-radius-swatch: 4px;
-  --tual-radius: 6px;
+  /* Component aliases */
+  --tual-canvas-bg: var(--tual-bg-subtle);
+  --tual-surface: var(--tual-bg);
+  --tual-surface-recessed: var(--tual-bg-subtle);
+  --tual-surface-hover: var(--tual-hover-surface);
+  --tual-surface-active-neutral: var(--tual-bg-active);
+  --tual-active-bg: var(--tual-bg-active);
+  --tual-active-fg: var(--tual-fg-active);
+  --tual-text: var(--tual-fg);
+  --tual-text-secondary: var(--tual-fg-muted);
+  --tual-text-tertiary: var(--tual-fg-muted);
+  --tual-text-muted: var(--tual-fg-muted);
+  --tual-muted: var(--tual-fg-muted);
+  --tual-accent-hover: color-mix(in srgb, var(--tual-accent) 85%, #000000);
+  --tual-accent-fg: var(--tual-bg);
+  --tual-handle: var(--tual-accent);
+  --tual-border-solid: var(--tual-border);
+  --tual-border-hover: var(--tual-border-divider);
+  --tual-border-muted: var(--tual-border-divider);
+  --tual-divider: var(--tual-border-divider);
+  --tual-toolbar-border: var(--tual-border);
+  --tual-shadow-floating: var(--tual-shadow);
+  --tual-shadow-popover: var(--tual-shadow-popup);
+  --tual-shadow-tooltip: var(--tual-shadow);
+  --tual-shadow-tooltip-dark: var(--tual-shadow-popup);
+  --tual-shadow-thumb: var(--tual-shadow);
+  --tual-radius-toolbar: var(--tual-radius);
+  --tual-radius-popover: var(--tual-radius-lg);
+  --tual-radius-popover-compact: var(--tual-radius);
+  --tual-radius-tooltip: var(--tual-radius);
+  --tual-radius-track: var(--tual-radius-sm);
+  --tual-radius-row: var(--tual-radius-sm);
+  --tual-radius-btn: var(--tual-radius-sm);
+  --tual-radius-input: var(--tual-radius-sm);
+  --tual-radius-swatch: var(--tual-radius-sm);
+}
 
-  /* Typography */
-  --tual-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --tual-font-size: 13px;
-  --tual-line-height: 20px;
-
+.tual {
   font-family: var(--tual-font);
   font-size: var(--tual-font-size);
   line-height: var(--tual-line-height);
-  color: var(--tual-text);
-  color-scheme: light;
+  color: var(--tual-fg);
   box-sizing: border-box;
 }
 
@@ -65,40 +123,4 @@
 .tual *::before,
 .tual *::after {
   box-sizing: border-box;
-}
-
-.tual[data-theme='dark'],
-[data-theme='dark'] .tual,
-:root[data-theme='dark'] {
-  --tual-canvas-bg: #121214;
-  --tual-surface: #1e1e22;
-  --tual-surface-recessed: #27272b;
-  --tual-surface-hover: #2c2c32;
-  --tual-surface-active-neutral: #35353d;
-  --tual-active-bg: #1e3a8a;
-  --tual-active-fg: #60a5fa;
-
-  --tual-text: #f9fafb;
-  --tual-text-secondary: #9ca3af;
-  --tual-text-tertiary: #6b7280;
-  --tual-muted: #6b7280;
-  --tual-accent: #3b82f6;
-  --tual-handle: #60a5fa;
-
-  --tual-border: rgba(255, 255, 255, 0.15);
-  --tual-border-solid: #3f3f46;
-  --tual-border-hover: #52525b;
-  --tual-border-focus: #3b82f6;
-  --tual-border-muted: #27272b;
-  --tual-divider: #28282e;
-  --tual-toolbar-border: rgba(255, 255, 255, 0.18);
-
-  --tual-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-  --tual-shadow-floating: 0 1px 3px rgba(0, 0, 0, 0.25);
-  --tual-shadow-popover: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 4px 10px -2px rgba(0, 0, 0, 0.4);
-  --tual-shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --tual-shadow-tooltip-dark: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --tual-shadow-thumb: 0 1px 2px rgba(0, 0, 0, 0.4);
-
-  color-scheme: dark;
 }

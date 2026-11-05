@@ -22,7 +22,7 @@ export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
 }
 
 export interface PillButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'page' | 'secondary' | 'border-color' | 'zoom'
+  variant?: 'page' | 'secondary' | 'border-color'
   active?: boolean
   leading?: ReactNode
   label: ReactNode

@@ -26,9 +26,7 @@ export function ToolbarMeasureGroup({
   onClosePopover,
 }: ToolbarMeasureGroupProps) {
   const { t } = useTranslation(controller)
-  const activeMeasureTool = isMeasureKind(controller.tool)
-    ? controller.tool
-    : null
+  const activeMeasureTool = isMeasureKind(controller.tool) ? controller.tool : null
   const isActive = activeMeasureTool !== null
   const hasVariants = availableMeasureTools.length > 1
   const isPopoverOpen = activePopover === 'measure'
@@ -38,34 +36,26 @@ export function ToolbarMeasureGroup({
   const previewTool = activeMeasureTool ?? fallbackTool
   const shortcut = previewTool === 'area' ? 'A' : 'R'
   const toolName =
-    previewTool === 'area'
-      ? t('area', undefined, 'Area')
-      : t('ruler', undefined, 'Ruler')
+    previewTool === 'area' ? t('area', undefined, 'Area') : t('ruler', undefined, 'Ruler')
   const groupLabel = t('measure', undefined, 'Measure')
   const label = `${toolName} (${shortcut})`
 
   return (
-    <div
-      className="tual-tool-group"
-      data-has-variants={hasVariants || undefined}
-      style={{ position: 'relative' }}
+    <ToolbarToolButton
+      label={label}
+      icon={previewTool === 'area' ? ICONS.area() : ICONS.ruler()}
+      isActive={isActive}
+      hasVariants={hasVariants}
+      isPopoverOpen={isPopoverOpen}
+      chevronLabel={`${groupLabel} options`}
+      onSelect={() => {
+        controller.setTool(previewTool)
+        onClosePopover()
+      }}
+      onToggleVariants={() => {
+        onTogglePopover(!isPopoverOpen)
+      }}
     >
-      <ToolbarToolButton
-        label={label}
-        icon={previewTool === 'area' ? ICONS.area() : ICONS.ruler()}
-        isActive={isActive}
-        hasVariants={hasVariants}
-        isPopoverOpen={isPopoverOpen}
-        chevronLabel={`${groupLabel} options`}
-        onSelect={() => {
-          controller.setTool(previewTool)
-          onClosePopover()
-        }}
-        onToggleVariants={() => {
-          onTogglePopover(!isPopoverOpen)
-        }}
-      />
-
       {hasVariants && isPopoverOpen && (
         <ToolVariantsPopover
           controller={controller}
@@ -76,6 +66,6 @@ export function ToolbarMeasureGroup({
           className={popoverClassName}
         />
       )}
-    </div>
+    </ToolbarToolButton>
   )
 }

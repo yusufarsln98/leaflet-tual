@@ -1,5 +1,4 @@
 import type L from 'leaflet'
-import type { ColorName } from '../../../core/index.js'
 
 export interface ColorSwatchProps {
   colorHex: string
@@ -7,16 +6,7 @@ export interface ColorSwatchProps {
   title?: string
   ariaLabel?: string
   selected?: boolean
-  variant?: 'secondary-button' | 'palette-circle' | 'border-circle'
   onClick?: () => void
-}
-
-export interface ColorPaletteGridProps {
-  colors?: ReadonlyArray<ColorName>
-  selectedColor?: ColorName | string
-  variant?: 'palette' | 'border'
-  header?: string
-  onSelectColor: (hex: string) => void
 }
 
 export interface ColorSwatchListItem {
@@ -27,6 +17,7 @@ export interface ColorSwatchListItem {
 export interface ColorSwatchListProps {
   items: ReadonlyArray<ColorSwatchListItem>
   selectedColor?: string
+  /** @deprecated Both variants now share the standard color list design. */
   variant?: 'color-dropdown' | 'border-flyout'
   showNoFill?: boolean
   noFillSelected?: boolean
@@ -41,4 +32,3 @@ export interface CustomColorPickerProps {
   map?: L.Map
   onSelectColor: (hex: string, opacity: number) => void
 }
-

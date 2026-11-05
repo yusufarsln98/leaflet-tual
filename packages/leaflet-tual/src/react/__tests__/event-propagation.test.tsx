@@ -123,67 +123,6 @@ describe('Leaflet-Tual Event Propagation Isolation', () => {
     expect(onMapContextMenu).not.toHaveBeenCalled()
   })
 
-  it('stops contextmenu propagation from the sidebar so external map context menus do not open', () => {
-    const mapHost = document.createElement('div')
-    document.body.appendChild(mapHost)
-    const onMapContextMenu = vi.fn()
-    mapHost.addEventListener('contextmenu', onMapContextMenu)
-
-    const map = createMockMap()
-    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
-    const { container } = render(<LeafletTual map={map} controller={result.current} />, {
-      container: mapHost,
-    })
-
-    try {
-      fireEvent.click(screen.getByTitle('Toggle sidebar'))
-      const sidebar = container.querySelector('.tual-sidebar') as HTMLElement
-      expect(sidebar).not.toBeNull()
-
-      fireEvent.contextMenu(sidebar, { clientX: 50, clientY: 50 })
-      expect(onMapContextMenu).not.toHaveBeenCalled()
-    } finally {
-      mapHost.remove()
-    }
-  })
-
-  it('stops contextmenu propagation from sidebar items while opening their context menu', () => {
-    const mapHost = document.createElement('div')
-    document.body.appendChild(mapHost)
-    const onMapContextMenu = vi.fn()
-    mapHost.addEventListener('contextmenu', onMapContextMenu)
-
-    const map = createMockMap()
-    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
-
-    let shapeId = ''
-    act(() => {
-      const shape = result.current.add({
-        type: 'shape',
-        kind: 'square',
-        at: { lat: 41.05, lng: 28.05 },
-        width: 100,
-        height: 100,
-      })
-      shapeId = shape.id
-    })
-
-    const { container } = render(<LeafletTual map={map} controller={result.current} />, {
-      container: mapHost,
-    })
-
-    try {
-      fireEvent.click(screen.getByTitle('Toggle sidebar'))
-      fireEvent.contextMenu(screen.getByRole('treeitem'), { clientX: 750, clientY: 150 })
-
-      expect(result.current.selection).toEqual([shapeId])
-      expect(container.querySelector('.tual-context-menu')).not.toBeNull()
-      expect(onMapContextMenu).not.toHaveBeenCalled()
-    } finally {
-      mapHost.remove()
-    }
-  })
-
   it('disables map click when clicking Toolbar buttons', () => {
     const { map } = setup()
 

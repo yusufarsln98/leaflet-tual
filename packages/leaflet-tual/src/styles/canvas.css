@@ -49,8 +49,8 @@
 
 .tual-label-input {
   /* Matches the always-light label pills rendered on the canvas. */
-  background: #ffffff;
-  color: #1d1d1b;
+  background: var(--tual-label-bg);
+  color: var(--tual-label-fg);
   border: 1px solid var(--tual-border-focus);
   border-radius: 3px;
   font-family: inherit;
@@ -59,7 +59,7 @@
   line-height: 1;
   text-align: center;
   outline: none;
-  box-shadow: var(--tual-shadow-floating);
+  box-shadow: var(--tual-shadow);
   min-width: 60px;
   box-sizing: border-box;
 }
@@ -72,7 +72,7 @@
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.08),
     0 1px 3px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
+  cursor: move;
   user-select: none;
   box-sizing: border-box;
   background-clip: padding-box;
@@ -81,21 +81,58 @@
   aspect-ratio: 1 / 1;
   transform-origin: center center;
   border-radius: 6px;
+  /* The card padding forms a comfortable drag ring around the textarea. */
+  padding: 12px;
+  transition:
+    box-shadow 0.15s ease,
+    outline-color 0.15s ease;
+}
+
+/* A subtle grip so the draggable area is easy to discover without adding chrome. */
+.tual-note-card::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 24px;
+  height: 4px;
+  border-radius: 999px;
+  background-color: currentColor;
+  opacity: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.15s ease;
+}
+
+.tual-note-card:hover::after,
+.tual-note-card[data-selected='true']::after {
+  opacity: 0.22;
+}
+
+.tual-note-card[data-selected='true']:active::after {
+  opacity: 0.32;
+}
+
+.tual-note-card[data-draggable='false']::after {
+  display: none;
 }
 
 .tual-note-card:hover:not([data-selected='true']) {
-  outline: 1px solid rgba(37, 99, 235, 0.4);
+  outline: 1px solid color-mix(in srgb, var(--tual-accent) 65%, transparent);
   outline-offset: -1px;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--tual-accent) 18%, transparent),
+    0 6px 20px rgba(0, 0, 0, 0.14),
+    0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .tual-note-card[data-selected='true'] {
   outline: 2px solid var(--tual-handle);
   outline-offset: -1px;
-  cursor: grab;
-}
-
-.tual-note-card[data-selected='true']:active {
-  cursor: grabbing;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--tual-handle) 16%, transparent),
+    0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
 .tual-note-textarea {
@@ -108,7 +145,7 @@
   outline: none;
   color: inherit;
   box-sizing: border-box;
-  padding: 12px;
+  padding: 0;
   line-height: 1.4;
   cursor: text;
   overflow-y: hidden;
@@ -126,7 +163,7 @@
   position: absolute;
   width: 8px;
   height: 8px;
-  background-color: #ffffff;
+  background-color: var(--tual-selection-handle-bg);
   border: 1.5px solid var(--tual-handle);
   box-sizing: border-box;
   border-radius: 2px;
@@ -186,22 +223,26 @@
   line-height: 1.4;
   border-radius: 2px;
   border: 1.5px solid transparent;
-  transition: border-color 0.12s ease;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
   user-select: none;
   display: inline-block;
   min-width: 48px;
 }
 
 .tual-text-item:hover:not([data-selected='true']):not(.tual-text-item-editing) {
-  border-color: var(--tual-border-hover, #cbd5e1);
+  border-color: color-mix(in srgb, var(--tual-accent) 65%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tual-accent) 16%, transparent);
 }
 
 .tual-text-item[data-selected='true'] {
-  border-color: var(--tual-accent, #2563eb);
+  border-color: var(--tual-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tual-accent) 14%, transparent);
 }
 
 .tual-text-item[data-empty='true'] {
-  color: var(--tual-text-muted, #9ca3af) !important;
+  color: var(--tual-fg-muted) !important;
 }
 
 .tual-text-item-editing {
@@ -244,10 +285,11 @@
   margin: 0;
   font: inherit;
   line-height: 1.4;
-  color: inherit;
+  /* Matches the always-light label pills, independent of the chrome theme. */
+  color: var(--tual-label-fg);
   text-align: inherit;
-  background: var(--tual-surface, #ffffff);
-  border: 1.5px solid var(--tual-accent, #2563eb);
+  background: var(--tual-label-bg);
+  border: 1.5px solid var(--tual-accent);
   border-radius: 2px;
   outline: none;
   resize: none;

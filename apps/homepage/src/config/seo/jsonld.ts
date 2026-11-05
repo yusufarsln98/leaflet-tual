@@ -45,7 +45,7 @@ export const homeJsonLd = {
       runtimePlatform: ['Browser', 'Vanilla JS', 'React', 'Next.js', 'Vite'],
       featureList: [
         'Zero-drift geographic Lat/Lng coordinate projection',
-        '5 vector arrow styles including curved Bézier and elbow arrows',
+        '4 vector arrow styles including curved Bézier and elbow arrows',
         '8 geometric shapes with Shift-key 1:1 proportion locking',
         'Draggable geographically pinned HTML sticky notes',
         'Decoupled state management via createLeafletTual & useLeafletTual',

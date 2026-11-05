@@ -62,7 +62,7 @@ The library is organized into single-responsibility modules:
 
 | Subsystem              | Source Location                                                              | Tests Location                     | Responsibility                                                                    |
 | :--------------------- | :--------------------------------------------------------------------------- | :--------------------------------- | :-------------------------------------------------------------------------------- |
-| **Arrow Rendering**    | `packages/leaflet-tual/src/core/entities/arrow/render-arrow.ts`              | `annotation-rendering.test.ts`     | Linear, curved, elbow, and s-curve arrow paths & arrowheads                       |
+| **Arrow Rendering**    | `packages/leaflet-tual/src/core/entities/arrow/render-arrow.ts`              | `annotation-rendering.test.ts`     | Linear, curved, and elbow arrow paths & arrowheads                                |
 | **Shape Rendering**    | `packages/leaflet-tual/src/core/entities/shape/render-shape.ts`              | `annotation-rendering.test.ts`     | Star, square, circle, actor, triangle, diamond, hexagon, and marker paths        |
 | **Freedraw Rendering** | `packages/leaflet-tual/src/core/entities/freedraw/render-freedraw.ts`        | `lifecycle-callbacks.test.tsx`     | Freehand drawing paths and hit-testing                                            |
 | **Pen Rendering**      | `packages/leaflet-tual/src/core/entities/pen/render-pen.ts`                  | `pen-tool.test.tsx`                | Cubic Bezier paths, anchor handles, and hit-testing                               |

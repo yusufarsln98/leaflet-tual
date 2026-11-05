@@ -1,8 +1,18 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react'
 import type L from 'leaflet'
 import type { Controller } from '../../../../core/index.js'
 import { useControllerState, useLeafletSync } from '../../../features/index.js'
 import { drawCanvasScene, type CanvasGesture } from '../gestures/index.js'
+
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 export interface UseCanvasSceneOptions {
   map: L.Map
@@ -40,11 +50,13 @@ export function useCanvasScene({
     redraw()
   })
 
-  useControllerState(controller, redraw)
+  // Controller state changes re-render this hook; draw once after commit instead
+  // of drawing from the event callback and again from the render effect.
+  useControllerState(controller)
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     redraw()
-  }, [redraw])
+  })
 
   return {
     canvasRef,

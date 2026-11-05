@@ -6,7 +6,7 @@ Draw on a map the way you draw on a design canvas. Everything you place is store
 
 The design is decided for you:
 
-- **Strict styles.** Colors, sizes and dashes come from fixed sets (`'blue'`, `'m'`, `'dashed'`). There are no free-form hex values or pixel numbers. Drawings stay consistent and adapt to dark mode automatically.
+- **Strict styles.** Colors, sizes and dashes come from fixed sets (`'blue'`, `'m'`, `'dashed'`). There are no free-form hex values or pixel numbers. Drawings stay consistent across maps and applications.
 - **An adjustable toolbar.** One `toolbar` prop controls which tools appear, their order, position and extras.
 - **A framework-agnostic core.** The React bindings are a separate, opt-in import.
 
@@ -101,7 +101,7 @@ export interface Style {
   align?: 'left' | 'center' | 'right'
 }
 
-export type ArrowKind = 'linear' | 'curved' | 'elbow' | 's-curve'
+export type ArrowKind = 'linear' | 'curved' | 'elbow'
 export type Head = 'triangle' | 'open' | 'none'
 export type ShapeKind =
   | 'square' | 'circle' | 'star' | 'actor'
@@ -206,27 +206,107 @@ export type Item =
 
 ---
 
-## 5. Toolbar
+## 5. Toolbar & theming
 
-Default layout, one floating row:
+The toolbar is a stack of Leaflet-style control islands. Each island has a thin border, a small radius and one square control per action. The default order is **Tools → History → Pages**.
 
-`[Page ▾] │ Select · Text · Note · Draw ▾ · Arrow ▾ · Shapes ▾ · Measure ▾ · Laser`
+`[Select · Text · Note · Draw · Arrow · Shapes · Measure · Laser]  [Undo · Redo · Fit]  [Pages]`
 
-Zoom controls and undo/redo live in the zoom menu next to the sidebar toggle.
+The position also controls the layout: toolbars anchored to the **top or bottom** edges lay out **horizontally**, while toolbars anchored to the **left or right** edges lay out **vertically**. Every edge supports start, center and end alignment, so the toolbar can sit in any corner or edge center.
 
-- The **Draw ▾** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors with draggable curve handles). With the Select tool, drag a pen's anchors or curve handles to reshape it; dragging one curve handle mirrors the opposite handle.
-- The **Measure ▾** popover groups **Ruler** (geodesic distance measurement) and **Area** (geodesic polygon area measurement with draggable vertices).
-- The **Laser** tool (`<LaserPointer>`) provides an ephemeral presentation pointer with a fading glowing trail that does not modify the document.
+Tools with variants show a small corner triangle. Clicking the main icon activates the tool with its last-used variant; clicking the corner triangle opens the variant menu. Item properties are edited from the contextual toolbar and the right-click menu.
 
 ```tsx
 <LeafletTual
   toolbar={{
-    position: 'top-left',
+    position: 'top-left',       // default; horizontal along the top edge
     tools: ['select', 'freedraw', 'pen', 'arrow', 'shape', 'ruler', 'area', 'laser', 'note'],
     pages: true,
+    history: true,
   }}
 />
 ```
+
+```ts
+type ToolbarPosition =
+  | 'inline'
+  | 'top-left' | 'top' | 'top-right'
+  | 'left-top' | 'left' | 'left-bottom'
+  | 'right-top' | 'right' | 'right-bottom'
+  | 'bottom-left' | 'bottom' | 'bottom-right'
+  | 'center'
+  // 'top-center', 'left-center', 'right-center' and 'bottom-center' are aliases for the edge centers
+
+interface ToolbarOptions {
+  position?: ToolbarPosition                              // default 'top-left'; use 'inline' outside the map
+  orientation?: 'horizontal' | 'vertical'                 // only used by 'inline' toolbars
+  tools?: ToolId[]            // which tools to show and in what order; default: all
+  pages?: boolean             // page switcher island, default true
+  history?: boolean           // undo/redo/fit island, default true
+}
+```
+
+Pass `toolbar={false}` to hide the built-in toolbar. `<Toolbar>` can also be rendered outside the map with the same `controller` and options.
+
+### Theme tokens
+
+The chrome (toolbar, popovers, menus and contextual tooltip) is themed with `themeTokens`. Annotation items keep their fixed palette and appearance.
+
+```tsx
+<LeafletTual
+  themeTokens={{
+    surface: 'var(--app-panel)',
+    surfaceActive: 'var(--app-accent)',
+    text: 'var(--app-text)',
+    textActive: 'var(--app-accent-contrast)',
+    accent: 'var(--app-accent)',
+    border: 'var(--app-border)',
+    divider: 'var(--app-border-muted)',
+    radius: '6px',
+    controlSize: '30px',
+  }}
+/>
+```
+
+Token values may be hex colors, `rgb()`/`oklch()` values or CSS variable references, so an app can map leaflet-tual onto its own light/dark theme without duplicating colors.
+
+| Token          | Purpose                                           |
+| -------------- | ------------------------------------------------- |
+| `surface`      | Floating panel background                         |
+| `surfaceActive`| Active/pressed control background                 |
+| `surfaceMuted` | Recessed surfaces and read-only fields            |
+| `text`         | Primary icons and text                            |
+| `textMuted`    | Secondary labels, placeholders and shortcuts      |
+| `textActive`   | Icons/text on an active surface                   |
+| `accent`       | Focus rings, check marks and selection handles    |
+| `border`       | Outer border of floating controls                 |
+| `divider`      | Dividers between adjacent controls                |
+| `focus`        | Focus ring color                                  |
+| `radius`       | Toolbar island and compact control radius         |
+| `radiusSm`     | Small internal controls and swatches              |
+| `radiusLg`     | Menus and popovers                                |
+| `shadow`       | Floating toolbar / contextual tooltip shadow      |
+| `shadowPopup`  | Menu and popover shadow                           |
+| `controlSize`  | Square control size                               |
+| `groupGap`     | Gap between toolbar islands                       |
+| `iconSize`     | Icon size inside controls                         |
+| `fontFamily`   | Chrome font family                                |
+| `fontSize`     | Chrome font size                                  |
+| `lineHeight`   | Chrome line height                                |
+| `variables`    | Extra CSS custom properties (`--tual-*` or `--app-*`) |
+
+`themeTokens` is also available on `createLeafletTual(map, { themeTokens })` and on an external `<Toolbar themeTokens={...} />`.
+
+### Reusable chrome controls
+
+The controls used by the built-in toolbar, popovers and contextual tooltip are exported for custom panels:
+
+- Buttons and inputs: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Select`, `SelectField`, `NumberField`, `TextField`
+- Dropdowns and popovers: `Popover`, `DropdownMenu`, `DropdownItem`, `ConfirmPopover`, `ColorDropdown`, `TypographyDropdown`, `LabelPositionDropdown`, `BorderPopover`, `useOutsideDismiss`, `useWheelGuard`
+- Item styling: `ColorSwatch`, `ColorSwatchList`, `ColorSwatchControls`, `CustomColorPicker`, `TextFormattingControls`
+- Isolation: `useLeafletDomGuard`, `useLeafletDisableClick`, `disableMapInteractions`, `createLeafletControl`, `createControlContainer`
+
+Import them from `leaflet-tual/react`. Wrap a custom panel with `useLeafletDomGuard()` or give it the `tual-panel` class so Leaflet does not receive its pointer, wheel and context-menu events.
 
 ---
 
@@ -238,7 +318,6 @@ const tual = useLeafletTual({
   value,
   onChange,
   readOnly: false,
-  theme: 'system',
   translations: {},
   tool: 'select',
 })
@@ -252,7 +331,6 @@ const tual = useLeafletTual({
 - `style`: Current drawing defaults.
 - `selection`: Selected item ids.
 - `selected`: Selected items.
-- `theme`: Active theme setting (`'light' | 'dark' | 'system'`).
 - `readOnly`: Boolean.
 - `canUndo` / `canRedo`: History status.
 - `translations`: Current resolved `TranslationTokens`.
@@ -260,7 +338,6 @@ const tual = useLeafletTual({
 ### Actions
 - `setTool(tool, variant?)`
 - `setStyle(patch)` (selection-aware)
-- `setTheme(theme)` (`'light' | 'dark' | 'system'`)
 - `setTranslations(patch)`
 - `add(item)`
 - `update(id, patch, committed?)`
@@ -328,7 +405,6 @@ import 'leaflet-tual/styles.css'
 const map = L.map('map').setView([41.01, 28.97], 13)
 const tual = createLeafletTual(map, {
   defaultValue: emptyDoc(),
-  toolbar: { position: 'top-left' },
   onChange: (doc, info) => info.committed && save(doc),
 })
 
@@ -338,6 +414,8 @@ tual.on('select', (items) => console.log(items))
 // cleanup
 tual.destroy()
 ```
+
+The vanilla core mounts the canvas only. Render `<Toolbar>` from `leaflet-tual/react` or build your own controls with `setTool` / `setStyle`.
 
 ---
 

@@ -41,38 +41,19 @@ export function ConfirmPopover({
 
   const updatePosition = useCallback(() => {
     if (!rootRef.current || typeof window === 'undefined') return
-    const root = rootRef.current
-    const sidebar = root.closest('.tual-sidebar') as HTMLElement | null
-    const triggerRect = root.getBoundingClientRect()
+    const triggerRect = rootRef.current.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - triggerRect.bottom
+    const placement = spaceBelow < 75 && triggerRect.top > 75 ? 'top' : 'bottom'
+    const top = placement === 'bottom' ? triggerRect.bottom + 4 : triggerRect.top - 4
 
-    if (sidebar) {
-      const sidebarRect = sidebar.getBoundingClientRect()
-      const spaceBelow = sidebarRect.bottom - triggerRect.bottom
-      const placement =
-        spaceBelow < 75 && triggerRect.top - sidebarRect.top > 75 ? 'top' : 'bottom'
-      const top =
-        placement === 'bottom'
-          ? triggerRect.bottom - sidebarRect.top + 4
-          : triggerRect.top - sidebarRect.top - 4
-
-      setCoords({
-        top,
-        right: Math.max(6, sidebarRect.right - triggerRect.right),
-        placement,
-      })
-      setPortalTarget(sidebar)
-    } else {
-      const spaceBelow = window.innerHeight - triggerRect.bottom
-      const placement = spaceBelow < 75 && triggerRect.top > 75 ? 'top' : 'bottom'
-      const top = placement === 'bottom' ? triggerRect.bottom + 4 : triggerRect.top - 4
-
-      setCoords({
-        top,
-        right: Math.max(6, window.innerWidth - triggerRect.right),
-        placement,
-      })
-      setPortalTarget(document.body)
-    }
+    setCoords({
+      top,
+      right: Math.max(6, window.innerWidth - triggerRect.right),
+      placement,
+    })
+    // Prefer the themed Tual root so custom themeTokens inherit into the portal.
+    const tualRoot = rootRef.current.closest('.tual') as HTMLElement | null
+    setPortalTarget(tualRoot ?? document.body)
   }, [])
 
   useEffect(() => {
@@ -104,7 +85,7 @@ export function ConfirmPopover({
       style={
         coords
           ? {
-              position: portalTarget === document.body ? 'fixed' : 'absolute',
+              position: 'fixed',
               top: coords.top,
               right: coords.right,
               transform: coords.placement === 'top' ? 'translateY(-100%)' : undefined,

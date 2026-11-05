@@ -7,7 +7,7 @@ import { createMockCanvasContext } from '../../core/__tests__/test-utils.js'
 import { createMockMap } from './test-utils.js'
 import type { ArrowItem } from '../../entities/index.js'
 
-describe('v2 precise hit-testing for diagonal arrows and shapes', () => {
+describe('v3 precise hit-testing for diagonal arrows and shapes', () => {
   beforeEach(() => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
       createMockCanvasContext() as never,

@@ -14,7 +14,13 @@ import {
   Select,
 } from '../../../ui/index.js'
 
-export { THEME_PRESETS, WEIGHT_OPTIONS } from '../../../../core/index.js'
+const SIZE_LABEL_TOKENS = {
+  s: 'sizeSmall',
+  m: 'sizeMedium',
+  l: 'sizeLarge',
+  xl: 'sizeExtraLarge',
+  huge: 'sizeHuge',
+} as const
 
 export interface TypographyDropdownProps {
   currentSize?: Style['size']
@@ -77,7 +83,7 @@ export function TypographyDropdown({
                 variant="typo"
                 data-size={String(p.id)}
                 selected={isSelected}
-                label={t(p.id, undefined, p.label)}
+                label={t(SIZE_LABEL_TOKENS[p.id as keyof typeof SIZE_LABEL_TOKENS], undefined, p.label)}
                 meta={`${p.px}px`}
                 onClick={() => handleSelectPreset(p.id)}
               />

@@ -6,7 +6,7 @@ import { createMockMap } from './test-utils.js'
 
 vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
 
-describe('v2 map zoom interactions', () => {
+describe('v3 map zoom interactions', () => {
   it('does not disable scroll wheel zoom on hover or when items are selected', () => {
     const { result } = renderHook(() =>
       useLeafletTual({

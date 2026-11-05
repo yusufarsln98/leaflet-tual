@@ -18,10 +18,8 @@ export interface LeafletTualOverlaysProps {
   map: L.Map
   controller: Controller
   currentZoom: number
-  isSidebarOpen: boolean
   contextMenuPos: ContextMenuPosition | null
   activeGesture: CanvasGesture | null
-  onOpenSidebar: () => void
   onOverlayContextMenu: (e: React.MouseEvent) => void
 }
 
@@ -29,14 +27,11 @@ export function LeafletTualOverlays({
   map,
   controller,
   currentZoom,
-  isSidebarOpen,
   contextMenuPos,
   activeGesture,
-  onOpenSidebar,
   onOverlayContextMenu,
 }: LeafletTualOverlaysProps) {
   const showSecondaryTooltip =
-    !isSidebarOpen &&
     !contextMenuPos &&
     activeGesture?.type !== 'marquee' &&
     controller.selected.length === 1 &&
@@ -56,12 +51,7 @@ export function LeafletTualOverlays({
 
       {/* Floating Contextual Secondary Tooltip */}
       {showSecondaryTooltip && (
-        <SecondaryTooltip
-          map={map}
-          controller={controller}
-          sidebarOpen={isSidebarOpen}
-          onOpenSidebar={onOpenSidebar}
-        />
+        <SecondaryTooltip map={map} controller={controller} />
       )}
 
       {/* Note overlays */}

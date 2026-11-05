@@ -103,11 +103,7 @@ export function ToolVariantsPopover({
           layout: 'variant-list',
           options: (allowedArrowVariants ?? ALL_ARROW_KINDS).map((v) => ({
             id: v,
-            label: t(
-              v === 's-curve' ? 'sCurve' : v,
-              undefined,
-              v.charAt(0).toUpperCase() + v.slice(1),
-            ),
+            label: t(v, undefined, v.charAt(0).toUpperCase() + v.slice(1)),
             icon: ICONS[v]?.(),
             selected: arrowVariant === v,
             onSelect: () => controller.setTool('arrow', v),
@@ -157,13 +153,9 @@ export function ToolVariantsPopover({
   return (
     <Popover
       header={config.header}
-      className={className}
+      className={`tual-toolbar-popover ${className ?? ''}`}
       style={{
-        position: 'absolute',
-        top: 'calc(100% + 6px)',
-        left: 0,
         minWidth: config.minWidth,
-        width: 'max-content',
       }}
     >
       <DropdownMenu layout={config.layout}>

@@ -7,7 +7,7 @@ import { emptyDoc } from '../../core/index.js'
 import { getLabelAnchor } from '../../shared/drawing/canvas/shape-label.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 Shape label editing & edit(id) action', () => {
+describe('v3 Shape label editing & edit(id) action', () => {
   it('toggles editingId via controller.edit', () => {
     const { result } = renderHook(() =>
       useLeafletTual({

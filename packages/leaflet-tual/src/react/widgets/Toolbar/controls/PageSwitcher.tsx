@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   IconButton,
   ICONS,
-  PillButton,
   Popover,
   TextField,
   useOutsideDismiss,
@@ -31,9 +30,7 @@ export function PageSwitcher({
   className,
 }: PageSwitcherProps) {
   const { t } = useTranslation(controller)
-  const activePage = controller.pages.list.find(
-    (p) => p.id === controller.pages.active,
-  )
+  const activePage = controller.pages.list.find((p) => p.id === controller.pages.active)
   const pageName = activePage?.name ?? t('pageDefault', { n: 1 })
   const pageCount = controller.pages.list.length
 
@@ -52,7 +49,6 @@ export function PageSwitcher({
 
   useOutsideDismiss(containerRef, isOpen, onClose)
 
-
   const commitRename = (pageId: string) => {
     const trimmed = editingName.trim()
     if (trimmed) {
@@ -62,25 +58,25 @@ export function PageSwitcher({
   }
 
   return (
-    <div ref={containerRef} style={{ position: 'relative' }}>
-      <PillButton
-        variant="page"
+    <div ref={containerRef} className="tual-tool">
+      <button
+        type="button"
+        className="tual-page-pill"
+        data-active={isOpen || undefined}
         onClick={onToggle}
-        title={t('pageSwitcher')}
-        leading={<span className="tual-page-badge">{pageCount}</span>}
-        label={<span className="tual-page-name">{pageName}</span>}
-        trailing={<span className="tual-page-chevron">{ICONS['chevron-down-sm']()}</span>}
-      />
+        title={`${t('pageSwitcher')} — ${pageName}`}
+        aria-label={`${t('pageSwitcher')} — ${pageName}`}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+      >
+        {ICONS.page()}
+        {pageCount > 1 && <span className="tual-page-badge">{pageCount}</span>}
+      </button>
 
       {isOpen && (
         <Popover
           variant="page"
-          className={className}
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 6px)',
-            left: 0,
-          }}
+          className={`tual-toolbar-popover tual-page-popover ${className ?? ''}`}
         >
           <div className="tual-page-list">
             {controller.pages.list.map((page) => {
@@ -121,13 +117,8 @@ export function PageSwitcher({
                 >
                   <span className="tual-page-title">{page.name}</span>
 
-                  <div
-                    className="tual-page-row-actions"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {isActive && (
-                      <span className="tual-page-check">{ICONS.check()}</span>
-                    )}
+                  <div className="tual-page-row-actions" onClick={(e) => e.stopPropagation()}>
+                    {isActive && <span className="tual-page-check">{ICONS.check()}</span>}
 
                     <IconButton
                       variant="popover-action"

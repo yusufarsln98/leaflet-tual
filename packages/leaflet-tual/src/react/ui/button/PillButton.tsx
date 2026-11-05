@@ -6,7 +6,6 @@ const PILL_VARIANT_CLASS: Record<NonNullable<PillButtonProps['variant']>, string
   page: 'tual-page-pill',
   secondary: 'tual-secondary-pill-btn',
   'border-color': 'tual-border-color-pill',
-  zoom: 'tual-btn tual-zoom-pill',
 }
 
 export function PillButton({

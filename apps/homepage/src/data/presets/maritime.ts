@@ -12,7 +12,7 @@ export const MARITIME_PRESET: ShowcasePreset = {
     {
       id: 'bosphorus-main-channel',
       type: 'arrow',
-      kind: 's-curve',
+      kind: 'curved',
       from: { lat: 41.026, lng: 28.987 },
       to: { lat: 41.012, lng: 29.006 },
       style: { color: '#2F6FEB', strokeColor: '#2F6FEB', width: 'l', dash: 'solid', opacity: 1 },

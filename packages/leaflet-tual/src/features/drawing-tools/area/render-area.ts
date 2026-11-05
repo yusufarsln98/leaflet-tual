@@ -9,7 +9,7 @@ import {
   resolveDash,
   resolveWidth,
 } from '../../../shared/theme/index.js'
-import { drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
+import { applyHoverGlow, clearHoverGlow, drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
 
 export function renderAreaOnCanvas(
@@ -61,6 +61,7 @@ export function renderAreaOnCanvas(
     ctx.setLineDash(dash)
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
+    if (isHoveredOnly) applyHoverGlow(ctx, scale)
     ctx.stroke()
   } else if (screenPts.length === 2) {
     ctx.beginPath()
@@ -69,8 +70,11 @@ export function renderAreaOnCanvas(
     ctx.strokeStyle = color
     ctx.lineWidth = lineWidth
     ctx.setLineDash(dash)
+    if (isHoveredOnly) applyHoverGlow(ctx, scale)
     ctx.stroke()
   }
+
+  if (isHoveredOnly) clearHoverGlow(ctx)
 
   // 2. Vertex dots
   ctx.setLineDash([])

@@ -7,7 +7,7 @@ import {
   resolveColor,
   resolveItemStyle,
 } from '../../../shared/theme/index.js'
-import { drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
+import { applyHoverGlow, clearHoverGlow, drawHandle, drawLabelPill } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getShapeLabelY } from '../../../shared/drawing/canvas/shape-label.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
 import { getShapeScreenHandles } from './shape-handles.js'
@@ -49,9 +49,7 @@ export function renderShapeOnCanvas(
   ctx.lineJoin = 'round'
 
   if (isHoveredOnly) {
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.14)'
-    ctx.shadowBlur = 8 * scale
-    ctx.shadowOffsetY = 1.5 * scale
+    applyHoverGlow(ctx, scale)
   }
 
   ctx.beginPath()
@@ -74,9 +72,7 @@ export function renderShapeOnCanvas(
   ctx.globalAlpha = 1
   if (lineWidth > 0) ctx.stroke()
   if (isHoveredOnly) {
-    ctx.shadowColor = 'transparent'
-    ctx.shadowBlur = 0
-    ctx.shadowOffsetY = 0
+    clearHoverGlow(ctx)
   }
 
   if (shape.label && !options.isEditing) {

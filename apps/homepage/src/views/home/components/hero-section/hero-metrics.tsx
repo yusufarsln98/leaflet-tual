@@ -1,6 +1,6 @@
 const SCALE_ENTRIES = [
   { value: '0.000px', label: 'Coordinate drift' },
-  { value: '5 Styles', label: 'Vector arrows' },
+  { value: '4 Styles', label: 'Vector arrows' },
   { value: '8 Shapes', label: 'Geometric shapes' },
   { value: '60 FPS Canvas', label: 'Rendering' },
 ] as const

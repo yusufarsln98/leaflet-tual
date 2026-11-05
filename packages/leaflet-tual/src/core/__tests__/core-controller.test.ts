@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { createController } from '../controller.js'
 import { resolveItemStyle } from '../../shared/theme/item-style.js'
 import type { ArrowItem, NoteItem, ShapeItem, Style } from '../../entities/item/types.js'
 
-describe('v2 Controller state machine', () => {
+describe('v3 Controller state machine', () => {
   it('initializes with default doc, selection and tool', () => {
     const c = createController()
     expect(c.doc.activePageId).toBeDefined()
@@ -111,6 +111,38 @@ describe('v2 Controller state machine', () => {
     c.setStyle({ color: '#2F6FEB', width: 'l' })
     expect(c.items[0].style?.color).toBe('#2F6FEB')
     expect(c.items[0].style?.width).toBe('l')
+  })
+
+  it('ignores redundant select and edit calls to avoid selection flicker', () => {
+    const c = createController()
+    const item = c.add({
+      type: 'text',
+      at: { lat: 41, lng: 28 },
+      text: 'Hello',
+    })
+
+    c.select(item.id)
+    const stateHandler = vi.fn()
+    const selectHandler = vi.fn()
+    c.on('state', stateHandler)
+    c.on('select', selectHandler)
+
+    c.select(item.id)
+    c.select([item.id])
+    c.edit(null)
+
+    expect(stateHandler).not.toHaveBeenCalled()
+    expect(selectHandler).not.toHaveBeenCalled()
+
+    c.edit(item.id)
+    expect(stateHandler).toHaveBeenCalledTimes(1)
+
+    c.edit(item.id)
+    expect(stateHandler).toHaveBeenCalledTimes(1)
+
+    c.select(null)
+    expect(selectHandler).toHaveBeenCalledTimes(1)
+    expect(stateHandler).toHaveBeenCalledTimes(2)
   })
 
   it('honors the initial shape color without pinning fill and stroke overrides', () => {

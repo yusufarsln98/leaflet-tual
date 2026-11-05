@@ -118,7 +118,7 @@ export function Select<T extends string | number>({
       {open && (
         <div
           id={menuId}
-          className="tual-select-menu"
+          className="tual-popover tual-select-menu"
           role="listbox"
           aria-label={ariaLabel}
           onPointerDown={(event) => event.stopPropagation()}

@@ -1,7 +1,7 @@
 import type { ArrowItem, ArrowKind, Head } from './types.js'
 import type { GeoPoint } from '../../../shared/types/geo.js'
 
-export const ARROW_KINDS = new Set<string>(['linear', 'curved', 'elbow', 's-curve'])
+export const ARROW_KINDS = new Set<string>(['linear', 'curved', 'elbow'])
 
 export function isArrowItem(item: unknown): item is ArrowItem {
   return (

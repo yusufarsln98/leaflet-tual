@@ -44,7 +44,7 @@ export function isToolId(value: unknown): value is ToolId {
   return typeof value === 'string' && (ALL_TOOLS as readonly string[]).includes(value)
 }
 
-/** Active variant for tools that support sub-styles: ArrowKind ('linear' | 'curved' | 'elbow' | 's-curve') or ShapeKind ('square' | 'circle' | 'star' | ...). */
+/** Active variant for tools that support sub-styles: ArrowKind ('linear' | 'curved' | 'elbow') or ShapeKind ('square' | 'circle' | 'star' | ...). */
 export type ToolVariant = ArrowKind | ShapeKind
 
 export function isToolVariant(value: unknown): value is ToolVariant {

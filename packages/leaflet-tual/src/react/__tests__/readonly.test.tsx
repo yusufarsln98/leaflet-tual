@@ -5,7 +5,7 @@ import { LeafletTual, useLeafletTual } from '../index.js'
 import { emptyDoc } from '../../core/index.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 ReadOnly mode', () => {
+describe('v3 ReadOnly mode', () => {
   it('initializes controller in readOnly mode', () => {
     const { result } = renderHook(() =>
       useLeafletTual({

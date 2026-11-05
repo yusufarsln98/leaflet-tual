@@ -135,6 +135,7 @@
     "vitest": "^3.0.0"
   },
   "dependencies": {
+    "lucide-react": "^1.69.0",
     "zustand": "^5.0.16"
   }
 }

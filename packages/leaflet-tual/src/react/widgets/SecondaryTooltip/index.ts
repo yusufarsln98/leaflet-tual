@@ -1,3 +1,5 @@
 export * from './SecondaryTooltip.js'
-export * from './popovers/BorderPopover.js'
-
+export * from './color/index.js'
+export * from './typography/index.js'
+export { BorderPopover, LabelPositionDropdown } from './popovers/index.js'
+export * from './utils/index.js'

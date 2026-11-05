@@ -59,8 +59,9 @@ export function ToolbarItemButton({
     lastVariantRef.current = controller.variant
   }
 
-  const variant = (isActive ? controller.variant : lastVariantRef.current)
-    ?? (isArrow ? 'linear' : isShape ? 'square' : null)
+  const variant =
+    (isActive ? controller.variant : lastVariantRef.current) ??
+    (isArrow ? 'linear' : isShape ? 'square' : null)
 
   const iconKey = variant ?? toolId
   const icon = (iconKey in ICONS ? ICONS[iconKey as IconName] : ICONS.pencil)()
@@ -70,27 +71,21 @@ export function ToolbarItemButton({
   const label = `${toolName} (${shortcut})`
 
   return (
-    <div
-      className="tual-tool-group"
-      data-has-variants={hasVariants || undefined}
-      style={{ position: 'relative' }}
+    <ToolbarToolButton
+      label={label}
+      icon={icon}
+      isActive={isActive}
+      hasVariants={hasVariants}
+      isPopoverOpen={isPopoverOpen}
+      chevronLabel={`${toolName} options`}
+      onSelect={() => {
+        controller.setTool(toolId)
+        onClosePopover()
+      }}
+      onToggleVariants={() => {
+        onTogglePopover(!isPopoverOpen)
+      }}
     >
-      <ToolbarToolButton
-        label={label}
-        icon={icon}
-        isActive={isActive}
-        hasVariants={hasVariants}
-        isPopoverOpen={isPopoverOpen}
-        chevronLabel={`${toolName} options`}
-        onSelect={() => {
-          controller.setTool(toolId)
-          onClosePopover()
-        }}
-        onToggleVariants={() => {
-          onTogglePopover(!isPopoverOpen)
-        }}
-      />
-
       {hasVariants && isPopoverOpen && (
         <ToolVariantsPopover
           controller={controller}
@@ -102,6 +97,6 @@ export function ToolbarItemButton({
           className={popoverClassName}
         />
       )}
-    </div>
+    </ToolbarToolButton>
   )
 }

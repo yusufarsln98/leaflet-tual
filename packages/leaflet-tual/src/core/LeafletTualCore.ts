@@ -4,6 +4,7 @@ import { createController } from './controller.js'
 import { createMapContext, type MapContext } from './map-context.js'
 import { EventBus } from './event-bus.js'
 import { drawCanvasScene } from '../shared/drawing/canvas/canvas-drawing.js'
+import { themeTokensToCssVariables } from '../shared/theme/tokens.js'
 
 export class LeafletTualCore {
   readonly controller: InternalController
@@ -13,10 +14,12 @@ export class LeafletTualCore {
   private _container: HTMLDivElement | null = null
   private _canvas: HTMLCanvasElement | null = null
   private _cleanupFns: Array<() => void> = []
+  private _themeTokens?: CreateLeafletTualOptions['themeTokens']
 
   constructor(options: CreateLeafletTualOptions = {}) {
     this.mapContext = createMapContext()
     this.eventBus = new EventBus()
+    this._themeTokens = options.themeTokens
     this.controller = createController(options, () => this._map) as InternalController
   }
 
@@ -47,6 +50,14 @@ export class LeafletTualCore {
       container.style.inset = '0'
       container.style.pointerEvents = 'none'
       container.style.zIndex = '400'
+
+      if (this._themeTokens) {
+        for (const [name, value] of Object.entries(
+          themeTokensToCssVariables(this._themeTokens),
+        )) {
+          container.style.setProperty(name, value)
+        }
+      }
 
       const canvas = document.createElement('canvas')
       canvas.className = 'leaflet-tual-canvas'

@@ -6,7 +6,7 @@ import { emptyDoc } from '../../core/index.js'
 import { createMockCanvasContext } from '../../core/__tests__/test-utils.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 ContextMenu, Shift+drag marquee selection, and z-order', () => {
+describe('v3 ContextMenu, Shift+drag marquee selection, and z-order', () => {
   beforeEach(() => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
       createMockCanvasContext() as never,

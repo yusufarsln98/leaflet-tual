@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react'
 import { useLeafletSync } from '../features/use-leaflet-sync.js'
 import { createMockMap } from './test-utils.js'
 
-describe('v2 useLeafletSync map event bindings', () => {
+describe('v3 useLeafletSync map event bindings', () => {
   it('subscribes to map move, zoom, viewreset, resize events and calls onRedraw', () => {
     const onRedraw = vi.fn()
     const map = createMockMap()

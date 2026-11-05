@@ -30,7 +30,7 @@ const react: Options = {
   minify: true,
   // No `treeshake`: its Rollup pass runs after esbuild inserts the banner and
   // would strip the "use client" directive from the final output again.
-  external: ['react', 'react-dom', 'leaflet', 'react-leaflet'],
+  external: ['react', 'react-dom', 'leaflet', 'react-leaflet', 'lucide-react'],
   injectStyle: true,
   banner: {
     js: '"use client";',

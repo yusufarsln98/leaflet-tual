@@ -1,4 +1,4 @@
-# leaflet-tual v2
+# leaflet-tual v3
 
 > Opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, area, laser pointer, pages) for Leaflet maps. Everything stored in geographic coordinates.
 
@@ -61,7 +61,7 @@ export interface Style {
   align?: 'left' | 'center' | 'right'
 }
 
-export type ArrowKind = 'linear' | 'curved' | 'elbow' | 's-curve'
+export type ArrowKind = 'linear' | 'curved' | 'elbow'
 export type Head = 'triangle' | 'open' | 'none'
 export type ShapeKind =
   | 'square' | 'circle' | 'star' | 'actor'
@@ -184,6 +184,40 @@ export function MapView() {
 }
 ```
 
+`<LeafletTual>` props are all optional. The library has no sidebar; item properties are edited from the contextual toolbar and the right-click menu.
+
+## Toolbar & Theming
+
+The toolbar is a stack of Leaflet-style control islands: **Tools → History → Pages**. Each island has a thin border, a small radius and one square control per action. The position controls the layout: top/bottom edges lay out horizontally, left/right edges lay out vertically; every edge supports start, center and end alignment. Tools with variants expose a small corner triangle; the main icon activates the tool with its last-used variant.
+
+```tsx
+<LeafletTual
+  toolbar={{
+    position: 'top-left',      // default; horizontal along the top edge
+    tools: ['select', 'freedraw', 'pen', 'arrow', 'shape', 'ruler', 'area', 'laser', 'note'],
+    pages: true,
+    history: true,
+  }}
+  themeTokens={{
+    surface: 'var(--app-panel)',
+    surfaceActive: 'var(--app-accent)',
+    text: 'var(--app-text)',
+    textActive: 'var(--app-accent-contrast)',
+    accent: 'var(--app-accent)',
+    border: 'var(--app-border)',
+    divider: 'var(--app-border-muted)',
+    radius: '6px',
+    controlSize: '30px',
+  }}
+/>
+```
+
+`ToolbarOptions`: `position` (default `'top-left'`; top/bottom are horizontal, left/right vertical, with start/center/end alignment on every edge), `orientation` (only used by `'inline'` toolbars), `tools`, `pages` (default `true`), `history` (default `true`). Pass `toolbar={false}` to hide the built-in toolbar.
+
+`ThemeTokens` themes only the chrome, never annotation items. Available tokens: `surface`, `surfaceActive`, `surfaceMuted`, `text`, `textMuted`, `textActive`, `accent`, `border`, `divider`, `focus`, `radius`, `radiusSm`, `radiusLg`, `shadow`, `shadowPopup`, `controlSize`, `groupGap`, `iconSize`, `fontFamily`, `fontSize`, `lineHeight`, and `variables` for extra CSS custom properties. Values may be colors or CSS variable references. `themeTokens` is also accepted by `createLeafletTual(map, { themeTokens })` and external `<Toolbar themeTokens={...} />`.
+
+Reusable chrome controls are exported from `leaflet-tual/react` for custom panels: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Popover`, `DropdownMenu`, `DropdownItem`, `ConfirmPopover`, `Select`, `NumberField`, `TextField`, `ColorSwatch`, `ColorSwatchList`, `ColorSwatchControls`, `CustomColorPicker`, `ColorDropdown`, `TypographyDropdown`, `TextFormattingControls`, `LabelPositionDropdown`, `BorderPopover`, `useOutsideDismiss`, `useWheelGuard`, `useLeafletDomGuard`, `useLeafletDisableClick`, `disableMapInteractions`, `createLeafletControl`, and `createControlContainer`. Wrap a custom panel with `useLeafletDomGuard()` or give it the `tual-panel` class to isolate it from map gestures.
+
 ## Vanilla JS Core (No React)
 
 ```ts
@@ -194,7 +228,6 @@ import 'leaflet-tual/styles.css'
 const map = L.map('map').setView([41.01, 28.97], 13)
 const tual = createLeafletTual(map, {
   defaultValue: emptyDoc(),
-  toolbar: { position: 'top-left' },
   onChange: (doc, info) => info.committed && save(doc),
 })
 
@@ -203,6 +236,8 @@ tual.on('select', (items) => console.log(items))
 // cleanup
 tual.destroy()
 ```
+
+The vanilla core mounts the canvas only. Render `<Toolbar>` from `leaflet-tual/react` or build your own controls with `setTool` / `setStyle`.
 
 ## Controller API (`useLeafletTual` & `createLeafletTual`)
 
@@ -214,7 +249,6 @@ State:
 - `style: Style`
 - `selection: string[]`
 - `selected: Item[]`
-- `theme: 'light' | 'dark' | 'system'`
 - `readOnly: boolean`
 - `canUndo: boolean`
 - `canRedo: boolean`
@@ -223,7 +257,6 @@ State:
 Actions:
 - `setTool(tool, variant?)`
 - `setStyle(patch)` (selection-aware)
-- `setTheme(theme)`
 - `setTranslations(patch)`
 - `add(item)`
 - `update(id, patch, committed?)`

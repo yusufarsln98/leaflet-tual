@@ -50,7 +50,7 @@ function createMockMap(): L.Map {
   } as unknown as L.Map
 }
 
-describe('v2 Canvas annotation rendering', () => {
+describe('v3 Canvas annotation rendering', () => {
   it('renders arrow paths and heads without throwing', () => {
     const ctx = createMockCtx()
     const map = createMockMap()
@@ -74,7 +74,7 @@ describe('v2 Canvas annotation rendering', () => {
     expect(ctx.setLineDash).toHaveBeenCalledWith([4, 4])
   })
 
-  it('renders linear, elbow, and s-curve arrows with heads', () => {
+  it('renders linear and elbow arrows with heads', () => {
     const map = createMockMap()
 
     // Linear with bi-directional heads
@@ -104,19 +104,6 @@ describe('v2 Canvas annotation rendering', () => {
     })
     expect(elbowCtx.stroke).toHaveBeenCalled()
     expect(elbowCtx.fill).toHaveBeenCalled()
-
-    // S-curve arrow
-    const scurveCtx = createMockCtx()
-    renderArrowOnCanvas(scurveCtx, map, {
-      id: 'arrow-scurve',
-      type: 'arrow',
-      kind: 's-curve',
-      from: { lat: 41, lng: 28 },
-      to: { lat: 41.2, lng: 28.2 },
-      heads: { end: 'open' },
-      createdAt: Date.now(),
-    })
-    expect(scurveCtx.stroke).toHaveBeenCalled()
   })
 
   it('renders geometric shapes with fill and stroke', () => {

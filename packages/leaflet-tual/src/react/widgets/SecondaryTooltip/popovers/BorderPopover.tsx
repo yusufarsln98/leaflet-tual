@@ -13,7 +13,6 @@ import {
   useWheelGuard,
 } from '../../../ui/index.js'
 
-
 export interface BorderPopoverProps {
   currentDash?: 'solid' | 'dashed' | 'dotted' | 'none'
   currentColor?: string
@@ -85,7 +84,6 @@ export function BorderPopover({
   const radiusVisible = showRadius ?? isSquareShape !== false
   const numWidth = resolveWidth(currentWidth)
 
-
   return (
     <div
       ref={guardRef}
@@ -114,14 +112,9 @@ export function BorderPopover({
           title={t('borderColor')}
           onClick={() => setShowPalette((p) => !p)}
           leading={
-            <div
-              className="tual-border-color-pill-swatch"
-              style={{ backgroundColor: strokeHex }}
-            />
+            <div className="tual-border-color-pill-swatch" style={{ backgroundColor: strokeHex }} />
           }
-          label={
-            <span className="tual-border-color-pill-hex">{strokeHex.toUpperCase()}</span>
-          }
+          label={<span className="tual-border-color-pill-hex">{strokeHex.toUpperCase()}</span>}
         />
 
         {/* Row 3: Stroke Width & Corner Radius Selects */}
@@ -156,7 +149,7 @@ export function BorderPopover({
       {showPalette && (
         <div className="tual-border-nested-palette">
           <div className="tual-border-palette-header">
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--tual-text, #111827)' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--tual-fg, #222222)' }}>
               {t('colors')}
             </span>
             <button
@@ -170,7 +163,6 @@ export function BorderPopover({
           </div>
 
           <ColorSwatchList
-            variant="border-flyout"
             items={PALETTE_KEYS.map((key) => ({
               hex: DEFAULT_PALETTE[key],
               title: t(key),

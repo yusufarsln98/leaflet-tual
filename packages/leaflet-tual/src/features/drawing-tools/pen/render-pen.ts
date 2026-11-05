@@ -7,7 +7,7 @@ import {
   resolveDash,
   resolveWidth,
 } from '../../../shared/theme/index.js'
-import { drawHandle } from '../../../shared/drawing/canvas/canvas-utils.js'
+import { applyHoverGlow, clearHoverGlow, drawHandle } from '../../../shared/drawing/canvas/canvas-utils.js'
 import { getItemZoomScale } from '../../../shared/geometry/zoom.js'
 import { getPenSegments } from './pen-geometry.js'
 
@@ -44,6 +44,8 @@ export function renderPenOnCanvas(
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
 
+  if (isHoveredOnly) applyHoverGlow(ctx, scale)
+
   if (segments.length > 0) {
     ctx.beginPath()
     ctx.moveTo(segments[0].from.x, segments[0].from.y)
@@ -60,6 +62,8 @@ export function renderPenOnCanvas(
     if (pen.closed) ctx.closePath()
     ctx.stroke()
   }
+
+  if (isHoveredOnly) clearHoverGlow(ctx)
 
   if (options.isSelected) {
     const handleColor = resolveColor(DEFAULT_PALETTE.blue)
