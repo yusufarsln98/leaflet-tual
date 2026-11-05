@@ -97,7 +97,7 @@ import pkg from '../../../package.json'
 describe('leaflet-tual v2 package contract exports', () => {
   it('exports VERSION constant matching package.json', () => {
     expect(VERSION).toBe(pkg.version)
-    expect(VERSION).toBe('2.0.2')
+    expect(VERSION).toBe('2.0.3')
   })
 
   it('creates unique ids with prefix', () => {

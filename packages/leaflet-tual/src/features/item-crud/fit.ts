@@ -19,6 +19,19 @@ export function fitItemsToBounds(map: L.Map | null | undefined, items: Item[]) {
   }
 
   if (Number.isFinite(minLat) && Number.isFinite(maxLat)) {
+    const minSpan = 1e-7
+    if (maxLat - minLat < minSpan) {
+      const midLat = (minLat + maxLat) / 2
+      minLat = midLat - minSpan / 2
+      maxLat = midLat + minSpan / 2
+    }
+    if (maxLng - minLng < minSpan) {
+      const midLng = (minLng + maxLng) / 2
+      minLng = midLng - minSpan / 2
+      maxLng = midLng + minSpan / 2
+    }
+
+    if (typeof map.stop === 'function') map.stop()
     map.fitBounds(
       [
         [minLat, minLng],
@@ -28,4 +41,3 @@ export function fitItemsToBounds(map: L.Map | null | undefined, items: Item[]) {
     )
   }
 }
-

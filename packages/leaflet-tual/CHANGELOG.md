@@ -1,5 +1,18 @@
 # leaflet-tual
 
+## 2.0.3
+
+### Patch Changes
+
+- **Sidebar Context Menu Isolation**:
+  - Right-clicking the sidebar no longer propagates to the Leaflet map container, so external map context menus no longer open over the sidebar.
+  - Sidebar item right-clicks still open the item context menu through a capture-phase handler.
+
+- **Fit in View & Fit Selection Zoom**:
+  - Shapes, notes, and text now report geographic bounds based on their actual pixel size and `baseZoom`, instead of an arbitrary tiny box. Fitting them no longer jumps to the map's maximum zoom level.
+  - Fit actions now stop any in-flight map animation before fitting.
+  - Flat or zero-area bounds are expanded slightly so horizontal and vertical items still fit sensibly.
+
 ## 2.0.2
 
 ### Patch Changes
