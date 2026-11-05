@@ -321,6 +321,35 @@ describe('v2 Controller state machine', () => {
     expect(c.items[0].id).toBe(s1.id)
   })
 
+  it('resets selection and tool and emits select/tool events when entering read-only', () => {
+    const c = createController()
+    const item = c.add({
+      type: 'freedraw',
+      points: [
+        { lat: 41, lng: 28 },
+        { lat: 41.1, lng: 28.1 },
+      ],
+    })
+
+    c.setTool('pen')
+    c.select(item.id)
+
+    const selectEvents: unknown[] = []
+    const toolEvents: unknown[][] = []
+    c.on('select', (items) => selectEvents.push(items))
+    c.on('tool', (tool, variant) => toolEvents.push([tool, variant]))
+
+    c.setReadOnly(true)
+
+    expect(c.readOnly).toBe(true)
+    expect(c.selection).toEqual([])
+    expect(c.selected).toEqual([])
+    expect(c.tool).toBe('select')
+    expect(c.variant).toBeNull()
+    expect(selectEvents).toEqual([[]])
+    expect(toolEvents).toEqual([['select', null]])
+  })
+
   it('supports z-order convenience methods and selectAll', () => {
     const c = createController()
     const s1 = c.add({

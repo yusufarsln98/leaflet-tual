@@ -63,6 +63,16 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     isShiftPressedRef,
   })
 
+  useEffect(() => {
+    if (
+      props.controller &&
+      props.readOnly !== undefined &&
+      props.controller.readOnly !== props.readOnly
+    ) {
+      props.controller.setReadOnly(props.readOnly)
+    }
+  }, [props.controller, props.readOnly])
+
   useMapInteractions(map, controller)
   useMiddleClickPan(map, containerRef)
 
@@ -95,8 +105,12 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
   const { cancelGesture } = gestures
 
   useEffect(() => {
-    if (controller.readOnly) cancelGesture()
-  }, [controller.readOnly, cancelGesture])
+    if (!controller.readOnly) return
+    cancelGesture()
+    setContextMenuPos(null)
+    setIsSidebarOpen(false)
+    if (canvasRef.current) canvasRef.current.style.cursor = 'default'
+  }, [canvasRef, cancelGesture, controller.readOnly, setContextMenuPos])
 
   useEffect(() => {
     window.addEventListener('mousemove', gestures.handleMouseMove)
@@ -184,7 +198,7 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           contextMenuPos={contextMenuPos}
           resolvedScheme={resolvedScheme}
           toolbarProps={props.toolbar}
-          readOnly={props.readOnly}
+          readOnly={props.readOnly ?? controller.readOnly}
           onToggleSidebar={toggleSidebar}
           onCloseSidebar={closeSidebar}
           onCloseContextMenu={closeContextMenu}

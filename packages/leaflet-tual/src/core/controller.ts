@@ -404,6 +404,7 @@ export function createController(
     setReadOnly(v: boolean) {
       if (store.getState().readOnly === v) return
       if (v) {
+        const prev = store.getState()
         store.setState({
           readOnly: true,
           selection: [],
@@ -412,6 +413,8 @@ export function createController(
           tool: 'select',
           variant: null,
         })
+        if (prev.selection.length > 0) emit('select', [])
+        if (prev.tool !== 'select' || prev.variant !== null) emit('tool', 'select', null)
       } else {
         store.setState({ readOnly: false })
       }
