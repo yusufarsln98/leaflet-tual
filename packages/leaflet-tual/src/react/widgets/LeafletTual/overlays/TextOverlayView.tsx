@@ -37,7 +37,6 @@ export const TextOverlayView = memo(function TextOverlayView({
   const { t } = useTranslation(controller)
   const containerRef = useRef<HTMLDivElement>(null)
   useLeafletDisableClick(containerRef)
-  useLeafletDisableClick(containerRef)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const isSelected = useControllerStore(controller, (s) => s.selection.includes(textItem.id))
@@ -61,6 +60,16 @@ export const TextOverlayView = memo(function TextOverlayView({
       return () => cancelAnimationFrame(frame)
     }
   }, [isEditing])
+
+  useEffect(() => {
+    if (!isReadOnly) return
+    const el = textareaRef.current
+    if (el && document.activeElement === el) {
+      el.blur()
+      map.dragging?.enable()
+      map.doubleClickZoom?.enable()
+    }
+  }, [isReadOnly, map])
 
   useEffect(() => {
     const el = containerRef.current
@@ -163,6 +172,7 @@ export const TextOverlayView = memo(function TextOverlayView({
               textAlign: align,
             }}
             onFocus={(e) => {
+              if (isReadOnly) return
               map.dragging?.disable()
               e.currentTarget.select()
             }}

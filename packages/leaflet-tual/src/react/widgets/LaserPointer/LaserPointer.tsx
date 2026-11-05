@@ -70,8 +70,9 @@ const LaserPointerInner = memo(function LaserPointerInner({
 
   // Global pointer up to catch releases outside the canvas and re-enable dragging
   useEffect(() => {
+    if (!isLaserActive) return
     const onWindowPointerUp = () => {
-      laser.handleLaserPointerUp()
+      laserRef.current?.handleLaserPointerUp()
       map.dragging?.enable()
     }
     window.addEventListener('pointerup', onWindowPointerUp)
@@ -79,7 +80,7 @@ const LaserPointerInner = memo(function LaserPointerInner({
       window.removeEventListener('pointerup', onWindowPointerUp)
       map.dragging?.enable()
     }
-  }, [laser, map])
+  }, [isLaserActive, map])
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {

@@ -67,7 +67,7 @@ export function useCanvasNativeListeners({
     }
 
     const handleClick = (e: MouseEvent) => {
-      if (wasTualActionRef.current || controller.tool !== 'select') {
+      if (!controller.readOnly && (wasTualActionRef.current || controller.tool !== 'select')) {
         e.stopPropagation()
         if (typeof L !== 'undefined' && L.DomEvent?.stopPropagation) {
           L.DomEvent.stopPropagation(e)

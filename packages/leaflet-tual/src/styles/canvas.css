@@ -18,6 +18,13 @@
   -webkit-user-select: none;
 }
 
+.tual-container[data-readonly='true'] .tual-canvas,
+.tual-container[data-readonly='true'] .tual-note-card,
+.tual-container[data-readonly='true'] .tual-text-item,
+.tual-container[data-readonly='true'] .tual-inline-label-editor {
+  pointer-events: none;
+}
+
 .tual-laser-canvas {
   position: absolute;
   top: 0;
