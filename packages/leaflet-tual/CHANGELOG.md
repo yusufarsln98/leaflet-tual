@@ -1,5 +1,11 @@
 # leaflet-tual
 
+## 3.0.1
+
+### Patch Changes
+
+- cd019e6: Fix page switching so the controller immediately exposes the selected page's items. The canvas and overlays previously kept rendering the previous page until the next committed edit updated the store.
+
 ## 3.0.0
 
 ### Major Changes
