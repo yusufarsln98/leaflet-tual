@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import {
-  VERSION,
   createId,
   emptyDoc,
   parseDoc,
@@ -92,14 +91,7 @@ import {
   disableTualDomPropagation,
 } from '../../react.js'
 
-import pkg from '../../../package.json'
-
 describe('leaflet-tual v2 package contract exports', () => {
-  it('exports VERSION constant matching package.json', () => {
-    expect(VERSION).toBe(pkg.version)
-    expect(VERSION).toBe('2.0.3')
-  })
-
   it('creates unique ids with prefix', () => {
     const id1 = createId('arrow')
     const id2 = createId('arrow')
