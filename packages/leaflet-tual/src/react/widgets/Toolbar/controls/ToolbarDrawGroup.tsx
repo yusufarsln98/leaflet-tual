@@ -1,25 +1,17 @@
 'use client'
 
-import {
-  getShortcutLabel,
-  resolveKeyboardShortcuts,
-  type Controller,
-  type DrawKind,
-  type ResolvedKeyboardShortcuts,
-} from '../../../../core/index.js'
+import type { Controller, DrawKind } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS } from '../../../ui/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
 import { ToolVariantsPopover } from '../popovers/index.js'
-
-const DEFAULT_SHORTCUTS = resolveKeyboardShortcuts()
 
 export interface ToolbarDrawGroupProps {
   controller: Controller
   availableDrawTools: DrawKind[]
   activePopover: string | null
   lastDrawTool: DrawKind
-  shortcuts?: ResolvedKeyboardShortcuts
+  shortcuts?: boolean
   popoverClassName?: string
   onTogglePopover: (open: boolean) => void
   onClosePopover: () => void
@@ -30,7 +22,7 @@ export function ToolbarDrawGroup({
   availableDrawTools,
   activePopover,
   lastDrawTool,
-  shortcuts = DEFAULT_SHORTCUTS,
+  shortcuts = true,
   popoverClassName,
   onTogglePopover,
   onClosePopover,
@@ -45,9 +37,9 @@ export function ToolbarDrawGroup({
     ? lastDrawTool
     : availableDrawTools[0]
   const previewTool = activeDrawTool ?? fallbackTool
-  const shortcut = getShortcutLabel(shortcuts, previewTool)
+  const shortcut = previewTool === 'pen' ? 'P' : 'F'
   const drawName = t('draw', undefined, 'Draw')
-  const label = shortcut ? `${drawName} (${shortcut})` : drawName
+  const label = shortcuts ? `${drawName} (${shortcut})` : drawName
 
   return (
     <ToolbarToolButton

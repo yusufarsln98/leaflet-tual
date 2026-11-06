@@ -1,5 +1,11 @@
 # leaflet-tual
 
+## 3.2.1
+
+### Patch Changes
+
+- Restore the 3.1.1 keyboard shortcut behavior and replace the 3.2.0 shortcut rework with a minimal `shortcuts` prop. `<LeafletTual shortcuts={false}>` disables the built-in keyboard shortcuts, and a standalone `<Toolbar shortcuts={false}>` hides shortcut hints.
+
 ## 3.2.0
 
 ### Minor Changes

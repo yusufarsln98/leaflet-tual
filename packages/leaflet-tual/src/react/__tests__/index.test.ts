@@ -22,11 +22,6 @@ import {
   useLeafletSync,
   useControllerStore,
   createController,
-  KEY_TO_TOOL,
-  DEFAULT_SHORTCUT_BINDINGS,
-  resolveKeyboardShortcuts,
-  getShortcutLabel,
-  setupKeyboardShortcuts,
   ALL_ARROW_KINDS,
   ALL_SHAPE_KINDS,
   ALL_DRAW_KINDS,
@@ -158,14 +153,6 @@ describe('leaflet-tual v3 package contract exports', () => {
     expect(emptyDoc).toBeDefined()
     expect(parseDoc).toBeDefined()
     expect(DocError).toBeDefined()
-  })
-
-  it('exports configurable keyboard shortcut helpers', () => {
-    expect(KEY_TO_TOOL.P).toBe('pen')
-    expect(DEFAULT_SHORTCUT_BINDINGS.select).toBe('V')
-    expect(getShortcutLabel(resolveKeyboardShortcuts(), 'select')).toBe('V')
-    expect(getShortcutLabel(resolveKeyboardShortcuts({ select: 'Q' }), 'select')).toBe('Q')
-    expect(setupKeyboardShortcuts).toBeDefined()
   })
 
   it('exports tool variant constants and type guards', () => {

@@ -253,25 +253,7 @@ Pass `toolbar={false}` to hide the built-in toolbar. `<Toolbar>` can also be ren
 
 ### Keyboard shortcuts
 
-Tool and editing shortcuts are configurable with the `shortcuts` prop. Set it to `false` to disable all of them, or override individual actions. Bindings use `KeyboardEvent.key` names; `Mod` means Cmd on macOS and Ctrl elsewhere, and an array registers alternatives. `false` disables one action.
-
-```tsx
-<LeafletTual
-  shortcuts={{
-    pen: 'D',
-    freedraw: false,
-    undo: 'Mod+Z',
-    delete: ['Delete', 'Backspace'],
-    escape: false,
-  }}
-/>
-```
-
-Default tool keys: `V` select, `T` text, `N` note, `F` free draw, `P` pen, `L` arrow, `S` shape, `R` ruler, `A` area, `K` laser.
-
-Default editing keys: `Mod+Z` undo, `Mod+Shift+Z` or `Mod+Y` redo, `Mod+D` duplicate, `Mod+A` select all, `Delete`/`Backspace` remove, `Escape` cancel/deselect, `Enter` finish pen/area, arrow keys nudge (`Shift` for a larger step), `]`/`[` send to front/back (`Alt` moves one step).
-
-The same `shortcuts` prop is accepted by a standalone `<Toolbar>` so its labels stay in sync. Vanilla callers pass the same object as the third argument to `setupKeyboardShortcuts(controller, handlers, shortcuts)`. Shortcuts are ignored while focus is inside an input, select, contenteditable element, button/link, menu/listbox, modal dialog, or Tual chrome, so host modals and form controls keep their normal behavior.
+The built-in shortcuts are enabled by default. Pass `shortcuts={false}` to `<LeafletTual>` to disable them. A standalone `<Toolbar shortcuts={false}>` also hides its shortcut hints.
 
 ### Sidebar inspector
 

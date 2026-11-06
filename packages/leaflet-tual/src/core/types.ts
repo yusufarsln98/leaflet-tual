@@ -28,13 +28,6 @@ export type {
 }
 export type { TranslationTokens, TranslationToken, Translator } from '../shared/i18n/index.js'
 export type { ThemeTokens } from '../shared/theme/index.js'
-export type {
-  KeyboardShortcutsOptions,
-  ResolvedKeyboardShortcuts,
-  ShortcutAction,
-  ShortcutBinding,
-  ShortcutCommandAction,
-} from '../shared/drawing/interactions/shortcut-config.js'
 
 export type ChangeReason =
   | 'create'

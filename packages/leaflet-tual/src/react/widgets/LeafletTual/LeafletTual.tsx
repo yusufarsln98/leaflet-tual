@@ -139,7 +139,7 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     },
     gestures.finishPen,
     gestures.finishArea,
-    props.shortcuts,
+    props.shortcuts !== false,
   )
 
   const tokenStyles = props.themeTokens ? themeTokensToCssVariables(props.themeTokens) : undefined
