@@ -2,13 +2,10 @@
 
 import type { ReactNode } from 'react'
 import {
-  getShortcutLabel,
-  resolveKeyboardShortcuts,
   type ArrowKind,
   type Controller,
   type DrawKind,
   type MeasureKind,
-  type ResolvedKeyboardShortcuts,
   type ShapeKind,
   type ToolVariant,
   ALL_ARROW_KINDS,
@@ -33,7 +30,6 @@ export interface ToolVariantsPopoverProps {
   allowedShapeVariants?: readonly ShapeKind[]
   allowedDrawVariants?: readonly DrawKind[]
   allowedMeasureVariants?: readonly MeasureKind[]
-  shortcuts?: ResolvedKeyboardShortcuts
   onClose: () => void
   className?: string
 }
@@ -42,12 +38,19 @@ const DRAW_LABELS: Record<DrawKind, string> = {
   freedraw: 'Free draw',
   pen: 'Pen',
 }
+const DRAW_SHORTCUTS: Record<DrawKind, string> = {
+  freedraw: 'P',
+  pen: 'Shift+P',
+}
+
 const MEASURE_LABELS: Record<MeasureKind, string> = {
   ruler: 'Distance',
   area: 'Area',
 }
-
-const DEFAULT_SHORTCUTS = resolveKeyboardShortcuts()
+const MEASURE_SHORTCUTS: Record<MeasureKind, string> = {
+  ruler: 'R',
+  area: 'A',
+}
 
 interface VariantOption {
   id: string
@@ -66,7 +69,6 @@ export function ToolVariantsPopover({
   allowedShapeVariants,
   allowedDrawVariants,
   allowedMeasureVariants,
-  shortcuts = DEFAULT_SHORTCUTS,
   onClose,
   className,
 }: ToolVariantsPopoverProps) {
@@ -116,7 +118,7 @@ export function ToolVariantsPopover({
               id: v,
               label: t(v, undefined, DRAW_LABELS[v]),
               icon: (v === 'freedraw' ? ICONS.pencil : ICONS[v])?.(),
-              shortcut: getShortcutLabel(shortcuts, v),
+              shortcut: DRAW_SHORTCUTS[v],
               selected: drawVariant === v,
               onSelect: () => controller.setTool(v),
             })),
@@ -130,7 +132,7 @@ export function ToolVariantsPopover({
                 id: v,
                 label: t(v, undefined, MEASURE_LABELS[v]),
                 icon: (v === 'area' ? ICONS.area : ICONS.ruler)?.(),
-                shortcut: getShortcutLabel(shortcuts, v),
+                shortcut: MEASURE_SHORTCUTS[v],
                 selected: measureVariant === v,
                 onSelect: () => controller.setTool(v),
               })),

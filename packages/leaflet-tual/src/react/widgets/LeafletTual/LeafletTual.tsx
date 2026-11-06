@@ -139,7 +139,6 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     },
     gestures.finishPen,
     gestures.finishArea,
-    props.shortcuts,
   )
 
   const tokenStyles = props.themeTokens ? themeTokensToCssVariables(props.themeTokens) : undefined
@@ -185,7 +184,6 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           sidebarOpen={sidebarOpen}
           contextMenuPos={contextMenuPos}
           toolbarProps={props.toolbar}
-          shortcuts={props.shortcuts}
           readOnly={props.readOnly ?? controller.readOnly}
           onCloseContextMenu={closeContextMenu}
           onSidebarItemContextMenu={handleSidebarItemContextMenu}

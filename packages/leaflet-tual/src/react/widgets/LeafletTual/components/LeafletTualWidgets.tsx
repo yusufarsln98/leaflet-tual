@@ -2,12 +2,7 @@
 
 import type React from 'react'
 import type L from 'leaflet'
-import type {
-  Controller,
-  Item,
-  KeyboardShortcutsOptions,
-  ToolbarOptions,
-} from '../../../../core/index.js'
+import type { Controller, Item, ToolbarOptions } from '../../../../core/index.js'
 import { Toolbar } from '../../Toolbar/Toolbar.js'
 import { Sidebar } from '../../Sidebar/index.js'
 import { ContextMenu, type ContextMenuPosition } from '../../ContextMenu/index.js'
@@ -18,7 +13,6 @@ export interface LeafletTualWidgetsProps {
   sidebarOpen: boolean
   contextMenuPos: ContextMenuPosition | null
   toolbarProps?: boolean | ToolbarOptions
-  shortcuts?: boolean | KeyboardShortcutsOptions
   readOnly?: boolean
   onCloseContextMenu: () => void
   onSidebarItemContextMenu: (item: Item, e: React.MouseEvent) => void
@@ -31,7 +25,6 @@ export function LeafletTualWidgets({
   sidebarOpen,
   contextMenuPos,
   toolbarProps,
-  shortcuts,
   readOnly,
   onCloseContextMenu,
   onSidebarItemContextMenu,
@@ -51,7 +44,6 @@ export function LeafletTualWidgets({
           position={toolbarPosition}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={onToggleSidebar}
-          shortcuts={shortcuts}
         />
       )}
 

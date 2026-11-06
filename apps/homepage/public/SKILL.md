@@ -577,22 +577,6 @@ tual.destroy()
 
 Global: `Esc` cancels or deselects, `Cmd/Ctrl+Z` undo, `Cmd/Ctrl+Shift+Z` redo, `Delete` remove, arrow keys nudge, middle-click drag pans the map even when items are selected.
 
-These are defaults and can be changed with the `shortcuts` prop:
-
-```tsx
-<LeafletTual
-  shortcuts={{
-    pen: 'D',
-    freedraw: false,
-    undo: 'Mod+Z',
-    delete: ['Delete', 'Backspace'],
-    escape: false,
-  }}
-/>
-```
-
-Set `shortcuts={false}` to disable every shortcut. Bindings use `KeyboardEvent.key` names with optional `Mod` (Cmd on macOS / Ctrl elsewhere), `Ctrl`, `Meta`/`Cmd`, `Shift` and `Alt` prefixes; arrays register alternatives and `false` disables one action. The same prop on a standalone `<Toolbar>` keeps its shortcut labels in sync. Vanilla callers pass the same config as the third argument to `setupKeyboardShortcuts(controller, handlers, shortcuts)`. Shortcuts are ignored while focus is inside an input, select, contenteditable element, button/link, menu/listbox, modal dialog or Tual chrome.
-
 An active drawing tool disables map dragging and double-click zoom, and restores both when you switch away.
 
 ---

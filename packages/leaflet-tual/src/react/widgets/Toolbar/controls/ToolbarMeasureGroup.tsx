@@ -1,26 +1,16 @@
 'use client'
 
-import {
-  getShortcutLabel,
-  resolveKeyboardShortcuts,
-  type Controller,
-  type MeasureKind,
-  type ResolvedKeyboardShortcuts,
-  isMeasureKind,
-} from '../../../../core/index.js'
+import { type Controller, type MeasureKind, isMeasureKind } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS } from '../../../ui/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
 import { ToolVariantsPopover } from '../popovers/index.js'
-
-const DEFAULT_SHORTCUTS = resolveKeyboardShortcuts()
 
 export interface ToolbarMeasureGroupProps {
   controller: Controller
   availableMeasureTools: MeasureKind[]
   activePopover: string | null
   lastMeasureTool: MeasureKind
-  shortcuts?: ResolvedKeyboardShortcuts
   popoverClassName?: string
   onTogglePopover: (open: boolean) => void
   onClosePopover: () => void
@@ -31,7 +21,6 @@ export function ToolbarMeasureGroup({
   availableMeasureTools,
   activePopover,
   lastMeasureTool,
-  shortcuts = DEFAULT_SHORTCUTS,
   popoverClassName,
   onTogglePopover,
   onClosePopover,
@@ -45,11 +34,11 @@ export function ToolbarMeasureGroup({
     ? lastMeasureTool
     : availableMeasureTools[0]
   const previewTool = activeMeasureTool ?? fallbackTool
-  const shortcut = getShortcutLabel(shortcuts, previewTool)
+  const shortcut = previewTool === 'area' ? 'A' : 'R'
   const toolName =
     previewTool === 'area' ? t('area', undefined, 'Area') : t('ruler', undefined, 'Ruler')
   const groupLabel = t('measure', undefined, 'Measure')
-  const label = shortcut ? `${toolName} (${shortcut})` : toolName
+  const label = `${toolName} (${shortcut})`
 
   return (
     <ToolbarToolButton
@@ -73,7 +62,6 @@ export function ToolbarMeasureGroup({
           type="measure"
           activeVariant={previewTool}
           allowedMeasureVariants={availableMeasureTools}
-          shortcuts={shortcuts}
           onClose={onClosePopover}
           className={popoverClassName}
         />
