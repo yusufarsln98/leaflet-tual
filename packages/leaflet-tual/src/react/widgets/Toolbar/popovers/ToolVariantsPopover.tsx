@@ -30,6 +30,7 @@ export interface ToolVariantsPopoverProps {
   allowedShapeVariants?: readonly ShapeKind[]
   allowedDrawVariants?: readonly DrawKind[]
   allowedMeasureVariants?: readonly MeasureKind[]
+  shortcuts?: boolean
   onClose: () => void
   className?: string
 }
@@ -69,6 +70,7 @@ export function ToolVariantsPopover({
   allowedShapeVariants,
   allowedDrawVariants,
   allowedMeasureVariants,
+  shortcuts = true,
   onClose,
   className,
 }: ToolVariantsPopoverProps) {
@@ -118,7 +120,7 @@ export function ToolVariantsPopover({
               id: v,
               label: t(v, undefined, DRAW_LABELS[v]),
               icon: (v === 'freedraw' ? ICONS.pencil : ICONS[v])?.(),
-              shortcut: DRAW_SHORTCUTS[v],
+              shortcut: shortcuts ? DRAW_SHORTCUTS[v] : undefined,
               selected: drawVariant === v,
               onSelect: () => controller.setTool(v),
             })),
@@ -132,7 +134,7 @@ export function ToolVariantsPopover({
                 id: v,
                 label: t(v, undefined, MEASURE_LABELS[v]),
                 icon: (v === 'area' ? ICONS.area : ICONS.ruler)?.(),
-                shortcut: MEASURE_SHORTCUTS[v],
+                shortcut: shortcuts ? MEASURE_SHORTCUTS[v] : undefined,
                 selected: measureVariant === v,
                 onSelect: () => controller.setTool(v),
               })),

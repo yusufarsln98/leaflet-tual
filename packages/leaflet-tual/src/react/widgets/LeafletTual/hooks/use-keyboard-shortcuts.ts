@@ -9,12 +9,14 @@ export function useKeyboardShortcuts(
   onEscape: () => void,
   onFinishPen?: () => void,
   onFinishArea?: () => void,
+  enabled = true,
 ) {
   useEffect(() => {
+    if (!enabled) return
     return setupKeyboardShortcuts(controller, {
       onEscape,
       onFinishPen,
       onFinishArea,
     })
-  }, [controller, onEscape, onFinishPen, onFinishArea])
+  }, [controller, onEscape, onFinishPen, onFinishArea, enabled])
 }

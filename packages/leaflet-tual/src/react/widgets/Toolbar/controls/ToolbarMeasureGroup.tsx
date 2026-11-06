@@ -11,6 +11,7 @@ export interface ToolbarMeasureGroupProps {
   availableMeasureTools: MeasureKind[]
   activePopover: string | null
   lastMeasureTool: MeasureKind
+  shortcuts?: boolean
   popoverClassName?: string
   onTogglePopover: (open: boolean) => void
   onClosePopover: () => void
@@ -21,6 +22,7 @@ export function ToolbarMeasureGroup({
   availableMeasureTools,
   activePopover,
   lastMeasureTool,
+  shortcuts = true,
   popoverClassName,
   onTogglePopover,
   onClosePopover,
@@ -38,7 +40,7 @@ export function ToolbarMeasureGroup({
   const toolName =
     previewTool === 'area' ? t('area', undefined, 'Area') : t('ruler', undefined, 'Ruler')
   const groupLabel = t('measure', undefined, 'Measure')
-  const label = `${toolName} (${shortcut})`
+  const label = shortcuts ? `${toolName} (${shortcut})` : toolName
 
   return (
     <ToolbarToolButton
@@ -62,6 +64,7 @@ export function ToolbarMeasureGroup({
           type="measure"
           activeVariant={previewTool}
           allowedMeasureVariants={availableMeasureTools}
+          shortcuts={shortcuts}
           onClose={onClosePopover}
           className={popoverClassName}
         />

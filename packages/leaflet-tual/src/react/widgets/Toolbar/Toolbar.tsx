@@ -43,6 +43,7 @@ export const Toolbar = memo(function Toolbar({
   themeTokens,
   sidebarOpen = false,
   onToggleSidebar,
+  shortcuts = true,
 }: ToolbarProps) {
   useControllerState(controller)
 
@@ -109,6 +110,7 @@ export const Toolbar = memo(function Toolbar({
                     availableDrawTools={availableDrawTools}
                     activePopover={activePopover}
                     lastDrawTool={lastDrawToolRef.current}
+                    shortcuts={shortcuts}
                     onTogglePopover={(open) => setActivePopover(open ? 'draw' : null)}
                     onClosePopover={closePopover}
                   />
@@ -124,6 +126,7 @@ export const Toolbar = memo(function Toolbar({
                     availableMeasureTools={availableMeasureTools}
                     activePopover={activePopover}
                     lastMeasureTool={lastMeasureToolRef.current}
+                    shortcuts={shortcuts}
                     onTogglePopover={(open) => setActivePopover(open ? 'measure' : null)}
                     onClosePopover={closePopover}
                   />
@@ -135,6 +138,7 @@ export const Toolbar = memo(function Toolbar({
                   key={toolId}
                   toolId={toolId}
                   controller={controller}
+                  shortcuts={shortcuts}
                   isPopoverOpen={activePopover === toolId}
                   onTogglePopover={(open) => setActivePopover(open ? toolId : null)}
                   onClosePopover={closePopover}

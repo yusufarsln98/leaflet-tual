@@ -577,6 +577,8 @@ tual.destroy()
 
 Global: `Esc` cancels or deselects, `Cmd/Ctrl+Z` undo, `Cmd/Ctrl+Shift+Z` redo, `Delete` remove, arrow keys nudge, middle-click drag pans the map even when items are selected.
 
+Shortcuts are enabled by default. Pass `shortcuts={false}` to `<LeafletTual>` to disable them; a standalone `<Toolbar shortcuts={false}>` also hides its shortcut hints.
+
 An active drawing tool disables map dragging and double-click zoom, and restores both when you switch away.
 
 ---

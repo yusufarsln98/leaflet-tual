@@ -29,6 +29,7 @@ const TOOL_SHORTCUTS: Record<ToolId, string> = {
 export interface ToolbarItemButtonProps {
   toolId: ToolId
   controller: Controller
+  shortcuts?: boolean
   isPopoverOpen: boolean
   popoverClassName?: string
   allowedArrowVariants?: readonly ArrowKind[]
@@ -40,6 +41,7 @@ export interface ToolbarItemButtonProps {
 export function ToolbarItemButton({
   toolId,
   controller,
+  shortcuts = true,
   isPopoverOpen,
   popoverClassName,
   allowedArrowVariants,
@@ -68,7 +70,7 @@ export function ToolbarItemButton({
 
   const shortcut = TOOL_SHORTCUTS[toolId] ?? toolId.charAt(0).toUpperCase()
   const toolName = t(toolId, undefined, toolId.charAt(0).toUpperCase() + toolId.slice(1))
-  const label = `${toolName} (${shortcut})`
+  const label = shortcuts ? `${toolName} (${shortcut})` : toolName
 
   return (
     <ToolbarToolButton
@@ -93,6 +95,7 @@ export function ToolbarItemButton({
           activeVariant={variant}
           allowedArrowVariants={allowedArrowVariants}
           allowedShapeVariants={allowedShapeVariants}
+          shortcuts={shortcuts}
           onClose={onClosePopover}
           className={popoverClassName}
         />

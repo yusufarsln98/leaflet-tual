@@ -251,6 +251,10 @@ interface ToolbarOptions {
 
 Pass `toolbar={false}` to hide the built-in toolbar. `<Toolbar>` can also be rendered outside the map with the same `controller` and options; it accepts `sidebarOpen` and `onToggleSidebar` when you want the More menu to control an external sidebar.
 
+### Keyboard shortcuts
+
+The built-in shortcuts are enabled by default. Pass `shortcuts={false}` to `<LeafletTual>` to disable them. A standalone `<Toolbar shortcuts={false}>` also hides its shortcut hints.
+
 ### Sidebar inspector
 
 Set the `sidebar` prop to open the right-side properties and layers inspector initially. The sidebar toggle in the toolbar's More menu and the inspector's header close button open and close it; `onSidebarChange` keeps external state in sync:

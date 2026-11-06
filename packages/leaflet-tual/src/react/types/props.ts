@@ -22,6 +22,8 @@ export interface LeafletTualProps {
   /** Called whenever the inspector is opened or closed from the toolbar. */
   onSidebarChange?: (open: boolean) => void
   translations?: Partial<TranslationTokens>
+  /** Set to false to disable the built-in keyboard shortcuts. Defaults to true. */
+  shortcuts?: boolean
   map?: L.Map
 }
 
@@ -31,4 +33,6 @@ export interface ToolbarProps extends ToolbarOptions {
   themeTokens?: Partial<ThemeTokens>
   sidebarOpen?: boolean
   onToggleSidebar?: () => void
+  /** Set to false to hide shortcut hints in tool labels. Defaults to true. */
+  shortcuts?: boolean
 }

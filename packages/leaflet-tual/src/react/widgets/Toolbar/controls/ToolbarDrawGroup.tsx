@@ -11,6 +11,7 @@ export interface ToolbarDrawGroupProps {
   availableDrawTools: DrawKind[]
   activePopover: string | null
   lastDrawTool: DrawKind
+  shortcuts?: boolean
   popoverClassName?: string
   onTogglePopover: (open: boolean) => void
   onClosePopover: () => void
@@ -21,6 +22,7 @@ export function ToolbarDrawGroup({
   availableDrawTools,
   activePopover,
   lastDrawTool,
+  shortcuts = true,
   popoverClassName,
   onTogglePopover,
   onClosePopover,
@@ -37,7 +39,7 @@ export function ToolbarDrawGroup({
   const previewTool = activeDrawTool ?? fallbackTool
   const shortcut = previewTool === 'pen' ? 'P' : 'F'
   const drawName = t('draw', undefined, 'Draw')
-  const label = `${drawName} (${shortcut})`
+  const label = shortcuts ? `${drawName} (${shortcut})` : drawName
 
   return (
     <ToolbarToolButton
@@ -61,6 +63,7 @@ export function ToolbarDrawGroup({
           type="draw"
           activeVariant={previewTool}
           allowedDrawVariants={availableDrawTools}
+          shortcuts={shortcuts}
           onClose={onClosePopover}
           className={popoverClassName}
         />

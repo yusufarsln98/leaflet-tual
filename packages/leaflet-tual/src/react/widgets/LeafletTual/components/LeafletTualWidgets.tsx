@@ -13,6 +13,7 @@ export interface LeafletTualWidgetsProps {
   sidebarOpen: boolean
   contextMenuPos: ContextMenuPosition | null
   toolbarProps?: boolean | ToolbarOptions
+  shortcuts?: boolean
   readOnly?: boolean
   onCloseContextMenu: () => void
   onSidebarItemContextMenu: (item: Item, e: React.MouseEvent) => void
@@ -25,6 +26,7 @@ export function LeafletTualWidgets({
   sidebarOpen,
   contextMenuPos,
   toolbarProps,
+  shortcuts,
   readOnly,
   onCloseContextMenu,
   onSidebarItemContextMenu,
@@ -44,6 +46,7 @@ export function LeafletTualWidgets({
           position={toolbarPosition}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={onToggleSidebar}
+          shortcuts={shortcuts}
         />
       )}
 
