@@ -1,5 +1,11 @@
 # leaflet-tual
 
+## 3.1.1
+
+### Patch Changes
+
+- 3420378: Keep page renaming in the page settings menu. Double-clicking the toolbar page button no longer starts inline editing.
+
 ## 3.1.0
 
 ### Minor Changes
