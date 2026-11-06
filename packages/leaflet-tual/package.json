@@ -1,6 +1,6 @@
 {
   "name": "leaflet-tual",
-  "version": "3.1.1",
+  "version": "3.2.1",
   "description": "Opinionated whiteboard-style annotation toolset (pen, arrows, shapes, notes, text, rulers, pages) for Leaflet maps. Optional React bindings.",
   "type": "module",
   "sideEffects": [
