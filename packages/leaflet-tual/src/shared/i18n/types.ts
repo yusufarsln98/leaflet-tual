@@ -40,7 +40,6 @@ export interface TranslationTokens {
   pageOptions: string
   newPage: string
   rename: string
-  pageName: string
   delete: string
   pageDefault: string
 
