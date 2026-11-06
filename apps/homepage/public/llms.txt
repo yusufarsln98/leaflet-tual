@@ -184,11 +184,11 @@ export function MapView() {
 }
 ```
 
-`<LeafletTual>` props are all optional. The library has no sidebar; item properties are edited from the contextual toolbar and the right-click menu.
+`<LeafletTual>` props are all optional. Item properties are edited from the contextual toolbar, the optional sidebar inspector, or the right-click menu.
 
-## Toolbar & Theming
+## Toolbar, Sidebar & Theming
 
-The toolbar is a stack of Leaflet-style control islands: **Tools → History → Pages**. Each island has a thin border, a small radius and one square control per action. The position controls the layout: top/bottom edges lay out horizontally, left/right edges lay out vertically; every edge supports start, center and end alignment. Tools with variants expose a small corner triangle; the main icon activates the tool with its last-used variant.
+The toolbar is a stack of Leaflet-style control islands: **Page → Tools → More**. Each island has a thin border, a small radius and one square control per action. The page island shows the active page name; double-click it to rename inline, or open it to switch, rename, add or delete pages. In vertical toolbars the page control collapses to its icon so the island stays square. Undo, redo, fit-in-view and the sidebar toggle live in the More menu at the end. The position controls the layout: top/bottom edges lay out horizontally, left/right edges lay out vertically; every edge supports start, center and end alignment. When the sidebar is open, the built-in toolbar is pinned to the top center regardless of the configured position. Tools with variants expose a small corner triangle; the main icon activates the tool with its last-used variant.
 
 ```tsx
 <LeafletTual
@@ -212,11 +212,13 @@ The toolbar is a stack of Leaflet-style control islands: **Tools → History →
 />
 ```
 
-`ToolbarOptions`: `position` (default `'top-left'`; top/bottom are horizontal, left/right vertical, with start/center/end alignment on every edge), `orientation` (only used by `'inline'` toolbars), `tools`, `pages` (default `true`), `history` (default `true`). Pass `toolbar={false}` to hide the built-in toolbar.
+`ToolbarOptions`: `position` (default `'top-left'`; top/bottom are horizontal, left/right vertical, with start/center/end alignment on every edge), `orientation` (only used by `'inline'` toolbars), `tools`, `pages` (default `true`), `history` (default `true`, renders undo/redo/fit in the More menu). Pass `toolbar={false}` to hide the built-in toolbar. External `<Toolbar>` accepts `sidebarOpen` and `onToggleSidebar` so its More menu can control an external sidebar.
 
-`ThemeTokens` themes only the chrome, never annotation items. Available tokens: `surface`, `surfaceActive`, `surfaceMuted`, `text`, `textMuted`, `textActive`, `accent`, `border`, `divider`, `focus`, `radius`, `radiusSm`, `radiusLg`, `shadow`, `shadowPopup`, `controlSize`, `groupGap`, `iconSize`, `fontFamily`, `fontSize`, `lineHeight`, and `variables` for extra CSS custom properties. Values may be colors or CSS variable references. `themeTokens` is also accepted by `createLeafletTual(map, { themeTokens })` and external `<Toolbar themeTokens={...} />`.
+Set `sidebar` to open the right-side properties and layers inspector initially: `<LeafletTual sidebar />`. The toolbar's More menu toggles it, the inspector header has a close button, and `onSidebarChange` keeps external state in sync. It shows the page/layer tree and style controls for the current selection; selecting a tree item focuses it on the map, and right-clicking a tree item opens the shared context menu. The More button at the end of the selected item's contextual toolbar also opens the inspector. While the sidebar is visible, the contextual item toolbar is hidden so properties are edited in one place, and the built-in toolbar is pinned to the top center. The standalone `<Sidebar controller={tual} map={map} onClose={...} />` component is also exported; `onClose` is only needed when the host can hide it. The built-in sidebar stays hidden in read-only mode.
 
-Reusable chrome controls are exported from `leaflet-tual/react` for custom panels: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Popover`, `DropdownMenu`, `DropdownItem`, `ConfirmPopover`, `Select`, `NumberField`, `TextField`, `ColorSwatch`, `ColorSwatchList`, `ColorSwatchControls`, `CustomColorPicker`, `ColorDropdown`, `TypographyDropdown`, `TextFormattingControls`, `LabelPositionDropdown`, `BorderPopover`, `useOutsideDismiss`, `useWheelGuard`, `useLeafletDomGuard`, `useLeafletDisableClick`, `disableMapInteractions`, `createLeafletControl`, and `createControlContainer`. Wrap a custom panel with `useLeafletDomGuard()` or give it the `tual-panel` class to isolate it from map gestures.
+`ThemeTokens` themes only the chrome (toolbar, sidebar, menus, popovers and contextual tooltip), never annotation items. Available tokens: `surface`, `surfaceActive`, `surfaceMuted`, `text`, `textMuted`, `textActive`, `accent`, `border`, `divider`, `focus`, `radius`, `radiusSm`, `radiusLg`, `shadow`, `shadowPopup`, `controlSize`, `groupGap`, `iconSize`, `fontFamily`, `fontSize`, `lineHeight`, and `variables` for extra CSS custom properties. Values may be colors or CSS variable references. `themeTokens` is also accepted by `createLeafletTual(map, { themeTokens })` and external `<Toolbar themeTokens={...} />`.
+
+Reusable chrome controls are exported from `leaflet-tual/react` for custom panels: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Popover`, `DropdownMenu`, `DropdownItem`, `ConfirmPopover`, `Select`, `NumberField`, `TextField`, `PropertyRow`, `Collapsible`, `ColorSwatch`, `ColorSwatchList`, `ColorSwatchControls`, `CustomColorPicker`, `ColorDropdown`, `TypographyDropdown`, `TextFormattingControls`, `LabelPositionDropdown`, `BorderPopover`, `useOutsideDismiss`, `useWheelGuard`, `useLeafletDomGuard`, `useLeafletDisableClick`, `disableMapInteractions`, `createLeafletControl`, and `createControlContainer`. Wrap a custom panel with `useLeafletDomGuard()` or give it the `tual-panel` class to isolate it from map gestures.
 
 ## Vanilla JS Core (No React)
 

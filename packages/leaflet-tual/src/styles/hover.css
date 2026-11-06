@@ -24,3 +24,58 @@
 .tual-typo-tab[data-active='true']:hover {
   background-color: var(--tual-hover-surface-active);
 }
+
+/* Disabled controls keep their layout but drop to the disabled foreground and
+   never show hover feedback. */
+.tual-btn:disabled,
+.tual-page-pill:disabled,
+.tual-popover-action-btn:disabled,
+.tual-secondary-pill-btn:disabled,
+.tual-secondary-icon-btn:disabled,
+.tual-secondary-swatch-btn:disabled,
+.tual-option-row:disabled,
+.tual-variant-item:disabled,
+.tual-action-menu-item:disabled,
+.tual-select-menu-item:disabled,
+.tual-page-add-btn:disabled,
+.tual-confirm-cancel-btn:disabled,
+.tual-confirm-delete-btn:disabled {
+  color: var(--tual-fg-disabled);
+  cursor: not-allowed;
+}
+
+.tual-option-row:disabled .tual-option-icon,
+.tual-option-row:disabled .tual-option-meta,
+.tual-variant-item:disabled .tual-variant-icon,
+.tual-variant-item:disabled .tual-variant-shortcut,
+.tual-page-add-btn:disabled .tual-page-add-icon {
+  color: inherit;
+  opacity: 1;
+}
+
+.tual-btn[data-active='true']:disabled,
+.tual-tool[data-active='true'] > .tual-btn:disabled,
+.tual-page-pill[data-active='true']:disabled,
+.tual-page-pill[aria-expanded='true']:disabled,
+.tual-secondary-pill-btn[data-active='true']:disabled,
+.tual-secondary-icon-btn[data-active='true']:disabled,
+.tual-secondary-swatch-btn[data-active='true']:disabled {
+  background-color: transparent;
+  color: var(--tual-fg-disabled);
+}
+
+.tual-btn:disabled:hover,
+.tual-page-pill:disabled:hover,
+.tual-popover-action-btn:disabled:hover,
+.tual-secondary-pill-btn:disabled:hover,
+.tual-secondary-icon-btn:disabled:hover,
+.tual-secondary-swatch-btn:disabled:hover,
+.tual-option-row:disabled:hover,
+.tual-variant-item:disabled:hover,
+.tual-action-menu-item:disabled:hover,
+.tual-select-menu-item:disabled:hover,
+.tual-page-add-btn:disabled:hover,
+.tual-confirm-cancel-btn:disabled:hover,
+.tual-confirm-delete-btn:disabled:hover {
+  background-color: transparent;
+}

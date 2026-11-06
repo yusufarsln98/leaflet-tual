@@ -13,6 +13,10 @@ import {
   Toolbar,
   ToolbarMeasureGroup,
   ToolbarHistoryControls,
+  ToolbarMoreMenu,
+  Sidebar,
+  SidebarLayerTree,
+  SidebarProperties,
   ContextMenu,
   useLeafletTual,
   useLeafletSync,
@@ -28,6 +32,7 @@ import {
   isMeasureKind,
   isToolVariant,
   getPageItems,
+  getItemPreview,
   geoToScreen,
   screenToGeo,
   toWorld,
@@ -90,6 +95,8 @@ import {
   useTooltipEvents,
   NumberField,
   TextField,
+  PropertyRow,
+  Collapsible,
   Divider,
   ICONS,
   useLeafletDomGuard,
@@ -121,12 +128,17 @@ describe('leaflet-tual v3 package contract exports', () => {
     expect(Toolbar).toBeDefined()
     expect(ToolbarMeasureGroup).toBeDefined()
     expect(ToolbarHistoryControls).toBeDefined()
+    expect(ToolbarMoreMenu).toBeDefined()
+    expect(Sidebar).toBeDefined()
+    expect(SidebarLayerTree).toBeDefined()
+    expect(SidebarProperties).toBeDefined()
     expect(ContextMenu).toBeDefined()
     expect(useLeafletTual).toBeDefined()
     expect(useLeafletSync).toBeDefined()
     expect(useControllerStore).toBeDefined()
     expect(createController).toBeDefined()
     expect(getPageItems).toBeDefined()
+    expect(getItemPreview).toBeDefined()
     expect(useLeafletDomGuard).toBeDefined()
     expect(disableTualDomPropagation).toBeDefined()
     expect(disableMapInteractions).toBeDefined()
@@ -225,6 +237,8 @@ describe('leaflet-tual v3 package contract exports', () => {
     expect(CustomColorPicker).toBeDefined()
     expect(NumberField).toBeDefined()
     expect(TextField).toBeDefined()
+    expect(PropertyRow).toBeDefined()
+    expect(Collapsible).toBeDefined()
     expect(Divider).toBeDefined()
     expect(ICONS).toBeDefined()
   })

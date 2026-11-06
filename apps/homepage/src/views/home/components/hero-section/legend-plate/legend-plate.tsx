@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Compass, Crosshair, Layers, Maximize2, Minus, Plus } from 'lucide-react'
+import { ArrowRight, Compass, Crosshair, Info, Layers, Maximize2, Minus, Plus, X } from 'lucide-react'
 import { DEFAULT_PALETTE } from 'leaflet-tual'
 import { PlateMarks } from '../../plate-marks'
 import type { LayerFilter } from '../constants'
@@ -12,6 +12,7 @@ import { DASH, HANDLE_COLOR, NOTE_SURFACE, STROKE, tint } from './item-styles'
 
 export function LegendPlate() {
   const [activeLayer, setActiveLayer] = useState<LayerFilter>('all')
+  const [isInfoOpen, setIsInfoOpen] = useState(false)
 
   const showArrows = activeLayer === 'all' || activeLayer === 'arrows'
   const showShapes = activeLayer === 'all' || activeLayer === 'shapes'
@@ -738,9 +739,54 @@ export function LegendPlate() {
               <span className="font-mono text-[9px] text-[var(--oh-ink-3)]">500 m / 0.27 nmi</span>
             </div>
 
-            {/* ── Leaflet attribution (Bottom-Right) ── */}
-            <div className="absolute bottom-9 right-3 z-10 hidden sm:block font-mono text-[9px] text-[var(--oh-ink-3)] bg-[var(--oh-plate)]/85 px-1.5 py-0.5 rounded-[1px] border border-[var(--oh-line)]">
-              Leaflet · © Carto Basemap
+            {/* ── Map info (Bottom-Right) ── */}
+            <div className="absolute bottom-9 right-3 z-20 flex flex-col items-end gap-1.5">
+              {isInfoOpen && (
+                <div
+                  role="dialog"
+                  aria-label="Map information"
+                  className="w-[min(260px,calc(100vw-2rem))] rounded border border-[var(--oh-line)] bg-[var(--oh-plate)]/95 p-2.5 font-mono text-[10px] leading-relaxed text-[var(--oh-ink-2)] shadow-lg backdrop-blur-sm"
+                >
+                  <div className="mb-1.5 flex items-start justify-between gap-2">
+                    <span className="font-bold uppercase tracking-wider text-[var(--oh-ink)]">
+                      Map information
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsInfoOpen(false)}
+                      className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded text-[var(--oh-ink-3)] hover:bg-[var(--oh-plate)] hover:text-[var(--oh-ink)]"
+                      title="Close map information"
+                      aria-label="Close map information"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  </div>
+                  <p>Basemap: Carto</p>
+                  <p>
+                    ©{' '}
+                    <a
+                      href="https://leafletjs.com"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[var(--oh-lime)] underline underline-offset-2"
+                    >
+                      Leaflet
+                    </a>{' '}
+                    · © Carto Basemap
+                  </p>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setIsInfoOpen((open) => !open)}
+                className="inline-flex h-6 w-6 items-center justify-center rounded border border-[var(--oh-line)] bg-[var(--oh-plate)]/90 text-[var(--oh-ink-3)] shadow-sm backdrop-blur-sm transition-colors hover:border-[var(--oh-ink-3)] hover:text-[var(--oh-ink)]"
+                title="Map information"
+                aria-label="Map information"
+                aria-expanded={isInfoOpen}
+              >
+                <Info className="h-3 w-3" />
+              </button>
             </div>
 
             {/* ── Status Bar / GIS Coordinate Readout (Bottom Strip) ── */}

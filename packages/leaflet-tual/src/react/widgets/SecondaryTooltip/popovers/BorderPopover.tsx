@@ -149,7 +149,7 @@ export function BorderPopover({
       {showPalette && (
         <div className="tual-border-nested-palette">
           <div className="tual-border-palette-header">
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--tual-fg, #222222)' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--tual-fg)' }}>
               {t('colors')}
             </span>
             <button

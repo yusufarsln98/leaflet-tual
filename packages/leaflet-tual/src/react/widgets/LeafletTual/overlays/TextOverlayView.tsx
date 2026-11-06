@@ -205,7 +205,7 @@ export const TextOverlayView = memo(function TextOverlayView({
       style={{
         left: pt.x,
         top: pt.y,
-        color: isEmpty ? 'var(--tual-fg-muted, #555555)' : color,
+        color: isEmpty ? 'var(--tual-fg-muted)' : color,
         fontSize,
         fontWeight: weight,
         fontStyle: isEmpty ? 'normal' : fontStyle,

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type L from 'leaflet'
 import { useMap } from 'react-leaflet'
 import type { Controller, InternalController } from '../../../core/index.js'
@@ -44,7 +44,27 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
 
   const [activeGesture, setActiveGesture] = useState<CanvasGesture | null>(null)
   const [hoveredItemId, setHoveredItemId] = useState<string | null>(null)
+  const [sidebarVisible, setSidebarVisible] = useState(Boolean(props.sidebar))
   const isShiftPressedRef = useRef(false)
+  const sidebarOpen = sidebarVisible && !controller.readOnly
+  const onSidebarChange = props.onSidebarChange
+
+  useEffect(() => {
+    setSidebarVisible(Boolean(props.sidebar))
+  }, [props.sidebar])
+
+  const toggleSidebar = useCallback(() => {
+    if (controller.readOnly) return
+    const next = !sidebarVisible
+    setSidebarVisible(next)
+    onSidebarChange?.(next)
+  }, [controller.readOnly, onSidebarChange, sidebarVisible])
+
+  const openSidebar = useCallback(() => {
+    if (controller.readOnly) return
+    setSidebarVisible(true)
+    onSidebarChange?.(true)
+  }, [controller.readOnly, onSidebarChange])
 
   const { canvasRef, currentZoom } = useCanvasScene({
     map,
@@ -74,6 +94,7 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
     closeContextMenu,
     handleContextMenu,
     handleOverlayContextMenu,
+    handleSidebarItemContextMenu,
   } = useContextMenuCoordinator({
     map,
     controller,
@@ -150,18 +171,23 @@ function LeafletTualInner({ map, props }: { map: L.Map; props: LeafletTualProps 
           map={map}
           controller={controller}
           currentZoom={currentZoom}
+          sidebarOpen={sidebarOpen}
           contextMenuPos={contextMenuPos}
           activeGesture={activeGesture}
+          onOpenSidebar={openSidebar}
           onOverlayContextMenu={handleOverlayContextMenu}
         />
 
         <LeafletTualWidgets
           map={map}
           controller={controller}
+          sidebarOpen={sidebarOpen}
           contextMenuPos={contextMenuPos}
           toolbarProps={props.toolbar}
           readOnly={props.readOnly ?? controller.readOnly}
           onCloseContextMenu={closeContextMenu}
+          onSidebarItemContextMenu={handleSidebarItemContextMenu}
+          onToggleSidebar={toggleSidebar}
         />
       </div>
     </TranslationProvider>

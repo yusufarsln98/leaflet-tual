@@ -1,5 +1,3 @@
-import { Map as MapIcon } from 'lucide-react'
-
 interface IconProps {
   className?: string
   size?: number
@@ -7,8 +5,8 @@ interface IconProps {
 }
 
 /**
- * GitHub and npm have no brand marks in Lucide, so they stay as inline SVGs.
- * Every other icon on the homepage should come from lucide-react.
+ * GitHub, npm and the leaflet-tual folded-map logo are brand marks, so they
+ * stay as inline SVGs. Every other icon on the homepage uses lucide-react.
  */
 function GithubIcon({ className, size = 16, title }: IconProps) {
   return (
@@ -65,11 +63,21 @@ export function BrandIcon({
   }
 
   return (
-    <MapIcon
-      size={size}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 128 128"
+      width={size}
+      height={size}
+      fill="none"
       className={className}
+      role={title ? 'img' : undefined}
       aria-hidden={title ? undefined : true}
-      aria-label={title}
-    />
+    >
+      {title && <title>{title}</title>}
+      <rect width="128" height="128" rx="30" fill="#111827" />
+      <path d="M18 24L50 34V104L18 94Z" fill="#B6F03C" />
+      <path d="M50 34L78 24V94L50 104Z" fill="#E5E7EB" />
+      <path d="M78 24L110 34V104L78 94Z" fill="#4B5563" />
+    </svg>
   )
 }

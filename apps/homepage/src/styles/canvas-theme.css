@@ -44,26 +44,7 @@
   opacity: 0.4 !important;
 }
 
-/* Leaflet attribution bar */
+/* Attribution is shown from the compact info control instead. */
 .leaflet-control-attribution {
-  background-color: color-mix(in oklch, var(--bg-pane) 88%, transparent) !important;
-  backdrop-filter: blur(8px) !important;
-  color: var(--text-muted) !important;
-  border: 1px solid var(--border-secondary) !important;
-  border-radius: 6px !important;
-  font-family: var(--font-mono) !important;
-  font-size: 10px !important;
-  margin: 8px !important;
-  padding: 2px 8px !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-}
-
-.leaflet-control-attribution a {
-  color: var(--accent) !important;
-  text-decoration: none !important;
-  font-weight: 500 !important;
-}
-
-.leaflet-control-attribution a:hover {
-  text-decoration: underline !important;
+  display: none !important;
 }

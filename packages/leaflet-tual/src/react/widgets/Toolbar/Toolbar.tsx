@@ -10,9 +10,9 @@ import { useLeafletDomGuard, useOutsideDismiss } from '../../ui/index.js'
 import {
   PageSwitcher,
   ToolbarDrawGroup,
-  ToolbarHistoryControls,
   ToolbarItemButton,
   ToolbarMeasureGroup,
+  ToolbarMoreMenu,
 } from './controls/index.js'
 import { resolveToolbarPosition } from './position.js'
 
@@ -41,13 +41,15 @@ export const Toolbar = memo(function Toolbar({
   pages = true,
   history = true,
   themeTokens,
+  sidebarOpen = false,
+  onToggleSidebar,
 }: ToolbarProps) {
   useControllerState(controller)
 
   const resolvedPosition = resolveToolbarPosition(position, orientation)
-  const [activePopover, setActivePopover] = useState<'pages' | 'draw' | 'measure' | ToolId | null>(
-    null,
-  )
+  const [activePopover, setActivePopover] = useState<
+    'pages' | 'more' | 'draw' | 'measure' | ToolId | null
+  >(null)
   const toolbarRef = useRef<HTMLDivElement>(null)
   const lastDrawToolRef = useRef<DrawKind>('freedraw')
   const lastMeasureToolRef = useRef<MeasureKind>('ruler')
@@ -61,6 +63,7 @@ export const Toolbar = memo(function Toolbar({
 
   const availableDrawTools = DRAW_TOOLS.filter((t) => tools.includes(t))
   const availableMeasureTools = MEASURE_TOOLS.filter((t) => tools.includes(t))
+  const showMoreMenu = history || Boolean(onToggleSidebar)
 
   const closePopover = useCallback(() => setActivePopover(null), [])
   useOutsideDismiss(toolbarRef, activePopover !== null, closePopover)
@@ -83,6 +86,17 @@ export const Toolbar = memo(function Toolbar({
           if (e.target === e.currentTarget) closePopover()
         }}
       >
+        {pages && (
+          <div className="tual-tool-group" data-group="pages">
+            <PageSwitcher
+              controller={controller}
+              isOpen={activePopover === 'pages'}
+              onToggle={() => setActivePopover((p) => (p === 'pages' ? null : 'pages'))}
+              onClose={closePopover}
+            />
+          </div>
+        )}
+
         {tools.length > 0 && (
           <div className="tual-tool-group" data-group="tools">
             {tools.map((toolId) => {
@@ -130,19 +144,17 @@ export const Toolbar = memo(function Toolbar({
           </div>
         )}
 
-        {history && (
-          <div className="tual-tool-group" data-group="history">
-            <ToolbarHistoryControls controller={controller} map={map} />
-          </div>
-        )}
-
-        {pages && (
-          <div className="tual-tool-group" data-group="pages">
-            <PageSwitcher
+        {showMoreMenu && (
+          <div className="tual-tool-group" data-group="more">
+            <ToolbarMoreMenu
               controller={controller}
-              isOpen={activePopover === 'pages'}
-              onToggle={() => setActivePopover((p) => (p === 'pages' ? null : 'pages'))}
+              map={map}
+              isOpen={activePopover === 'more'}
+              onToggle={() => setActivePopover((p) => (p === 'more' ? null : 'more'))}
               onClose={closePopover}
+              showHistory={history}
+              sidebarOpen={sidebarOpen}
+              onToggleSidebar={onToggleSidebar}
             />
           </div>
         )}

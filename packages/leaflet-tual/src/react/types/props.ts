@@ -17,6 +17,10 @@ export interface LeafletTualProps {
   readOnly?: boolean
   themeTokens?: Partial<ThemeTokens>
   toolbar?: boolean | ToolbarOptions
+  /** Initial right-side properties & layers inspector visibility. */
+  sidebar?: boolean
+  /** Called whenever the inspector is opened or closed from the toolbar. */
+  onSidebarChange?: (open: boolean) => void
   translations?: Partial<TranslationTokens>
   map?: L.Map
 }
@@ -25,4 +29,6 @@ export interface ToolbarProps extends ToolbarOptions {
   controller: Controller
   map?: L.Map
   themeTokens?: Partial<ThemeTokens>
+  sidebarOpen?: boolean
+  onToggleSidebar?: () => void
 }
