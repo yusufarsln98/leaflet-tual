@@ -1,7 +1,12 @@
 'use client'
 
 import { memo, useCallback, useRef, useState } from 'react'
-import type { DrawKind, MeasureKind, ToolId } from '../../../core/index.js'
+import {
+  resolveKeyboardShortcuts,
+  type DrawKind,
+  type MeasureKind,
+  type ToolId,
+} from '../../../core/index.js'
 import { themeTokensToCssVariables } from '../../../shared/theme/index.js'
 import { useControllerState } from '../../features/index.js'
 import { TranslationProvider } from '../../features/i18n/index.js'
@@ -43,9 +48,11 @@ export const Toolbar = memo(function Toolbar({
   themeTokens,
   sidebarOpen = false,
   onToggleSidebar,
+  shortcuts,
 }: ToolbarProps) {
   useControllerState(controller)
 
+  const resolvedShortcuts = resolveKeyboardShortcuts(shortcuts)
   const resolvedPosition = resolveToolbarPosition(position, orientation)
   const [activePopover, setActivePopover] = useState<
     'pages' | 'more' | 'draw' | 'measure' | ToolId | null
@@ -109,6 +116,7 @@ export const Toolbar = memo(function Toolbar({
                     availableDrawTools={availableDrawTools}
                     activePopover={activePopover}
                     lastDrawTool={lastDrawToolRef.current}
+                    shortcuts={resolvedShortcuts}
                     onTogglePopover={(open) => setActivePopover(open ? 'draw' : null)}
                     onClosePopover={closePopover}
                   />
@@ -124,6 +132,7 @@ export const Toolbar = memo(function Toolbar({
                     availableMeasureTools={availableMeasureTools}
                     activePopover={activePopover}
                     lastMeasureTool={lastMeasureToolRef.current}
+                    shortcuts={resolvedShortcuts}
                     onTogglePopover={(open) => setActivePopover(open ? 'measure' : null)}
                     onClosePopover={closePopover}
                   />
@@ -135,6 +144,7 @@ export const Toolbar = memo(function Toolbar({
                   key={toolId}
                   toolId={toolId}
                   controller={controller}
+                  shortcuts={resolvedShortcuts}
                   isPopoverOpen={activePopover === toolId}
                   onTogglePopover={(open) => setActivePopover(open ? toolId : null)}
                   onClosePopover={closePopover}

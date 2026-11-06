@@ -1,34 +1,27 @@
 'use client'
 
 import { useRef } from 'react'
-import type {
-  ArrowKind,
-  Controller,
-  ShapeKind,
-  ToolId,
-  ToolVariant,
+import {
+  getShortcutLabel,
+  resolveKeyboardShortcuts,
+  type ArrowKind,
+  type Controller,
+  type ResolvedKeyboardShortcuts,
+  type ShapeKind,
+  type ToolId,
+  type ToolVariant,
 } from '../../../../core/index.js'
 import { useTranslation } from '../../../features/i18n/index.js'
 import { ICONS, type IconName } from '../../../ui/index.js'
 import { ToolbarToolButton } from './ToolbarToolButton.js'
 import { ToolVariantsPopover } from '../popovers/index.js'
 
-const TOOL_SHORTCUTS: Record<ToolId, string> = {
-  select: 'V',
-  text: 'T',
-  note: 'N',
-  arrow: 'L',
-  shape: 'S',
-  ruler: 'R',
-  area: 'A',
-  freedraw: 'F',
-  pen: 'P',
-  laser: 'K',
-}
+const DEFAULT_SHORTCUTS = resolveKeyboardShortcuts()
 
 export interface ToolbarItemButtonProps {
   toolId: ToolId
   controller: Controller
+  shortcuts?: ResolvedKeyboardShortcuts
   isPopoverOpen: boolean
   popoverClassName?: string
   allowedArrowVariants?: readonly ArrowKind[]
@@ -40,6 +33,7 @@ export interface ToolbarItemButtonProps {
 export function ToolbarItemButton({
   toolId,
   controller,
+  shortcuts = DEFAULT_SHORTCUTS,
   isPopoverOpen,
   popoverClassName,
   allowedArrowVariants,
@@ -66,9 +60,9 @@ export function ToolbarItemButton({
   const iconKey = variant ?? toolId
   const icon = (iconKey in ICONS ? ICONS[iconKey as IconName] : ICONS.pencil)()
 
-  const shortcut = TOOL_SHORTCUTS[toolId] ?? toolId.charAt(0).toUpperCase()
+  const shortcut = getShortcutLabel(shortcuts, toolId)
   const toolName = t(toolId, undefined, toolId.charAt(0).toUpperCase() + toolId.slice(1))
-  const label = `${toolName} (${shortcut})`
+  const label = shortcut ? `${toolName} (${shortcut})` : toolName
 
   return (
     <ToolbarToolButton
@@ -93,6 +87,7 @@ export function ToolbarItemButton({
           activeVariant={variant}
           allowedArrowVariants={allowedArrowVariants}
           allowedShapeVariants={allowedShapeVariants}
+          shortcuts={shortcuts}
           onClose={onClosePopover}
           className={popoverClassName}
         />

@@ -1,19 +1,26 @@
-import type { Controller, ToolId } from '../../../core/types.js'
+import type { Controller } from '../../../core/types.js'
 import { isEscapeHandled } from '../../dom/escape-handled.js'
+import { shouldIgnoreShortcutEvent } from '../../dom/shortcut-guard.js'
 import { translateItem } from '../../geometry/translate.js'
+import {
+  resolveKeyboardShortcuts,
+  SHORTCUT_TOOL_ACTIONS,
+  type KeyboardShortcutsOptions,
+  type ShortcutAction,
+} from './shortcut-config.js'
+import { matchesShortcut } from './shortcut-match.js'
 
-export const KEY_TO_TOOL: Record<string, ToolId> = {
-  V: 'select',
-  T: 'text',
-  N: 'note',
-  F: 'freedraw',
-  P: 'pen',
-  L: 'arrow',
-  S: 'shape',
-  R: 'ruler',
-  A: 'area',
-  K: 'laser',
-}
+export {
+  DEFAULT_SHORTCUT_BINDINGS,
+  getShortcutLabel,
+  KEY_TO_TOOL,
+  resolveKeyboardShortcuts,
+  type KeyboardShortcutsOptions,
+  type ResolvedKeyboardShortcuts,
+  type ShortcutAction,
+  type ShortcutBinding,
+  type ShortcutCommandAction,
+} from './shortcut-config.js'
 
 export interface KeyboardShortcutHandlers {
   onEscape?: () => void
@@ -24,76 +31,83 @@ export interface KeyboardShortcutHandlers {
 export function setupKeyboardShortcuts(
   controller: Controller,
   handlers: KeyboardShortcutHandlers = {},
+  shortcuts?: boolean | KeyboardShortcutsOptions,
 ): () => void {
+  const resolved = resolveKeyboardShortcuts(shortcuts)
+  const matches = (event: KeyboardEvent, action: ShortcutAction) =>
+    matchesShortcut(event, resolved[action])
+
   const onKeyDown = (e: KeyboardEvent) => {
     if (controller.readOnly) return
-    const el = document.activeElement as HTMLElement | null
-    if (el?.tagName === 'INPUT' || el?.tagName === 'TEXTAREA' || el?.isContentEditable) {
-      return
-    }
+    if (shouldIgnoreShortcutEvent(e)) return
 
-    const key = e.key.toUpperCase()
-    const isMeta = e.metaKey || e.ctrlKey
-
-    if (isMeta && key === 'Z') {
-      e.preventDefault()
-      if (e.shiftKey) controller.redo()
-      else controller.undo()
-      return
-    }
-    if (isMeta && key === 'Y') {
-      e.preventDefault()
-      controller.redo()
-      return
-    }
-    if (isMeta && key === 'D') {
-      if (controller.selection.length > 0) {
+    if (matches(e, 'undo')) {
+      if (controller.canUndo) {
         e.preventDefault()
-        controller.duplicate()
+        controller.undo()
       }
       return
     }
-    if (isMeta && key === 'A') {
+    if (matches(e, 'redo')) {
+      if (controller.canRedo) {
+        e.preventDefault()
+        controller.redo()
+      }
+      return
+    }
+    if (controller.selection.length > 0 && matches(e, 'duplicate')) {
       e.preventDefault()
-      controller.selectAll()
+      controller.duplicate()
+      return
+    }
+    if (matches(e, 'selectAll')) {
+      if (controller.items.length > 0) {
+        e.preventDefault()
+        controller.selectAll()
+      }
       return
     }
 
-    if (e.key === ']' && controller.selection.length > 0) {
-      e.preventDefault()
-      if (e.altKey) controller.bringForward()
-      else controller.bringToFront()
-      return
-    }
-    if (e.key === '[' && controller.selection.length > 0) {
-      e.preventDefault()
-      if (e.altKey) controller.sendBackward()
-      else controller.sendToBack()
-      return
-    }
+    if (controller.selection.length > 0) {
+      if (matches(e, 'bringForward')) {
+        e.preventDefault()
+        controller.bringForward()
+        return
+      }
+      if (matches(e, 'bringToFront')) {
+        e.preventDefault()
+        controller.bringToFront()
+        return
+      }
+      if (matches(e, 'sendBackward')) {
+        e.preventDefault()
+        controller.sendBackward()
+        return
+      }
+      if (matches(e, 'sendToBack')) {
+        e.preventDefault()
+        controller.sendToBack()
+        return
+      }
 
-    if (
-      (e.key === 'ArrowUp' ||
-        e.key === 'ArrowDown' ||
-        e.key === 'ArrowLeft' ||
-        e.key === 'ArrowRight') &&
-      controller.selection.length > 0
-    ) {
       const movable = controller.selected.filter((i) => !i.locked)
       if (movable.length > 0) {
-        e.preventDefault()
         const step = e.shiftKey ? 20 : 4
-        const dx = e.key === 'ArrowRight' ? step : e.key === 'ArrowLeft' ? -step : 0
-        const dy = e.key === 'ArrowUp' ? step : e.key === 'ArrowDown' ? -step : 0
-        controller.updateMany(
-          movable.map((item) => ({ id: item.id, patch: translateItem(item, { x: dx, y: dy }) })),
-          true,
-        )
+        const dx = matches(e, 'nudgeRight') ? step : matches(e, 'nudgeLeft') ? -step : 0
+        const dy = matches(e, 'nudgeUp') ? step : matches(e, 'nudgeDown') ? -step : 0
+
+        if (dx !== 0 || dy !== 0) {
+          e.preventDefault()
+          controller.updateMany(
+            movable.map((item) => ({ id: item.id, patch: translateItem(item, { x: dx, y: dy }) })),
+            true,
+          )
+          return
+        }
       }
-      return
     }
 
-    if (e.key === 'Enter') {
+    if (matches(e, 'finish')) {
       if (controller.tool === 'pen' && handlers.onFinishPen) {
         e.preventDefault()
         handlers.onFinishPen()
@@ -106,7 +120,7 @@ export function setupKeyboardShortcuts(
       }
     }
 
-    if (e.key === 'Escape') {
+    if (matches(e, 'escape')) {
       if (isEscapeHandled(e)) return
       handlers.onEscape?.()
       controller.select(null)
@@ -114,20 +128,23 @@ export function setupKeyboardShortcuts(
       return
     }
 
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-      if (controller.selection.length > 0) {
-        const unlockedIds = controller.selected.filter((i) => !i.locked).map((i) => i.id)
-        if (unlockedIds.length > 0) {
-          e.preventDefault()
-          controller.remove(unlockedIds)
-        }
+    if (controller.selection.length > 0 && matches(e, 'delete')) {
+      const unlockedIds = controller.selected.filter((i) => !i.locked).map((i) => i.id)
+      if (unlockedIds.length > 0) {
+        e.preventDefault()
+        controller.remove(unlockedIds)
       }
       return
     }
 
-    if (!isMeta && !e.altKey) {
-      const tool = KEY_TO_TOOL[key]
-      if (tool) controller.setTool(tool)
+    if (e.repeat) return
+
+    for (const tool of SHORTCUT_TOOL_ACTIONS) {
+      if (matches(e, tool)) {
+        e.preventDefault()
+        controller.setTool(tool)
+        return
+      }
     }
   }
 
