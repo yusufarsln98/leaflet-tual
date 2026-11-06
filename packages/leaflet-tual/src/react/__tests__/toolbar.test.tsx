@@ -37,13 +37,18 @@ describe('v3 Toolbar Component', () => {
     ])
   })
 
-  it('renames the active page inline from the toolbar', () => {
+  it('keeps page renaming in the page settings menu', () => {
     const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
-    render(<Toolbar controller={result.current} />)
+    const { container } = render(<Toolbar controller={result.current} />)
 
-    fireEvent.click(screen.getByTitle(/Page Switcher/i), { detail: 2 })
+    fireEvent.doubleClick(screen.getByTitle(/Page Switcher/i))
+    expect(screen.queryByRole('textbox')).toBeNull()
 
-    const input = screen.getByLabelText('Page name') as HTMLInputElement
+    fireEvent.click(screen.getByTitle(/Page Switcher/i))
+    fireEvent.click(screen.getByTitle('Page options'))
+    fireEvent.click(screen.getByText('Rename'))
+
+    const input = container.querySelector('.tual-page-rename-input') as HTMLInputElement
     fireEvent.change(input, { target: { value: 'Phase 2' } })
     fireEvent.keyDown(input, { key: 'Enter' })
 

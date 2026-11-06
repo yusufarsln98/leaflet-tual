@@ -42,7 +42,6 @@ export const DEFAULT_TRANSLATION_TOKENS: TranslationTokens = {
   pageOptions: 'Page options',
   newPage: 'New page',
   rename: 'Rename',
-  pageName: 'Page name',
   delete: 'Delete',
   pageDefault: 'Page {n}',
 

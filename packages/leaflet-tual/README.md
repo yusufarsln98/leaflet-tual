@@ -213,7 +213,7 @@ The toolbar is a stack of Leaflet-style control islands. Each island has a thin 
 
 `[Page name]  [Select · Text · Note · Draw · Arrow · Shapes · Measure · Laser]  [More]`
 
-The page island shows the active page name; double-click it to rename the page inline, or open it to switch, rename, add or delete pages. In vertical toolbars the page control collapses to its icon so the island stays square. Undo, redo, fit-in-view and the sidebar toggle live in the **More** menu at the end of the toolbar.
+The page island shows the active page name; open it to switch, rename, add or delete pages. Page renaming lives in the page settings menu rather than inline in the toolbar. In vertical toolbars the page control collapses to its icon so the island stays square. Undo, redo, fit-in-view and the sidebar toggle live in the **More** menu at the end of the toolbar.
 
 The position also controls the layout: toolbars anchored to the **top or bottom** edges lay out **horizontally**, while toolbars anchored to the **left or right** edges lay out **vertically**. Every edge supports start, center and end alignment, so the toolbar can sit in any corner or edge center. When the sidebar is open, the built-in toolbar is pinned to the **top center** regardless of the configured position.
 
@@ -253,7 +253,7 @@ Pass `toolbar={false}` to hide the built-in toolbar. `<Toolbar>` can also be ren
 
 ### Sidebar inspector
 
-Set the `sidebar` prop to open the right-side properties and layers inspector initially. The sidebar toggle in the toolbar's More menu opens and closes it; `onSidebarChange` keeps external state in sync:
+Set the `sidebar` prop to open the right-side properties and layers inspector initially. The sidebar toggle in the toolbar's More menu and the inspector's header close button open and close it; `onSidebarChange` keeps external state in sync:
 
 ```tsx
 const [sidebarOpen, setSidebarOpen] = useState(true)

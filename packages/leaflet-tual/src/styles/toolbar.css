@@ -306,11 +306,6 @@
   height: var(--tual-icon-size);
 }
 
-.tual-page-pill--editing {
-  cursor: default;
-  background-color: var(--tual-bg);
-}
-
 .tual-page-pill:hover {
   background-color: var(--tual-bg-hover);
 }
@@ -367,23 +362,6 @@
 .tual-page-chevron svg {
   width: 12px;
   height: 12px;
-}
-
-.tual-page-name-input {
-  width: 120px;
-  max-width: 160px;
-  height: calc(var(--tual-control-size) - 10px);
-  padding: 0 4px;
-  border: 1px solid var(--tual-border-focus);
-  border-radius: var(--tual-radius-sm);
-  background-color: var(--tual-bg);
-  color: var(--tual-fg);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  outline: none;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-border-focus) 26%, transparent);
-  box-sizing: border-box;
 }
 
 /* Vertical toolbars keep the page control square and show only its icon. */
