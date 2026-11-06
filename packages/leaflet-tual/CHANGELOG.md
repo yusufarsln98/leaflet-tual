@@ -1,5 +1,15 @@
 # leaflet-tual
 
+## 3.2.0
+
+### Minor Changes
+
+- Add a configurable keyboard shortcut API. `LeafletTual` and `Toolbar` accept a `shortcuts` prop that can disable all shortcuts (`shortcuts={false}`) or override individual actions (`{ pen: 'D', freedraw: false, escape: false }`). Bindings use `KeyboardEvent.key` names with `Mod`, `Ctrl`, `Meta`/`Cmd`, `Shift`, and `Alt` modifiers, and arrays register alternatives. The same configuration drives both the key handler and all toolbar shortcut labels. Shortcuts are now ignored while focus is inside inputs, selects, contenteditable elements, interactive controls, modal dialogs, or Tual chrome.
+
+### Patch Changes
+
+- Fix Escape propagation while a Tual popover, menu, or select is open. The outside-dismiss handler no longer stops the `keydown` event during capture, so host application listeners such as Ant Design modal dismiss handlers still receive it. Tual's global Escape shortcut is skipped when a Tual floating UI already handled the event, preserving the current selection and tool.
+
 ## 3.1.1
 
 ### Patch Changes

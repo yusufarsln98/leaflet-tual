@@ -1,7 +1,11 @@
+import { markEscapeHandled } from './escape-handled.js'
+
 /**
  * Sets up listeners to dismiss an open floating element when clicking/tapping
  * outside the specified target element(s) or pressing `Escape`.
  * Uses the capture phase so stopPropagation inside child containers does not block dismissal.
+ * Escape is marked as handled for Tual's global shortcuts, but propagation is left intact
+ * so host application listeners (e.g. modal dismiss handlers) still receive it.
  *
  * @param elements Target element or array of elements to consider "inside"
  * @param onDismiss Callback invoked when clicking outside or pressing Escape
@@ -27,7 +31,7 @@ export function setupOutsideDismiss(
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
-      e.stopPropagation()
+      markEscapeHandled(e)
       onDismiss()
     }
   }
