@@ -132,7 +132,7 @@
     "tsup": "^9.0.0",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.24.0",
-    "vitest": "^3.0.0"
+    "vitest": "^5.1.0"
   },
   "dependencies": {
     "lucide-react": "^1.69.0",
