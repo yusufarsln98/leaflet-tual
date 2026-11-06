@@ -19,12 +19,28 @@ export interface TranslationTokens {
   // Toolbar Chrome & Actions
   fitSelection: string
 
+  // Sidebar
+  properties: string
+  closeSidebar: string
+  showSidebar: string
+  hideSidebar: string
+  nothingSelected: string
+  clickElementToEdit: string
+  fillAndStroke: string
+  stroke: string
+  thickness: string
+  opacity: string
+  typography: string
+  confirmDelete: string
+  cancel: string
+
   // Pages
   page: string
   pageSwitcher: string
   pageOptions: string
   newPage: string
   rename: string
+  pageName: string
   delete: string
   pageDefault: string
 
@@ -50,15 +66,19 @@ export interface TranslationTokens {
   textColor: string
   colors: string
   strokeWidth: string
+  strokeDash: string
+  borderStyle: string
   borderColor: string
   borderAndStroke: string
   cornerRadius: string
   noBorder: string
+  fill: string
   noFill: string
   none: string
   solid: string
   dashed: string
   dotted: string
+  fontSize: string
   fontWeight: string
   fontSizePx: string
   weight: string

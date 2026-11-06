@@ -8,6 +8,7 @@ The design is decided for you:
 
 - **Strict styles.** Colors, sizes and dashes come from fixed sets (`'blue'`, `'m'`, `'dashed'`). There are no free-form hex values or pixel numbers. Drawings stay consistent across maps and applications.
 - **An adjustable toolbar.** One `toolbar` prop controls which tools appear, their order, position and extras.
+- **An optional inspector.** Set `sidebar` to edit the selected item's style and browse pages, layers and items in a right-side panel.
 - **A framework-agnostic core.** The React bindings are a separate, opt-in import.
 
 ---
@@ -208,13 +209,15 @@ export type Item =
 
 ## 5. Toolbar & theming
 
-The toolbar is a stack of Leaflet-style control islands. Each island has a thin border, a small radius and one square control per action. The default order is **Tools → History → Pages**.
+The toolbar is a stack of Leaflet-style control islands. Each island has a thin border, a small radius and one square control per action. The default order is **Page → Tools → More**.
 
-`[Select · Text · Note · Draw · Arrow · Shapes · Measure · Laser]  [Undo · Redo · Fit]  [Pages]`
+`[Page name]  [Select · Text · Note · Draw · Arrow · Shapes · Measure · Laser]  [More]`
 
-The position also controls the layout: toolbars anchored to the **top or bottom** edges lay out **horizontally**, while toolbars anchored to the **left or right** edges lay out **vertically**. Every edge supports start, center and end alignment, so the toolbar can sit in any corner or edge center.
+The page island shows the active page name; double-click it to rename the page inline, or open it to switch, rename, add or delete pages. In vertical toolbars the page control collapses to its icon so the island stays square. Undo, redo, fit-in-view and the sidebar toggle live in the **More** menu at the end of the toolbar.
 
-Tools with variants show a small corner triangle. Clicking the main icon activates the tool with its last-used variant; clicking the corner triangle opens the variant menu. Item properties are edited from the contextual toolbar and the right-click menu.
+The position also controls the layout: toolbars anchored to the **top or bottom** edges lay out **horizontally**, while toolbars anchored to the **left or right** edges lay out **vertically**. Every edge supports start, center and end alignment, so the toolbar can sit in any corner or edge center. When the sidebar is open, the built-in toolbar is pinned to the **top center** regardless of the configured position.
+
+Tools with variants show a small corner triangle. Clicking the main icon activates the tool with its last-used variant; clicking the corner triangle opens the variant menu. Item properties are edited from the contextual toolbar, the sidebar inspector or the right-click menu.
 
 ```tsx
 <LeafletTual
@@ -242,15 +245,27 @@ interface ToolbarOptions {
   orientation?: 'horizontal' | 'vertical'                 // only used by 'inline' toolbars
   tools?: ToolId[]            // which tools to show and in what order; default: all
   pages?: boolean             // page switcher island, default true
-  history?: boolean           // undo/redo/fit island, default true
+  history?: boolean           // undo/redo/fit actions in the More menu, default true
 }
 ```
 
-Pass `toolbar={false}` to hide the built-in toolbar. `<Toolbar>` can also be rendered outside the map with the same `controller` and options.
+Pass `toolbar={false}` to hide the built-in toolbar. `<Toolbar>` can also be rendered outside the map with the same `controller` and options; it accepts `sidebarOpen` and `onToggleSidebar` when you want the More menu to control an external sidebar.
+
+### Sidebar inspector
+
+Set the `sidebar` prop to open the right-side properties and layers inspector initially. The sidebar toggle in the toolbar's More menu opens and closes it; `onSidebarChange` keeps external state in sync:
+
+```tsx
+const [sidebarOpen, setSidebarOpen] = useState(true)
+
+<LeafletTual sidebar={sidebarOpen} onSidebarChange={setSidebarOpen} />
+```
+
+The inspector contains the page/layer tree and style controls for the current selection (fill, stroke, opacity, typography and label position). Selecting an item in the tree focuses it on the map, and right-clicking a tree item opens the shared context menu. The **More** button at the end of the selected item's contextual toolbar also opens the inspector. While the sidebar is visible, the contextual toolbar shown above selected items is hidden so properties are edited in one place, and the built-in toolbar stays pinned to the top center. The sidebar is also available as a standalone `<Sidebar controller={tual} map={map} onClose={...} />` component; pass `onClose` only when the host can hide it. In read-only mode the built-in sidebar stays hidden.
 
 ### Theme tokens
 
-The chrome (toolbar, popovers, menus and contextual tooltip) is themed with `themeTokens`. Annotation items keep their fixed palette and appearance.
+The chrome (toolbar, sidebar, popovers, menus and contextual tooltip) is themed with `themeTokens`. Annotation items keep their fixed palette and appearance.
 
 ```tsx
 <LeafletTual
@@ -299,9 +314,9 @@ Token values may be hex colors, `rgb()`/`oklch()` values or CSS variable referen
 
 ### Reusable chrome controls
 
-The controls used by the built-in toolbar, popovers and contextual tooltip are exported for custom panels:
+The controls used by the built-in toolbar, sidebar, popovers and contextual tooltip are exported for custom panels:
 
-- Buttons and inputs: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Select`, `SelectField`, `NumberField`, `TextField`
+- Buttons and inputs: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Select`, `SelectField`, `NumberField`, `TextField`, `PropertyRow`, `Collapsible`
 - Dropdowns and popovers: `Popover`, `DropdownMenu`, `DropdownItem`, `ConfirmPopover`, `ColorDropdown`, `TypographyDropdown`, `LabelPositionDropdown`, `BorderPopover`, `useOutsideDismiss`, `useWheelGuard`
 - Item styling: `ColorSwatch`, `ColorSwatchList`, `ColorSwatchControls`, `CustomColorPicker`, `TextFormattingControls`
 - Isolation: `useLeafletDomGuard`, `useLeafletDisableClick`, `disableMapInteractions`, `createLeafletControl`, `createControlContainer`

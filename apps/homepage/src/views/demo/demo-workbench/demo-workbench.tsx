@@ -19,6 +19,7 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
   const [toolbarPosition, setToolbarPosition] = useState<WorkbenchToolbarPosition>('right')
   const [readOnly, setReadOnly] = useState<boolean>(false)
   const [applyTheme, setApplyTheme] = useState<boolean>(true)
+  const [showSidebar, setShowSidebar] = useState<boolean>(false)
   const [copied, setCopied] = useState<boolean>(false)
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(
     initialDrawerOpen !== undefined ? initialDrawerOpen : mode === 'fullscreen',
@@ -138,6 +139,8 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
           onToggleReadOnly={handleToggleReadOnly}
           applyTheme={applyTheme}
           onToggleApplyTheme={setApplyTheme}
+          showSidebar={showSidebar}
+          onToggleSidebar={setShowSidebar}
           copied={copied}
           onCopyJson={handleCopyJson}
         />
@@ -150,6 +153,8 @@ export function DemoWorkbench({ mode = 'embedded', initialDrawerOpen }: DemoWork
           readOnly={readOnly}
           toolbarPosition={toolbarPosition}
           applyTheme={applyTheme}
+          showSidebar={showSidebar}
+          onSidebarChange={setShowSidebar}
         />
       </div>
     </div>

@@ -24,8 +24,10 @@ import {
   Lock,
   MapPin,
   MoreHorizontal,
+  MoreVertical,
   MousePointer2,
   MoveRight,
+  PanelRight,
   PenTool,
   Pencil,
   PencilLine,
@@ -104,6 +106,7 @@ export const ICONS = {
   // Actions
   check: icon(Check, 14, 2.2),
   more: icon(MoreHorizontal, 14),
+  moreVertical: icon(MoreVertical, 14),
   plus: icon(Plus, 14),
   close: icon(X, 15),
   trash: icon(Trash2, 14),
@@ -138,6 +141,7 @@ export const ICONS = {
   undo: icon(Undo2, 16),
   redo: icon(Redo2, 16),
   page: icon(Layers2, 16),
+  sidebar: icon(PanelRight, 16),
 } as const
 
 export type IconName = keyof typeof ICONS

@@ -37,6 +37,8 @@ export function PageSwitcher({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
   const [actionMenuId, setActionMenuId] = useState<string | null>(null)
+  const [isEditingCurrent, setIsEditingCurrent] = useState(false)
+  const [currentNameDraft, setCurrentNameDraft] = useState('')
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -46,6 +48,10 @@ export function PageSwitcher({
       setActionMenuId(null)
     }
   }, [isOpen])
+
+  useEffect(() => {
+    setIsEditingCurrent(false)
+  }, [controller.pages.active])
 
   useOutsideDismiss(containerRef, isOpen, onClose)
 
@@ -57,21 +63,70 @@ export function PageSwitcher({
     setEditingId(null)
   }
 
+  const startCurrentRename = () => {
+    setCurrentNameDraft(pageName)
+    setIsEditingCurrent(true)
+    onClose()
+  }
+
+  const commitCurrentRename = () => {
+    const trimmed = currentNameDraft.trim()
+    if (trimmed) {
+      controller.pages.rename(controller.pages.active, trimmed)
+    }
+    setIsEditingCurrent(false)
+  }
+
   return (
-    <div ref={containerRef} className="tual-tool">
-      <button
-        type="button"
-        className="tual-page-pill"
-        data-active={isOpen || undefined}
-        onClick={onToggle}
-        title={`${t('pageSwitcher')} — ${pageName}`}
-        aria-label={`${t('pageSwitcher')} — ${pageName}`}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-      >
-        {ICONS.page()}
-        {pageCount > 1 && <span className="tual-page-badge">{pageCount}</span>}
-      </button>
+    <div ref={containerRef} className="tual-page-switcher">
+      {isEditingCurrent ? (
+        <div className="tual-page-pill tual-page-pill--editing">
+          {ICONS.page()}
+          <input
+            className="tual-page-name-input"
+            aria-label={t('pageName')}
+            value={currentNameDraft}
+            autoFocus
+            onChange={(e) => setCurrentNameDraft(e.target.value)}
+            onBlur={commitCurrentRename}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              e.stopPropagation()
+              if (e.key === 'Enter') {
+                commitCurrentRename()
+              } else if (e.key === 'Escape') {
+                setIsEditingCurrent(false)
+              }
+            }}
+          />
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="tual-page-pill"
+          data-active={isOpen || undefined}
+          onClick={(e) => {
+            if (e.detail >= 2) {
+              e.preventDefault()
+              e.stopPropagation()
+              startCurrentRename()
+              return
+            }
+            onToggle()
+          }}
+          title={`${t('pageSwitcher')} — ${pageName} · ${t('rename')}`}
+          aria-label={`${t('pageSwitcher')} — ${pageName}`}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+        >
+          {ICONS.page()}
+          <span className="tual-page-name">{pageName}</span>
+          {pageCount > 1 && <span className="tual-page-badge">{pageCount}</span>}
+          <span className="tual-page-chevron">{ICONS['chevron-down-sm']()}</span>
+        </button>
+      )}
 
       {isOpen && (
         <Popover

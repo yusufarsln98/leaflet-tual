@@ -11,6 +11,7 @@ The design is decided for you:
 
 - **Strict styles.** Colors, sizes and dashes come from fixed sets (`'blue'`, `'m'`, `'dashed'`). There are no free-form hex values or pixel numbers. Drawings stay consistent across maps and applications.
 - **An adjustable toolbar.** One `toolbar` prop controls which tools appear, their order, position and extras.
+- **An optional inspector.** Set `sidebar` to edit the selected item's style and browse pages, layers and items in a right-side panel.
 - **A framework-agnostic core.** The React bindings are a separate, opt-in import.
 
 ---
@@ -295,15 +296,17 @@ Notes and text-on-fill use a soft surface derived from the color, with automatic
 
 ---
 
-## 6. Toolbar
+## 6. Toolbar & Sidebar
 
 Default layout, a stack of Leaflet-style control islands:
 
-`[Select · Text · Note · Draw · Arrow · Shapes · Measure · Laser]  [Undo · Redo · Fit]  [Pages]`
+`[Page name]  [Select · Text · Note · Draw · Arrow · Shapes · Measure · Laser]  [More]`
 
-The toolbar position controls its orientation: **top/bottom** toolbars lay out **horizontally**, while **left/right** toolbars lay out **vertically**. Every edge supports start, center and end alignment, so the toolbar can sit in any corner or edge center.
+The page island shows the active page name; double-click it to rename the page inline, or open it to switch, rename, add or delete pages. In vertical toolbars the page control collapses to its icon so the island stays square. Undo, redo, fit-in-view and the sidebar toggle live in the **More** menu at the end of the toolbar.
 
-Undo/redo/fit and the page switcher are built into the toolbar as separate islands. Item properties are edited from the contextual toolbar and the right-click menu.
+The toolbar position controls its orientation: **top/bottom** toolbars lay out **horizontally**, while **left/right** toolbars lay out **vertically**. Every edge supports start, center and end alignment, so the toolbar can sit in any corner or edge center. When the sidebar is open, the built-in toolbar is pinned to the **top center** regardless of the configured position.
+
+Item properties are edited from the contextual toolbar, the sidebar inspector or the right-click menu.
 
 - The **Draw** popover contains **Free draw** (smooth freehand) and **Pen** (bezier anchors, drag from an anchor to shape its curve). Both tools live in one toolbar group; its icon shows the last-used drawing tool. **Pen** supports clicking to add anchors, dragging to pull mirrored control handles, clicking the first anchor to close, `Enter` or a double-click to finish an open path, and `Escape` to cancel. After drawing, use the Select tool to drag anchors or control handles and reshape the path; dragging one control handle mirrors the opposite one.
 - The **Measure** popover groups **Ruler** (geodesic distance measurement) and **Area** (geodesic polygon area measurement with draggable vertices). Clicking or dragging creates a measurement; `Enter` or double-click finishes an area polygon.
@@ -343,13 +346,25 @@ interface ToolbarOptions {
   orientation?: 'horizontal' | 'vertical'                 // only used by 'inline' toolbars
   tools?: ToolId[]            // which tools to show and in what order; default: all
   pages?: boolean             // page switcher island, default true
-  history?: boolean           // undo/redo/fit island, default true
+  history?: boolean           // undo/redo/fit actions in the More menu, default true
 }
 ```
 
 Pass `toolbar={false}` to hide the built-in toolbar.
 
-**External toolbar.** To place the toolbar outside the map, hide the built-in one and render `<Toolbar>` with the same controller. It accepts the same options plus `themeTokens`:
+### Sidebar inspector
+
+Set the `sidebar` prop to open the right-side properties and layers inspector initially. The sidebar toggle in the toolbar's More menu opens and closes it; `onSidebarChange` keeps external state in sync:
+
+```tsx
+const [sidebarOpen, setSidebarOpen] = useState(true)
+
+<LeafletTual sidebar={sidebarOpen} onSidebarChange={setSidebarOpen} />
+```
+
+The inspector contains the page/layer tree and style controls for the current selection (fill, stroke, opacity, typography and label position). Selecting an item in the tree focuses it on the map, and right-clicking a tree item opens the shared context menu. The **More** button at the end of the selected item's contextual toolbar also opens the inspector. While the sidebar is visible, the contextual toolbar shown above selected items is hidden so properties are edited in one place, and the built-in toolbar stays pinned to the top center. The sidebar is also available as a standalone `<Sidebar controller={tual} map={map} onClose={...} />` component; pass `onClose` only when the host can hide it. In read-only mode the built-in sidebar stays hidden.
+
+**External toolbar.** To place the toolbar outside the map, hide the built-in one and render `<Toolbar>` with the same controller. It accepts the same options plus `themeTokens`, `sidebarOpen` and `onToggleSidebar`:
 
 ```tsx
 const tual = useLeafletTual()
@@ -362,7 +377,7 @@ const tual = useLeafletTual()
 
 **No UI at all.** `useLeafletTual()` (or the core `createLeafletTual`) works without any toolbar. Drive tools and styles from your own controls with `setTool` and `setStyle`.
 
-**Reusable chrome controls.** The controls used by the built-in toolbar, popovers and contextual tooltip are exported from `leaflet-tual/react` for custom panels: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Popover`, `DropdownMenu`, `DropdownItem`, `ConfirmPopover`, `Select`, `NumberField`, `TextField`, `ColorSwatch`, `ColorSwatchList`, `ColorSwatchControls`, `CustomColorPicker`, `ColorDropdown`, `TypographyDropdown`, `TextFormattingControls`, `LabelPositionDropdown`, `BorderPopover`, `useOutsideDismiss`, `useWheelGuard`, `useLeafletDomGuard`, `useLeafletDisableClick`, `disableMapInteractions`, `createLeafletControl`, and `createControlContainer`. Wrap a custom panel with `useLeafletDomGuard()` or give it the `tual-panel` class to isolate it from map gestures.
+**Reusable chrome controls.** The controls used by the built-in toolbar, sidebar, popovers and contextual tooltip are exported from `leaflet-tual/react` for custom panels: `Button`, `IconButton`, `PillButton`, `SegmentedControl`, `Popover`, `DropdownMenu`, `DropdownItem`, `ConfirmPopover`, `Select`, `NumberField`, `TextField`, `PropertyRow`, `Collapsible`, `ColorSwatch`, `ColorSwatchList`, `ColorSwatchControls`, `CustomColorPicker`, `ColorDropdown`, `TypographyDropdown`, `TextFormattingControls`, `LabelPositionDropdown`, `BorderPopover`, `useOutsideDismiss`, `useWheelGuard`, `useLeafletDomGuard`, `useLeafletDisableClick`, `disableMapInteractions`, `createLeafletControl`, and `createControlContainer`. Wrap a custom panel with `useLeafletDomGuard()` or give it the `tual-panel` class to isolate it from map gestures.
 
 ---
 
@@ -376,8 +391,10 @@ All props are optional.
 | `value`             | `Doc`                                   | Controlled document.                                                                  |
 | `defaultValue`      | `Doc`                                   | Uncontrolled initial document.                                                        |
 | `onChange`          | `(doc, info) => void`                   | The single change callback. See below.                                               |
-| `themeTokens`       | `Partial<ThemeTokens>`                  | Chrome theme for the toolbar, popovers, menus and contextual tooltip.                |
+| `themeTokens`       | `Partial<ThemeTokens>`                  | Chrome theme for the toolbar, sidebar, popovers, menus and contextual tooltip.       |
 | `toolbar`           | `false \| ToolbarOptions`               | Toolbar configuration (section 6).                                                    |
+| `sidebar`           | `boolean`                               | Initial right-side inspector visibility. Hidden while `readOnly`.                     |
+| `onSidebarChange`   | `(open: boolean) => void`               | Keeps external sidebar state in sync with the toolbar toggle.                        |
 | `readOnly`          | `boolean`                               | No drawing, editing or selection. Hides the toolbar unless `toolbar` is set.          |
 | `translations`      | `Partial<TranslationTokens>`            | Localize every tooltip, placeholder and menu string.                                  |
 | `map`               | `L.Map`                                 | Only needed outside `<MapContainer>`.                                                 |

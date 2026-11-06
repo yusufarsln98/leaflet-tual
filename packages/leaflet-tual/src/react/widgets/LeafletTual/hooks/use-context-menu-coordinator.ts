@@ -1,7 +1,7 @@
 import { useCallback, useState, type RefObject } from 'react'
 import type React from 'react'
 import type L from 'leaflet'
-import type { Controller } from '../../../../core/index.js'
+import type { Controller, Item } from '../../../../core/index.js'
 import { hitTest } from '../../../../core/index.js'
 import { isTualUiTarget } from '../../../../shared/dom/ui-guard.js'
 import type { ContextMenuPosition } from '../../ContextMenu/index.js'
@@ -33,6 +33,16 @@ export function useContextMenuCoordinator({
 
   const handleOverlayContextMenu = useCallback(
     (e: React.MouseEvent) => {
+      if (!canvasRef.current) return
+      const rect = canvasRef.current.getBoundingClientRect()
+      const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+      openContextMenu(pt)
+    },
+    [canvasRef, openContextMenu],
+  )
+
+  const handleSidebarItemContextMenu = useCallback(
+    (_item: Item, e: React.MouseEvent) => {
       if (!canvasRef.current) return
       const rect = canvasRef.current.getBoundingClientRect()
       const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top }
@@ -84,5 +94,6 @@ export function useContextMenuCoordinator({
     closeContextMenu,
     handleContextMenu,
     handleOverlayContextMenu,
+    handleSidebarItemContextMenu,
   }
 }

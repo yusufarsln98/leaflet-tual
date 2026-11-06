@@ -21,12 +21,16 @@ import { SecondaryTooltipExtras } from './popovers/index.js'
 export interface SecondaryTooltipProps {
   map: L.Map
   controller: Controller
+  sidebarOpen?: boolean
+  onOpenSidebar?: () => void
   className?: string
 }
 
 export const SecondaryTooltip = memo(function SecondaryTooltip({
   map,
   controller,
+  sidebarOpen = false,
+  onOpenSidebar,
   className,
 }: SecondaryTooltipProps) {
   const { t } = useTranslation(controller)
@@ -200,6 +204,8 @@ export const SecondaryTooltip = memo(function SecondaryTooltip({
           selectedItem={selectedItem}
           controller={controller}
           activePopover={activePopover}
+          sidebarOpen={sidebarOpen}
+          onOpenSidebar={onOpenSidebar}
           onToggle={toggle}
           onClose={() => setActivePopover(null)}
           onUpdateStyle={updateStyle}

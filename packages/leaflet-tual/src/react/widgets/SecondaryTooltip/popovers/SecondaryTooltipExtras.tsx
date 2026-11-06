@@ -15,6 +15,8 @@ export interface SecondaryTooltipExtrasProps {
   selectedItem: Item
   controller: Controller
   activePopover: string | null
+  sidebarOpen?: boolean
+  onOpenSidebar?: () => void
   onToggle: (name: string) => void
   onClose: () => void
   onUpdateStyle: (patch: Partial<Style>) => void
@@ -29,6 +31,8 @@ export function SecondaryTooltipExtras({
   selectedItem,
   controller,
   activePopover,
+  sidebarOpen = false,
+  onOpenSidebar,
   onToggle,
   onClose,
   onUpdateStyle,
@@ -99,6 +103,17 @@ export function SecondaryTooltipExtras({
         }}
       />
 
+      {!sidebarOpen && onOpenSidebar && (
+        <IconButton
+          variant="secondary-icon"
+          label={t('moreOptions')}
+          icon={ICONS.moreVertical()}
+          onClick={() => {
+            onClose()
+            onOpenSidebar()
+          }}
+        />
+      )}
     </>
   )
 }

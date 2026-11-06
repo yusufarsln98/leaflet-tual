@@ -92,6 +92,22 @@ function isValidItem(item: unknown): item is Item {
   }
 }
 
+export function getItemPreview(item: Item): string | null {
+  switch (item.type) {
+    case 'text':
+      return item.text?.trim() || null
+    case 'note':
+      return (item.title?.trim() || item.text?.trim()) ?? null
+    case 'shape':
+    case 'arrow':
+    case 'ruler':
+    case 'area':
+      return item.label?.trim() || null
+    default:
+      return null
+  }
+}
+
 export function parseDoc(input: unknown): Doc {
   let docObj = input
   if (typeof input === 'string') {

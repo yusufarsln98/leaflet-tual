@@ -116,8 +116,17 @@
   width: calc(var(--tual-control-size) + 2px);
 }
 
-/* Adjacent controls stay seamless. Borders are reserved for the island edge;
-   explicit separators remain available via .tual-separator. */
+/* Adjacent controls inside an island get the same hairline separator as the
+   contextual item toolbar. */
+.tual-toolbar[data-orientation='horizontal'] .tual-tool-group > * + * > .tual-btn,
+.tual-toolbar[data-orientation='horizontal'] .tual-tool-group > * + * > .tual-page-pill {
+  border-left: 1px solid var(--tual-border-divider);
+}
+
+.tual-toolbar[data-orientation='vertical'] .tual-tool-group > * + * > .tual-btn,
+.tual-toolbar[data-orientation='vertical'] .tual-tool-group > * + * > .tual-page-pill {
+  border-top: 1px solid var(--tual-border-divider);
+}
 
 /* Toolbar buttons */
 .tual-btn {
@@ -243,7 +252,7 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--tual-fg);
+  color: var(--tual-fg-muted);
   cursor: pointer;
   box-shadow: none;
 }
@@ -261,25 +270,45 @@
 }
 
 /* Page switcher */
+.tual-page-switcher {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .tual-page-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 0;
-  width: var(--tual-control-size);
+  gap: 6px;
+  padding: 0 8px;
+  width: auto;
+  min-width: var(--tual-control-size);
   height: var(--tual-control-size);
   background-color: transparent;
   border: none;
   border-radius: 0;
   cursor: pointer;
   font-family: inherit;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--tual-fg);
   user-select: none;
   flex-shrink: 0;
   position: relative;
+  box-sizing: border-box;
+}
+
+.tual-page-pill svg {
+  flex-shrink: 0;
+  width: var(--tual-icon-size);
+  height: var(--tual-icon-size);
+}
+
+.tual-page-pill--editing {
+  cursor: default;
+  background-color: var(--tual-bg);
 }
 
 .tual-page-pill:hover {
@@ -292,32 +321,92 @@
   color: var(--tual-fg-active);
 }
 
-.tual-page-pill svg {
-  width: var(--tual-icon-size);
-  height: var(--tual-icon-size);
-}
-
 .tual-page-badge {
-  position: absolute;
-  right: 2px;
-  bottom: 1px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 9px;
-  height: 9px;
-  padding: 0 1px;
-  border-radius: 2px;
-  background-color: var(--tual-bg-active);
-  color: var(--tual-fg-active);
-  font-size: 7px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background-color: var(--tual-hover-surface-active);
+  color: var(--tual-fg);
+  font-size: 9px;
   font-weight: 700;
   line-height: 1;
+  flex-shrink: 0;
 }
 
-.tual-page-name,
+.tual-page-pill[data-active='true'] .tual-page-badge,
+.tual-page-pill[aria-expanded='true'] .tual-page-badge {
+  color: var(--tual-fg-active);
+}
+
+.tual-page-name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 .tual-page-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--tual-fg-muted);
+}
+
+.tual-page-pill[data-active='true'] .tual-page-chevron,
+.tual-page-pill[aria-expanded='true'] .tual-page-chevron {
+  color: inherit;
+}
+
+.tual-page-chevron svg {
+  width: 12px;
+  height: 12px;
+}
+
+.tual-page-name-input {
+  width: 120px;
+  max-width: 160px;
+  height: calc(var(--tual-control-size) - 10px);
+  padding: 0 4px;
+  border: 1px solid var(--tual-border-focus);
+  border-radius: var(--tual-radius-sm);
+  background-color: var(--tual-bg);
+  color: var(--tual-fg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tual-border-focus) 26%, transparent);
+  box-sizing: border-box;
+}
+
+/* Vertical toolbars keep the page control square and show only its icon. */
+.tual-toolbar[data-orientation='vertical'] .tual-page-pill {
+  width: var(--tual-control-size);
+  min-width: var(--tual-control-size);
+  padding: 0;
+  gap: 0;
+}
+
+.tual-toolbar[data-orientation='vertical'] .tual-page-name,
+.tual-toolbar[data-orientation='vertical'] .tual-page-chevron {
   display: none;
+}
+
+.tual-toolbar[data-orientation='vertical'] .tual-page-badge {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  min-width: 10px;
+  height: 10px;
+  padding: 0 1px;
+  font-size: 7px;
 }
 
 /* Popovers opened from toolbar controls */
@@ -357,6 +446,13 @@
 .tual-toolbar[data-orientation='horizontal'][data-align='end'] .tual-toolbar-popover {
   left: auto;
   right: 0;
+}
+
+/* The trailing more menu opens toward the toolbar's inner edge. */
+.tual-toolbar[data-orientation='horizontal'] .tual-more-popover {
+  left: auto;
+  right: 0;
+  transform: none;
 }
 
 /* Internal toolbar divider kept for custom compositions */

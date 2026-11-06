@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, renderHook, act } from '@testing-library/react'
 import { Toolbar, useLeafletTual } from '../index.js'
 import { emptyDoc } from '../../core/index.js'
@@ -13,9 +13,11 @@ function TestToolbar({ toolbarProps = {} }: { toolbarProps?: Partial<ToolbarProp
 }
 
 describe('v3 Toolbar Component', () => {
-  it('renders grouped default controls and page switcher', () => {
+  it('renders the page switcher first with the active page name, then tools and more', () => {
     const { container } = render(<TestToolbar />)
-    expect(screen.getByTitle(/Page Switcher/i)).toBeDefined()
+
+    const pageButton = screen.getByTitle(/Page Switcher/i)
+    expect(pageButton.textContent).toContain('Page 1')
     expect(screen.getByTitle(/Select/i)).toBeDefined()
     expect(screen.getByTitle(/Draw/i)).toBeDefined()
     expect(screen.getByTitle(/Arrow/i)).toBeDefined()
@@ -24,11 +26,44 @@ describe('v3 Toolbar Component', () => {
     expect(screen.getByTitle(/Laser/i)).toBeDefined()
     expect(screen.getByTitle(/Note/i)).toBeDefined()
     expect(screen.getByTitle(/Text/i)).toBeDefined()
-    expect(screen.getByTitle(/Undo/i)).toBeDefined()
-    expect(screen.getByTitle(/Redo/i)).toBeDefined()
+    expect(screen.getByTitle(/More Options/i)).toBeDefined()
 
     const groups = Array.from(container.querySelectorAll('.tual-tool-group'))
     expect(groups).toHaveLength(3)
+    expect(groups.map((group) => group.getAttribute('data-group'))).toEqual([
+      'pages',
+      'tools',
+      'more',
+    ])
+  })
+
+  it('renames the active page inline from the toolbar', () => {
+    const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
+    render(<Toolbar controller={result.current} />)
+
+    fireEvent.click(screen.getByTitle(/Page Switcher/i), { detail: 2 })
+
+    const input = screen.getByLabelText('Page name') as HTMLInputElement
+    fireEvent.change(input, { target: { value: 'Phase 2' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(result.current.pages.list[0].name).toBe('Phase 2')
+    expect(screen.getByTitle(/Phase 2/)).toBeDefined()
+  })
+
+  it('places undo, redo, fit and the sidebar toggle in the more menu', () => {
+    const onToggleSidebar = vi.fn()
+    render(<TestToolbar toolbarProps={{ onToggleSidebar }} />)
+
+    fireEvent.click(screen.getByTitle(/More Options/i))
+
+    expect(screen.getByText('Undo')).toBeDefined()
+    expect(screen.getByText('Redo')).toBeDefined()
+    expect(screen.getByText('Fit in View')).toBeDefined()
+    expect(screen.getByText('Show sidebar')).toBeDefined()
+
+    fireEvent.click(screen.getByText('Show sidebar'))
+    expect(onToggleSidebar).toHaveBeenCalledTimes(1)
   })
 
   it('derives a horizontal layout for top and bottom positions', () => {
@@ -211,7 +246,7 @@ describe('v3 Toolbar Component', () => {
     expect(result.current.tool).toBe('laser')
   })
 
-  it('undoes and redoes from the history group', () => {
+  it('undoes and redoes from the more menu', () => {
     const { result } = renderHook(() => useLeafletTual({ defaultValue: emptyDoc() }))
     render(<Toolbar controller={result.current} />)
 
@@ -224,9 +259,12 @@ describe('v3 Toolbar Component', () => {
     })
 
     expect(result.current.items).toHaveLength(1)
-    fireEvent.click(screen.getByTitle(/Undo/i))
+    fireEvent.click(screen.getByTitle(/More Options/i))
+    fireEvent.click(screen.getByText('Undo'))
     expect(result.current.items).toHaveLength(0)
-    fireEvent.click(screen.getByTitle(/Redo/i))
+
+    fireEvent.click(screen.getByTitle(/More Options/i))
+    fireEvent.click(screen.getByText('Redo'))
     expect(result.current.items).toHaveLength(1)
   })
 })

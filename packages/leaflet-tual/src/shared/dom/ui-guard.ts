@@ -1,7 +1,7 @@
 import L from 'leaflet'
 
 export const TUAL_UI_SELECTORS =
-  '.tual-secondary-tooltip, .tual-toolbar, .tual-popover, .tual-context-menu, .tual-inline-label-editor, .tual-note-card, .tual-text-item, .tual-control, .tual-panel'
+  '.tual-secondary-tooltip, .tual-sidebar, .tual-toolbar, .tual-popover, .tual-context-menu, .tual-inline-label-editor, .tual-note-card, .tual-text-item, .tual-control, .tual-panel'
 
 /**
  * Checks whether an event target is inside a Tual floating UI element
