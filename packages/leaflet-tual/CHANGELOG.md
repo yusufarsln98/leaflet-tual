@@ -1,11 +1,5 @@
 # leaflet-tual
 
-## 3.1.2
-
-### Patch Changes
-
-- Fix Escape propagation while a Tual popover, menu, or select is open. The outside-dismiss handler no longer stops the `keydown` event during capture, so host application listeners such as Ant Design modal dismiss handlers still receive it. Tual's global Escape shortcut is skipped when a Tual floating UI already handled the event, preserving the current selection and tool.
-
 ## 3.1.1
 
 ### Patch Changes

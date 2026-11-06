@@ -1,5 +1,4 @@
 import type { Controller, ToolId } from '../../../core/types.js'
-import { isEscapeHandled } from '../../dom/escape-handled.js'
 import { translateItem } from '../../geometry/translate.js'
 
 export const KEY_TO_TOOL: Record<string, ToolId> = {
@@ -107,7 +106,6 @@ export function setupKeyboardShortcuts(
     }
 
     if (e.key === 'Escape') {
-      if (isEscapeHandled(e)) return
       handlers.onEscape?.()
       controller.select(null)
       controller.setTool('select')
@@ -136,3 +134,4 @@ export function setupKeyboardShortcuts(
     window.removeEventListener('keydown', onKeyDown)
   }
 }
+
